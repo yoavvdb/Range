@@ -49,7 +49,7 @@ body.scrolled .hdr{border-bottom-color:var(--line)}
 .hdr .brand{text-align:center}
 .hdr button{width:44px;height:44px;display:grid;place-items:center;border-radius:50%}
 .stack{display:grid;gap:16px}
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;border-radius:12px;font-weight:700;font-size:15px;background:var(--accent);color:var(--accent-ink)}
+a.btn{text-decoration:none}.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;border-radius:12px;font-weight:700;font-size:15px;background:var(--accent);color:var(--accent-ink)}
 .btn.sec{background:var(--surface2);color:var(--ink)}
 .btn:disabled{background:var(--surface2);color:var(--muted);cursor:not-allowed}
 .link{color:var(--accent);font-weight:700;font-size:14px}
@@ -67,8 +67,9 @@ body.scrolled .hdr{border-bottom-color:var(--line)}
 .fig .hlc{fill:var(--accent)}
 .fig .mat{fill:#1F252F;stroke:#2A303A}
 .fig .pipe{stroke:var(--fig-prop-hi);stroke-width:4;stroke-linecap:round}
-.fig .pipeend{fill:var(--fig-prop-hi)}
+.fig .pipeend{fill:var(--fig-prop-hi)}.fig .kit rect,.fig .kit circle{fill:var(--fig-prop-hi);stroke:var(--bg);stroke-width:1.5}
 .fig .floor{stroke:var(--fig-floor);stroke-width:2}
+.fig .ghost{stroke:var(--fig-seg);opacity:.16;stroke-linecap:round;fill:none}.fig .ghostc{fill:var(--fig-seg);opacity:.16}.fig .marrow{fill:none;stroke:var(--accent);stroke-width:2;stroke-dasharray:4 3;opacity:.85;stroke-linecap:round}.fig .marrowh{fill:none;stroke:var(--accent);stroke-width:2.2;opacity:.9;stroke-linecap:round;stroke-linejoin:round}
 .fig .prop{fill:none;stroke:var(--fig-prop);stroke-width:4;stroke-linecap:round}
 .fig .propfill{fill:var(--fig-prop)}
 .fig .band{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-dasharray:4 3;opacity:.8}
@@ -281,6 +282,7 @@ textarea{font:inherit}.edex{gap:10px}.edhead{display:grid;grid-template-columns:
 .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--surface2);border-radius:10px;padding:3px}.seg button{padding:8px 4px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted)}.seg button.on{background:var(--surface);color:var(--ink)}
 .ednums{display:flex;gap:8px}.edn{display:grid;gap:4px;flex:1;font-size:12px;color:var(--muted)}.edn input{width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px;font-size:16px;font-variant-numeric:tabular-nums}
 .looks{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.looks button{display:grid;gap:2px;justify-items:center;padding:6px;border-radius:10px;background:var(--surface2);min-height:60px;box-shadow:inset 0 0 0 2px transparent}.looks button.on{box-shadow:inset 0 0 0 2px var(--accent)}.looks svg{width:100%;height:auto}.looks small{font-size:11px;color:var(--muted);text-align:center;line-height:1.2}
+.ph small{opacity:.6;font-weight:500;margin-left:4px}.gates li{grid-template-columns:150px 1fr 44px}
 .painrow{display:grid;grid-template-columns:repeat(11,1fr);gap:4px}
 .pain{min-height:42px;border-radius:8px;background:var(--surface2);font-weight:800;font-variant-numeric:tabular-nums}
 .pain.on.plo{background:var(--good);color:#06150E}.pain.on.pmid{background:var(--warn);color:#1A1205}.pain.on.phi{background:var(--bad);color:#1A0606}
@@ -573,21 +575,22 @@ const SUPINE={p:[110,134],t:180,h:180};
 const QUAD12={p:[104,110],t:-12,L1:{a:[92,180],f:180},L2:{a:[90,180],f:180},A2:{plant:[140,139]}};
 Object.assign(FIGS,{
  // back & core
- r_curlup:mk({...SUPINE,p:[118,134],L1:{plant:[152,138],f:0},L2:{a:[1,1],f:-80},A1:{a:[2,0]},A2:{a:[4,0]}},{t:187,h:205}),
+ r_curlup:mk({...SUPINE,p:[118,134],L1:{plant:[152,138],f:0},L2:{a:[1,1],f:-80},A1:{a:[2,0]},A2:{a:[4,0]}},{t:193,h:214}),
  r_sideplank:mk({p:[118,132],t:201,h:198,L1:{plant:[172,138],f:0},L2:{plant:[170,136],f:0},A1:{a:[90,0]},A2:{a:[30,-30]}},{p:[120,118],t:181,h:182}),
  r_birddog:mk({...QUAD12,A1:{a:[88,90]}},{A1:{a:[-4,-4]},L2:{a:[178,178],f:180},h:-12}),
  r_bridge:mk({...SUPINE,L1:{plant:[146,138],f:0},L2:{plant:[142,138],f:0},A1:{a:[0,0]},A2:{a:[3,0]}},{p:[116,110],t:148}),
  r_slbridge:mk({...SUPINE,L2:{plant:[144,138],f:0},L1:{a:[-45,-45],f:-60},A1:{a:[0,0]},A2:{a:[3,0]}},{p:[116,111],t:148,L1:{a:[-28,-28],f:-50}}),
  r_hinge:mk({p:[120,86],t:-90,...STAND_L,A1:{a:[0,0]},A2:{a:[3,3]}},{p:[110,92],t:-32,h:-28,A1:{a:[5,5]},A2:{a:[8,8]}}),
- r_pallof:mk({p:[118,90],t:-90,L1:{plant:[130,138],f:0},L2:{plant:[110,138],f:0},A1:{a:[70,-80]},A2:{a:[74,-78]}},{A1:{a:[0,0]},A2:{a:[3,3]}},[["band","w1",214,66]]),
+ r_pallof:mk({view:"front",p:[124,88],t:-90,L1:{plant:[138,138],f:10,d:1},L2:{plant:[110,138],f:170,d:-1},A1:{a:[105,-150],s:[1,1]},A2:{a:[75,-30],s:[1,1]}},{A1:{a:[172,172],s:[.4,.4]},A2:{a:[8,8],s:[.4,.4]}},[["band","w1",40,70]]),
  r_walk:mk({p:[120,87],t:-88,L1:{plant:[138,138],f:0},L2:{plant:[104,138],f:20},A1:{a:[112,100]},A2:{a:[68,78]}},{L1:{plant:[104,138],f:20},L2:{plant:[138,138],f:0},A1:{a:[68,78]},A2:{a:[112,100]}}),
  // hips
+ r_airplane:mk({p:[118,90],t:-4,h:4,L1:{plant:[124,138],f:0},L2:{a:[178,178],f:180},A1:{a:[90,90]},A2:{plant:[164,96]}},{t:-14,h:-55,L2:{a:[205,200],s:[.6,.6],f:200},A1:{a:[-95,-95]}},[["frame",168]]),
  r_slrdl:mk({p:[122,85],t:-88,L1:{plant:[124,138],f:0},L2:{a:[95,92],f:0},A1:{a:[92,92]},A2:{a:[95,95]}},{p:[118,90],t:-2,h:5,L2:{a:[178,178],f:90},A1:{a:[90,90]},A2:{a:[92,92]}}),
  r_addsqueeze:mk({...SUPINE,L1:{plant:[146,138],f:0},L2:{plant:[142,138],f:0},A1:{a:[0,0]},A2:{a:[3,0]}},{p:[110,133]},[["ball"]]),
  r_copenhagen:mk({p:[122,130],t:201,h:198,L1:{plant:[168,108],f:0},L2:{plant:[164,112],f:0},A1:{a:[90,0]},A2:{a:[30,-30]}},{p:[124,114],t:182,h:182},[["highbench",156,113,56]]),
  r_hipflexiso:mk({...SUPINE,L1:{a:[-90,0],f:-90},L2:{a:[-88,2],f:-88},A1:{a:[0,0]},A2:{a:[3,0]}},{L2:{a:[-14,-14],f:-100}}),
  r_gmedwall:mk({view:"front",p:[122,86],t:-90,L1:{plant:[130,138],f:10,d:1},L2:{a:[100,92],s:[.35,1],f:180},A1:{a:[100,-40]},A2:{a:[80,-140]}},{t:-97,p:[118,86]},[["wall",100]]),
- r_bandwalk:mk({view:"front",p:[120,98],t:-90,L1:{plant:[134,138],f:10,d:1},L2:{plant:[106,138],f:170,d:-1},A1:{a:[100,-40]},A2:{a:[80,-140]}},{p:[126,98],L1:{plant:[148,138],f:10,d:1}},[["bandknees"]]),
+ r_bandwalk:mk({view:"front",p:[112,99],t:-90,L1:{plant:[125,138],f:10,d:1},L2:{plant:[99,138],f:170,d:-1},A1:{a:[100,-40]},A2:{a:[80,-140]}},{p:[127,100],L1:{plant:[152,138],f:10,d:1}},[["bandknees"]]),
  r_fig4:mk({...SUPINE,L2:{a:[-75,0],f:-90},L1:{a:[-50,-170],s:[.75,.8],f:-90},A1:{a:[-40,-10]},A2:{a:[-45,-15]}},{L2:{a:[-102,-15],f:-100},L1:{a:[-72,-185],s:[.75,.8],f:-90},A1:{a:[-60,-30]},A2:{a:[-65,-35]}}),
  // knees
  r_wallsit:mk({p:[105,98],t:-90,L1:{plant:[132,138],f:0},L2:{plant:[128,138],f:0},A1:{a:[92,88]},A2:{a:[95,90]}},{p:[105,111]},[["wall",96]]),
@@ -597,22 +600,22 @@ Object.assign(FIGS,{
  r_touchdown:mk({p:[122,70],t:-90,L1:{plant:[124,124],f:0},L2:{a:[80,90],f:0},A1:{a:[30,10]},A2:{a:[33,12]}},{p:[114,86],t:-56,h:-45,L2:{a:[70,95],f:0},A1:{a:[-5,0]},A2:{a:[-2,2]}},[["stack",108,124,34]]),
  r_abduction:mk({view:"front",p:[116,86],t:-90,L2:{plant:[110,138],f:170,d:-1},L1:{a:[80,85],f:10},A1:{a:[100,-40]},A2:{a:[80,-140]}},{L1:{a:[50,55],f:0}}),
  // shoulders
- r_ser:mk({p:[150,126],t:180,h:180,L1:{a:[1,1],f:0},L2:{a:[0,0],f:0},A2:{a:[180,180]},A1:{a:[2,0],frot:50}},{A1:{a:[2,0],frot:160}}),
+ r_ser:mk({p:[150,126],t:180,h:180,L1:{a:[1,1],f:0},L2:{a:[0,0],f:0},A2:{a:[180,180]},A1:{a:[2,0],frot:15}},{A1:{a:[2,0],frot:172}},[["dumbbell"],["towelpad"]]),
  r_bandw:mk({view:"front",p:[120,86],t:-90,...FRONT_L,A1:{a:[96,0],s:[1,.2]},A2:{a:[84,180],s:[1,.2]}},{A1:{a:[96,0],s:[1,1]},A2:{a:[84,180],s:[1,1]}}),
- r_proneY:mk({p:[150,132],t:180,h:184,L1:{a:[1,1],f:85},L2:{a:[0,0],f:85},A1:{a:[183,180]},A2:{a:[181,179]}},{A1:{a:[168,168]},A2:{a:[170,170]},h:172}),
+ r_proneY:mk({p:[150,132],t:180,h:184,L1:{a:[1,1],f:85},L2:{a:[0,0],f:85},A1:{a:[179,179]},A2:{a:[178,178]}},{A1:{a:[197,197]},A2:{a:[195,195]},h:189}),
  r_scappull:mk({p:[120,95],t:-90,sho:0,L1:{a:[105,150],f:45},L2:{a:[103,148],f:45},A1:{plant:[123,16]},A2:{plant:[117,16]}},{p:[120,89],sho:7},[["bar",88,15,152]]),
  r_kbpress:mk({p:[120,86],t:-90,...STAND_L,A1:{a:[100,-90]},A2:{a:[95,95]}},{A1:{a:[-88,-90]}},[["kb",0,-7]]),
  r_row:mk({root:["f1",[88,138]],t:-35,h:-35,L1:{a:[145,145],f:-60},L2:{a:[146,146],f:-60},A1:{a:[-36,-36]},A2:{a:[-34,-34]}},{t:-50,h:-50,L1:{a:[130,130],f:-50},L2:{a:[131,131],f:-50},A1:{a:[70,-120]},A2:{a:[72,-118]}},[["strap2",214,12]]),
  // elbow & grip
  r_wristiso:mk({p:[108,111],t:-60,h:-40,L1:{plant:[140,138],f:0},L2:{plant:[136,138],f:0},A1:{a:[80,6]},A2:{a:[85,10]}},{A1:{a:[80,2]}},[["box",80,114,32],["dumbbell"]]),
  r_wristcurl:mk({p:[108,111],t:-60,h:-40,L1:{plant:[140,138],f:0},L2:{plant:[136,138],f:0},A1:{a:[80,14]},A2:{a:[85,10]}},{A1:{a:[80,-10]}},[["box",80,114,32],["dumbbell"]]),
- r_farmer:mk({p:[120,87],t:-90,L1:{plant:[136,138],f:0},L2:{plant:[106,138],f:20},A1:{a:[92,90]},A2:{a:[88,90]}},{L1:{plant:[106,138],f:20},L2:{plant:[136,138],f:0}},[["kb",0,6,1]]),
- r_rackhold:mk({p:[120,86],t:-88,...STAND_L,A1:{a:[96,92]},A2:{a:[94,90]}},{t:-90,A1:{a:[95,90]}},[["kb",0,0,0]]),
+ r_farmer:mk({p:[120,87],t:-90,L1:{plant:[136,138],f:0},L2:{plant:[106,138],f:20},A1:{a:[98,94]},A2:{a:[95,92]}},{L1:{plant:[106,138],f:20},L2:{plant:[136,138],f:0}},[["dbs"]]),
+ r_rackhold:mk({p:[120,86],t:-88,...STAND_L,A1:{a:[96,92]},A2:{a:[94,90]}},{t:-90,A1:{a:[95,90]}},[["bbhang"]]),
  // calves & Achilles
- r_calfiso:mk({p:[124,82],t:-88,L1:{plant:[124,134],f:38},L2:{a:[100,150],f:150},A1:{plant:[156,66]},A2:{plant:[154,68]}},{p:[124,78],L1:{plant:[124,131],f:58}},[["wall",168]]),
- r_calfraise:mk({p:[124,84],t:-90,L1:{plant:[124,138],f:10},L2:{plant:[118,138],f:10},A1:{plant:[154,66]},A2:{plant:[152,68]}},{p:[124,78],L1:{plant:[122,132],f:60},L2:{plant:[116,132],f:60}},[["wall",168]]),
+ r_calfiso:mk({p:[124,84],t:-88,L1:{plant:[124,138],f:0},L2:{a:[100,150],f:150},A1:{plant:[156,66]},A2:{plant:[154,68]}},{p:[124,77],L1:{plant:[124,131],f:52},A1:{plant:[156,62]},A2:{plant:[154,64]}},[["wall",168]]),
+ r_calfraise:mk({p:[124,84],t:-90,L1:{plant:[124,138],f:0},L2:{plant:[118,138],f:0},A1:{plant:[154,66]},A2:{plant:[152,68]}},{p:[124,74],L1:{plant:[123,128],f:66},L2:{plant:[117,128],f:66},A1:{plant:[154,60]},A2:{plant:[152,62]}},[["wall",168]]),
  r_soleus:mk({p:[108,111],t:-80,h:-70,L1:{plant:[138,138],f:5},L2:{plant:[134,138],f:5},A1:{a:[70,10]},A2:{a:[74,12]}},{L1:{plant:[137,132],f:58},L2:{plant:[133,132],f:58}},[["box",80,114,32],["plate","k1"]]),
- r_hops:mk({p:[120,84],t:-90,L1:{plant:[124,138],f:10},L2:{plant:[118,138],f:10},A1:{a:[100,80]},A2:{a:[95,85]}},{p:[120,74],L1:{plant:[124,128],f:55},L2:{plant:[118,128],f:55},A1:{a:[80,60]},A2:{a:[78,60]}}),
+ r_hops:mk({p:[120,90],t:-86,L1:{plant:[124,138],f:0},L2:{plant:[118,138],f:0},A1:{a:[110,80]},A2:{a:[105,85]}},{p:[120,70],t:-90,L1:{plant:[123,123],f:62},L2:{plant:[117,123],f:62},A1:{a:[80,60]},A2:{a:[78,60]}}),
 });
 
 // Generic pose names used on cards map to a representative stretch
@@ -652,10 +655,24 @@ function figInner(key,t,_props,opt={}){
   let s="";
   if(top)s+=`<rect class="mat" x="40" y="22" width="170" height="112" rx="8"/>`;
   else{
-    s+=`<line class="floor" x1="12" y1="143" x2="228" y2="143"/>`;
+    s+=`<line class="floor" x1="-200" y1="143" x2="440" y2="143"/>`;
     const fx=(J.p[0]*2+J.legs["1"].f[0]+J.legs["2"].f[0])/4;s+=`<ellipse class="shadow" cx="${n1(fx)}" cy="143" rx="40" ry="3"/>`;
   }
   const props=P.props||[];
+  if(opt.guide!==false&&!(P.A.top||J.above)){
+    const JA=solveFig(P.A),JB=solveFig(P.B);
+    // faint end position: where you're heading
+    const gl=(a,b,w)=>`<line class="ghost" x1="${n1(a[0])}" y1="${n1(a[1])}" x2="${n1(b[0])}" y2="${n1(b[1])}" stroke-width="${w}"/>`;
+    if(t<.92){["2","1"].forEach(sd=>{const l=JB.legs[sd],a=JB.arms[sd];s+=gl(l.hip,l.k,9)+gl(l.k,l.f,7.5)+gl(l.f,l.ft,5)+gl(a.sh,a.e,7)+gl(a.e,a.w,6)});
+      s+=`<path class="ghost" d="M${n1(JB.p[0])} ${n1(JB.p[1])}Q${n1(JB.c[0])} ${n1(JB.c[1])} ${n1(JB.n[0])} ${n1(JB.n[1])}" stroke-width="${JB.front?18:12}"/><circle class="ghostc" cx="${n1(JB.h[0])}" cy="${n1(JB.h[1])}" r="8.5"/>`}
+    // arrow on the joint that travels furthest
+    const cand=[["w",s=>s.arms["1"].w],["w2",s=>s.arms["2"].w],["f",s=>s.legs["1"].ft],["f2",s=>s.legs["2"].ft],["k",s=>s.legs["1"].k],["k2",s=>s.legs["2"].k],["h",s=>s.h],["p",s=>s.p]];
+    let best=null,bd=0;cand.forEach(([k,g])=>{const a=g(JA),b=g(JB),d=Math.hypot(b[0]-a[0],b[1]-a[1]);if(d>bd+1){bd=d;best=[a,b]}});
+    if(best&&bd>7){const[a,b]=best,mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,dx=b[0]-a[0],dy=b[1]-a[1],off=.28;
+      const c=[mx-dy*off,my+dx*off],e=b,ang=Math.atan2(e[1]-c[1],e[0]-c[0]),hs=5;
+      const tip=vadd(e,D(ang*180/Math.PI),-3),l1=vadd(tip,D(ang*180/Math.PI+150),hs),l2=vadd(tip,D(ang*180/Math.PI-150),hs);
+      s+=`<path class="marrow" d="M${n1(a[0])} ${n1(a[1])}Q${n1(c[0])} ${n1(c[1])} ${n1(tip[0])} ${n1(tip[1])}"/><path class="marrowh" d="M${n1(l1[0])} ${n1(l1[1])}L${n1(tip[0])} ${n1(tip[1])}L${n1(l2[0])} ${n1(l2[1])}"/>`}
+  }
   props.forEach(([k,a,b,c])=>{
     if(k==="wall")s+=`<rect class="propfill" x="${a-3}" y="14" width="6" height="129" rx="2"/>`;
     if(k==="frame")s+=`<rect class="propfill" x="${a-2}" y="10" width="4" height="133" rx="1"/>`;
@@ -694,6 +711,9 @@ function figInner(key,t,_props,opt={}){
     if(k==="strap")s+=`<polyline class="band" points="${n1(W1[0])},${n1(W1[1])} ${n1(J.legs["1"].ft[0])},${n1(J.legs["1"].ft[1])}"/>`;
     if(k==="strap2")s+=`<line class="band" style="stroke-dasharray:none;stroke-width:2.5" x1="${n1(W1[0])}" y1="${n1(W1[1])}" x2="${a}" y2="${b}"/>`;
     if(k==="kb")[W1,W2].forEach((w,i)=>{if(i&&!c)return;s+=`<circle class="pipeend" cx="${n1(w[0])}" cy="${n1(w[1]+(b||6))}" r="5.5"/>`});
+    if(k==="dbs")[W2,W1].forEach((w,i)=>{s+=`<g class="kit"${i?"":' opacity=".6"'}><rect x="${n1(w[0]-9)}" y="${n1(w[1]-1)}" width="18" height="5" rx="1.5"/><rect x="${n1(w[0]-11)}" y="${n1(w[1]-6)}" width="6" height="15" rx="2"/><rect x="${n1(w[0]+5)}" y="${n1(w[1]-6)}" width="6" height="15" rx="2"/></g>`});
+    if(k==="bbhang")s+=`<circle class="prop" style="stroke:var(--fig-prop-hi);stroke-width:3" cx="${n1(W1[0])}" cy="${n1(W1[1])}" r="15"/><circle class="pipeend" cx="${n1(W1[0])}" cy="${n1(W1[1])}" r="3.5"/>`;
+    if(k==="towelpad"){const e=J.arms["1"].e;s+=`<rect class="propfill" x="${n1(e[0]-6)}" y="${n1(e[1]-3)}" width="12" height="6" rx="3"/>`}
     if(k==="dumbbell")s+=`<rect class="pipeend" x="${n1(W1[0]+1)}" y="${n1(W1[1]-5)}" width="5" height="10" rx="1.5"/>`;
     if(k==="ball"){const q=J.legs["1"].k;s+=`<circle class="pipeend" cx="${n1(q[0]+2)}" cy="${n1(q[1]+5)}" r="5"/>`}
     if(k==="bandknees")s+=`<line class="band" x1="${n1(J.legs["1"].k[0])}" y1="${n1(J.legs["1"].k[1])}" x2="${n1(J.legs["2"].k[0])}" y2="${n1(J.legs["2"].k[1])}"/>`;
@@ -703,8 +723,32 @@ function figInner(key,t,_props,opt={}){
   });
   return s;
 }
+/* Framing: each demo zooms to its own body and equipment (start and end pose), floor kept at the bottom,
+   so a lying exercise fills the card instead of being a thin line. */
+const FIGBOX={};
+function figBox(key){
+  if(FIGBOX[key])return FIGBOX[key];
+  const P=FIGS[key]||FIGS[FIG_ALIAS[key]]||FIGS.h7,pts=[];
+  [P.A,P.B].forEach(F=>{const J=solveFig(F);pts.push(J.p,J.n,[J.h[0]-9,J.h[1]-9],[J.h[0]+9,J.h[1]+9]);["1","2"].forEach(s=>{const l=J.legs[s],a=J.arms[s];pts.push(l.k,l.f,l.ft,a.e,a.w)})});
+  (P.props||[]).forEach(([k,a,b,c])=>{
+    if(k==="wall"||k==="frame")pts.push([a,100]);
+    if(k==="box"||k==="stack"||k==="highbench")pts.push([a,b],[a+c,b]);
+    if(k==="bench")pts.push([152,108],[214,108]);
+    if(k==="roller")pts.push([a-9,b-9]);
+    if(k==="bar")pts.push([a,b],[c,b]);
+    if(k==="band"&&typeof b==="number")pts.push([b,c]);
+    if(k==="bandk")pts.push([a,b]);
+    if(k==="strap2")pts.push([a,b]);
+  });
+  const ok=pts.filter(q=>q&&isFinite(q[0])&&isFinite(q[1])),xs=ok.map(q=>q[0]),ys=ok.map(q=>q[1]),top=P.A.top||P.A.view==="above";
+  let x0=Math.min(...xs)-12,x1=Math.max(...xs)+12,y0=Math.min(...ys)-10,y1=top?Math.max(...ys)+10:147;
+  let w=Math.max(x1-x0,96),hh=Math.max(y1-y0,60);
+  if(w/hh<1.6)w=hh*1.6;else hh=w/1.6;
+  const cx=(x0+x1)/2;
+  return FIGBOX[key]=[cx-w/2,top?(y0+y1)/2-hh/2:y1-hh,w,hh].map(v=>+v.toFixed(1));
+}
 function fig(poseKey,props,{anim=false,t=.6,zones=null,sides=false,mode="",period=0}={}){
-  return `<svg class="fig${anim?" anim":""}" viewBox="0 0 240 150" data-mode="${mode}" data-period="${period||""}" data-pose="${poseKey}" data-zones="${zones?zones.join(","):""}" data-sides="${sides?1:""}" aria-hidden="true">${figInner(poseKey,t,null,{zones,sides})}</svg>`;
+  return `<svg class="fig${anim?" anim":""}" viewBox="${figBox(poseKey).join(" ")}" data-mode="${mode}" data-period="${period||""}" data-pose="${poseKey}" data-zones="${zones?zones.join(","):""}" data-sides="${sides?1:""}" aria-hidden="true">${figInner(poseKey,t,null,{zones,sides})}</svg>`;
 }
 let animPaused=false;
 (function loop(ts){
@@ -1173,7 +1217,8 @@ ACT.pSettings=()=>{sheet(`<h3>Player settings</h3><div class="scroll">
   <button class="toggle" data-act="setTog" data-k="voice"><span>Voice coach<br><small class="muted">Reads out the next stretch and side switches</small></span><span class="sw ${S.settings.voice?"on":""}"></span></button>
   <button class="toggle" data-act="setTog" data-k="easy"><span>Start in Easy Mode<br><small class="muted">Easier variations and 25% shorter holds</small></span><span class="sw ${S.settings.easy?"on":""}"></span></button>
   </div><button class="btn sec" data-act="closeSheetP">Close</button>`,true)};
-ACT.pMenu=()=>{sheet(`<h3>Session</h3><div class="scroll">
+ACT.pMenu=()=>{const ce=P&&LIBI[P.items[P.segs[P.si].i].id];sheet(`<h3>Session</h3><div class="scroll">
+  ${ce?`<a class="btn sec" href="${vidUrl(ce)}" target="_blank" rel="noopener">Watch a video: ${esc(ce.n)}</a>`:""}
   <button class="btn sec" data-act="pRestart">Restart session</button>
   <button class="btn sec" data-act="pEndSave">End and save progress</button>
   <button class="btn sec" style="color:var(--bad)" data-act="pDiscard">End without saving</button></div>
@@ -1253,10 +1298,13 @@ SCREENS.exercise=p=>{const e=LIBI[p.id];return hdr()+`<div class="stack" style="
   <div><h1>${esc(e.n)}</h1><div class="muted" style="margin-top:4px">${e.rehab?`${RCAT[e.a]} · Strength & rehab`:`${AN[e.a]} · ${fmt(e.hold)}${e.sides?" each side":""} · ${e.dyn?"Active":"Passive"} stretch`}</div></div>
   <div class="panel"><div><span class="eyebrow">What you should feel</span><div style="margin-top:4px">${esc(e.stim)}</div></div>
    <div><span class="eyebrow">Instructions</span><ul style="margin:6px 0 0;padding-left:18px;display:grid;gap:6px">${e.c.map(c=>`<li>${esc(c)}</li>`).join("")}</ul></div>
-   <div><span class="eyebrow">Easier option</span><div style="margin-top:4px">${esc(e.easy)}</div></div>
+   ${e.easy?`<div><span class="eyebrow">Easier option</span><div style="margin-top:4px">${esc(e.easy)}</div></div>`:""}
    ${e.eq.length?`<div><span class="eyebrow">Equipment</span><div class="chipset" style="margin-top:6px">${e.eq.map(k=>`<span class="chip">${ic(k)}${EQUIP.find(x=>x.k===k).n}</span>`).join("")}</div></div>`:""}</div>
-  <div class="panel"><span class="eyebrow">Targeted areas</span><div class="ztags">${e.z.map(z=>`<span>${ZONES[z]}</span>`).join("")}</div>${bodyMap(e.z)}</div>
+  <a class="btn sec" href="${vidUrl(e)}" target="_blank" rel="noopener">${icf("play")}Watch a video of it</a>
+  ${e.z.length?`<div class="panel"><span class="eyebrow">Targeted areas</span><div class="ztags">${e.z.map(z=>`<span>${ZONES[z]}</span>`).join("")}</div>${bodyMap(e.z)}</div>`:""}
   </div><div class="bottomcta"><button class="btn" data-act="tryEx" data-id="${e.id}">${icf("play")}Try it now</button></div>`};
+// a real person doing it, for when the figure isn't enough (opens a video search, nothing is embedded)
+const vidUrl=e=>`https://www.youtube.com/results?search_query=${encodeURIComponent(`${e.n} ${e.rehab?"exercise":"stretch"} how to`)}`;
 function defaultDose(id){for(const R of Object.values(REGIONS))for(const phs of Object.values(R.phasesBy||{}))for(const ph of phs)for(const[i,d]of ph.items)if(i===id)return d;return{k:"hold",sets:1,secs:30}}
 ACT.tryEx=d=>{const e=LIBI[d.id];openPlayer([e.rehab?{id:e.id,dose:defaultDose(e.id)}:{id:e.id,hold:e.hold}],{kind:"single",title:e.n})};
 
@@ -1268,7 +1316,7 @@ ACT.tryEx=d=>{const e=LIBI[d.id];openPlayer([e.rehab?{id:e.id,dose:defaultDose(e
 const RCAT={core:"Core & back",hipr:"Hips",knee:"Knees",shoul:"Shoulders",elbow:"Elbow & grip",calf:"Calves & Achilles"};
 Object.assign(ZONES,{core:"Core",forearm:"Forearm"});
 FIGS.r_bwsquat={...FIGS.r_boxsquat,props:[]};
-FIGS.r_bandsquat=mk({view:"front",p:[120,98],t:-90,L1:{plant:[134,138],f:10,d:1},L2:{plant:[106,138],f:170,d:-1},A1:{a:[100,-40]},A2:{a:[80,-140]}},{p:[120,101]},[["bandknees"]]);
+FIGS.r_bandsquat=mk({view:"front",p:[120,88],t:-90,L1:{plant:[134,138],f:10,d:1},L2:{plant:[106,138],f:170,d:-1},A1:{a:[100,-40]},A2:{a:[80,-140]}},{p:[120,103]},[["bandknees"]]);
 const REHAB_LIB=[
  {id:"r_curlup",n:"McGill curl-up",a:"core",z:["core"],eq:[],stim:"The front of your core working while your low back stays still",c:["Hands under the small of your back, one knee bent","Brace, then lift head and shoulders a finger-width","Breathe in small sips while you hold"],easy:"Keep the head on the floor and just brace."},
  {id:"r_sideplank",n:"Side plank",a:"core",z:["core","glutes"],eq:[],stim:"The side of your trunk and hip",c:["Elbow under the shoulder","Push the hips forward and up","Body in one straight line"],easy:"Bend the knees and support from them."},
@@ -1280,7 +1328,7 @@ const REHAB_LIB=[
  {id:"r_walk",n:"Brisk walk",a:"core",z:["core"],eq:[],stim:"Easy movement that loosens the back",c:["Fast enough to swing your arms","Stand tall","Stop if it starts to build pain"],easy:"Several shorter walks."},
  {id:"r_goblethold",fig:"h9",n:"Deep goblet squat hold",a:"core",z:["glutes","adductors"],eq:["plate"],stim:"Glutes switching on at the bottom of the squat",c:["Weight at the chest, sit deep","Push the knees out against the elbows","Rise a few cm, squeeze the glutes, hold"],easy:"Squat only to pain-free depth."},
  {id:"r_row",n:"Ring row with pause",a:"core",z:["lats","upperback"],eq:[],stim:"Upper back pulling the shoulder blades together",c:["Body straight from heels to head","Pull the chest to the hands","Hold the top for 3 seconds"],easy:"Walk the feet back to stand more upright."},
- {id:"r_airplane",fig:"r_slrdl",n:"Hip airplane",a:"hipr",z:["glutes"],eq:[],stim:"Deep in the hip of the standing leg as the pelvis turns",c:["Hold a rack, tip forward on one leg","Rotate the pelvis open toward the ceiling and hold","Then turn it down toward the standing leg and hold"],easy:"Smaller rotations with more hand support."},
+ {id:"r_airplane",n:"Hip airplane",a:"hipr",z:["glutes"],eq:[],stim:"Deep in the hip of the standing leg as the pelvis turns",c:["Hold a rack, tip forward on one leg","Rotate the pelvis open toward the ceiling and hold","Then turn it down toward the standing leg and hold"],easy:"Smaller rotations with more hand support."},
  {id:"r_slrdl",n:"Single-leg RDL",a:"hipr",z:["hamstrings","glutes"],eq:[],stim:"The hamstring and glute of the standing leg",c:["Soft standing knee","Hinge until the body is level, back leg straight","Hips stay square to the floor"],easy:"Touch the back toe down for balance."},
  {id:"r_addsqueeze",n:"Adductor squeeze",a:"hipr",z:["adductors"],eq:[],stim:"Inner thighs working without pain",c:["Ball or pillow between the knees","Squeeze at about half effort","Build toward harder squeezes over the weeks"],easy:"Squeeze more gently."},
  {id:"r_copenhagen",n:"Copenhagen side plank",a:"hipr",z:["adductors","core"],eq:["bench"],stim:"Inner thigh of the top leg holding you up",c:["Top leg on the bench, body in a side plank","Lift the hips into a straight line","Hold, then lower with control"],easy:"Bend the top knee and rest the knee on the bench."},
@@ -1997,6 +2045,22 @@ function rbStatus(){
   const left=Math.max(0,Math.ceil(ph.min-phaseDays));
   return{k:"ok",t:`On track.${left?` At least ${left} more day${left===1?"":"s"} in this phase.`:""} Pain up to ${PAIN_OK}/10 during sessions is fine if it's no worse the next morning.`};
 }
+/* How you get from one phase to the next: all three must be true.
+   1. Time: at least the phase's minimum days (tissue needs weeks to adapt, not sessions).
+   2. Pain: your last 3 sessions in this phase in a row at 3/10 or lower, test movement and during the session.
+   3. The phase's own goal (e.g. "holds pain-free"), which you confirm yourself. */
+function rbProgress(){
+  const st=S.rehab,R=REGIONS[st.region],phs=rbPhases(R,st.cls),ph=phs[st.phase];
+  const days=Math.floor((Date.now()-st.phaseStart)/dayMs),inPhase=st.logs.filter(l=>l.phase===st.phase);
+  let streak=0;for(let i=inPhase.length-1;i>=0;i--){const l=inPhase[i];if(l.testPain<=PAIN_OK&&(l.sessionPain??0)<=PAIN_OK)streak++;else break}
+  streak=Math.min(streak,3);
+  const perWeek=/daily/i.test(ph.freq)?7:/every other/i.test(ph.freq)?3.5:/3–4|3-4/.test(ph.freq)?3.5:3;
+  const daysForSessions=Math.ceil((3-streak)*7/perWeek),wait=Math.max(ph.min-days,daysForSessions,0);
+  const earliest=new Date(Date.now()+wait*dayMs);
+  return{ph,phs,days,min:ph.min,streak,wait,earliest,last:!!ph.last,timeOk:days>=ph.min,painOk:streak>=3};
+}
+ACT.rbForce=()=>sheet(`<h3>Move on early?</h3><div class="scroll"><p class="muted" style="margin:0">Only if your physiotherapist has cleared you. Moving on before the pain settles is the most common reason rehab stalls.</p></div><div style="display:grid;gap:8px"><button class="btn" data-act="rbForceYes">My physio cleared me</button><button class="btn sec" data-act="closeSheet">Stay in this phase</button></div>`);
+ACT.rbForceYes=()=>{closeSheet();ACT.rbNext()};
 function spark(logs){
   if(logs.length<2)return"";
   const w=280,h=70,pad=8,n=logs.length,x=i=>pad+i*(w-2*pad)/(n-1),y=v=>h-pad-v/10*(h-2*pad);
@@ -2018,13 +2082,21 @@ SCREENS.rebuild=()=>{
   const tone={back:"c-bad",stuck:"c-bad",ready:"c-good",done:"c-good",ok:"c-top",start:"c-top"}[stt.k];
   return head+`<div class="stack" style="padding-top:8px">
    <div><span class="eyebrow">Rebuild · ${R.n}${st.side&&st.side!=="both"?` · ${st.side} side`:""}</span><h1 style="margin-top:4px">${C.n}</h1></div>
-   <div class="phases">${phs.map((p,i)=>`<div class="ph ${i<st.phase?"done":i===st.phase?"on":""}"><span>${i+1}</span>${esc(p.n)}</div>`).join("")}</div>
+   <div class="phases">${phs.map((p,i)=>`<div class="ph ${i<st.phase?"done":i===st.phase?"on":""}"><span>${i+1}</span>${esc(p.n)}<small>${p.min}+ d</small></div>`).join("")}</div>
    <div class="panel status"><span class="eyebrow ${tone}">${{back:"Back off",stuck:"Get it checked",ready:"Ready to progress",done:"Program complete",ok:"Status",start:"How it works"}[stt.k]}</span><div>${esc(stt.t)}</div>
-    ${stt.k==="ready"?`<button class="btn" data-act="rbNext">Move to phase ${st.phase+2}</button>`:""}</div>
+    ${stt.k==="ready"?`<p style="margin:0"><b>Last check:</b> ${esc(ph.exit)}</p><button class="btn" data-act="rbNext">Yes, move to phase ${st.phase+2}</button>`:""}</div>
+   ${(()=>{if(ph.last)return"";const g=rbProgress(),bar=(v,m)=>`<span class="tr"><i style="width:${Math.min(100,v/m*100)}%;background:${v>=m?"var(--good)":"var(--accent)"}"></i></span>`;
+     return`<div class="panel"><span class="eyebrow">To unlock phase ${st.phase+2} · ${esc(phs[st.phase+1].n)}</span>
+      <ul class="bars gates">
+       <li><span>${g.timeOk?"✓ ":""}Time in phase</span>${bar(g.days,g.min)}<b>${Math.min(g.days,g.min)}/${g.min} d</b></li>
+       <li><span>${g.painOk?"✓ ":""}Sessions ≤${PAIN_OK}/10 in a row</span>${bar(g.streak,3)}<b>${g.streak}/3</b></li>
+      </ul>
+      <p class="muted" style="margin:0;font-size:14px"><b>And:</b> ${esc(ph.exit)}</p>
+      ${g.timeOk&&g.painOk?"":`<p style="margin:0;font-size:14px">Earliest: <b>${g.earliest.toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short"})}</b>, if every session stays at ${PAIN_OK}/10 or lower. A session above that restarts the count.</p><button class="link muted" style="justify-self:start" data-act="rbForce">My physio cleared me to move on</button>`}</div>`})()}
    <div class="panel"><span class="eyebrow">Phase ${st.phase+1} · ${esc(ph.freq)}</span><h3>${esc(ph.goal)}</h3>
     <div class="rxlist">${items.map(it=>{const e=LIBI[it.id];return`<button class="rx" data-act="openEx" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8})}</span><span><b>${esc(e.n)}</b><small>${esc(doseText(it))}</small></span></button>`}).join("")}</div>
     <button class="btn" data-act="rbStart">${icf("play")}Start today's session</button>
-    <p class="muted" style="margin:0;font-size:13px"><b>Move on when:</b> ${esc(ph.exit)}</p></div>
+    </div>
    <div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline"><span class="eyebrow">${esc(R.test.n)} · pain before each session</span>${st.logs.length?(()=>{const L=st.logs[st.logs.length-1];return`<b style="font-variant-numeric:tabular-nums;white-space:nowrap">${L.testR!=null?`R ${L.testR} · L ${L.testL}`:`${L.testPain}/10`}</b>`})():""}</div>
     ${st.logs.length>1?spark(st.logs):`<p class="muted" style="margin:0;font-size:14px">Your trend appears after two sessions.</p>`}</div>
    <div class="panel"><h3>For now, do</h3><ul class="tick">${C.habits.map(h=>`<li>${esc(h)}</li>`).join("")}</ul>
@@ -2110,7 +2182,7 @@ let P_LAST=null;
    optional pain test (right, then left) and the same pain log as the built-in programs. */
 RCAT.mine="From my physio";
 const LOOKS=["r_bwsquat","r_splitsq","r_touchdown","r_hinge","r_slrdl","r_bridge","r_slbridge","r_curlup","r_sideplank","r_birddog","r_pallof","r_calfraise","r_hops","r_bandwalk","r_abduction","r_copenhagen","r_wallsit","r_bandw","r_ser","r_proneY","r_row","r_scappull","r_kbpress","r_wristcurl","r_farmer","o3","t4","h2","h3","p1","a1","r_walk"];
-function regMyEx(e){const x={a:"mine",z:[],c:[],stim:"",easy:"",...e,rehab:true,custom:true,pose:"kneel",hold:0,sides:0};if(!LIBI[x.id])LIB.push(x);else Object.assign(LIB.find(l=>l.id===x.id)||{},x);LIBI[x.id]=x;return x}
+function regMyEx(e){const x={a:"mine",z:[],c:[],eq:[],stim:"",easy:"",...e,rehab:true,custom:true,pose:"kneel",hold:0,sides:0};if(!LIBI[x.id])LIB.push(x);else Object.assign(LIB.find(l=>l.id===x.id)||{},x);LIBI[x.id]=x;return x}
 S.myEx=S.myEx||[];S.myProtocols=S.myProtocols||[];S.myEx.forEach(regMyEx);
 const DOSE_K={reps:"Reps",hold:"Hold",rephold:"Reps + holds"};
 let ED=null;
