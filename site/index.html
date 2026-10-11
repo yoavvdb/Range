@@ -1673,13 +1673,37 @@ ACT.prepW=d=>{const w=S.training.find(x=>x.id===d.id);if(w)prepFor(w)};
 ACT.recW=d=>{const w=S.training.find(x=>x.id===d.id);if(w)recoverFrom([w])};
 ACT.doneW=d=>{const w=S.training.find(x=>x.id===d.id);if(w){w.done=!w.done;save();render()}};
 
+/* Back from a break: a gap of 7+ days since the last session with scores.
+   Detraining research: strength holds for ~2-3 weeks off, but tissue tolerance and bar speed drop sooner,
+   so the first week back runs about one program week behind (roughly 5% under the written %), then rejoins. */
+function breakInfo(){
+  const t=todayIso(),logged=S.training.filter(w=>w.date<t&&(w.result||w.done)&&!w.example).sort((a,b)=>b.date.localeCompare(a.date));
+  if(!logged.length)return null;
+  const last=logged[0],gap=daysFrom(last.date,t);if(gap<7)return null;
+  const wk=list=>Math.max(0,...list.flatMap(w=>[...(w.text||"").matchAll(/week\s*(\d+)/gi)].map(m=>+m[1])));
+  return{last,gap,lastWeek:wk(logged.slice(0,6)),nowWeek:wk(upcoming().slice(0,7)),until:addDays(t,6)};
+}
+function reentryFor(w){
+  const b=breakInfo();if(!b||w.date>b.until||!w.moves.length)return"";
+  const pcts=[...(w.text||"").matchAll(/(\d{2,3}(?:[.,]\d)?)\s*%/g)].map(m=>parseFloat(m[1].replace(",","."))).filter(v=>v>=50&&v<=100);
+  if(pcts.length){const top=Math.max(...pcts);return`top sets around ${Math.round((top-5)*2)/2}% instead of ${top}%. Stop the build when the bar slows.`}
+  return"keep it to RPE 7: same movements, a little lighter, nothing to failure.";
+}
+ACT.breakRecover=()=>{const b=breakInfo(),n=nextSession();startWizard({kind:"activate",sport:S.sports[0]||"crossfit",moves:n?n.moves:[],from:"Back from a break"})};
+const breakPanel=()=>{const b=breakInfo();if(!b)return"";
+  return`<div class="panel"><span class="eyebrow c-warn">Back from a break · ${b.gap} days since your last scores</span>
+   <h3>${b.lastWeek&&b.nowWeek&&b.nowWeek>b.lastWeek?`You last logged Week ${b.lastWeek}. The gym is on Week ${b.nowWeek}.`:"Ease back in this week"}</h3>
+   <p class="muted" style="margin:0;font-size:14px">Don't jump straight to this week's percentages, and don't try to make up the missed sessions. ${b.nowWeek>b.lastWeek+1?`Train with the gym this week but use Week ${b.nowWeek-1}'s loads (about 5% under what's written).`:"Train with the gym but about 5% under what's written."} If your top sets feel like RPE 8 or easier, rejoin the program fully next week. Each session below shows its re-entry load.</p>
+   <button class="btn sec" data-act="breakRecover">Longer warm-up for the next session</button></div>`};
 const wRow=w=>{
   const up=!isPast(w),f=focusOf({kind:"activate",moves:w.moves});
   return `<div class="wrow"><div class="wd"><b>${dayLabel(w.date)}</b>${w.example?'<span class="pill">Example</span>':""}</div>
    <button class="wt" data-act="editW" data-id="${w.id}"><b>${esc(wTitle(w))}</b><span class="chipset">${w.moves.slice(0,6).map(m=>`<span class="mchip">${esc(m)}</span>`).join("")}${w.moves.length>6?`<span class="mchip">+${w.moves.length-6}</span>`:""}</span>
    ${w.result?`<small style="color:var(--ink)">Your result: ${esc(w.result)}</small>`:""}
+   ${w.loggedAt?(()=>{const late=daysFrom(w.date,iso(new Date(w.loggedAt)));return`<small>Scores entered ${fromIso(iso(new Date(w.loggedAt))).toLocaleDateString(undefined,{day:"numeric",month:"short"})}${late>1?` · ${late} days later`:""}</small>`})():""}
+   ${up&&reentryFor(w)?`<small class="c-warn">Re-entry: ${esc(reentryFor(w))}</small>`:""}
    ${w.moves.length?`<small>Loads ${f.map(k=>AN[k]).join(" & ")}</small>`:`<small>No movements found. Tap to add them.</small>`}</button>
-   <div class="wa">${up?`<button class="link" data-act="prepW" data-id="${w.id}">Prepare</button>${w.date===todayIso()?`<button class="link muted" data-act="doneW" data-id="${w.id}">Mark done</button>`:""}`:`<button class="link" data-act="recW" data-id="${w.id}">Recover</button>`}</div></div>`;
+   <div class="wa">${up&&w.moves.length?`<button class="link" data-act="prepW" data-id="${w.id}">Prepare</button>`:""}${w.moves.length?`<button class="link" data-act="recW" data-id="${w.id}">Recover</button>`:""}${up&&w.date===todayIso()?`<button class="link muted" data-act="doneW" data-id="${w.id}">Mark done</button>`:""}</div></div>`;
 };
 SCREENS.training=()=>{
   const nx=nextSession(),rec=recentSessions(),load=recentLoad(),mx=Math.max(1,...Object.values(load)),ups=upcoming(),ps=past().slice(0,14);
@@ -1694,6 +1718,7 @@ SCREENS.training=()=>{
     return`<div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span class="eyebrow ${sy.error?"c-bad":"c-good"}">SugarWOD auto-sync ${sy.error?"· needs attention":"· on"}</span><button class="link" data-act="syncNow">Sync now</button></div>
       <div style="font-size:14px">${sy.error?esc(sy.error):syncAvail===false?"No sync file found. Check the workflow runs on GitHub.":`Whiteboard updated ${agoText(sy.syncedAt)} · ${sy.count||0} workouts`}</div><button class="link" style="justify-self:start" data-act="syncKey">Change passphrase</button></div>`})()}
   ${S.training.length?"":`<div class="banner"><div><h3>Bring in your SugarWOD workouts</h3><p class="muted" style="font-size:14px;margin:6px 0 0">Copy a workout from the SugarWOD whiteboard and paste it here. Range finds the movements, then prepares you for upcoming sessions and helps you recover from past ones.</p></div><button class="btn" data-act="importW">Import from SugarWOD</button><button class="btn sec" data-act="addW">Paste a workout</button><button class="btn sec" data-act="exampleWeek">Try with an example week</button></div>`}
+  ${breakPanel()}
   ${nx?`<div class="panel"><span class="eyebrow">Next session · ${dayLabel(nx.date)}</span><h2>${esc(wTitle(nx))}</h2>
      <div class="chipset">${nx.moves.map(m=>`<span class="mchip">${esc(m)}</span>`).join("")}</div>
      <p class="muted" style="margin:0;font-size:14px">${nx.moves.length?`Needs the most from your ${focusOf({kind:"activate",moves:nx.moves}).map(k=>`${AN[k]} (score ${sc[k]})`).join(" and ")}.`:"Add movements so Range knows what to prepare."}</p>
@@ -1775,9 +1800,9 @@ function mergeRows(rows,source){
   const have=new Set(S.training.map(key));let added=0,skipped=0;
   rows.forEach((w,i)=>{
     if(!w.date||!/^\d{4}-\d{2}-\d{2}$/.test(w.date)){skipped++;return}
-    if(have.has(key(w)))return;
+    if(have.has(key(w))){const o=S.training.find(x=>key(x)===key(w));if(o){if(w.result)o.result=w.result;if(w.loggedAt)o.loggedAt=w.loggedAt}return}
     have.add(key(w));added++;
-    S.training.push({id:"i"+Date.now().toString(36)+i,date:w.date,title:w.title||"",text:w.text||"",result:w.result||"",source,moves:parseMoves((w.title||"")+"\n"+(w.text||"")),done:w.date<todayIso()});
+    S.training.push({id:"i"+Date.now().toString(36)+i,date:w.date,title:w.title||"",text:w.text||"",result:w.result||"",loggedAt:w.loggedAt||null,source,moves:parseMoves((w.title||"")+"\n"+(w.text||"")),done:w.date<todayIso()});
   });
   return{total:rows.length,added,skipped};
 }
@@ -1801,7 +1826,7 @@ async function autoSync(force){
   if(!syncAvail||!S.sync.key){if(stack[stack.length-1].name==="training")render();return}
   try{
     const data=await unsealBox(box,S.sync.key);
-    const r=mergeRows((data.workouts||[]).map(w=>({date:w.date,title:w.title,text:w.text,result:w.result})),"sugarwod-auto");
+    const r=mergeRows((data.workouts||[]).map(w=>({date:w.date,title:w.title,text:w.text,result:w.result,loggedAt:w.loggedAt})),"sugarwod-auto");
     S.sync={...S.sync,checked:Date.now(),syncedAt:data.syncedAt||null,count:(data.workouts||[]).length,lastAdded:r.added,error:""};
   }catch(e){S.sync={...S.sync,checked:Date.now(),error:"The passphrase doesn't match. Use the same RANGE_SYNC_KEY you saved in GitHub."}}
   save();const top=stack[stack.length-1].name;if(top==="training"||top==="home")render();

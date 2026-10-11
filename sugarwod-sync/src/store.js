@@ -63,6 +63,7 @@ export function toRangeFile(workouts) {
       title: w.title || "",
       text: w.text || "",
       ...(w.result ? { result: w.result } : {}),
+      ...(w.loggedAt ? { loggedAt: w.loggedAt } : {}),
       source: w.source || "sugarwod",
     })),
   };

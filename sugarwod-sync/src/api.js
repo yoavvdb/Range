@@ -49,7 +49,7 @@ export async function fetchSugarwod(page, { back = 7, ahead = 7, historyDays = 6
   });
   raw.results.forEach((r) => {
     const iso = toIso(r.dateInt);
-    if (iso >= from && iso < today) day(iso).results.push({ title: clean(r.title), text: clean(r.description), result: `${clean(r.title) || "Result"}: ${r.result}${r.rx ? " RX" : " scaled"}${r.pr ? " · PR" : ""}` });
+    if (iso >= from && iso < today) day(iso).results.push({ title: clean(r.title), text: clean(r.description), result: `${clean(r.title) || "Result"}: ${r.result}${r.rx ? " RX" : " scaled"}${r.pr ? " · PR" : ""}`, loggedAt: r.createdAt || null });
   });
 
   const workouts = [...days.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([date, d]) => {
@@ -63,6 +63,8 @@ export async function fetchSugarwod(page, { back = 7, ahead = 7, historyDays = 6
       title: real.map((p) => p.title).filter(Boolean).slice(0, 3).join(" · ").slice(0, 80) || "Workout",
       text: real.map((p) => [p.title, p.text].filter(Boolean).join("\n")).join("\n\n"),
       ...(d.results.length ? { result: d.results.map((r) => r.result).join("; "), done: true } : {}),
+      // when you entered the scores (the latest one for that day), so late logging shows up
+      ...(d.results.some((r) => r.loggedAt) ? { loggedAt: d.results.map((r) => r.loggedAt).filter(Boolean).sort().pop() } : {}),
       source: d.results.length ? "sugarwod-results" : "sugarwod-whiteboard",
     };
   });
