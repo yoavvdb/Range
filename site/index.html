@@ -407,6 +407,9 @@ const LIB=[
  {id:"o1",n:"Puppy pose",a:"overhead",z:["lats","upperback","shoulders"],eq:[],pose:"child",hold:60,sides:0,stim:"Stretch along the lats and armpits",c:["Knees under the hips","Walk the hands forward","Sink the chest toward the floor"],easy:"Sit the hips back toward the heels."},
  {id:"o2",n:"Bench lat stretch",a:"overhead",z:["lats","upperback"],eq:["bench","pipe"],pose:"latBench",props:[["bench"],["pipe"]],hold:60,sides:0,stim:"Deep stretch in the lats and triceps",c:["Kneel, elbows on a bench, pipe in the hands","Hands drop behind the head","Sink the chest, keep the ribs tucked"],easy:"Keep the elbows wider."},
  {id:"o3",n:"Wall slides",a:"overhead",z:["shoulders","upperback"],eq:["wall"],pose:"armsUp",props:[["wall",108]],hold:40,sides:0,dyn:1,stim:"Overhead range with the ribs down",c:["Back, head and forearms on the wall","Slide the arms up","Keep everything in contact"],easy:"Step the feet a little away from the wall."},
+ {id:"wgs",n:"World's greatest stretch",a:"hips",z:["hipflex","hamstrings","upperback"],eq:[],pose:"kneel",hold:60,sides:1,dyn:1,stim:"Front of the back hip, inner thigh of the front leg, then the upper back as you turn",c:["Long lunge, back knee off the floor","Hand inside the front foot, then reach the other arm to the ceiling","Follow the hand with your eyes, switch sides every few reps"],easy:"Back knee down on a pad."},
+ {id:"legsw",n:"Leg swings",a:"hips",z:["hamstrings","hipflex","adductors"],eq:["wall"],pose:"armsUp",hold:30,sides:1,dyn:1,stim:"Hamstring on the swing forward, front of the hip on the swing back",c:["Hand on a wall or rack, stand tall","Swing the leg front to back, a little higher each time","Keep the trunk still; the hip does the moving"],easy:"Smaller swings."},
+ {id:"inch",n:"Inchworms",a:"posterior",z:["hamstrings","shoulders","core"],eq:[],pose:"fold",hold:45,sides:0,dyn:1,stim:"Hamstrings on the way down, shoulders and trunk in the plank",c:["Fold over, hands to the floor","Walk the hands out to a plank","Walk them back in with the knees as straight as you can"],easy:"Bend the knees to reach the floor."},
  {id:"o4",n:"Banded lat stretch",a:"overhead",z:["lats"],eq:["band"],pose:"child",props:[["band","w1",222,128]],hold:45,sides:1,stim:"Stretch along the side of the body",c:["Band anchored low, hold with one hand","Sit the hips back and away","Breathe into the side ribs"],easy:"Use a lighter band."},
  {id:"o5",n:"Child's pose side reach",a:"overhead",z:["lats"],eq:[],pose:"child",hold:45,sides:1,stim:"Stretch along the lat of the reaching side",c:["Sit back on the heels","Walk both hands to one side","Feel it along the opposite lat"],easy:"Widen the knees."},
 ];
@@ -588,6 +591,12 @@ Object.assign(FIGS,{
  r_walk:mk({p:[120,87],t:-88,L1:{plant:[138,138],f:0},L2:{plant:[104,138],f:20},A1:{a:[112,100]},A2:{a:[68,78]}},{L1:{plant:[104,138],f:20},L2:{plant:[138,138],f:0},A1:{a:[68,78]},A2:{a:[112,100]}}),
  // hips
  r_airplane:mk({p:[118,90],t:-4,h:4,L1:{plant:[124,138],f:0},L2:{a:[178,178],f:180},A1:{a:[90,90]},A2:{plant:[164,96]}},{t:-14,h:-55,L2:{a:[205,200],s:[.6,.6],f:200},A1:{a:[-95,-95]}},[["frame",168]]),
+ r_breath:mk({...SUPINE,p:[112,134],L1:{a:[-90,0],f:-90},L2:{a:[-88,2],f:-88},A1:{a:[4,0]},A2:{a:[6,2]}},{bend:-3,h:184},[["box",134,108,30]],{mode:"iso"}),
+ r_ohs:mk({p:[120,86],t:-90,...STAND_L,A1:{a:[-96,-96]},A2:{a:[-93,-93]}},{p:[106,113],t:-66,h:-35,A1:{a:[-94,-92]},A2:{a:[-91,-89]}},[["pipe"]]),
+ r_wristrock:mk({...QUAD12,root:["k1",[103,137]],L1:{a:[92,180],f:180},L2:{a:[90,180],f:180},A1:{plant:[144,139]},A2:{plant:[140,139]}},{L1:{a:[112,180]},L2:{a:[110,180]},t:-4}),
+ wgs:mk({p:[112,112],t:-30,h:-25,L1:{plant:[146,138],f:0},L2:{plant:[66,134],f:20,d:1},A1:{a:[82,92]},A2:{plant:[138,138]}},{t:-38,h:-80,A1:{a:[-98,-98]}}),
+ legsw:mk({p:[118,86],t:-90,L2:{plant:[116,138],f:0},L1:{a:[128,128],f:128},A1:{a:[80,60]},A2:{plant:[150,80]}},{L1:{a:[42,48],f:-20}},[["wall",158]]),
+ inch:mk({p:[80,86],t:72,h:92,L1:{plant:[76,138],f:0},L2:{plant:[72,138],f:0},A1:{plant:[104,138]},A2:{plant:[100,138]}},{p:[112,101],t:-3,h:-6,A1:{plant:[154,138]},A2:{plant:[150,138]}}),
  r_slrdl:mk({p:[122,85],t:-88,L1:{plant:[124,138],f:0},L2:{a:[95,92],f:0},A1:{a:[92,92]},A2:{a:[95,95]}},{p:[118,90],t:-2,h:5,L2:{a:[178,178],f:90},A1:{a:[90,90]},A2:{a:[92,92]}}),
  r_addsqueeze:mk({...SUPINE,L1:{plant:[146,138],f:0},L2:{plant:[142,138],f:0},A1:{a:[0,0]},A2:{a:[3,0]}},{p:[110,133]},[["ball"]]),
  r_copenhagen:mk({p:[122,130],t:201,h:198,L1:{plant:[168,108],f:0},L2:{plant:[164,112],f:0},A1:{a:[90,0]},A2:{a:[30,-30]}},{p:[124,114],t:182,h:182},[["highbench",156,113,56]]),
@@ -891,7 +900,7 @@ const AREA_ZONES={shoulders:["shoulders","chest"],overhead:["lats","shoulders"],
 const MOVE_ZONES={
  "Squat Clean":["ankles","adductors","quads","lats","upperback"],"Power Clean":["hamstrings","lats","upperback"],"Snatch":["lats","upperback","shoulders","ankles","adductors"],"Power Snatch":["lats","upperback","shoulders","hamstrings"],
  "Clean & Jerk":["ankles","adductors","lats","upperback","hipflex"],"Split Jerk":["lats","hipflex","quads","shoulders"],"Push Jerk":["lats","upperback","ankles"],"Overhead Squat":["lats","upperback","shoulders","ankles","adductors"],
- "Front Squat":["ankles","adductors","quads","lats","upperback"],"Back Squat":["adductors","glutes","ankles","chest"],"Deadlift":["hamstrings","lowback","glutes"],"Romanian Deadlift":["hamstrings","lowback"],
+ "Front Squat":["quads","lats","ankles","adductors","upperback","forearm"],"Back Squat":["quads","glutes","adductors","ankles"],"Deadlift":["hamstrings","lowback","glutes"],"Romanian Deadlift":["hamstrings","lowback"],
  "Thruster":["ankles","quads","lats","upperback"],"Wall Ball":["ankles","quads","lats"],"Strict Press":["lats","upperback","shoulders"],"Push Press":["lats","upperback","ankles"],"Bench Press":["chest","shoulders"],
  "Pull-up":["lats","shoulders"],"Chest-to-bar Pull-up":["lats","shoulders","upperback"],"Bar Muscle-up":["chest","shoulders","lats"],"Ring Muscle-up":["chest","shoulders"],"Handstand Push-up":["shoulders","lats","upperback"],"Handstand Walk":["shoulders","lats"],
  "Toes-to-bar":["lats","hamstrings"],"Rope Climb":["lats","shoulders"],"Kettlebell Swing":["hamstrings","lowback","glutes"],"Box Jump":["calves","ankles"],"Lunges":["hipflex","quads"],"Pistol":["ankles","glutes","hamstrings"],
@@ -902,7 +911,7 @@ const MOVE_ZONES={
 const POSITION={armsUp:0,fold:0,calf:0,doorway:0,crossBody:0,squat:1,kneel:2,couch:2,allfours:2,needle:2,quadRot:2,child:2,latBench:2,frog:2,s9090:3,pike:3,pigeon:3,lyingLeg:4,sideLying:4,roller:4};
 const WEIGHTS={
   activate:{weak:.35,demand:.55,load:.1,next:0,fresh:.15},
-  recover:{weak:.2,demand:.45,load:.25,next:.1,fresh:.1},
+  recover:{weak:.1,demand:.6,load:.25,next:.05,fresh:.1},
   daily:{weak:.55,demand:0,load:.2,next:.25,fresh:.2},
 };
 function normMap(o){const mx=Math.max(0,...Object.values(o));const r={};for(const k in o)r[k]=mx>0?o[k]/mx:0;return r}
@@ -1104,8 +1113,8 @@ ACT.whySheet=()=>{
    <ul class="needbars">${AREAS.slice().sort((a,b)=>need[b.k]-need[a.k]).map(a=>{const p=parts[a.k]||{};const minutes=W.plan.items.filter(it=>LIBI[it.id].a===a.k).length;return`<li><span>${a.n}</span><span class="nb">${keys.map(k=>p[k]>0?`<i style="width:${(p[k]/mx*100).toFixed(1)}%;background:${C[k][1]}"></i>`:"").join("")}</span><b>${minutes?minutes+" ×":"–"}</b></li>`}).join("")}</ul>
    <p class="muted" style="margin:0;font-size:12px">The number on the right is how many exercises that area got.${AREAS.some(a=>(parts[a.k]||{}).pen>0)?" Areas you already stretched in the last 2 days get a little less time.":""}</p>`:""}
    <div class="stack" style="gap:6px"><span class="eyebrow">Session structure</span><p class="muted" style="margin:0;font-size:14px">${{
-    activate:"Rehab warm-up if your Rebuild program has one, then Mobilise (dynamic drills first, static holds of 30 s or less and no more than 60 s per area, so you keep your strength), then Activate: brace the core and switch on the muscles your movements rely on. Floor work first, standing last, so you finish ready to lift.",
-    recover:"Downshift with a short walk (movement clears tired tissue better than ice or lying still), then long passive holds for what you trained, from standing down to the floor.",
+    activate:"Rehab warm-up if your Rebuild program has one, then Mobilise: dynamic drills for the positions your lifts need. A short static hold (30 s, one per area) only where your test shows you're tight and the session uses that muscle, so you keep your strength. Then Activate: brace the core, switch on the muscles your lifts rely on, and finish by rehearsing the main lift's position (for example a PVC overhead squat before snatches).",
+    recover:"Long passive holds for the muscles the session loaded, from standing down to the floor, then slow 90/90 breathing on your back to shift from training mode into recovery mode.",
     daily:"Mobility for your weakest areas, capped at about 10 minutes of static stretching per area per week, then Strength at end range. Loaded range work improves mobility as much as stretching and also lowers injury risk.",
     target:"Mobility for your chosen area, repeated in rounds if needed, then Lock it in with a strength drill in the new range."}[W.kind]}</p></div>
   </div><button class="btn sec" data-act="closeSheet">Close</button>`);
@@ -1161,7 +1170,7 @@ function segsFor(it,i){
     return out;
   }
   out.push({type:"ready",i,secs:first?S.settings.ready:8,label:first?"Get ready":"Next up"});
-  if(d.k==="time"){out.push({type:"hold",i,hold:d.secs,dosed:1,label:fmt(d.secs)+" walk"});return out}
+  if(d.k==="time"){out.push({type:"hold",i,hold:d.secs,dosed:1,label:fmt(d.secs)+(it.id==="r_walk"?" walk":"")});return out}
   const sides=d.sides?["Right","Left"]:[null];
   const sets=d.k==="pyramid"?d.reps:Array.from({length:d.sets},()=>d.k==="reps"?(it.reps||d.reps):d.k==="rephold"?d.reps:1);
   const lab=(si,ri,reps,sd)=>[sets.length>1?`Set ${si+1}/${sets.length}`:"",reps>1?`Rep ${ri+1}/${reps}`:"",sd||""].filter(Boolean).join(" · ");
@@ -1178,7 +1187,7 @@ function segsFor(it,i){
 function doseText(it){
   const d=it.dose;if(!d)return"";
   const side=d.sides?" each side":"";
-  if(d.k==="time")return`${Math.round(d.secs/60)} min`;
+  if(d.k==="time")return d.secs<120?`${d.secs} s`:d.secs%60?`${Math.floor(d.secs/60)} min ${d.secs%60} s`:`${d.secs/60} min`;
   if(d.k==="hold")return`${d.sets} × ${d.secs} s hold${side}`;
   if(d.k==="rephold")return`${d.sets>1?d.sets+" × ":""}${d.reps} reps · ${d.secs} s holds${side}`;
   if(d.k==="pyramid")return`${d.reps.join("-")} reps · 10 s holds${side}`;
@@ -1421,6 +1430,9 @@ const REHAB_LIB=[
  {id:"r_wristcurl",n:"Slow wrist curls",a:"elbow",z:["forearm"],eq:["plate"],stim:"Forearm working through full range",c:["Same position as the hold","3 seconds up, 3 seconds down","Palm down for outer elbow, palm up for inner elbow"],easy:"Lighter weight."},
  {id:"r_farmer",n:"Farmer carry",a:"elbow",z:["forearm"],eq:["plate"],stim:"Grip and shoulders working with a neutral wrist",c:["Heavy weights at your sides","Walk tall with the shoulders down","Wrists straight"],easy:"Lighter weights, shorter walks."},
  {id:"r_rackhold",n:"Overhand bar hold",a:"elbow",z:["forearm"],eq:[],stim:"Grip strength in the overhand position",c:["Bar in the rack at hip height, overhand grip","Stand up with it and hold","Wrists straight, not bent back"],easy:"Lighter bar."},
+ {id:"r_breath",n:"90/90 breathing",a:"core",z:["core"],eq:[],stim:"Your belly and lower ribs widening, the neck and shoulders going quiet",c:["On your back, feet up on a bench, box, couch or wall, hips and knees at 90°","Breathe in through the nose for 4 seconds into the belly and sides","Breathe out slowly for 6–8 seconds, let the ribs sink"],easy:"Feet flat on the floor instead."},
+ {id:"r_ohs",n:"PVC overhead squat",a:"shoul",z:["lats","upperback","ankles","adductors"],eq:["pipe"],stim:"Arms locked overhead while the hips sink between the heels",c:["Snatch grip on a PVC pipe, arms locked overhead","Squat slowly, pipe stays over the middle of the foot","Pause at the bottom, push the knees out, chest up"],easy:"Wider grip, or squat only as deep as the pipe stays back."},
+ {id:"r_wristrock",n:"Wrist prep rocks",a:"elbow",z:["forearm"],eq:[],stim:"Stretch on the front of the wrists and forearms",c:["On all fours, fingers forward","Rock the shoulders forward past the hands, then back","Then turn the fingers back toward the knees and repeat"],easy:"Smaller rocks."},
  {id:"r_calfiso",n:"Single-leg calf raise hold",a:"calf",z:["calves"],eq:["wall"],stim:"Hard calf work, Achilles pain settling",c:["Rise up halfway on one leg, hand on the wall","Hold still","Should be hard by 45 seconds"],easy:"Use both legs."},
  {id:"r_calfraise",n:"Slow heel raises",a:"calf",z:["calves"],eq:["wall"],stim:"Calf and Achilles loaded slowly",c:["Straight knees, rise for 3 seconds","Lower for 3 seconds","Pain on the back of the heel: stay on flat ground, don't drop below"],easy:"Both legs, no added weight."},
  {id:"r_soleus",n:"Seated soleus raises",a:"calf",z:["calves"],eq:["plate"],stim:"The deep calf with the knee bent",c:["Sit, knees at 90°, weight on the knees","Raise the heels slowly","Lower slowly"],easy:"Less weight."},
@@ -1599,10 +1611,12 @@ REGIONS.back.phasesBy={flexion:REGIONS.back.phases,extension:REGIONS.back.phases
 const MOVE_PREP=[
  {moves:["Squat Clean","Front Squat","Back Squat","Overhead Squat","Thruster","Wall Ball","Pistol","Clean & Jerk","Snatch","Lunges","Sandbag Lunges","Box Jump"],
   drills:[["r_bandsquat",D_.hold(1,30),"wakes up the sides of the hips so your knees track over your toes"],["r_goblethold",D_.rep(1,5,5),"rehearses a braced squat bottom before you load it"]]},
- {moves:["Deadlift","Romanian Deadlift","Power Clean","Squat Clean","Kettlebell Swing","Rowing","Sled Pull","Clean & Jerk","Snatch","Power Snatch"],
+ {moves:["Deadlift","Romanian Deadlift","Power Clean","Squat Clean","Kettlebell Swing","Rowing","Sled Pull","Clean & Jerk"],
   drills:[["r_hinge",D_.reps(1,10),"grooves moving at the hips with a still spine before you pull"],["r_bridge",D_.rep(1,10,3),"switches the glutes on so the low back doesn't do their job"]]},
  {moves:["Snatch","Power Snatch","Overhead Squat","Split Jerk","Push Jerk","Clean & Jerk","Strict Press","Push Press","Handstand Push-up","Handstand Walk","Wall Ball","Thruster"],
-  drills:[["r_proneY",D_.reps(1,8),"turns on the lower traps so the shoulder blade rotates up under the bar"],["r_scappull",D_.reps(1,6),"teaches the shoulder blades to set before you press or hang"]]},
+  drills:[["r_proneY",D_.reps(1,8),"turns on the lower traps so the shoulder blade rotates up under the bar"],["r_scappull",D_.reps(1,6),"teaches the shoulder blades to set before you press or hang"],["r_ohs",D_.reps(2,5,{tempo:[3,2,1],note:"Pause at the bottom"}),"rehearses the exact overhead position you'll need, slowly, before the bar is loaded"]]},
+ {moves:["Front Squat","Squat Clean","Power Clean","Clean & Jerk","Thruster","Push Press","Handstand Push-up","Handstand Walk","Push-up","Burpee"],
+  drills:[["r_wristrock",D_.reps(1,10),"warms up the wrists for the front rack and pressing"],["s7",null,"opens the lats and triceps so the elbows stay high in the front rack"]]},
  {moves:["Pull-up","Chest-to-bar Pull-up","Bar Muscle-up","Ring Muscle-up","Toes-to-bar","Rope Climb","Climbing","Ski Erg"],
   drills:[["r_scappull",D_.reps(1,6),"sets the shoulder blades before you hang and kip"],["r_bandw",D_.reps(1,12),"warms up the rotator cuff for high-rep pulling"]]},
  {moves:["Bench Press","Push-up","Dips","Burpee","Bar Muscle-up","Ring Muscle-up","Swimming"],
@@ -1645,9 +1659,12 @@ function itemSecs(it){
   return segsFor(it,1).reduce((t,s)=>t+(s.type==="set"?s.reps*repSecs:s.type==="ready"?s.secs:s.hold),0);
 }
 function pickMobility(o,ctx,budget,pool,state){
-  const{need,flash}=ctx,holdFor=ex=>flash?30:o.kind==="activate"?(ex.dyn?40:30):o.kind==="recover"?Math.max(ex.hold,60):ex.hold;
+  const{need,flash}=ctx,holdFor=ex=>flash?30:o.kind==="activate"?(ex.dyn?(o.minutes>=10?60:45):30):o.kind==="recover"?Math.max(ex.hold,60):ex.hold;
+  const sc0=scores(),maxItems=o.kind==="activate"?Math.max(2,Math.round(o.minutes*.4)):99;
+  // before training a static hold has to earn its place: only where your test shows you're tight
+  if(o.kind==="activate")pool=pool.filter(ex=>ex.dyn||(sc0[ex.a]<60&&ex.z.some(z=>(ctx.zd[z]||0)>=.5)));
   const cost=ex=>(ex.sides?2:1)*(holdFor(ex)+5)+1;
-  const zd=ctx.zd,recent=recentExercises(),zoneW=o.kind==="activate"||o.kind==="recover"?1.2:.3;
+  const zd=ctx.zd,recent=recentExercises(),zoneW=o.kind==="recover"?2.2:o.kind==="activate"?1.4:.3;
   const score=new Map(pool.map(ex=>{let s=1+zoneW*ex.z.reduce((t,z)=>Math.max(t,zd[z]||0),0);
     if(o.kind==="activate")s+=ex.dyn?.9:-.3;
     if(o.kind==="recover"&&ex.hold>=60)s+=.3;
@@ -1657,11 +1674,11 @@ function pickMobility(o,ctx,budget,pool,state){
   for(let g=0;g<80;g++){
     const behind=a=>alloc[a.k]-need[a.k]/total*budget;
     const cand=areas.filter(a=>!dead.has(a.k)).sort((x,y)=>behind(x)-behind(y));
-    if(!cand.length)break;
+    if(!cand.length||picked.length>=maxItems)break;
     const area=cand[0].k;
     const opts=pool.filter(ex=>ex.a===area&&!picked.includes(ex)&&!state.used.has(ex.id)&&used+cost(ex)<=budget+8
       // before training: at most 60 s of static stretching per area
-      &&!(o.kind==="activate"&&!ex.dyn&&stat[area]+holdFor(ex)>60)).sort((x,y)=>score.get(y)-score.get(x));
+      &&!(o.kind==="activate"&&!ex.dyn&&stat[area]>0)).sort((x,y)=>score.get(y)-score.get(x));
     if(!opts.length){dead.add(area);continue}
     const ex=opts[0];picked.push(ex);state.used.add(ex.id);used+=cost(ex);alloc[area]+=cost(ex);if(!ex.dyn)stat[area]+=holdFor(ex);
   }
@@ -1684,13 +1701,34 @@ function buildPlan(o){
   const preRehab=()=>fit(hooks.pre.map(([id,dose])=>({id,dose,why:`Part of your ${hooks.name} program: isometric holds before training calm the area and let you lift with less pain.`})),flash?60:Math.min(left*.3,300));
   if(o.kind==="activate"){
     if(!flash)add("Rehab warm-up",preRehab());
-    const mob=pickMobility(o,C,Math.max(60,left*(flash?.75:.6)),pool,state);add("Mobilise",mob.items);
-    const core=o.minutes>=10?[CORE_PREP[Math.random()<.5?0:1]].map(([id,dose,why])=>({id,dose,why})):[];
-    const prep=[];MOVE_PREP.forEach(p=>{if(moves.some(m=>p.moves.includes(m)))p.drills.forEach(([id,dose,why])=>{const m=moves.find(x=>p.moves.includes(x));prep.push({id,dose,why:`${m}: this ${why}.`})})});
-    add("Activate",fit([...core,...prep],Math.max(0,left)));
+    // hinge-heavy days get the bird dog, everything else the side plank
+    const hingeDay=moves.slice(0,3).some(m=>["Deadlift","Romanian Deadlift","Kettlebell Swing","Power Clean"].includes(m));
+    const core=o.minutes>=10?[CORE_PREP[hingeDay?0:1]].map(([id,dose,why])=>({id,dose,why})):[];
+    // groups ranked by how much of the session they cover, main lifts (listed first) counting most
+    const rel=p=>moves.reduce((t,m,i)=>t+(p.moves.includes(m)?1/(1+i*.5):0),0);
+    const groups=MOVE_PREP.filter(p=>rel(p)>0).sort((a,b)=>rel(b)-rel(a));
+    const cap=flash?2:o.minutes<=10?3:o.minutes<=15?4:6,prep=[];
+    // with more time, the second-ranked groups get their second drill too
+    if(o.minutes>=15)groups.forEach((g,gi)=>{if(gi>0)g._two=1});
+    groups.forEach((g,gi)=>{delete g._two});groups.forEach((g,gi)=>{if(o.minutes>=15&&gi>0)g._two=1});
+    groups.forEach((g,gi)=>{const m=moves.find(x=>g.moves.includes(x));
+      // the top group's most specific drill (its last one) is the rehearsal of the main lift
+      const ds=gi===0?g.drills.slice().reverse():g.drills;
+      ds.slice(0,gi===0||g._two?2:1).forEach(([id,dose,why])=>prep.push({id,...(dose?{dose}:{hold:30}),why:`${m}: this ${why}.`,rank:gi}))});
+    const chosen=[...core,...prep].filter((it,i,a)=>a.findIndex(x=>x.id===it.id)===i).slice(0,cap+core.length);
+    // order: trunk first, then supporting drills, the rehearsal of the main lift last
+    chosen.sort((a,b)=>(a.rank??-1)===(b.rank??-1)?0:(b.rank??99)-(a.rank??99));
+    const main=chosen.filter(x=>x.rank===0),rest=chosen.filter(x=>x.rank!==0);
+    // drills first (they're the point of the session), then mobility fills the rest of the time
+    const act=fit([...rest.filter(x=>x.rank==null),...rest.filter(x=>x.rank!=null),...main.reverse()],Math.max(0,left*(flash?.4:.5)));
+    act.forEach(it=>state.used.add(it.id));
+    const actSecs=act.reduce((t,it)=>t+itemSecs(it),0);
+    const mob=pickMobility({...o,minutes:o.minutes*(left-actSecs)/(left*.55)},C,Math.max(60,left-actSecs),pool,state);
+    add("Mobilise",mob.items);add("Activate",act);
   }else if(o.kind==="recover"){
-    if(o.minutes>=10&&okEq("r_walk"))add("Downshift",[{id:"r_walk",dose:D_.time(120),why:"Easy movement first. Muscle contraction moves swelling and waste out of tired tissue better than ice or lying still."}]);
+    const br=o.minutes>=10?(o.minutes>=15?150:90):0;left-=br;
     pool=pool.filter(ex=>!ex.dyn);add("Long holds",pickMobility(o,C,left,pool,state).items);
+    if(br)add("Wind down",[{id:"r_breath",dose:D_.time(br),why:"Slow breathing with long exhales shifts the nervous system from training mode into recovery mode. Ending here, lying down, is the best lead-in to rest and sleep."}]);
   }else if(o.kind==="daily"){
     const mob=pickMobility(o,C,left*(flash?1:.72),pool,state);add("Mobility",mob.items);
     if(!flash){
@@ -1751,7 +1789,7 @@ const ALIASES=[
  ["Ski Erg",/ski ?erg|\bski\b/],
  ["Assault Bike",/(assault|echo|air) ?bike|bike ?erg|\bbike\b/],
  ["Push-up",/push[- ]?ups?/],
- ["Dips",/\bdips?\b/],
+ ["Dips",/(?<!hip\s)\bdips?\b/],
  ["GHD Sit-up",/\bghd/],
  ["Sprints",/sprints?/],
  ["Sled Push",/sled push(es)?/],
