@@ -1626,7 +1626,7 @@ const ALIASES=[
  ["Lunges",/lunges?/],
  ["Burpee",/burpees?/],
  ["Double-unders",/double[- ]?unders?|\bdus\b/],
- ["Rowing",/\brow(ing)?\b|rower/],
+ ["Rowing",/(?<!(?:db|dumbbell|trap|barbell|bb|over|ring|upright|pendlay|kb|cable|seal|inverted|supported|single[- ]arm)\s)\brow(ing)?\b|rower/],
  ["Ski Erg",/ski ?erg|\bski\b/],
  ["Assault Bike",/(assault|echo|air) ?bike|bike ?erg|\bbike\b/],
  ["Push-up",/push[- ]?ups?/],
@@ -1688,6 +1688,7 @@ SCREENS.training=()=>{
   <div class="stack" style="padding-top:8px">
   <div style="display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap"><h1>Training</h1><span style="display:flex;gap:14px"><button class="link" data-act="importW">Import</button><button class="link" data-act="addW">${ic("plus","")} Add workout</button></span></div>
   ${(()=>{const sy=S.sync||{};
+    if(syncAvail===false&&!sy.key&&sy.preload)return`<div class="panel"><span class="eyebrow c-good">SugarWOD · connected</span><div style="font-size:14px">Pulled from your account ${agoText(sy.preload.syncedAt)} · ${sy.preload.count} workouts: your logged results and the coming week's programming. In the installed app this refreshes every 3 hours.</div></div>`;
     if(syncAvail===false&&!sy.key)return`<div class="panel"><span class="eyebrow">SugarWOD auto-sync</span><div style="font-size:14px">Automatic sync runs in the installed Range app. Set up the free GitHub workflow once and your whiteboard arrives here every 3 hours. Until then, use Import.</div></div>`;
     if(!sy.key)return`<div class="panel"><span class="eyebrow">SugarWOD auto-sync</span><div style="font-size:14px">${syncAvail?"Your sync file is ready. Enter your passphrase to unlock it.":"Checking for your sync file…"}</div><button class="btn" data-act="syncKey">Connect</button></div>`;
     return`<div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span class="eyebrow ${sy.error?"c-bad":"c-good"}">SugarWOD auto-sync ${sy.error?"· needs attention":"· on"}</span><button class="link" data-act="syncNow">Sync now</button></div>
