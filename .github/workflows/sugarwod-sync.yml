@@ -1,0 +1,62 @@
+# Every 3 hours: log in to SugarWOD with your secrets, read the whiteboard, encrypt it with RANGE_SYNC_KEY,
+# and publish it with the Range app on GitHub Pages. Logs show counts only, never workouts or credentials.
+name: SugarWOD sync
+
+on:
+  schedule:
+    - cron: "17 */3 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  sync-and-publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: sugarwod-sync/package-lock.json
+
+      - name: Install the sync tool
+        working-directory: sugarwod-sync
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Keep the previous sync file (history is merged, not replaced)
+        run: curl -fsSL "${{ steps.pages.outputs.base_url }}/sugarwod.json.enc" -o site/sugarwod.json.enc || echo "No previous file yet"
+
+      - name: Read your SugarWOD whiteboard
+        working-directory: sugarwod-sync
+        continue-on-error: true
+        env:
+          SUGARWOD_EMAIL: ${{ secrets.SUGARWOD_EMAIL }}
+          SUGARWOD_PASSWORD: ${{ secrets.SUGARWOD_PASSWORD }}
+          RANGE_SYNC_KEY: ${{ secrets.RANGE_SYNC_KEY }}
+        run: node src/cli.js ci-sync --out ../site/sugarwod.json.enc --back 7 --ahead 7
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - id: deploy
+        uses: actions/deploy-pages@v4

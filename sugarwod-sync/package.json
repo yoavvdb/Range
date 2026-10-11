@@ -1,0 +1,18 @@
+{
+  "name": "sugarwod-sync",
+  "version": "0.1.0",
+  "description": "Pull your own SugarWOD whiteboard and workout history into Range, and expose it to Claude over MCP.",
+  "type": "module",
+  "bin": { "sugarwod-sync": "src/cli.js" },
+  "scripts": {
+    "test": "node --test --test-concurrency=1",
+    "mcp": "node src/cli.js mcp"
+  },
+  "engines": { "node": ">=18.17" },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.0",
+    "playwright": "^1.47.2",
+    "zod": "^3.23.8"
+  },
+  "license": "MIT"
+}
