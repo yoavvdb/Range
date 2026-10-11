@@ -54,6 +54,7 @@ def main():
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>window.RANGE_THREE_URL="./three.module.min.js"</script>
 <style>:root{{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}}body{{margin:0;font:14px system-ui,sans-serif}}img{{max-width:100%}}[hidden]{{display:none!important}}</style>
 </head><body>
 """
@@ -74,6 +75,8 @@ def main():
     icon(512).save(os.path.join(DIST, "icon-512.png"))
     icon(512, maskable=True).save(os.path.join(DIST, "icon-maskable-512.png"))
     icon(180).save(os.path.join(DIST, "apple-touch-icon.png"))
+    # the 3D library ships with the app so the 3D demos work offline
+    shutil.copy(os.path.join(HERE, "three.module.min.js"), os.path.join(DIST, "three.module.min.js"))
     version = str(abs(hash(page)) % 10**8)
     open(os.path.join(DIST, "sw.js"), "w").write(open(os.path.join(HERE, "sw.template.js")).read().replace("__VERSION__", version))
     print("Built", DIST)
