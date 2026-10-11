@@ -22,7 +22,8 @@
   --bg:#0D1015;--surface:#161A21;--surface2:#1E232C;--line:#2A303A;
   --ink:#EEF1F5;--muted:#8B94A2;--accent:#3FD0C9;--accent-ink:#04201F;--accent-soft:#143534;
   --warn:#E6A94B;--bad:#F07167;--good:#4CC38A;
-  --fig:#D5DCE5;--fig-torso:#EEF2F6;--fig-far:#5A6373;--fig-prop:#3A4250;--fig-prop-hi:#8A94A4;--fig-floor:#2A303A;
+  --fig:#D5DCE5;--fig-torso:#EEF2F6;--fig-far:#5A6373;--fig-prop:#A3ACB9;--fig-prop-hi:#4F5968;--fig-floor:#C3CAD4;
+  --fig-skin:#EDC4A6;--fig-skin2:#D6A584;--fig-shirt:#D8473A;--fig-shirt2:#93281F;--fig-shorts:#5C3A6E;--fig-shorts2:#35223F;--fig-hair:#1D1A22;--fig-shoe:#3A2442;--fig-shoe2:#241628;--fig-hl:#16B5AC;--fig-ghost:#2B3442;--fig-arrow:#0E8C84;--stage:linear-gradient(180deg,#F1F3F6,#E2E7ED);
   --f:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
   color-scheme:dark;
 }
@@ -65,11 +66,11 @@ a.btn{text-decoration:none}.btn{display:flex;align-items:center;justify-content:
 .fig .shadow{fill:#000;opacity:.25}
 .fig .hl{fill:none;stroke:var(--accent);stroke-linecap:round}
 .fig .hlc{fill:var(--accent)}
-.fig .mat{fill:#1F252F;stroke:#2A303A}
+.fig .mat{fill:#DDE3EA;stroke:#C9D1DB}
 .fig .pipe{stroke:var(--fig-prop-hi);stroke-width:4;stroke-linecap:round}
 .fig .pipeend{fill:var(--fig-prop-hi)}.fig .kit rect,.fig .kit circle{fill:var(--fig-prop-hi);stroke:var(--bg);stroke-width:1.5}
 .fig .floor{stroke:var(--fig-floor);stroke-width:2}
-.fig .ghost{stroke:var(--fig-seg);opacity:.16;stroke-linecap:round;fill:none}.fig .ghostc{fill:var(--fig-seg);opacity:.16}.fig .marrow{fill:none;stroke:var(--accent);stroke-width:2;stroke-dasharray:4 3;opacity:.85;stroke-linecap:round}.fig .marrowh{fill:none;stroke:var(--accent);stroke-width:2.2;opacity:.9;stroke-linecap:round;stroke-linejoin:round}
+.fig .ghost{stroke:var(--fig-ghost);opacity:.13;stroke-linecap:round;fill:none}.fig .ghostc{fill:var(--fig-ghost);opacity:.13}.fig .marrow{fill:none;stroke:var(--fig-arrow);stroke-width:2.2;stroke-dasharray:4 3;stroke-linecap:round}.fig .marrowh{fill:none;stroke:var(--fig-arrow);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .fig .prop{fill:none;stroke:var(--fig-prop);stroke-width:4;stroke-linecap:round}
 .fig .propfill{fill:var(--fig-prop)}
 .fig .band{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-dasharray:4 3;opacity:.8}
@@ -206,7 +207,7 @@ a.btn{text-decoration:none}.btn{display:flex;align-items:center;justify-content:
 .segbar i{flex:1;height:3px;border-radius:2px;background:var(--line);overflow:hidden;position:relative}
 .segbar i.done{background:var(--accent)}
 .segbar i b{position:absolute;inset:0 auto 0 0;background:var(--accent)}
-.stage{position:relative;background:linear-gradient(180deg,#1A2029,#12161C);aspect-ratio:240/150;max-height:34vh;width:100%;cursor:pointer;overflow:hidden}
+.stage{position:relative;background:var(--stage);aspect-ratio:240/150;max-height:34vh;width:100%;cursor:pointer;overflow:hidden}
 .stage .fig{height:100%;width:auto;margin:0 auto}
 .stage .ov{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;gap:48px;background:rgba(0,0,0,.45)}
 .stage .ov button{display:grid;justify-items:center;gap:4px;font-size:13px;font-weight:700}
@@ -244,14 +245,14 @@ a.btn{text-decoration:none}.btn{display:flex;align-items:center;justify-content:
 /* library */
 .lib{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .lcard{background:var(--surface);border-radius:14px;overflow:hidden;text-align:left;display:grid;align-content:start}
-.lcard .art{background:var(--surface2);aspect-ratio:240/150}
+.lcard .art{background:var(--stage);aspect-ratio:240/150}
 .lcard div.t{padding:10px 12px 12px;display:grid;gap:2px}
 .lcard b{font-size:14px;line-height:1.25}
 .lcard small{color:var(--muted);font-size:12px}
 .hscroll{display:flex;gap:8px;overflow-x:auto;margin-inline:-16px;padding-inline:16px;scrollbar-width:none}
 .hscroll::-webkit-scrollbar{display:none}
 .hscroll .chip{flex:none}
-.detailstage{background:linear-gradient(180deg,#1A2029,#12161C);border-radius:16px;overflow:hidden}
+.detailstage{background:var(--stage);border-radius:16px;overflow:hidden}
 .panel{background:var(--surface);border-radius:16px;padding:16px;display:grid;gap:12px;min-width:0}
 /* profile */
 .score{display:flex;align-items:baseline;gap:10px}
@@ -276,12 +277,12 @@ a.btn{text-decoration:none}.btn{display:flex;align-items:center;justify-content:
 .feel button{padding:12px 2px;border-radius:10px;background:var(--surface);font-size:12px;font-weight:700}
 .feel button.on{background:var(--accent);color:var(--accent-ink)}
 /* rebuild */
-.tsfig{position:relative;background:var(--surface2);border-radius:14px;display:grid;place-items:center;padding:6px}.tsfig svg{width:100%;max-width:300px;height:auto}.tsfig.mir svg{transform:scaleX(-1)}.tsfig .pill{position:absolute;top:8px;left:8px}
+.tsfig{position:relative;background:var(--stage);border-radius:14px;display:grid;place-items:center;padding:6px}.tsfig svg{width:100%;max-width:300px;height:auto}.tsfig.mir svg{transform:scaleX(-1)}.tsfig .pill{position:absolute;top:8px;left:8px}
 .tsides{display:grid;grid-template-columns:1fr 1fr;gap:6px}.tsides span{text-align:center;padding:8px;border-radius:10px;background:var(--surface2);font-size:14px;font-weight:600;color:var(--muted)}.tsides span.on{background:var(--accent);color:var(--bg)}.tsides span.done{color:var(--ink)}
-textarea{font:inherit}.edex{gap:10px}.edhead{display:grid;grid-template-columns:72px 1fr auto;gap:10px;align-items:center}.edhead .th{width:72px;height:auto;background:var(--surface2);border-radius:10px;display:block}.edhead .th svg{width:72px;height:auto;display:block}.edbtns{display:flex;gap:12px}
+textarea{font:inherit}.edex{gap:10px}.edhead{display:grid;grid-template-columns:72px 1fr auto;gap:10px;align-items:center}.edhead .th{width:72px;height:auto;background:var(--stage);border-radius:10px;display:block}.edhead .th svg{width:72px;height:auto;display:block}.edbtns{display:flex;gap:12px}
 .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--surface2);border-radius:10px;padding:3px}.seg button{padding:8px 4px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted)}.seg button.on{background:var(--surface);color:var(--ink)}
 .ednums{display:flex;gap:8px}.edn{display:grid;gap:4px;flex:1;font-size:12px;color:var(--muted)}.edn input{width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px;font-size:16px;font-variant-numeric:tabular-nums}
-.looks{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.looks button{display:grid;gap:2px;justify-items:center;padding:6px;border-radius:10px;background:var(--surface2);min-height:60px;box-shadow:inset 0 0 0 2px transparent}.looks button.on{box-shadow:inset 0 0 0 2px var(--accent)}.looks svg{width:100%;height:auto}.looks small{font-size:11px;color:var(--muted);text-align:center;line-height:1.2}
+.looks{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.looks button{display:grid;gap:2px;justify-items:center;padding:6px;border-radius:10px;background:var(--stage);min-height:60px;box-shadow:inset 0 0 0 2px transparent}.looks button.on{box-shadow:inset 0 0 0 2px var(--accent)}.looks svg{width:100%;height:auto}.looks small{font-size:11px;color:var(--muted);text-align:center;line-height:1.2}
 .ph small{opacity:.6;font-weight:500;margin-left:4px}.gates li{grid-template-columns:150px 1fr 44px}
 .painrow{display:grid;grid-template-columns:repeat(11,1fr);gap:4px}
 .pain{min-height:42px;border-radius:8px;background:var(--surface2);font-weight:800;font-variant-numeric:tabular-nums}
@@ -295,7 +296,7 @@ textarea{font:inherit}.edex{gap:10px}.edhead{display:grid;grid-template-columns:
 .rxlist{display:grid}
 .rx{display:grid;grid-template-columns:72px 1fr;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);text-align:left}
 .rx:last-child{border-bottom:0}
-.rx .th{background:var(--surface2);border-radius:8px;overflow:hidden;display:block}
+.rx .th{background:var(--stage);border-radius:8px;overflow:hidden;display:block}
 .rx small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
 .tick,.cross{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:14px}
 .tick li,.cross li{padding-left:22px;position:relative}
@@ -683,25 +684,56 @@ function figInner(key,t,_props,opt={}){
     if(k==="highbench")s+=`<rect class="propfill" x="${a}" y="${b}" width="${c}" height="6" rx="2"/><rect class="propfill" x="${a+6}" y="${b+6}" width="4" height="${137-b}"/><rect class="propfill" x="${a+c-10}" y="${b+6}" width="4" height="${137-b}"/>`;
     if(k==="bar")s+=`<line class="pipe" x1="${a}" y1="${b}" x2="${c}" y2="${b}"/>`;
   });
-  // limb drawing; one-sided stretches light up only the near side
+  /* Illustrated person: flat shapes with skin, shirt, shorts, shoes and hair. Bones come from the solver
+     above; this only dresses them. Far-side limbs use darker tones so left and right read clearly. */
+  const pt=(a,b,u)=>[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u];
+  const cap=(a,b,r1,r2,fill,o)=>{const an=Math.atan2(b[1]-a[1],b[0]-a[0]),nx=-Math.sin(an),ny=Math.cos(an);
+    return`<path d="M${n1(a[0]+nx*r1)} ${n1(a[1]+ny*r1)}L${n1(b[0]+nx*r2)} ${n1(b[1]+ny*r2)}A${r2} ${r2} 0 0 0 ${n1(b[0]-nx*r2)} ${n1(b[1]-ny*r2)}L${n1(a[0]-nx*r1)} ${n1(a[1]-ny*r1)}A${r1} ${r1} 0 0 0 ${n1(a[0]+nx*r1)} ${n1(a[1]+ny*r1)}Z" style="fill:${fill}"${o?` opacity="${o}"`:""}/>`};
+  const dot=(c,r,fill,o)=>`<circle cx="${n1(c[0])}" cy="${n1(c[1])}" r="${r}" style="fill:${fill}"${o?` opacity="${o}"`:""}/>`;
+  const HL="var(--fig-hl)",hlo=(.32+.28*t).toFixed(2);
   const limb=(sd,far)=>{
-    const lg=J.legs[sd],ar=J.arms[sd],c=far?"seg far":"seg",lit=!far||!opt.sides,o=far?(op*.6).toFixed(2):op;
+    const lg=J.legs[sd],ar=J.arms[sd],lit=!far||!opt.sides,v=far?"2":"",sk=`var(--fig-skin${v})`;
     let g="";
-    g+=L(lg.hip,lg.k,9.5,c)+L(lg.k,lg.f,8,c)+L(lg.f,lg.ft,5.5,c);
-    if(lit){if(hl.has("thigh"))g+=L(lg.hip,lg.k,9.5,"hl",o);if(hl.has("shin"))g+=L(lg.k,lg.f,8,"hl",o);if(hl.has("foot"))g+=L(lg.f,lg.ft,5.5,"hl",o)}
-    const arm=L(ar.sh,ar.e,7.5,c)+L(ar.e,ar.w,6.5,c)+C(ar.w,3.4,far?"jf":"j")+(lit&&hl.has("upperarm")?L(ar.sh,ar.e,7.5,"hl",o):"")+(lit&&hl.has("forearm")?L(ar.e,ar.w,6.5,"hl",o):"");
+    // leg: skin, then shorts over the upper thigh, then the shoe
+    g+=cap(lg.hip,lg.k,8.6,6.6,sk)+cap(lg.k,lg.f,6.4,4.4,sk)+dot(lg.k,6.6,sk);
+    g+=cap(lg.hip,pt(lg.hip,lg.k,.7),10,8.6,`var(--fig-shorts${v})`);
+    const back=vadd(lg.f,[(lg.f[0]-lg.ft[0])*.25,(lg.f[1]-lg.ft[1])*.25]);
+    g+=cap(back,lg.ft,4.8,3.9,`var(--fig-shoe${v})`);
+    if(lit){if(hl.has("thigh"))g+=cap(lg.hip,lg.k,8.6,6.6,HL,hlo);if(hl.has("shin"))g+=cap(lg.k,lg.f,6.4,4.4,HL,hlo);if(hl.has("foot"))g+=cap(back,lg.ft,4.8,3.9,HL,hlo)}
+    // arm: sleeve over the top of the upper arm, skin below, then the hand
+    let arm=cap(ar.sh,ar.e,5.4,4.5,sk)+cap(ar.e,ar.w,4.5,3.6,sk)+dot(ar.w,4.6,sk)+cap(ar.sh,pt(ar.sh,ar.e,.55),6.6,5.8,`var(--fig-shirt${v})`);
+    if(lit){if(hl.has("upperarm"))arm+=cap(ar.sh,ar.e,5.4,4.5,HL,hlo);if(hl.has("forearm"))arm+=cap(ar.e,ar.w,4.5,3.6,HL,hlo)}
     return{legs:g,arm};
   };
   const far=limb("2",!front),near=limb("1",false);
-  const torso=J.above?`<ellipse class="seg torso" cx="${n1(J.p[0])}" cy="${n1(J.p[1])}" rx="9" ry="15" stroke-width="0" style="fill:var(--fig-torso)"/>`:`<path class="seg torso" d="M${n1(J.p[0])} ${n1(J.p[1])}Q${n1(J.c[0])} ${n1(J.c[1])} ${n1(J.n[0])} ${n1(J.n[1])}" stroke-width="${front?19:13}"/>`;
-  const qm=J.q(.5);
-  let tor=torso;
-  if(hl.has("lowback"))tor+=`<path class="hl" d="M${n1(J.p[0])} ${n1(J.p[1])}Q${n1((J.p[0]+J.c[0])/2)} ${n1((J.p[1]+J.c[1])/2)} ${n1(qm[0])} ${n1(qm[1])}" stroke-width="${front?19:13}" opacity="${op}"/>`;
-  if(hl.has("chest"))tor+=`<path class="hl" d="M${n1(qm[0])} ${n1(qm[1])}Q${n1((J.c[0]+J.n[0])/2)} ${n1((J.c[1]+J.n[1])/2)} ${n1(J.n[0])} ${n1(J.n[1])}" stroke-width="${front?19:13}" opacity="${op}"/>`;
-  if(hl.has("hip"))tor+=C(J.p,front?9:7,"hlc",op);
-  const nk=vadd(J.n,[(J.h[0]-J.n[0])*.45,(J.h[1]-J.n[1])*.45]);
-  const head=J.above?C(J.p,8.5,"head")+`<circle cx="${n1(J.p[0]+5)}" cy="${n1(J.p[1])}" r="2" style="fill:var(--fig-far)"/>`:L(J.n,nk,6.5,"seg torso")+C(J.h,8.5,"head");
-  const shoulderHl=hl.has("shoulder")?C(J.arms["1"].sh,5.5,"hlc",op)+(front?C(J.arms["2"].sh,5.5,"hlc",op):""):"";
+  const qm=J.q(.5),wide=front?15:11;
+  let tor;
+  if(J.above)tor=`<ellipse cx="${n1(J.p[0])}" cy="${n1(J.p[1])}" rx="10" ry="16" style="fill:var(--fig-shirt)"/>`;
+  else{
+    // shorts at the pelvis, shirt from the waist to the shoulders (two segments follow the spine curve)
+    tor=dot(J.p,front?wide+1:10.6,"var(--fig-shorts)")+cap(pt(J.p,qm,.25),qm,wide-.5,wide,"var(--fig-shirt)")+cap(qm,J.n,wide,wide+.5,"var(--fig-shirt)");
+    if(hl.has("lowback"))tor+=cap(J.p,qm,wide-.5,wide,HL,hlo);
+    if(hl.has("chest"))tor+=cap(qm,J.n,wide,wide+.5,HL,hlo);
+    if(hl.has("hip"))tor+=dot(J.p,front?wide:8.5,HL,hlo);
+  }
+  // head: face points to the body's front (front view: toward you); hair covers the back and top
+  let head;
+  if(J.above)head=dot(J.p,9,"var(--fig-hair)");
+  else{
+    const hc=J.h,nk=pt(J.n,hc,.5);
+    head=cap(J.n,nk,4.2,4,"var(--fig-skin)")+dot(hc,10.5,"var(--fig-skin)");
+    if(front)head+=`<path d="M${n1(hc[0]-10.8)} ${n1(hc[1]+1)}A10.8 10.8 0 0 1 ${n1(hc[0]+10.8)} ${n1(hc[1]+1)}Q${n1(hc[0])} ${n1(hc[1]-5)} ${n1(hc[0]-10.8)} ${n1(hc[1]+1)}Z" style="fill:var(--fig-hair)"/>`;
+    else{
+      const ta=Math.atan2(J.h[1]-J.n[1],J.h[0]-J.n[0]),fa=ta+(P.A.prone?-1:1)*Math.PI/2; // face direction
+      const fx=Math.cos(fa),fy=Math.sin(fa),ux=Math.cos(ta),uy=Math.sin(ta);
+      // hair: half disc on the back of the head, a little over the top
+      const a1=fa+Math.PI*.42,a2=fa+Math.PI*1.45,R=11.2;
+      head+=`<path d="M${n1(hc[0]+Math.cos(a1)*R)} ${n1(hc[1]+Math.sin(a1)*R)}A${R} ${R} 0 1 1 ${n1(hc[0]+Math.cos(a2)*R)} ${n1(hc[1]+Math.sin(a2)*R)}Z" style="fill:var(--fig-hair)"/>`;
+      head+=dot([hc[0]+fx*10.6-ux*.5,hc[1]+fy*10.6-uy*.5],2.1,"var(--fig-skin)");                      // nose
+      head+=dot([hc[0]-fx*1.2-ux*.8,hc[1]-fy*1.2-uy*.8],1.8,"var(--fig-skin2)");                    // ear
+    }
+  }
+  const shoulderHl=hl.has("shoulder")?dot(J.arms["1"].sh,5.5,HL,hlo)+(front?dot(J.arms["2"].sh,5.5,HL,hlo):""):"";
   const backArms=(J.arms["1"].back?near.arm:"")+(J.arms["2"].back?far.arm:"");
   s+=far.legs+(J.arms["2"].back?"":far.arm)+backArms+near.legs+tor+head+(J.arms["1"].back?"":near.arm)+shoulderHl;
   props.forEach(([k,a,b,c])=>{
@@ -741,7 +773,7 @@ function figBox(key){
     if(k==="strap2")pts.push([a,b]);
   });
   const ok=pts.filter(q=>q&&isFinite(q[0])&&isFinite(q[1])),xs=ok.map(q=>q[0]),ys=ok.map(q=>q[1]),top=P.A.top||P.A.view==="above";
-  let x0=Math.min(...xs)-12,x1=Math.max(...xs)+12,y0=Math.min(...ys)-10,y1=top?Math.max(...ys)+10:147;
+  let x0=Math.min(...xs)-16,x1=Math.max(...xs)+16,y0=Math.min(...ys)-14,y1=top?Math.max(...ys)+10:147;
   let w=Math.max(x1-x0,96),hh=Math.max(y1-y0,60);
   if(w/hh<1.6)w=hh*1.6;else hh=w/1.6;
   const cx=(x0+x1)/2;
