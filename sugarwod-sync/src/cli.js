@@ -28,7 +28,9 @@ const HELP = `sugarwod-sync — your SugarWOD training, for Range and for Claude
   mcp                        Run as an MCP server over stdio (for Claude)
   ci-sync [--out FILE] [--back 7] [--ahead 7]
                              Unattended: log in with SUGARWOD_EMAIL / SUGARWOD_PASSWORD, read the whiteboard,
-                             write an encrypted file (RANGE_SYNC_KEY) for the Range app
+                             write an encrypted file (RANGE_SYNC_KEY) for the Range app; with VAPID_* and
+                             PUSH_SUBSCRIPTION set, a newly logged score sends a "time to recover" notification
+  vapid                      Make the key pair for push notifications
 
 Cache: ${DB_FILE}`;
 
@@ -113,6 +115,16 @@ async function main() {
       // Only counts go to the log (workflow logs can be public); never workout text or credentials.
       console.log(`Synced: ${r.workouts.length} workouts read, ${workouts.length} in the file. Days with nothing found: ${r.missingDays.length}.`);
       if (!r.workouts.length) console.log("Nothing was read from the whiteboard. If this keeps happening, the reader needs adjusting to SugarWOD's pages.");
+      // a score you just logged: nudge the phone to recover
+      const { newlyScored, sendPushes } = await import("./push.js");
+      const fresh = newlyScored(previous, workouts);
+      if (fresh.length) console.log(`New scores on ${fresh.length} day(s). Notifications sent: ${await sendPushes(fresh)}.`);
+      break;
+    }
+    case "vapid": {
+      const { generateKeys } = await import("./push.js");
+      const k = generateKeys();
+      console.log(`Add these two as GitHub secrets (Settings → Secrets and variables → Actions):\n\nVAPID_PUBLIC_KEY\n${k.publicKey}\n\nVAPID_PRIVATE_KEY\n${k.privateKey}\n\nKeep the private key secret. The public one is published next to the app so your phone can subscribe.`);
       break;
     }
     case "mcp": {

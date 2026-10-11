@@ -33,3 +33,21 @@ self.addEventListener("fetch", (e) => {
     })),
   );
 });
+
+// Push from the scheduled SugarWOD sync: "Scores in, time to recover". Tapping it opens Recover for that session.
+self.addEventListener("push", (e) => {
+  let d = {};
+  try { d = e.data ? e.data.json() : {}; } catch { d = { body: e.data && e.data.text() }; }
+  e.waitUntil(self.registration.showNotification(d.title || "Range", {
+    body: d.body || "", tag: d.tag || "range", icon: "icon-192.png", badge: "icon-192.png", data: { url: d.url || "./" },
+  }));
+});
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  const url = new URL((e.notification.data && e.notification.data.url) || "./", self.registration.scope).href;
+  e.waitUntil(self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((wins) => {
+    const w = wins.find((c) => c.url.startsWith(self.registration.scope));
+    if (w) return w.focus().then(() => w.postMessage({ type: "open", url }));
+    return self.clients.openWindow(url);
+  }));
+});

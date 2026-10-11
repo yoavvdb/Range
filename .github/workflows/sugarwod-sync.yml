@@ -1,10 +1,10 @@
-# Every 3 hours: log in to SugarWOD with your secrets, read the whiteboard, encrypt it with RANGE_SYNC_KEY,
+# Every hour: log in to SugarWOD with your secrets, read the whiteboard, encrypt it with RANGE_SYNC_KEY,
 # and publish it with the Range app on GitHub Pages. Logs show counts only, never workouts or credentials.
 name: SugarWOD sync
 
 on:
   schedule:
-    - cron: "17 */3 * * *"
+    - cron: "17 * * * *"
   workflow_dispatch:
   push:
     branches: [main]
@@ -52,7 +52,16 @@ jobs:
           SUGARWOD_EMAIL: ${{ secrets.SUGARWOD_EMAIL }}
           SUGARWOD_PASSWORD: ${{ secrets.SUGARWOD_PASSWORD }}
           RANGE_SYNC_KEY: ${{ secrets.RANGE_SYNC_KEY }}
+          # optional: "time to recover" push when a new score shows up (see README)
+          VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          PUSH_SUBSCRIPTION: ${{ secrets.PUSH_SUBSCRIPTION }}
         run: node src/cli.js ci-sync --out ../site/sugarwod.json.enc --back 7 --ahead 7
+
+      - name: Publish the public push key (lets your phone subscribe to notifications)
+        env:
+          VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
+        run: if [ -n "$VAPID_PUBLIC_KEY" ]; then printf '%s' "$VAPID_PUBLIC_KEY" > site/push-key.txt; fi
 
       - uses: actions/upload-pages-artifact@v3
         with:

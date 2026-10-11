@@ -275,6 +275,12 @@ body.scrolled .hdr{border-bottom-color:var(--line)}
 .feel button{padding:12px 2px;border-radius:10px;background:var(--surface);font-size:12px;font-weight:700}
 .feel button.on{background:var(--accent);color:var(--accent-ink)}
 /* rebuild */
+.tsfig{position:relative;background:var(--surface2);border-radius:14px;display:grid;place-items:center;padding:6px}.tsfig svg{width:100%;max-width:300px;height:auto}.tsfig.mir svg{transform:scaleX(-1)}.tsfig .pill{position:absolute;top:8px;left:8px}
+.tsides{display:grid;grid-template-columns:1fr 1fr;gap:6px}.tsides span{text-align:center;padding:8px;border-radius:10px;background:var(--surface2);font-size:14px;font-weight:600;color:var(--muted)}.tsides span.on{background:var(--accent);color:var(--bg)}.tsides span.done{color:var(--ink)}
+textarea{font:inherit}.edex{gap:10px}.edhead{display:grid;grid-template-columns:72px 1fr auto;gap:10px;align-items:center}.edhead .th{width:72px;height:auto;background:var(--surface2);border-radius:10px;display:block}.edhead .th svg{width:72px;height:auto;display:block}.edbtns{display:flex;gap:12px}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--surface2);border-radius:10px;padding:3px}.seg button{padding:8px 4px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted)}.seg button.on{background:var(--surface);color:var(--ink)}
+.ednums{display:flex;gap:8px}.edn{display:grid;gap:4px;flex:1;font-size:12px;color:var(--muted)}.edn input{width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px;font-size:16px;font-variant-numeric:tabular-nums}
+.looks{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.looks button{display:grid;gap:2px;justify-items:center;padding:6px;border-radius:10px;background:var(--surface2);min-height:60px;box-shadow:inset 0 0 0 2px transparent}.looks button.on{box-shadow:inset 0 0 0 2px var(--accent)}.looks svg{width:100%;height:auto}.looks small{font-size:11px;color:var(--muted);text-align:center;line-height:1.2}
 .painrow{display:grid;grid-template-columns:repeat(11,1fr);gap:4px}
 .pain{min-height:42px;border-radius:8px;background:var(--surface2);font-weight:800;font-variant-numeric:tabular-nums}
 .pain.on.plo{background:var(--good);color:#06150E}.pain.on.pmid{background:var(--warn);color:#1A1205}.pain.on.phi{background:var(--bad);color:#1A0606}
@@ -1040,12 +1046,12 @@ function segsFor(it,i){
   const ex=LIBI[it.id],d=it.dose,out=[],first=i===0;
   if(!d){
     const bias=(S.sideBias||{})[ex.a];
-    (ex.sides?["Left side","Right side"]:[null]).forEach((sd,k)=>{const tight=bias&&sd&&sd[0]===bias;out.push({type:"ready",i,side:sd,secs:first&&!k?S.settings.ready:5,label:k?"Switch sides":first?"Get ready":"Next up"});out.push({type:"hold",i,side:tight?sd+" · tighter, +50%":sd,hold:tight?Math.round(it.hold*1.5):it.hold})});
+    (ex.sides?["Right side","Left side"]:[null]).forEach((sd,k)=>{const tight=bias&&sd&&sd[0]===bias;out.push({type:"ready",i,side:sd,secs:first&&!k?S.settings.ready:5,label:k?"Switch sides":first?"Get ready":"Next up"});out.push({type:"hold",i,side:tight?sd+" · tighter, +50%":sd,hold:tight?Math.round(it.hold*1.5):it.hold})});
     return out;
   }
   out.push({type:"ready",i,secs:first?S.settings.ready:8,label:first?"Get ready":"Next up"});
   if(d.k==="time"){out.push({type:"hold",i,hold:d.secs,dosed:1,label:fmt(d.secs)+" walk"});return out}
-  const sides=d.sides?["Left","Right"]:[null];
+  const sides=d.sides?["Right","Left"]:[null];
   const sets=d.k==="pyramid"?d.reps:Array.from({length:d.sets},()=>d.k==="reps"?(it.reps||d.reps):d.k==="rephold"?d.reps:1);
   const lab=(si,ri,reps,sd)=>[sets.length>1?`Set ${si+1}/${sets.length}`:"",reps>1?`Rep ${ri+1}/${reps}`:"",sd||""].filter(Boolean).join(" · ");
   sets.forEach((reps,si)=>sides.forEach((sd,k)=>{
@@ -1197,7 +1203,7 @@ function finishSession(complete){
   // seconds of static stretching per body area, for the weekly 10-minute target
   P.segs.slice(0,complete?P.segs.length:P.si).forEach(sg=>{const e=LIBI[P.items[sg.i].id];if(sg.type==="hold"&&!e.rehab&&!e.dyn&&AN[e.a])rec.stretch[e.a]=(rec.stretch[e.a]||0)+segSecs(sg)});
   const isRehab=P.meta.kind==="rehab",canRetest=!isRehab&&P.meta.focus&&P.meta.focus.length&&doneCount>0;
-  if(isRehab)P_LAST={testPain:P.meta.testPain,logged:0};
+  if(isRehab)P_LAST={testPain:P.meta.testPain,testR:P.meta.testR,testL:P.meta.testL,proto:P.meta.proto||null,logged:0};
   RETEST={focus:P.meta.focus||[],items:rec.items};
   const meaningful=P.activeMs>20000&&doneCount>0;
   if(meaningful){S.sessions.push(rec);save()}
@@ -1349,7 +1355,7 @@ const REGIONS={
   test:{n:"Single-leg squat",how:"Do a slow single-leg squat on the painful leg (on a small slope if you have one) and rate the pain."},
   screens:[
    {q:"Where exactly does it hurt?",o:[["Bottom tip of the kneecap or the tendon below it",{tendon:3}],["Just above the kneecap",{tendon:3}],["Around the kneecap, and it moves around",{control:2}],["On the outside of the knee",{control:2}]]},
-   {q:"Do 10 jumps in place, then 10 on the painful leg. What happens?",o:[["Pain climbs with the jumps and stays in one spot",{tendon:3}],["Pain moves around or doesn't really change",{control:2}],["No pain",{}]]},
+   {q:"Do 10 jumps in place on both legs, then 10 hops on one leg.",o:[["Pain climbs with the jumps and stays in one spot",{tendon:3}],["Pain moves around or doesn't really change",{control:2}],["No pain",{}]]},
    {q:"Do a single-leg squat in front of a mirror. Does the knee cave in or the hip drop? Does it hurt less when you push the hips back and grip the floor?",o:[["Yes, and fixing it helps",{control:3}],["It caves, but fixing it doesn't help",{control:1}],["No, it stays straight",{}]]},
    {q:"Knee-to-wall test: toes 12 cm (5 in) from the wall. Can the knee touch with the heel down?",o:[["No",{mobility:2}],["Yes",{}]]},
    {q:"Lying on your back, compare how far each hip rotates in and out (with a friend's help). Big difference?",o:[["Yes, clearly different",{mobility:2}],["About the same",{}]]},
@@ -1656,6 +1662,8 @@ if(!Array.isArray(S.training))S.training=[];
 const isPast=w=>w.date<todayIso()||(w.date===todayIso()&&w.done);
 function upcoming(){return S.training.filter(w=>!isPast(w)).sort((a,b)=>a.date.localeCompare(b.date))}
 function past(){return S.training.filter(isPast).sort((a,b)=>b.date.localeCompare(a.date))}
+// the last n past sessions you logged scores for (falls back to sessions marked done)
+function scoredRecent(n){const p=past();const s=p.filter(w=>w.result);return(s.length?s:p.filter(w=>w.done)).slice(0,n)}
 function nextSession(){return upcoming()[0]||null}
 function recentSessions(){const t=todayIso();return past().filter(w=>daysFrom(w.date,t)<=1)}
 // Load on each area from the last 3 days: today 1, yesterday .8, 2 days .5, 3 days .3
@@ -1706,14 +1714,14 @@ const wRow=w=>{
    <div class="wa">${up&&w.moves.length?`<button class="link" data-act="prepW" data-id="${w.id}">Prepare</button>`:""}${w.moves.length?`<button class="link" data-act="recW" data-id="${w.id}">Recover</button>`:""}${up&&w.date===todayIso()?`<button class="link muted" data-act="doneW" data-id="${w.id}">Mark done</button>`:""}</div></div>`;
 };
 SCREENS.training=()=>{
-  const nx=nextSession(),rec=recentSessions(),load=recentLoad(),mx=Math.max(1,...Object.values(load)),ups=upcoming(),ps=past().slice(0,14);
+  const nx=nextSession(),rec=recentSessions(),load=recentLoad(),mx=Math.max(1,...Object.values(load)),ups=upcoming().filter(w=>w.date<=addDays(todayIso(),6)),ps=scoredRecent(3);
   const sc=scores();
   return `<div class="hdr" style="grid-template-columns:1fr"><div class="brand">Range<b>.</b></div></div>
   <div class="stack" style="padding-top:8px">
   <div style="display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap"><h1>Training</h1><span style="display:flex;gap:14px"><button class="link" data-act="importW">Import</button><button class="link" data-act="addW">${ic("plus","")} Add workout</button></span></div>
   ${(()=>{const sy=S.sync||{};
-    if(syncAvail===false&&!sy.key&&sy.preload)return`<div class="panel"><span class="eyebrow c-good">SugarWOD · connected</span><div style="font-size:14px">Pulled from your account ${agoText(sy.preload.syncedAt)} · ${sy.preload.count} workouts: your logged results and the coming week's programming. In the installed app this refreshes every 3 hours.</div></div>`;
-    if(syncAvail===false&&!sy.key)return`<div class="panel"><span class="eyebrow">SugarWOD auto-sync</span><div style="font-size:14px">Automatic sync runs in the installed Range app. Set up the free GitHub workflow once and your whiteboard arrives here every 3 hours. Until then, use Import.</div></div>`;
+    if(syncAvail===false&&!sy.key&&sy.preload)return`<div class="panel"><span class="eyebrow c-good">SugarWOD · connected</span><div style="font-size:14px">Pulled from your account ${agoText(sy.preload.syncedAt)} · ${sy.preload.count} workouts: your logged results and the coming week's programming. In the installed app this refreshes every hour.</div></div>`;
+    if(syncAvail===false&&!sy.key)return`<div class="panel"><span class="eyebrow">SugarWOD auto-sync</span><div style="font-size:14px">Automatic sync runs in the installed Range app. Set up the free GitHub workflow once and your whiteboard arrives here every hour. Until then, use Import.</div></div>`;
     if(!sy.key)return`<div class="panel"><span class="eyebrow">SugarWOD auto-sync</span><div style="font-size:14px">${syncAvail?"Your sync file is ready. Enter your passphrase to unlock it.":"Checking for your sync file…"}</div><button class="btn" data-act="syncKey">Connect</button></div>`;
     return`<div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span class="eyebrow ${sy.error?"c-bad":"c-good"}">SugarWOD auto-sync ${sy.error?"· needs attention":"· on"}</span><button class="link" data-act="syncNow">Sync now</button></div>
       <div style="font-size:14px">${sy.error?esc(sy.error):syncAvail===false?"No sync file found. Check the workflow runs on GitHub.":`Whiteboard updated ${agoText(sy.syncedAt)} · ${sy.count||0} workouts`}</div><button class="link" style="justify-self:start" data-act="syncKey">Change passphrase</button></div>`})()}
@@ -1727,8 +1735,8 @@ SCREENS.training=()=>{
      <p class="muted" style="margin:0;font-size:14px">Long holds for the areas these sessions loaded.</p><button class="btn sec" data-act="recoverRecent">Start recovery</button></div>`:""}
   ${S.training.length?`<div class="panel"><span class="eyebrow">Load from the last 3 days</span>
      <ul class="bars">${AREAS.map(a=>{const v=load[a.k]/mx;const c=v>.66?"var(--bad)":v>.33?"var(--warn)":"var(--good)";return`<li><span>${a.n}</span><span class="tr"><i style="width:${Math.max(4,v*100)}%;background:${c}"></i></span><b style="font-size:11px;color:var(--muted)">${v>.66?"High":v>.33?"Mid":"Low"}</b></li>`}).join("")}</ul></div>`:""}
-  ${ups.length?`<div class="stack" style="gap:4px"><span class="eyebrow">Upcoming</span><div class="wlist">${ups.map(wRow).join("")}</div></div>`:""}
-  ${ps.length?`<div class="stack" style="gap:4px"><span class="eyebrow">Past 2 weeks</span><div class="wlist">${ps.map(wRow).join("")}</div></div>`:""}
+  ${ups.length?`<div class="stack" style="gap:4px"><span class="eyebrow">This week · prepare or recover</span><div class="wlist">${ups.map(wRow).join("")}</div></div>`:""}
+  ${ps.length?`<div class="stack" style="gap:4px"><span class="eyebrow">Recover · your last ${ps.length} scored session${ps.length===1?"":"s"}</span><div class="wlist">${ps.map(wRow).join("")}</div></div>`:""}
   </div>`;
 };
 
@@ -1797,14 +1805,15 @@ function importText(name,text){
 }
 function mergeRows(rows,source){
   const key=w=>`${w.date}|${(w.title||"").toLowerCase().trim()}|${(w.text||"").toLowerCase().replace(/\s+/g," ").slice(0,60)}`;
-  const have=new Set(S.training.map(key));let added=0,skipped=0;
+  const have=new Set(S.training.map(key));let added=0,skipped=0;const fresh=[],recent=addDays(todayIso(),-3);
   rows.forEach((w,i)=>{
     if(!w.date||!/^\d{4}-\d{2}-\d{2}$/.test(w.date)){skipped++;return}
-    if(have.has(key(w))){const o=S.training.find(x=>key(x)===key(w));if(o){if(w.result)o.result=w.result;if(w.loggedAt)o.loggedAt=w.loggedAt}return}
+    if(have.has(key(w))){const o=S.training.find(x=>key(x)===key(w));if(o){if(w.result&&!o.result&&o.date>=recent)fresh.push(o);if(w.result)o.result=w.result;if(w.loggedAt)o.loggedAt=w.loggedAt}return}
     have.add(key(w));added++;
-    S.training.push({id:"i"+Date.now().toString(36)+i,date:w.date,title:w.title||"",text:w.text||"",result:w.result||"",loggedAt:w.loggedAt||null,source,moves:parseMoves((w.title||"")+"\n"+(w.text||"")),done:w.date<todayIso()});
+    const row={id:"i"+Date.now().toString(36)+i,date:w.date,title:w.title||"",text:w.text||"",result:w.result||"",loggedAt:w.loggedAt||null,source,moves:parseMoves((w.title||"")+"\n"+(w.text||"")),done:w.date<todayIso()};
+    S.training.push(row);if(row.result&&row.date>=recent)fresh.push(row);
   });
-  return{total:rows.length,added,skipped};
+  return{total:rows.length,added,skipped,fresh};
 }
 /* ---- SugarWOD auto-sync ----
    A scheduled GitHub workflow logs in to SugarWOD, reads the whiteboard and publishes an encrypted file
@@ -1828,6 +1837,7 @@ async function autoSync(force){
     const data=await unsealBox(box,S.sync.key);
     const r=mergeRows((data.workouts||[]).map(w=>({date:w.date,title:w.title,text:w.text,result:w.result,loggedAt:w.loggedAt})),"sugarwod-auto");
     S.sync={...S.sync,checked:Date.now(),syncedAt:data.syncedAt||null,count:(data.workouts||[]).length,lastAdded:r.added,error:""};
+    if(r.fresh.length)recoverNudge(r.fresh);
   }catch(e){S.sync={...S.sync,checked:Date.now(),error:"The passphrase doesn't match. Use the same RANGE_SYNC_KEY you saved in GitHub."}}
   save();const top=stack[stack.length-1].name;if(top==="training"||top==="home")render();
 }
@@ -1872,6 +1882,93 @@ ACT.exampleWeek=()=>{
   save();render();
 };
 
+/* ================= notifications =================
+   "Scores in, time to recover". Two routes:
+   1. In the app: when a sync brings in a score you just logged, Range shows a notification.
+   2. In the background: the GitHub sync sends a Web Push (VAPID) to this phone, even with Range closed.
+      Needs VAPID keys on GitHub (push-key.txt is published next to the app) and this phone's subscription
+      saved as the PUSH_SUBSCRIPTION secret. On iPhone this works in the home-screen app (iOS 16.4+). */
+const canNotify=()=>"Notification" in window;
+const notifyOn=()=>canNotify()&&Notification.permission==="granted"&&S.notify&&S.notify.on;
+async function showNote(title,body,url,tag){
+  if(!canNotify()||Notification.permission!=="granted")return false;
+  try{const r=navigator.serviceWorker&&await navigator.serviceWorker.getRegistration();if(r){await r.showNotification(title,{body,tag,icon:"icon-192.png",data:{url}});return true}}catch(e){}
+  try{const n=new Notification(title,{body,tag});n.onclick=()=>{focus();openUrl(url)};return true}catch(e){return false}
+}
+function recoverNudge(list){
+  if(!notifyOn())return;
+  const w=list.slice().sort((a,b)=>b.date.localeCompare(a.date))[0],f=focusOf({kind:"recover",moves:w.moves});
+  showNote(`Scores in: ${wTitle(w)}`,`Nice work. Take 10 minutes to recover your ${f.map(k=>AN[k].toLowerCase()).join(" and ")||"body"}.`,`./#recover=${w.date}`,`recover-${w.date}`);
+}
+function openUrl(u){
+  const m=String(u||"").match(/#recover=(\d{4}-\d{2}-\d{2})/);if(!m)return;
+  const ws=S.training.filter(w=>w.date===m[1]&&w.moves.length);if(ws.length)recoverFrom(ws);
+}
+if(navigator.serviceWorker)navigator.serviceWorker.addEventListener("message",e=>{if(e.data&&e.data.type==="open")openUrl(e.data.url)});
+ACT.notifTog=async()=>{
+  if(!canNotify()){$("#ntMsg").textContent="This browser can't show notifications. On iPhone, add Range to your home screen first (Share → Add to Home Screen) and open it from there.";return}
+  if(S.notify&&S.notify.on){S.notify={...S.notify,on:false};save();render();return}
+  const p=await Notification.requestPermission();
+  if(p!=="granted"){$("#ntMsg").textContent="Notifications are blocked. Allow them for Range in your phone's settings.";return}
+  S.notify={...(S.notify||{}),on:true};save();render();
+};
+ACT.notifTest=async()=>{const w=scoredRecent(1)[0];const ok=await showNote(w?`Scores in: ${wTitle(w)}`:"Range","This is how the recover reminder looks. Tap it to start recovery.",w?`./#recover=${w.date}`:"./","range-test");$("#ntMsg").textContent=ok?"Sent. Check your notifications.":"Couldn't show it. Check that notifications are allowed for Range."};
+const b64u=s=>{const p="=".repeat((4-s.length%4)%4),b=atob((s+p).replace(/-/g,"+").replace(/_/g,"/"));return Uint8Array.from(b,c=>c.charCodeAt(0))};
+ACT.pushSetup=async()=>{
+  const msg=$("#ntMsg");msg.textContent="Setting up…";
+  let key="";try{const r=await fetch("push-key.txt",{cache:"no-store"});if(r.ok)key=(await r.text()).trim()}catch(e){}
+  if(!key){msg.textContent="No push key next to the app yet. On your computer run: node src/cli.js vapid, add VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY as GitHub secrets, run the workflow once, then try again.";return}
+  try{
+    const reg=await navigator.serviceWorker.ready;
+    const sub=(await reg.pushManager.getSubscription())||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(key)});
+    const box=$("#subBox");box.hidden=false;box.value=JSON.stringify(sub);box.select();
+    try{await navigator.clipboard.writeText(box.value);msg.textContent="Copied. In GitHub add it as the secret PUSH_SUBSCRIPTION. From the next sync on, a new score sends you a recover reminder even when Range is closed."}
+    catch(e){msg.textContent="Copy the text below and add it in GitHub as the secret PUSH_SUBSCRIPTION."}
+  }catch(e){msg.textContent="This phone couldn't subscribe. On iPhone, open Range from the home screen icon (iOS 16.4 or later)."}
+};
+const notifPanel=()=>`<div class="panel"><h3>Notifications</h3>
+  <button class="toggle" data-act="notifTog"><span>Remind me to recover when I log a score</span><span class="sw ${notifyOn()?"on":""}"></span></button>
+  ${notifyOn()?`<p class="muted" style="margin:0;font-size:14px">Range checks your SugarWOD sync when you open it. For reminders while it's closed, connect this phone to the GitHub sync once.</p>
+  <div class="frow"><button class="btn sec" style="flex:1" data-act="pushSetup">Connect this phone</button><button class="btn sec" style="flex:1" data-act="notifTest">Send a test</button></div>
+  <textarea id="subBox" class="field" rows="3" hidden readonly style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px;font-size:12px"></textarea>`:""}
+  <p id="ntMsg" class="muted" style="margin:0;font-size:13px" aria-live="polite"></p></div>`;
+
+/* ---- test figures and sides ----
+   Each self-screen and test gets a demo figure. One-sided tests run Right, then Left, never together,
+   unless the movement itself uses both sides (squat, hinge, both-arm reach). seq: compare-both questions. */
+const RB_TESTFX={
+ back:{test:{fig:"r_hinge"},screens:[{},{fig:"r_proneY"},{fig:"r_hinge"},{fig:"r_proneY",side:1},{fig:"r_calfraise"},{fig:"r_pallof"}]},
+ knee:{test:{fig:"r_touchdown",side:1},screens:[{},{fig:"r_hops",side:1},{fig:"r_touchdown",side:1},{fig:"a1",side:1},{fig:"h3",seq:1}]},
+ hip:{test:{fig:"r_bwsquat",side:1,choose:1},screens:[{},{fig:"r_hipflexiso",side:1},{fig:"r_hipflexiso",side:1},{fig:"r_copenhagen",side:1},{fig:"r_abduction",side:1},{fig:"r_slbridge",side:1},{fig:"h3",seq:1},{}]},
+ shoulder:{test:{fig:"o3",side:1},screens:[{fig:"o3"},{fig:"o3"},{},{fig:"t5",side:1},{fig:"r_bandw",side:1}]},
+ elbow:{test:{fig:"r_wristiso",side:1},screens:[{},{},{fig:"r_bandw",side:1}]},
+ achilles:{test:{fig:"r_calfraise",side:1},screens:[{},{fig:"r_calfraise",side:1},{fig:"r_calfraise",side:1}]},
+};
+for(const[k,fx]of Object.entries(RB_TESTFX)){const R=REGIONS[k];if(!R)continue;Object.assign(R.test,fx.test);R.screens.forEach((q,i)=>Object.assign(q,fx.screens[i]||{}))}
+const SIDE_N={R:"Right",L:"Left"};
+// the demo figure; the left side is shown mirrored
+const testFig=(f,sd)=>f?`<div class="tsfig${sd==="L"?" mir":""}">${fig(f,null,{anim:true})}${sd?`<span class="pill">${SIDE_N[sd]} side</span>`:""}</div>`:"";
+
+/* pre-session pain test: Right, then Left for one-sided movements */
+let TS=null;
+function testSheet(t,go){TS={t,go,R:null,L:null,one:null,both:!t.side,step:t.side?"R":"one"};drawTS()}
+function drawTS(){
+  const t=TS.t,st=TS.step,sd=st==="R"||st==="L"?st:null,done=st==="done"||(st==="one"&&TS.one!=null);
+  sheet(`<h3>Before you start: ${esc(t.n)}</h3><div class="scroll stack" style="gap:12px">
+   ${st!=="done"?testFig(t.fig,sd):""}
+   ${t.side&&!TS.both?`<div class="tsides">${["R","L"].map(k=>`<span class="${st===k?"on":TS[k]!=null?"done":""}">${SIDE_N[k]}${TS[k]!=null?` · ${TS[k]}/10`:""}</span>`).join("")}</div>`:""}
+   ${st==="done"?`<p style="margin:0">Right ${TS.R}/10 · Left ${TS.L}/10. ${TS.R===TS.L?"Same on both sides.":`The ${TS.R>TS.L?"right":"left"} side is worse.`}</p>`:
+    `<p class="muted" style="margin:0">${esc(t.how||"")}${sd?` <b>${sd==="R"?"Right side first.":"Now the left side."}</b>`:""}</p>${painGrid("tsPick",st==="one"?TS.one:null)}`}
+   ${t.choose&&st!=="done"?`<button class="link" style="justify-self:start" data-act="tsBoth">${TS.both?"Test each side separately":"My movement uses both legs (squat)"}</button>`:""}
+  </div><div style="display:grid;gap:8px"><button class="btn" data-act="tsGo" ${done?"":"disabled"}>Start session</button>${t.optional?`<button class="btn sec" data-act="tsSkip">Skip the test</button>`:""}</div>`);
+}
+ACT.tsPick=d=>{const v=+d.v;if(TS.step==="R"){TS.R=v;TS.step="L"}else if(TS.step==="L"){TS.L=v;TS.step="done"}else TS.one=v;drawTS()};
+ACT.tsBoth=()=>{TS.both=!TS.both;TS.step=TS.both?"one":"R";TS.R=TS.L=TS.one=null;drawTS()};
+ACT.tsGo=()=>{const sided=TS.step==="done",aff=TS.t.affected;
+  const r=sided?{testPain:aff==="right"?TS.R:aff==="left"?TS.L:Math.max(TS.R,TS.L),testR:TS.R,testL:TS.L}:{testPain:TS.one};
+  const go=TS.go;closeSheet();go(r)};
+ACT.tsSkip=()=>{const go=TS.go;closeSheet();go({testPain:null})};
+
 /* ================= Rebuild screens ================= */
 const PAIN_OK=3;             // pain during a session up to 3/10 is fine (Rebuilding Milo, HSR guidance)
 const PAIN_STOP=5;           // above 5/10 the session was too much (Silbernagel pain-monitoring model)
@@ -1915,11 +2012,12 @@ SCREENS.rebuild=()=>{
    <h1>Rebuild</h1>
    <p class="muted" style="margin:0">Pain-guided programs for lifters. You screen the area yourself, Range works out what kind of problem it is, then takes you through staged phases. Your pain rating each session decides when to hold back and when to move on.</p>
    <div class="sports">${Object.entries(REGIONS).map(([k,R])=>`<button class="scard g-${["a","b","c","d"][Object.keys(REGIONS).indexOf(k)%4]}" data-act="rbPick" data-r="${k}"><div class="art">${fig(R.fig,null,{t:.8})}</div><b>${R.n}</b></button>`).join("")}</div>
+   ${myProtosPanel()}
    <p class="muted" style="margin:0;font-size:12px">Based on the screening and rebuilding method in <i>Rebuilding Milo</i> (Horschig & Sonthana), checked against current physiotherapy research. Range doesn't diagnose. See a physiotherapist if pain is severe, getting worse, or not improving after 3 weeks.</p></div>`;
   const st=S.rehab,R=REGIONS[st.region],C=R.classes[st.cls],phs=rbPhases(R,st.cls),ph=phs[st.phase],stt=rbStatus(),items=rbItems();
   const tone={back:"c-bad",stuck:"c-bad",ready:"c-good",done:"c-good",ok:"c-top",start:"c-top"}[stt.k];
   return head+`<div class="stack" style="padding-top:8px">
-   <div><span class="eyebrow">Rebuild · ${R.n}</span><h1 style="margin-top:4px">${C.n}</h1></div>
+   <div><span class="eyebrow">Rebuild · ${R.n}${st.side&&st.side!=="both"?` · ${st.side} side`:""}</span><h1 style="margin-top:4px">${C.n}</h1></div>
    <div class="phases">${phs.map((p,i)=>`<div class="ph ${i<st.phase?"done":i===st.phase?"on":""}"><span>${i+1}</span>${esc(p.n)}</div>`).join("")}</div>
    <div class="panel status"><span class="eyebrow ${tone}">${{back:"Back off",stuck:"Get it checked",ready:"Ready to progress",done:"Program complete",ok:"Status",start:"How it works"}[stt.k]}</span><div>${esc(stt.t)}</div>
     ${stt.k==="ready"?`<button class="btn" data-act="rbNext">Move to phase ${st.phase+2}</button>`:""}</div>
@@ -1927,12 +2025,13 @@ SCREENS.rebuild=()=>{
     <div class="rxlist">${items.map(it=>{const e=LIBI[it.id];return`<button class="rx" data-act="openEx" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8})}</span><span><b>${esc(e.n)}</b><small>${esc(doseText(it))}</small></span></button>`}).join("")}</div>
     <button class="btn" data-act="rbStart">${icf("play")}Start today's session</button>
     <p class="muted" style="margin:0;font-size:13px"><b>Move on when:</b> ${esc(ph.exit)}</p></div>
-   <div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline"><span class="eyebrow">${esc(R.test.n)} · pain before each session</span>${st.logs.length?`<b style="font-variant-numeric:tabular-nums">${st.logs[st.logs.length-1].testPain}/10</b>`:""}</div>
+   <div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline"><span class="eyebrow">${esc(R.test.n)} · pain before each session</span>${st.logs.length?(()=>{const L=st.logs[st.logs.length-1];return`<b style="font-variant-numeric:tabular-nums;white-space:nowrap">${L.testR!=null?`R ${L.testR} · L ${L.testL}`:`${L.testPain}/10`}</b>`})():""}</div>
     ${st.logs.length>1?spark(st.logs):`<p class="muted" style="margin:0;font-size:14px">Your trend appears after two sessions.</p>`}</div>
    <div class="panel"><h3>For now, do</h3><ul class="tick">${C.habits.map(h=>`<li>${esc(h)}</li>`).join("")}</ul>
     <h3>For now, avoid</h3><ul class="cross">${C.avoid.map(h=>`<li>${esc(h)}</li>`).join("")}</ul>
     ${(st.notes||[]).map(n=>`<div class="note-warn">${esc(n)}</div>`).join("")}</div>
    <div class="panel"><h3>See a physiotherapist or doctor if</h3><ul class="cross">${[...R.urgent,...R.doctor,"Pain is getting worse week to week","There's no real change after 3 weeks"].map(h=>`<li>${esc(h)}</li>`).join("")}</ul></div>
+   ${myProtosPanel()}
    <div class="row2"><button class="btn sec" data-act="rbPick" data-r="${st.region}">Redo the screen</button><button class="btn sec" data-act="rbEnd">End program</button></div>
   </div>`;
 };
@@ -1948,21 +2047,31 @@ SCREENS.rbflags=()=>{
   </div><div class="bottomcta">${urgent?`<button class="btn sec" data-act="back">Back</button>`:doc?`<button class="btn" data-act="rbGoScreen">I've been checked, continue</button>`:`<button class="btn" data-act="rbGoScreen">None of these apply</button>`}</div>`;
 };
 ACT.rbFlag=d=>{RB.flags.has(d.k)?RB.flags.delete(d.k):RB.flags.add(d.k);render()};
-ACT.rbGoScreen=()=>{RB.step=0;RB.ans=[];go("rbscreen",{})};
+ACT.rbGoScreen=()=>{RB.step=0;RB.sub="R";RB.ans=[];go("rbscreen",{})};
 SCREENS.rbscreen=()=>{
-  const R=REGIONS[RB.r],q=R.screens[RB.step];
+  const R=REGIONS[RB.r],q=R.screens[RB.step],sd=q.side?(RB.sub||"R"):null,cur=q.side?(RB.ans[RB.step]||{})[sd]:RB.ans[RB.step];
   return hdr()+`<div class="stack" style="padding-top:4px">
    <div class="tprog">${R.screens.map((_,k)=>`<i class="${k<=RB.step?"on":""}"></i>`).join("")}</div>
-   <span class="eyebrow">Self-screen · ${RB.step+1} of ${R.screens.length}</span><h2>${esc(q.q)}</h2>
-   <div class="stack" style="gap:8px">${q.o.map((o,k)=>`<button class="opt ${RB.ans[RB.step]===k?"on":""}" data-act="rbAns" data-k="${k}">${esc(o[0])}</button>`).join("")}</div>
+   <span class="eyebrow">Self-screen · ${RB.step+1} of ${R.screens.length}</span>
+   ${testFig(q.fig,sd)}
+   <h2>${esc(q.q)}</h2>
+   ${q.side?`<div class="tsides">${["R","L"].map(k=>`<span class="${sd===k?"on":(RB.ans[RB.step]||{})[k]!=null?"done":""}">${SIDE_N[k]}</span>`).join("")}</div><p style="margin:0"><b>${sd==="R"?"Test your right side first.":"Now the left side."}</b></p>`:q.seq?`<p style="margin:0"><b>Test the right side, then the left, then compare.</b></p>`:""}
+   <div class="stack" style="gap:8px">${q.o.map((o,k)=>`<button class="opt ${cur===k?"on":""}" data-act="rbAns" data-k="${k}">${esc(o[0])}</button>`).join("")}</div>
    <p class="muted" style="margin:0;font-size:13px">Stop any test that causes sharp pain. Pick the closest answer.</p></div>`;
 };
-ACT.rbAns=d=>{const R=REGIONS[RB.r];RB.ans[RB.step]=+d.k;if(RB.step<R.screens.length-1){RB.step++;render();scrollTo(0,0)}else{go("rbresult",{})}};
+ACT.rbAns=d=>{const R=REGIONS[RB.r],q=R.screens[RB.step];
+  if(q.side){const sd=RB.sub||"R";RB.ans[RB.step]={...(RB.ans[RB.step]||{}),[sd]:+d.k};if(sd==="R"){RB.sub="L";render();scrollTo(0,0);return}RB.sub="R"}
+  else RB.ans[RB.step]=+d.k;
+  if(RB.step<R.screens.length-1){RB.step++;render();scrollTo(0,0)}else{go("rbresult",{})}};
 function rbClassify(){
   const R=REGIONS[RB.r],votes={},flags={};
-  R.screens.forEach((q,i)=>{const o=q.o[RB.ans[i]];if(!o)return;for(const[k,v]of Object.entries(o[1])){if(k.startsWith("_"))flags[k]=1;else votes[k]=(votes[k]||0)+v}});
+  const w=o=>o?Object.entries(o[1]).reduce((t,[k,v])=>t+(k.startsWith("_")?1:v),0):0,sideW={R:0,L:0};
+  R.screens.forEach((q,i)=>{let a=RB.ans[i];
+    if(q.side&&a&&typeof a==="object"){const oR=q.o[a.R],oL=q.o[a.L];sideW.R+=w(oR);sideW.L+=w(oL);a=w(oL)>w(oR)?a.L:a.R}
+    const o=q.o[a];if(!o)return;for(const[k,v]of Object.entries(o[1])){if(k.startsWith("_"))flags[k]=1;else votes[k]=(votes[k]||0)+v}});
   const keys=Object.keys(R.classes),best=keys.slice().sort((a,b)=>(votes[b]||0)-(votes[a]||0))[0];
-  return{cls:best,clear:(votes[best]||0)>0,votes,flags};
+  const side=sideW.R>sideW.L?"right":sideW.L>sideW.R?"left":sideW.R>0?"both":null;
+  return{cls:best,clear:(votes[best]||0)>0,votes,flags,side};
 }
 SCREENS.rbresult=()=>{
   const R=REGIONS[RB.r],res=rbClassify(),C=R.classes[res.cls],phs=rbPhases(R,res.cls),notes=[];
@@ -1971,7 +2080,7 @@ SCREENS.rbresult=()=>{
   if(res.flags._shoulder)notes.push("Your shoulder rotation strength is weak. The plan's shoulder work is a key part of fixing the elbow.");
   RB.result={...res,notes};
   return hdr()+`<div class="stack" style="padding-top:4px">
-   <span class="eyebrow">Your result · ${R.n}</span><h1>${C.n}</h1>
+   <span class="eyebrow">Your result · ${R.n}${res.side?` · ${res.side==="both"?"both sides":res.side+" side"}`:""}</span><h1>${C.n}</h1>
    <p style="margin:0">${esc(C.why)}</p>
    ${res.clear?"":`<div class="note-warn">No clear pattern came out of the screen. This is the closest match. If the plan doesn't help within 2 weeks, see a physiotherapist.</div>`}
    ${notes.map(n=>`<div class="note-warn">${esc(n)}</div>`).join("")}
@@ -1979,22 +2088,122 @@ SCREENS.rbresult=()=>{
    <div class="panel"><h3>For now, do</h3><ul class="tick">${C.habits.map(h=>`<li>${esc(h)}</li>`).join("")}</ul><h3>For now, avoid</h3><ul class="cross">${C.avoid.map(h=>`<li>${esc(h)}</li>`).join("")}</ul></div>
   </div><div class="bottomcta"><button class="btn" data-act="rbBegin">Start this program</button></div>`;
 };
-ACT.rbBegin=()=>{const now=Date.now();S.rehab={region:RB.r,cls:RB.result.cls,phase:0,started:now,phaseStart:now,logs:[],notes:RB.result.notes};save();stack=[{name:"rebuild",p:{}}];render();scrollTo(0,0)};
+ACT.rbBegin=()=>{const now=Date.now();S.rehab={region:RB.r,cls:RB.result.cls,side:RB.result.side||null,phase:0,started:now,phaseStart:now,logs:[],notes:RB.result.notes};save();stack=[{name:"rebuild",p:{}}];render();scrollTo(0,0)};
 ACT.rbNext=()=>{S.rehab.phase++;S.rehab.phaseStart=Date.now();save();render()};
 ACT.rbEnd=()=>sheet(`<h3>End this program?</h3><div class="scroll"><p class="muted" style="margin:0">Your pain log for this program will be deleted.</p></div><div style="display:grid;gap:8px"><button class="btn" style="background:var(--bad)" data-act="rbEndYes">End program</button><button class="btn sec" data-act="closeSheet">Keep going</button></div>`);
 ACT.rbEndYes=()=>{S.rehab=null;save();closeSheet();render()};
 let rbPain=null;
-ACT.rbStart=()=>{const R=REGIONS[S.rehab.region];rbPain=null;sheet(`<h3>Before you start: ${esc(R.test.n)}</h3><div class="scroll"><p class="muted" style="margin:0">${esc(R.test.how)}</p>${painGrid("rbPainPick",null)}</div><button class="btn" id="rbGo" data-act="rbGo" disabled>Start session</button>`)};
-ACT.rbPainPick=d=>{rbPain=+d.v;document.querySelectorAll(".painrow .pain").forEach(b=>b.classList.toggle("on",+b.dataset.v===rbPain));$("#rbGo").disabled=false};
-ACT.rbGo=()=>{const st=S.rehab,R=REGIONS[st.region],ph=rbPhases(R,st.cls)[st.phase];closeSheet();openPlayer(rbItems(),{kind:"rehab",title:`${R.n} · ${ph.n}`,testPain:rbPain})};
+ACT.rbStart=()=>{const st=S.rehab,R=REGIONS[st.region];testSheet({...R.test,affected:st.side},t=>{const ph=rbPhases(R,st.cls)[st.phase];openPlayer(rbItems(),{kind:"rehab",title:`${R.n} · ${ph.n}`,...t})})};
 ACT.rbSessionPain=d=>{
-  const v=+d.v,st=S.rehab;if(!st||!P_LAST)return;
-  const entry={at:Date.now(),phase:st.phase,testPain:P_LAST.testPain,sessionPain:v};
+  const v=+d.v,st=P_LAST&&P_LAST.proto?(S.myProtocols||[]).find(x=>x.id===P_LAST.proto):S.rehab;if(!st||!P_LAST)return;
+  st.logs=st.logs||[];
+  const entry={at:Date.now(),phase:st.phase||0,testPain:P_LAST.testPain,testR:P_LAST.testR,testL:P_LAST.testL,sessionPain:v};
   if(P_LAST.logged)st.logs[st.logs.length-1]=entry;else st.logs.push(entry);P_LAST.logged=1;save();
   document.querySelectorAll(".painrow .pain").forEach(b=>b.classList.toggle("on",+b.dataset.v===v));
   $("#rbAfter").textContent=v>PAIN_STOP?`That's above ${PAIN_STOP}/10. Next session, go back a step or reduce the load.`:v>PAIN_OK?`Slightly high. Fine if it's back to normal by tomorrow morning.`:"Good. That's the right amount of load.";
 };
 let P_LAST=null;
+
+/* ================= My protocols (from your physio) =================
+   Type in the program your physiotherapist gave you. Pick exercises from the library (with their demo)
+   or add your own and choose the demo that looks most like it. Runs in the same guided player, with an
+   optional pain test (right, then left) and the same pain log as the built-in programs. */
+RCAT.mine="From my physio";
+const LOOKS=["r_bwsquat","r_splitsq","r_touchdown","r_hinge","r_slrdl","r_bridge","r_slbridge","r_curlup","r_sideplank","r_birddog","r_pallof","r_calfraise","r_hops","r_bandwalk","r_abduction","r_copenhagen","r_wallsit","r_bandw","r_ser","r_proneY","r_row","r_scappull","r_kbpress","r_wristcurl","r_farmer","o3","t4","h2","h3","p1","a1","r_walk"];
+function regMyEx(e){const x={a:"mine",z:[],c:[],stim:"",easy:"",...e,rehab:true,custom:true,pose:"kneel",hold:0,sides:0};if(!LIBI[x.id])LIB.push(x);else Object.assign(LIB.find(l=>l.id===x.id)||{},x);LIBI[x.id]=x;return x}
+S.myEx=S.myEx||[];S.myProtocols=S.myProtocols||[];S.myEx.forEach(regMyEx);
+const DOSE_K={reps:"Reps",hold:"Hold",rephold:"Reps + holds"};
+let ED=null;
+// default dose: what the built-in programs use for this exercise, else a stretch hold or 3×10
+function progDose(id){for(const R of Object.values(REGIONS))for(const phs of[R.phases,...Object.values(R.phasesBy||{})])for(const ph of phs||[])for(const[i,d]of ph.items)if(i===id&&d.k!=="pyramid")return JSON.parse(JSON.stringify(d));return null}
+function newDose(id){const e=LIBI[id],pd=progDose(id);if(pd){delete pd.hsr;return{sets:1,reps:10,secs:5,sides:false,rest:60,note:"",...pd}}return e&&!e.rehab&&e.hold?{k:"hold",sets:2,secs:Math.min(60,e.hold||30),sides:!!e.sides}:{k:"reps",sets:3,reps:10,secs:5,sides:false,rest:60,note:""}}
+function readEd(){
+  if(!ED||!$("#edName"))return;
+  ED.name=$("#edName").value.trim();ED.from=$("#edFrom").value.trim();ED.freq=$("#edFreq").value.trim();ED.notes=$("#edNotes").value.trim();
+  ED.test.n=$("#edTestN").value.trim();ED.test.how=$("#edTestHow").value.trim();
+  ED.items.forEach((it,i)=>{const g=k=>{const el=$(`#ed${k}${i}`);return el?el.value:null};const d=it.dose;
+    if(g("Sets")!=null)d.sets=Math.max(1,+g("Sets")||1);if(g("Reps")!=null)d.reps=Math.max(1,+g("Reps")||1);if(g("Secs")!=null)d.secs=Math.max(3,+g("Secs")||3);if(g("Note")!=null)d.note=g("Note").trim()});
+}
+ACT.myNew=()=>{ED={id:null,name:"",from:"",freq:"Daily",notes:"",test:{n:"",how:"",side:true,fig:null},items:[]};go("myproto",{})};
+ACT.myEdit=d=>{const p=S.myProtocols.find(x=>x.id===d.id);ED=JSON.parse(JSON.stringify(p));ED.test=ED.test||{n:"",how:"",side:true,fig:null};go("myproto",{})};
+SCREENS.myproto=()=>{
+  const inp=(id,v,ph,extra="")=>`<input id="${id}" class="field" value="${esc(v||"")}" placeholder="${esc(ph)}" autocomplete="off" ${extra} style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:12px">`;
+  const num=(id,v,lab)=>`<label class="edn"><span>${lab}</span><input id="${id}" type="number" inputmode="numeric" min="1" value="${v}"></label>`;
+  return hdr()+`<div class="stack" style="padding-top:4px">
+   <span class="eyebrow">Rebuild · My protocol</span><h1>${ED.id?"Edit protocol":"Add your physio's protocol"}</h1>
+   <div class="panel">${inp("edName",ED.name,"Name, e.g. Right knee, week 1–3")}${inp("edFrom",ED.from,"Given by (physio, date)")}
+    ${inp("edFreq",ED.freq,"How often")}<div class="chipset">${["Daily","Every other day","3× a week","Before training"].map(f=>`<button class="chip" data-act="edFreq" data-f="${f}">${f}</button>`).join("")}</div></div>
+   <div class="stack" style="gap:8px"><span class="eyebrow">Exercises · in order</span>
+   ${ED.items.length?ED.items.map((it,i)=>{const e=LIBI[it.id],d=it.dose;return`<div class="panel edex">
+     <div class="edhead"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8})}</span><b>${i+1}. ${esc(e.n)}</b>
+      <span class="edbtns">${i?`<button class="link" data-act="edUp" data-i="${i}" aria-label="Move up">↑</button>`:""}<button class="link c-bad" data-act="edRm" data-i="${i}">Remove</button></span></div>
+     <div class="seg">${Object.entries(DOSE_K).map(([k,n])=>`<button class="${d.k===k?"on":""}" data-act="edKind" data-i="${i}" data-k="${k}">${n}</button>`).join("")}</div>
+     <div class="ednums">${num("edSets"+i,d.sets||1,"Sets")}${d.k!=="hold"?num("edReps"+i,d.reps||10,"Reps"):""}${d.k!=="reps"?num("edSecs"+i,d.secs||30,"Seconds"):""}</div>
+     <button class="toggle" data-act="edSides" data-i="${i}"><span>Each side (right, then left)</span><span class="sw ${d.sides?"on":""}"></span></button>
+     ${inp("edNote"+i,d.note,"Notes: tempo, weight, band colour…")}</div>`}).join(""):`<p class="muted" style="margin:0">No exercises yet.</p>`}
+   <button class="btn sec" data-act="edAdd">${ic("plus","")} Add exercise</button></div>
+   <div class="panel"><h3>Test movement <span class="muted" style="font-weight:400;font-size:14px">(optional)</span></h3>
+    <p class="muted" style="margin:0;font-size:14px">A movement you rate for pain before each session, so Range can show your trend.</p>
+    ${inp("edTestN",ED.test.n,"e.g. Single-leg squat")}${inp("edTestHow",ED.test.how,"How to do it")}
+    <button class="toggle" data-act="edTestSide"><span>Test each side (right, then left)</span><span class="sw ${ED.test.side?"on":""}"></span></button>
+    <button class="toggle" data-act="edTestFig"><span>Demo figure</span><span class="muted">${ED.test.fig?esc((LIBI[ED.test.fig]||{n:"Chosen"}).n):"None"} ›</span></button></div>
+   <div class="panel"><h3>Notes from your physio</h3><textarea id="edNotes" class="field" rows="3" placeholder="Pain rules, what to avoid, when to progress…" style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px">${esc(ED.notes||"")}</textarea></div>
+   <p id="edMsg" class="c-bad" style="margin:0;font-size:14px" aria-live="polite"></p>
+   ${ED.id?`<button class="btn sec" style="color:var(--bad)" data-act="edDel">Delete protocol</button>`:""}
+  </div><div class="bottomcta"><button class="btn" data-act="edSave">Save protocol</button></div>`;
+};
+const edRe=()=>{const y=scrollY;render();scrollTo(0,y)};
+ACT.edFreq=d=>{readEd();ED.freq=d.f;edRe()};
+ACT.edUp=d=>{readEd();const i=+d.i;[ED.items[i-1],ED.items[i]]=[ED.items[i],ED.items[i-1]];edRe()};
+ACT.edRm=d=>{readEd();ED.items.splice(+d.i,1);edRe()};
+ACT.edKind=d=>{readEd();const x=ED.items[+d.i].dose;x.k=d.k;x.reps=x.reps||10;x.secs=x.secs||(d.k==="hold"?30:5);edRe()};
+ACT.edSides=d=>{readEd();const x=ED.items[+d.i].dose;x.sides=!x.sides;edRe()};
+ACT.edTestSide=()=>{readEd();ED.test.side=!ED.test.side;edRe()};
+ACT.edTestFig=()=>{readEd();lookSheet("edTestFigPick",true)};
+ACT.edTestFigPick=d=>{ED.test.fig=d.f||null;closeSheet();edRe()};
+function lookSheet(act,none){sheet(`<h3>Which demo looks most like it?</h3><div class="scroll"><div class="looks">${none?`<button data-act="${act}" data-f=""><span class="muted">None</span></button>`:""}${LOOKS.map(f=>`<button data-act="${act}" data-f="${f}">${fig(f,null,{t:.8})}<small>${esc((LIBI[f]||{n:""}).n)}</small></button>`).join("")}</div></div><button class="btn sec" data-act="closeSheet">Cancel</button>`)}
+ACT.edAdd=()=>{readEd();sheet(`<h3>Add an exercise</h3><label class="search" style="box-shadow:none">${ic("search")}<input id="exq" placeholder="Search the library" autocomplete="off" aria-label="Search exercises"></label><div class="scroll" id="exres"></div><button class="btn sec" data-act="closeSheet">Done</button>`);
+  const q=$("#exq");q.addEventListener("input",drawExRes);drawExRes();setTimeout(()=>q.focus(),50)};
+function drawExRes(){
+  const q=($("#exq").value||"").trim(),ql=q.toLowerCase();
+  const list=LIB.filter(e=>!ql||e.n.toLowerCase().includes(ql)).slice(0,40);
+  $("#exres").innerHTML=`${q?`<button class="rx" data-act="edCustom" data-n="${esc(q)}"><span class="th" style="display:grid;place-items:center">${ic("plus","")}</span><span><b>Add “${esc(q)}”</b><small>As my own exercise, with a demo you choose</small></span></button>`:`<button class="rx" data-act="edCustom" data-n=""><span class="th" style="display:grid;place-items:center">${ic("plus","")}</span><span><b>My own exercise</b><small>Not in the library? Type its name above or tap here</small></span></button>`}
+   ${list.map(e=>`<button class="rx" data-act="edPick" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8})}</span><span><b>${esc(e.n)}</b><small>${e.custom?"My exercise":e.rehab?RCAT[e.a]+" · Strength":AN[e.a]+" · Stretch"}</small></span></button>`).join("")}`;
+}
+ACT.edPick=d=>{ED.items.push({id:d.id,dose:newDose(d.id)});closeSheet();edRe()};
+let CX=null;
+ACT.edCustom=d=>{CX={n:d.n||"",fig:null,c:""};drawCx()};
+function drawCx(){sheet(`<h3>My own exercise</h3><div class="scroll stack" style="gap:10px">
+  <input id="cxName" class="field" value="${esc(CX.n)}" placeholder="Exercise name" style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:12px">
+  <textarea id="cxCues" class="field" rows="3" placeholder="How to do it, one cue per line" style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px">${esc(CX.c)}</textarea>
+  <span class="eyebrow">Demo · the closest match</span>
+  <div class="looks">${LOOKS.map(f=>`<button class="${CX.fig===f?"on":""}" data-act="cxFig" data-f="${f}">${fig(f,null,{t:.8})}<small>${esc((LIBI[f]||{n:""}).n)}</small></button>`).join("")}</div>
+  <p id="cxMsg" class="c-bad" style="margin:0;font-size:14px"></p></div>
+  <div style="display:grid;gap:8px"><button class="btn" data-act="cxSave">Add exercise</button><button class="btn sec" data-act="closeSheet">Cancel</button></div>`)}
+const cxRead=()=>{CX.n=$("#cxName").value.trim();CX.c=$("#cxCues").value};
+ACT.cxFig=d=>{cxRead();CX.fig=d.f;const sc=$(".sheet .scroll").scrollTop;drawCx();$(".sheet .scroll").scrollTop=sc};
+ACT.cxSave=()=>{cxRead();if(!CX.n){$("#cxMsg").textContent="Give it a name.";return}
+  const e={id:"c_"+Date.now().toString(36),n:CX.n,fig:CX.fig||"r_walk",c:CX.c.split("\n").map(s=>s.trim()).filter(Boolean),stim:"As your physiotherapist described"};
+  S.myEx.push(e);regMyEx(e);ED.items.push({id:e.id,dose:newDose(e.id)});save();closeSheet();edRe()};
+ACT.edSave=()=>{readEd();
+  if(!ED.name){$("#edMsg").textContent="Give the protocol a name.";$("#edName").focus();return}
+  if(!ED.items.length){$("#edMsg").textContent="Add at least one exercise.";return}
+  if(ED.id){const i=S.myProtocols.findIndex(x=>x.id===ED.id);S.myProtocols[i]={...S.myProtocols[i],...ED}}
+  else S.myProtocols.push({...ED,id:"p"+Date.now().toString(36),created:Date.now(),logs:[]});
+  save();ED=null;stack=[{name:"rebuild",p:{}}];render();scrollTo(0,0)};
+ACT.edDel=()=>sheet(`<h3>Delete this protocol?</h3><div class="scroll"><p class="muted" style="margin:0">Its pain log is deleted too.</p></div><div style="display:grid;gap:8px"><button class="btn" style="background:var(--bad)" data-act="edDelYes">Delete</button><button class="btn sec" data-act="closeSheet">Keep it</button></div>`);
+ACT.edDelYes=()=>{S.myProtocols=S.myProtocols.filter(x=>x.id!==ED.id);save();ED=null;closeSheet();stack=[{name:"rebuild",p:{}}];render()};
+ACT.myStart=d=>{const p=S.myProtocols.find(x=>x.id===d.id);if(!p)return;
+  const run=t=>openPlayer(p.items.map(it=>({id:it.id,dose:it.dose})),{kind:"rehab",title:p.name,proto:p.id,...t});
+  if(p.test&&p.test.n)testSheet({n:p.test.n,how:p.test.how,fig:p.test.fig,side:p.test.side,optional:true},run);else run({testPain:null})};
+const myProtosPanel=()=>`<div class="stack" style="gap:8px"><div style="display:flex;justify-content:space-between;align-items:baseline"><span class="eyebrow">My protocols · from your physio</span><button class="link" data-act="myNew">${ic("plus","")} Add</button></div>
+  ${S.myProtocols.length?S.myProtocols.map(p=>{const L=(p.logs||[]).slice(-1)[0];return`<div class="panel">
+   <div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><h3>${esc(p.name)}</h3><button class="link" data-act="myEdit" data-id="${p.id}">Edit</button></div>
+   <p class="muted" style="margin:0;font-size:14px">${[p.from,p.freq,`${p.items.length} exercise${p.items.length===1?"":"s"}`].filter(Boolean).map(esc).join(" · ")}</p>
+   <div class="rxlist">${p.items.map(it=>{const e=LIBI[it.id];return e?`<button class="rx" data-act="openEx" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8})}</span><span><b>${esc(e.n)}</b><small>${esc(doseText(it))}</small></span></button>`:""}).join("")}</div>
+   ${p.notes?`<div class="note-warn">${esc(p.notes)}</div>`:""}
+   ${(p.logs||[]).length>1?spark(p.logs):L?`<p class="muted" style="margin:0;font-size:13px">Last session ${new Date(L.at).toLocaleDateString()}${L.sessionPain!=null?` · pain ${L.sessionPain}/10`:""}</p>`:""}
+   <button class="btn" data-act="myStart" data-id="${p.id}">${icf("play")}Start</button></div>`}).join(""):`<button class="panel" data-act="myNew" style="text-align:left"><b>Got exercises from a physiotherapist?</b><span class="muted" style="font-size:14px">Add them here and Range guides you through them with demos, timers and a pain log.</span></button>`}</div>`;
 
 /* ================= profile ================= */
 function radar(sc){
@@ -2038,6 +2247,7 @@ SCREENS.profile=()=>{
     <button class="toggle" data-act="setTog" data-k="easy"><span>Start in Easy Mode</span><span class="sw ${S.settings.easy?"on":""}"></span></button>
     <div class="toggle" style="border:0"><span>Get-ready countdown</span><span class="chipset">${[5,10,15].map(v=>`<button class="chip ${S.settings.ready===v?"on":""}" data-act="setReady" data-v="${v}">${v}s</button>`).join("")}</span></div>
   </div>
+  ${notifPanel()}
   <div class="panel"><h3>Your data</h3><p class="muted" style="margin:0;font-size:14px">Range keeps everything on this device. To move it to the installed app or another phone, copy it here and paste it there.</p>
     <div class="frow"><button class="btn sec" style="flex:1" data-act="copyData">Copy my data</button><button class="btn sec" style="flex:1" data-act="pasteData">Paste data</button></div>
     <p id="dataMsg" class="muted" style="margin:0;font-size:13px" aria-live="polite"></p><textarea id="dataBox" class="field" rows="3" hidden style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px"></textarea></div>
@@ -2113,6 +2323,7 @@ document.addEventListener("visibilitychange",async()=>{if(document.visibilitySta
 
 addEventListener("scroll",()=>document.body.classList.toggle("scrolled",scrollY>4),{passive:true});
 setTimeout(()=>autoSync(false),400);
+if(/^#recover=/.test(location.hash)){const u=location.hash;history.replaceState(null,"",location.pathname+location.search);setTimeout(()=>openUrl(u),300)}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")autoSync(false)});
 
 /* move data between the web link and the installed app (each keeps its own storage) */
