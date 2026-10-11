@@ -5,7 +5,7 @@
 const TITLE_KEYS = ["title", "name", "workout_title", "workoutTitle"];
 const DESC_KEYS = ["description", "workout_description", "workoutDescription", "details"];
 const DATE_KEYS = [
-  "scheduled_date_int", "scheduledDateInt", "scheduled_date", "scheduledDate",
+  "scheduled_date_int", "scheduledDateInt", "scheduledDateInteger", "dateInt", "scheduled_date", "scheduledDate",
   "scheduled_at", "scheduledAt", "workout_date", "workoutDate", "date",
 ];
 

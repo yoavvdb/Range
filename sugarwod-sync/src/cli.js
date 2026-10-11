@@ -91,7 +91,18 @@ async function main() {
       let previous = [];
       try { previous = (await unseal(JSON.parse(fs.readFileSync(out, "utf8")), key)).workouts || []; } catch { /* first run or new key */ }
       await loginWithPassword(email, pass);
-      const r = await syncWhiteboard({ back: +flag("back", 7), ahead: +flag("ahead", 7), delayMs: 1500 });
+      const { withSession } = await import("./whiteboard.js");
+      const { fetchSugarwod } = await import("./api.js");
+      let r;
+      try {
+        // the real SugarWOD endpoints (programming for your track + your logged results)
+        const a = await withSession((page) => fetchSugarwod(page, { back: +flag("back", 7), ahead: +flag("ahead", 7) }));
+        r = { workouts: a.workouts, missingDays: [] };
+        console.log(`Track: ${a.track} (of ${a.tracks.length}). Logged results on the account: ${a.counts.results}.`);
+      } catch (e) {
+        console.log(`API read failed (${e.message.split("\n")[0]}); falling back to reading the pages.`);
+        r = await syncWhiteboard({ back: +flag("back", 7), ahead: +flag("ahead", 7), delayMs: 1500 });
+      }
       const keyOf = (w) => `${w.date}|${(w.title || "").toLowerCase()}|${(w.text || "").slice(0, 60).toLowerCase()}`;
       const map = new Map(previous.map((w) => [keyOf(w), w]));
       r.workouts.forEach((w) => map.set(keyOf(w), w));

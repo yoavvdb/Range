@@ -73,8 +73,19 @@ export async function loginWithPassword(email, password) {
   const { ctx, page } = await openContext(true);
   try {
     await page.goto(`${BASE}/login`, { waitUntil: "domcontentloaded", timeout: 30000 });
-    await page.fill('input[name="username"]', email);
-    await page.fill('input[name="password"]', password);
+    // a saved session that is still valid sends /login straight on to the app
+    await page.waitForURL((u) => !isLoginUrl(u.toString()), { timeout: 3000 }).catch(() => {});
+    if (!isLoginUrl(page.url())) { await saveSession(ctx); return true; }
+    await page.click('input[name="username"]');
+    await page.keyboard.type(email, { delay: 35 });
+    // SugarWOD asks for the email first, then shows the password step
+    const cont = page.locator("#continue-button");
+    if (await cont.count()) {
+      await cont.click();
+      await page.locator('input[name="password"]').waitFor({ state: "visible", timeout: 20000 });
+    }
+    await page.click('input[name="password"]');
+    await page.keyboard.type(password, { delay: 35 });
     const resp = page.waitForResponse((r) => r.url().includes("/api/v1/login"), { timeout: 30000 }).catch(() => null);
     await page.click('#login-button, button[type="submit"]');
     const r = await resp;
@@ -90,6 +101,11 @@ export async function loginWithPassword(email, password) {
   } finally {
     await ctx.close();
   }
+}
+
+export async function withSession(fn) {
+  const { ctx, page } = await openContext(true);
+  try { return await fn(page); } finally { await saveSession(ctx).catch(() => {}); await ctx.close(); }
 }
 
 export async function login() {
