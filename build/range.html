@@ -13,6 +13,7 @@
   --f:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
   color-scheme:dark;
 }
+:root[data-fig="anatomy"]{--fig-skin:#C4C9CF;--fig-skin2:#8B9199;--fig-shirt:#C4C9CF;--fig-shirt2:#8B9199;--fig-shorts:#5B6169;--fig-shorts2:#41464D;--fig-hair:#C4C9CF;--fig-shoe:#B3B9C0;--fig-shoe2:#7E848C;--fig-hl:#7EE04A;--fig-ghost:#E8ECF1;--fig-arrow:#7EE04A;--fig-floor:#3A4048;--fig-prop:#5A616B;--fig-prop-hi:#A1A9B4;--stage:radial-gradient(ellipse at 50% 35%,#4B525C,#22262C 75%)}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 [hidden]{display:none!important}
 html,body{height:100%}
@@ -56,7 +57,7 @@ a.btn{text-decoration:none}.btn{display:flex;align-items:center;justify-content:
 .fig .pipe{stroke:var(--fig-prop-hi);stroke-width:4;stroke-linecap:round}
 .fig .pipeend{fill:var(--fig-prop-hi)}.fig .kit rect,.fig .kit circle{fill:var(--fig-prop-hi);stroke:var(--bg);stroke-width:1.5}
 .fig .floor{stroke:var(--fig-floor);stroke-width:2}
-.fig .ghost{stroke:var(--fig-ghost);opacity:.13;stroke-linecap:round;fill:none}.fig .ghostc{fill:var(--fig-ghost);opacity:.13}.fig .marrow{fill:none;stroke:var(--fig-arrow);stroke-width:2.2;stroke-dasharray:4 3;stroke-linecap:round}.fig .marrowh{fill:none;stroke:var(--fig-arrow);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.fig .ghost{stroke:var(--fig-ghost);opacity:.13;stroke-linecap:round;fill:none}.fig .ghostc{fill:var(--fig-ghost);opacity:.13}.fig .marrow{fill:none;stroke:var(--fig-arrow);stroke-width:3.6;stroke-linecap:round;opacity:.9}.fig .marrowh{fill:var(--fig-arrow);stroke:var(--fig-arrow);stroke-width:1.5;stroke-linejoin:round;opacity:.9}
 .fig .prop{fill:none;stroke:var(--fig-prop);stroke-width:4;stroke-linecap:round}
 .fig .propfill{fill:var(--fig-prop)}
 .fig .band{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-dasharray:4 3;opacity:.8}
@@ -440,6 +441,7 @@ const KEY="range-mobility-v2";
 const EXAMPLE={shoulders:58,overhead:44,thoracic:66,hips:52,posterior:71,ankles:38};
 let S={scores:null,tests:[],sessions:[],sports:["crossfit"],equip:EQUIP.map(e=>e.k),moves:{},settings:{sound:true,voice:false,easy:false,ready:10}};
 try{const r=localStorage.getItem(KEY);if(r){const o=JSON.parse(r);S=Object.assign(S,o);S.settings=Object.assign({sound:true,voice:false,easy:false,ready:10},o.settings||{})}}catch(e){}
+function applyFigStyle(){document.documentElement.dataset.fig=(S.settings&&S.settings.figStyle)||"illustrated"}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 const scores=()=>S.scores||EXAMPLE;
 
@@ -606,6 +608,7 @@ Object.assign(FIGS,{
 });
 
 // Generic pose names used on cards map to a representative stretch
+["h1","h6","h8"].forEach(k=>FIGS[k].work="2"); // the stretched hip is the kneeling (back) leg
 const FIG_ALIAS={squat:"h7",armsUp:"o3",kneel:"h6",calf:"a1",fold:"p1",pike:"p3",pigeon:"h2",s9090:"h3",child:"o1",latBench:"o2",crossBody:"s4",quadRot:"t5"};
 const TEST_FIG={ankles:"a1",posterior:"p1",hips:"h7",shoulders:"s5",overhead:"o3",thoracic:"t5"};
 
@@ -657,8 +660,8 @@ function figInner(key,t,_props,opt={}){
     let best=null,bd=0;cand.forEach(([k,g])=>{const a=g(JA),b=g(JB),d=Math.hypot(b[0]-a[0],b[1]-a[1]);if(d>bd+1){bd=d;best=[a,b]}});
     if(best&&bd>7){const[a,b]=best,mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,dx=b[0]-a[0],dy=b[1]-a[1],off=.28;
       const c=[mx-dy*off,my+dx*off],e=b,ang=Math.atan2(e[1]-c[1],e[0]-c[0]),hs=5;
-      const tip=vadd(e,D(ang*180/Math.PI),-3),l1=vadd(tip,D(ang*180/Math.PI+150),hs),l2=vadd(tip,D(ang*180/Math.PI-150),hs);
-      s+=`<path class="marrow" d="M${n1(a[0])} ${n1(a[1])}Q${n1(c[0])} ${n1(c[1])} ${n1(tip[0])} ${n1(tip[1])}"/><path class="marrowh" d="M${n1(l1[0])} ${n1(l1[1])}L${n1(tip[0])} ${n1(tip[1])}L${n1(l2[0])} ${n1(l2[1])}"/>`}
+      const deg=ang*180/Math.PI,tip=vadd(e,D(deg),2),base=vadd(tip,D(deg),-8),l1=vadd(tip,D(deg+152),9),l2=vadd(tip,D(deg-152),9);
+      s+=`<path class="marrow" d="M${n1(a[0])} ${n1(a[1])}Q${n1(c[0])} ${n1(c[1])} ${n1(base[0])} ${n1(base[1])}"/><path class="marrowh" d="M${n1(l1[0])} ${n1(l1[1])}L${n1(tip[0])} ${n1(tip[1])}L${n1(l2[0])} ${n1(l2[1])}Z"/>`}
   }
   props.forEach(([k,a,b,c])=>{
     if(k==="wall")s+=`<rect class="propfill" x="${a-3}" y="14" width="6" height="129" rx="2"/>`;
@@ -676,7 +679,10 @@ function figInner(key,t,_props,opt={}){
   const cap=(a,b,r1,r2,fill,o)=>{const an=Math.atan2(b[1]-a[1],b[0]-a[0]),nx=-Math.sin(an),ny=Math.cos(an);
     return`<path d="M${n1(a[0]+nx*r1)} ${n1(a[1]+ny*r1)}L${n1(b[0]+nx*r2)} ${n1(b[1]+ny*r2)}A${r2} ${r2} 0 0 0 ${n1(b[0]-nx*r2)} ${n1(b[1]-ny*r2)}L${n1(a[0]-nx*r1)} ${n1(a[1]-ny*r1)}A${r1} ${r1} 0 0 0 ${n1(a[0]+nx*r1)} ${n1(a[1]+ny*r1)}Z" style="fill:${fill}"${o?` opacity="${o}"`:""}/>`};
   const dot=(c,r,fill,o)=>`<circle cx="${n1(c[0])}" cy="${n1(c[1])}" r="${r}" style="fill:${fill}"${o?` opacity="${o}"`:""}/>`;
-  const HL="var(--fig-hl)",hlo=(.32+.28*t).toFixed(2);
+  const SHEEN=document.documentElement.dataset.fig==="anatomy";
+  // soft light from above for a shaded, rounded look (Anatomy style)
+  const sheen=(a,b,r1,r2)=>{const an=Math.atan2(b[1]-a[1],b[0]-a[0]);let nx=-Math.sin(an),ny=Math.cos(an);if(ny>0){nx=-nx;ny=-ny}
+    return cap([a[0]+nx*r1*.4,a[1]+ny*r1*.4],[b[0]+nx*r2*.4,b[1]+ny*r2*.4],r1*.38,r2*.38,"#fff",".22")};
   const limb=(sd,far)=>{
     const lg=J.legs[sd],ar=J.arms[sd],lit=!far||!opt.sides,v=far?"2":"",sk=`var(--fig-skin${v})`;
     let g="";
@@ -685,10 +691,10 @@ function figInner(key,t,_props,opt={}){
     g+=cap(lg.hip,pt(lg.hip,lg.k,.7),10,8.6,`var(--fig-shorts${v})`);
     const back=vadd(lg.f,[(lg.f[0]-lg.ft[0])*.25,(lg.f[1]-lg.ft[1])*.25]);
     g+=cap(back,lg.ft,4.8,3.9,`var(--fig-shoe${v})`);
-    if(lit){if(hl.has("thigh"))g+=cap(lg.hip,lg.k,8.6,6.6,HL,hlo);if(hl.has("shin"))g+=cap(lg.k,lg.f,6.4,4.4,HL,hlo);if(hl.has("foot"))g+=cap(back,lg.ft,4.8,3.9,HL,hlo)}
+    if(SHEEN){g+=sheen(lg.hip,lg.k,8.6,6.6)+sheen(lg.k,lg.f,6.4,4.4)}
     // arm: sleeve over the top of the upper arm, skin below, then the hand
     let arm=cap(ar.sh,ar.e,5.4,4.5,sk)+cap(ar.e,ar.w,4.5,3.6,sk)+dot(ar.w,4.6,sk)+cap(ar.sh,pt(ar.sh,ar.e,.55),6.6,5.8,`var(--fig-shirt${v})`);
-    if(lit){if(hl.has("upperarm"))arm+=cap(ar.sh,ar.e,5.4,4.5,HL,hlo);if(hl.has("forearm"))arm+=cap(ar.e,ar.w,4.5,3.6,HL,hlo)}
+    if(SHEEN)arm+=sheen(ar.sh,ar.e,5.4,4.5)+sheen(ar.e,ar.w,4.5,3.6);
     return{legs:g,arm};
   };
   const far=limb("2",!front),near=limb("1",false);
@@ -698,9 +704,7 @@ function figInner(key,t,_props,opt={}){
   else{
     // shorts at the pelvis, shirt from the waist to the shoulders (two segments follow the spine curve)
     tor=dot(J.p,front?wide+1:10.6,"var(--fig-shorts)")+cap(pt(J.p,qm,.25),qm,wide-.5,wide,"var(--fig-shirt)")+cap(qm,J.n,wide,wide+.5,"var(--fig-shirt)");
-    if(hl.has("lowback"))tor+=cap(J.p,qm,wide-.5,wide,HL,hlo);
-    if(hl.has("chest"))tor+=cap(qm,J.n,wide,wide+.5,HL,hlo);
-    if(hl.has("hip"))tor+=dot(J.p,front?wide:8.5,HL,hlo);
+    if(SHEEN)tor+=sheen(pt(J.p,qm,.25),J.n,wide-.5,wide+.5);
   }
   // head: face points to the body's front (front view: toward you); hair covers the back and top
   let head;
@@ -719,9 +723,40 @@ function figInner(key,t,_props,opt={}){
       head+=dot([hc[0]-fx*1.2-ux*.8,hc[1]-fy*1.2-uy*.8],1.8,"var(--fig-skin2)");                    // ear
     }
   }
-  const shoulderHl=hl.has("shoulder")?dot(J.arms["1"].sh,5.5,HL,hlo)+(front?dot(J.arms["2"].sh,5.5,HL,hlo):""):"";
-  const backArms=(J.arms["1"].back?near.arm:"")+(J.arms["2"].back?far.arm:"");
-  s+=far.legs+(J.arms["2"].back?"":far.arm)+backArms+near.legs+tor+head+(J.arms["1"].back?"":near.arm)+shoulderHl;
+  /* Target muscles: shaped like the muscle (quads on the front of the thigh, hamstrings on the back,
+     calf on the back of the shin...) with a soft glow, instead of tinting a whole limb. */
+  const zs=opt.zones||[],pr=P.A.prone?1:-1;
+  const offDir=(a,b,side)=>{if(front||J.above||!side)return[0,0];const an=Math.atan2(b[1]-a[1],b[0]-a[0]);const v=[Math.cos(an+pr*Math.PI/2),Math.sin(an+pr*Math.PI/2)];return side==="back"?[-v[0],-v[1]]:v};
+  const mus=(a,b,u0,u1,side,r,glow)=>{const o=offDir(a,b,side),k=front||!side?0:r*.55,A=pt(a,b,u0),B=pt(a,b,u1);
+    const A2=[A[0]+o[0]*k,A[1]+o[1]*k],B2=[B[0]+o[0]*k,B[1]+o[1]*k],m=pt(A2,B2,.5);
+    return cap(A2,m,r*.7,r,"var(--fig-hl)",(glow*.35).toFixed(2))+cap(m,B2,r,r*.6,"var(--fig-hl)",(glow*.35).toFixed(2))+cap(A2,m,r*.45,r*.7,"var(--fig-hl)",(glow*.9).toFixed(2))+cap(m,B2,r*.7,r*.35,"var(--fig-hl)",(glow*.9).toFixed(2))};
+  const tf=front?1:0,fa0=Math.atan2(J.h[1]-J.n[1],J.h[0]-J.n[0])+(P.A.prone?-1:1)*Math.PI/2,FD=[Math.cos(fa0),Math.sin(fa0)];
+  const tor2=(u0,u1,dir,r,g)=>{const a=pt(J.p,J.n,u0),b=pt(J.p,J.n,u1),k=tf||J.above?0:wide*.45*dir;return cap([a[0]+FD[0]*k,a[1]+FD[1]*k],[b[0]+FD[0]*k,b[1]+FD[1]*k],r,r*.85,"var(--fig-hl)",(g*.35).toFixed(2))+cap([a[0]+FD[0]*k,a[1]+FD[1]*k],[b[0]+FD[0]*k,b[1]+FD[1]*k],r*.6,r*.5,"var(--fig-hl)",(g*.9).toFixed(2))};
+  const musclesFor=(sd,g)=>{const lg=J.legs[sd],ar=J.arms[sd];let m="";
+    zs.forEach(z=>{
+      if(z==="quads")m+=mus(lg.hip,lg.k,.15,.88,"front",5.8,g);
+      if(z==="hamstrings")m+=mus(lg.hip,lg.k,.2,.9,"back",5.6,g);
+      if(z==="adductors")m+=mus(lg.hip,lg.k,.08,.65,null,4.8,g);
+      if(z==="hipflex")m+=mus(lg.hip,lg.k,0,.35,"front",5.4,g);
+      if(z==="calves")m+=mus(lg.k,lg.f,.08,.6,"back",4.8,g);
+      if(z==="ankles")m+=mus(lg.k,lg.f,.7,1,null,3.6,g)+dot(lg.f,3.6,"var(--fig-hl)",(g*.8).toFixed(2));
+      if(z==="forearm")m+=mus(ar.e,ar.w,.08,.75,null,3.6,g);
+      if(z==="shoulders")m+=dot(ar.sh,8,"var(--fig-hl)",(g*.3).toFixed(2))+dot(ar.sh,5.2,"var(--fig-hl)",(g*.85).toFixed(2));
+    });return m};
+  const trunkMus=g=>{let m="";zs.forEach(z=>{
+      if(z==="glutes"){const c=front||J.above?J.p:[J.p[0]-FD[0]*7,J.p[1]-FD[1]*7];m+=dot(c,10,"var(--fig-hl)",(g*.3).toFixed(2))+dot(c,6.8,"var(--fig-hl)",(g*.85).toFixed(2))}
+      if(z==="chest")m+=tor2(.55,.92,1,7,g);
+      if(z==="core")m+=tor2(.08,.55,1,6.5,g);
+      // back muscles seen from the front: drawn faint, as if through the body
+      const gb=front?g*.4:g;
+      if(z==="upperback")m+=tor2(.55,.95,-1,7,gb);
+      if(z==="lats")m+=tor2(.4,.85,-1,7.5,gb);
+      if(z==="lowback")m+=tor2(.05,.5,-1,6.5,gb);
+    });return m};
+  const G=.55+.45*t,backArms=(J.arms["1"].back?near.arm:"")+(J.arms["2"].back?far.arm:"");
+  // one-sided stretches light the working leg; for kneeling hip stretches that's the back (far) leg
+  const workFar=P.work==="2"&&!front,farLit=!opt.sides||front||workFar,nearLit=!opt.sides||front||!workFar;
+  s+=far.legs+(J.arms["2"].back?"":far.arm)+(farLit&&!workFar?musclesFor("2",G*.7):"")+backArms+near.legs+tor+trunkMus(G)+head+(J.arms["1"].back?"":near.arm)+(nearLit?musclesFor("1",G):"")+(workFar?musclesFor("2",G):"");
   props.forEach(([k,a,b,c])=>{
     const W1=J.arms["1"].w,W2=J.arms["2"].w;
     if(k==="plate"){const q=a==="ft1"?J.legs["1"].ft:a==="w1"?W1:a==="k1"?vadd(J.legs["1"].k,[-4,-9]):J.legs["1"].f;s+=a==="ft1"?`<rect class="propfill" x="${n1(q[0]-12)}" y="139" width="16" height="4" rx="1"/>`:`<circle class="prop" style="stroke:var(--fig-prop-hi)" cx="${n1(q[0])}" cy="${n1(q[1])}" r="8"/>`}
@@ -2335,6 +2370,7 @@ SCREENS.profile=()=>{
     <button class="toggle" data-act="setTog" data-k="sound"><span>Sound cues</span><span class="sw ${S.settings.sound?"on":""}"></span></button>
     <button class="toggle" data-act="setTog" data-k="voice"><span>Voice coach</span><span class="sw ${S.settings.voice?"on":""}"></span></button>
     <button class="toggle" data-act="setTog" data-k="easy"><span>Start in Easy Mode</span><span class="sw ${S.settings.easy?"on":""}"></span></button>
+    <div class="toggle"><span>Demo style</span><span class="chipset">${[["illustrated","Illustrated"],["anatomy","Anatomy"]].map(([k,n])=>`<button class="chip ${(S.settings.figStyle||"illustrated")===k?"on":""}" data-act="setFig" data-v="${k}">${n}</button>`).join("")}</span></div>
     <div class="toggle" style="border:0"><span>Get-ready countdown</span><span class="chipset">${[5,10,15].map(v=>`<button class="chip ${S.settings.ready===v?"on":""}" data-act="setReady" data-v="${v}">${v}s</button>`).join("")}</span></div>
   </div>
   ${notifPanel()}
@@ -2364,6 +2400,7 @@ ACT.howItWorks=()=>sheet(`<h3>How Range works</h3><div class="scroll evid">
   <li>Konrad et al. Foam rolling vs stretching for performance. <i>Front Physiol</i>, 2021. <a href="https://www.frontiersin.org/articles/10.3389/fphys.2021.720531/full" target="_blank" rel="noopener">Link</a></li>
  </ul></div><button class="btn sec" data-act="closeSheet">Close</button>`);
 ACT.profEq=(d,el)=>{const i=S.equip.indexOf(d.e);if(i>=0)S.equip.splice(i,1);else S.equip.push(d.e);save();el.classList.toggle("on",S.equip.includes(d.e))};
+ACT.setFig=d=>{S.settings.figStyle=d.v;save();applyFigStyle();render()};
 ACT.setReady=d=>{S.settings.ready=+d.v;save();render()};
 
 /* ================= mobility test ================= */
@@ -2412,6 +2449,7 @@ document.addEventListener("keydown",e=>{
 document.addEventListener("visibilitychange",async()=>{if(document.visibilityState==="visible"&&P&&P.running&&!wake){try{wake=await navigator.wakeLock.request("screen")}catch(e){}}});
 
 addEventListener("scroll",()=>document.body.classList.toggle("scrolled",scrollY>4),{passive:true});
+applyFigStyle();
 setTimeout(()=>autoSync(false),400);
 if(/^#recover=/.test(location.hash)){const u=location.hash;history.replaceState(null,"",location.pathname+location.search);setTimeout(()=>openUrl(u),300)}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")autoSync(false)});
