@@ -203,6 +203,12 @@ img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;o
 .stage .ov{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;gap:48px;background:rgba(0,0,0,.45)}
 .stage .ov button{display:grid;justify-items:center;gap:4px;font-size:13px;font-weight:700}
 .stage .ov .ic{width:40px;height:40px}
+.stage.tall,.detailstage.tall{aspect-ratio:4/5;max-height:56vh}.tall canvas.fig.f3{aspect-ratio:auto}.tall svg.fig{width:100%;height:100%}.stage #pfig{height:100%;display:grid;place-items:center}.detailstage{position:relative}
+.dov{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:flex-end;gap:8px;padding:10px;pointer-events:none}
+.dinfo{display:grid;gap:2px;background:rgba(13,16,21,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#fff;border-radius:10px;padding:5px 9px;max-width:66%}
+.dinfo .dk{display:none}.dinfo b{font-size:12px;line-height:1.2}
+.dchips{display:flex;flex-wrap:wrap;gap:4px}.dchips i{font-style:normal;font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;background:rgba(63,208,201,.18);color:#BFF3EF}
+.dmap{width:58px;background:rgba(13,16,21,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:10px;padding:4px}.dmap .bm{width:100%;height:auto;display:block}.dmap .bm text{display:none}
 .stage .sidetag{position:absolute;left:12px;top:10px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);background:rgba(0,0,0,.4);padding:4px 8px;border-radius:6px}
 .ptitle{text-align:center;padding:14px 16px 10px}
 .ptitle h2{font-size:21px}
@@ -837,6 +843,18 @@ function figBox(key){
   const cx=(x0+x1)/2;
   return FIGBOX[key]=[cx-w/2,top?(y0+y1)/2-hh/2:y1-hh,w,hh].map(v=>+v.toFixed(1));
 }
+/* Demo frame, laid out like the best mobility apps present a clip: what to do (hold or repeat, and for how
+   long), the muscles as tags, and a front/back body map with the target muscles lit, all inside the frame. */
+function demoInfo(e,it){
+  const st=isStatic(e,it&&it.dose),d=it&&it.dose;
+  const line=d?doseText(it):`${st?"Hold":"Repeat for"} ${fmt(it&&it.hold||e.hold||30)}${e.sides?" each side":""}`;
+  return`<div class="dinfo"><span class="dk">${st?"Hold":"Move"}</span><b>${esc(line)}</b><span class="dchips">${e.z.slice(0,3).map(z=>`<i>${ZONES[z]}</i>`).join("")}</span></div><div class="dmap">${bodyMap(e.z)}</div>`;
+}
+// standing and upright exercises get a taller, portrait frame on phones so the body is bigger
+function tallPose(key){const P=FIGS[key]||FIGS[FIG_ALIAS[key]];if(!P||P.A.top||P.A.view==="above")return false;
+  const pts=[];[P.A,P.B].forEach(F=>{const J=solveFig(F);pts.push(J.h,J.p);["1","2"].forEach(s=>pts.push(J.legs[s].f,J.legs[s].ft,J.arms[s].w))});
+  const xs=pts.map(q=>q[0]),ys=pts.map(q=>q[1]);return(Math.max(...ys)-Math.min(...ys))>(Math.max(...xs)-Math.min(...xs))*1.05}
+function frameStage(el,key){if(!el)return;const tall=innerWidth<700&&tallPose(key);el.classList.toggle("tall",tall)}
 // a static exercise is shown holding its position: passive stretches and drills done as one long hold
 function isStatic(e,dose){if(!e)return false;if(e.still&&!(dose&&dose.k==="reps"))return true;const d=dose||(e.rehab?progDose&&progDose(e.id):null);
   if(d)return d.k==="hold"||(d.k==="time"&&e.id!=="r_walk");return !e.dyn&&!e.rehab}
@@ -1130,13 +1148,15 @@ const FIG3D=(()=>{
     const yaw=(D.view==="front"?68:D.view==="above"?40:wallAhead?-24:26)*Math.PI/180+yawExtra,pitch=(D.view==="above"?28:10)*Math.PI/180;
     return norm([Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),Math.cos(yaw)*Math.cos(pitch)]);
   }
-  function frame(key,aspect,yawExtra=0){
+  function frame(key,aspect,yawExtra=0,reserve=0){
     const D=figData(key),c=[(D.mn[0]+D.mx[0])/2,(D.mn[1]+D.mx[1])/2,(D.mn[2]+D.mx[2])/2],size=[D.mx[0]-D.mn[0]+22,D.mx[1]-D.mn[1]+20,D.mx[2]-D.mn[2]+22];
     // yaw measured from the person's right side (+Z) toward their front (+X)
     const dv=camDir(D,yawExtra),dir=norm([dv[0],0,dv[2]]);
     const fov=cam.fov*Math.PI/180,w=size[0]*Math.abs(dir[2])+size[2]*Math.abs(dir[0]),h=size[1]*Math.cos(Math.asin(dv[1]))+(size[0]+size[2])*.5*dv[1];
     const dist=Math.max(h/2/Math.tan(fov/2),w/2/(Math.tan(fov/2)*aspect))*1.04+Math.max(size[0],size[2])*.18;
-    cam.aspect=aspect;cam.position.set(c[0]+dv[0]*dist,c[1]+dv[1]*dist,c[2]+dv[2]*dist);cam.lookAt(c[0],c[1]*.95,c[2]);cam.updateProjectionMatrix();
+    // leave the bottom of the frame free for the info overlay: pull back a little and aim lower
+    const d2=dist*(1+reserve*1.25),ty=c[1]*.95-reserve*size[1]*.45;
+    cam.aspect=aspect;cam.position.set(c[0]+dv[0]*d2,ty+(c[1]-ty)+dv[1]*d2,c[2]+dv[2]*d2);cam.lookAt(c[0],ty,c[2]);cam.updateProjectionMatrix();
   }
   let curKey=null,curExtras=[];
   function setFigure(key,t,zones,sides,guide){
@@ -1149,10 +1169,10 @@ const FIG3D=(()=>{
     add2(props(B,D.P.props||[],{cx:D.cx}));
     if(guide){const ak="arrow|"+M.style;if(!(ak in D))D[ak]=arrow(D.BA,D.BB,camDir(D,0));add2(D[ak])}
   }
-  function draw(r,key,t,o,w,h,yaw=0){
+  function draw(r,key,t,o,w,h,yaw=0,reserve=0){
     if(M.style!==(document.documentElement.dataset.fig||"gymkit")){makeMaterials();[rig,ghost].forEach(x=>scene.remove(x.G));rig=buildRig(false);ghost=buildRig(true);for(const k in cache)for(const j in cache[k])if(j.startsWith("arrow|"))delete cache[k][j]}
     const sz=w+"x"+h;if(r===R){if(liveSize!==sz){R.setSize(w,h,false);liveSize=sz}}else if(thumbSize!==sz){r.setSize(w,h,false);thumbSize=sz}
-    setFigure(key,t,o.zones,o.sides,o.guide!==false);frame(key,w/h,yaw);r.render(scene,cam);return r.domElement;
+    setFigure(key,t,o.zones,o.sides,o.guide!==false);frame(key,w/h,yaw,reserve);r.render(scene,cam);return r.domElement;
   }
   function renderTo(key,t,o,w,h,yaw=0){if(!TR)TR=makeRenderer(true);return draw(TR,key,t,o,w,h,yaw)}
 
@@ -1203,13 +1223,16 @@ const FIG3D=(()=>{
         // size from the container, never from the canvas itself: on iPhone a canvas can take its pixel size as its
         // display size, which made it grow every frame and look zoomed in
         const box=cv.parentElement.getBoundingClientRect(),stg=cv.closest(".stage,.detailstage,.tsfig");
-        const maxH=stg?stg.getBoundingClientRect().height:Infinity,dw=Math.max(1,Math.min(box.width,maxH*1.6)),dh=dw/1.6;
+        const sr=stg?stg.getBoundingClientRect():null,tall=stg&&stg.classList.contains("tall");
+        // a tall (portrait) stage gets a portrait render: the camera re-frames rather than letterboxing
+        let dw,dh;if(tall){dw=Math.max(1,sr.width);dh=Math.max(1,sr.height)}else{const maxH=sr?sr.height:Infinity;dw=Math.max(1,Math.min(box.width,maxH*1.6));dh=dw/1.6}
         if(!box.width||box.bottom<0||box.top>innerHeight)return;
         const cssW=Math.round(dw)+"px",cssH=Math.round(dh)+"px";if(cv.style.width!==cssW){cv.style.width=cssW;cv.style.height=cssH}
-        const dpr=Math.min(1.5,devicePixelRatio||1),w=Math.min(960,Math.round(dw*dpr)),h=Math.round(w/1.6);
+        const dpr=Math.min(1.5,devicePixelRatio||1),w=Math.min(960,Math.round(dw*dpr)),h=Math.round(w*dh/dw);
         if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}
         const per=+cv.dataset.period||3400,t=cv.dataset.mode==="static"?1:REDUCED?.75:cv.dataset.mode==="iso"?.86+.14*(.5-.5*Math.cos(ts/4200*2*Math.PI)):.5-.5*Math.cos(ts/per*2*Math.PI);
-        const src=draw(R,cv.dataset.pose,t,opts(cv),w,h,+cv.dataset.yaw||0);
+        const ov=stg&&stg.querySelector(".dov"),res=ov&&ov.offsetHeight?Math.min(.3,(ov.offsetHeight+8)/Math.max(1,dh)):0;
+        const src=draw(R,cv.dataset.pose,t,opts(cv),w,h,+cv.dataset.yaw||0,res);
         const g=cv.getContext("2d");g.clearRect(0,0,w,h);g.drawImage(src,0,0,w,h);cv.dataset.drawn=paused?"1":"";
       });
       upgrade();
@@ -1598,7 +1621,7 @@ function openPlayer(items,meta){
   $("#layer").innerHTML=`<div class="player" role="dialog" aria-label="Session player"><div class="pl">
    <div><div class="ptop"><button data-act="pExit" aria-label="End session">${ic("back")}</button><div class="brand" style="text-align:center">Range<b>.</b></div><button data-act="pSettings" aria-label="Settings">${ic("gear")}</button><button data-act="pMenu" aria-label="More">${icf("dots")}</button></div>
    <div class="segbar" id="segbar">${items.map(()=>"<i><b></b></i>").join("")}</div></div>
-   <div class="stage" id="stage" data-act="pStage" role="button" aria-label="Show play and reset" tabindex="0"><div id="pfig"></div><span class="sidetag" id="pside" hidden></span><div class="ov" id="pov" hidden><button data-act="pToggle">${icf("play")}<span id="povl">Play</span></button><button data-act="pReset">${ic("reset")}Reset</button></div></div>
+   <div class="stage" id="stage" data-act="pStage" role="button" aria-label="Show play and reset" tabindex="0"><div id="pfig"></div><div class="dov" id="pinfo"></div><span class="sidetag" id="pside" hidden></span><div class="ov" id="pov" hidden><button data-act="pToggle">${icf("play")}<span id="povl">Play</span></button><button data-act="pReset">${ic("reset")}Reset</button></div></div>
    <div class="ptitle"><h2 id="pname"></h2><div class="meta" id="pmeta"></div></div>
    <div style="display:grid;grid-template-rows:1fr auto;min-height:0"><div class="pcards" id="pcards"></div><div class="pdots" id="pdots"><i class="on"></i><i></i></div></div>
    <div class="pctrl">
@@ -1622,6 +1645,7 @@ function enterSeg(){
     const period=d&&d.tempo?(d.tempo[0]+d.tempo[2]+Math.max(.5,d.tempo[1]))*1000*1.3:d&&d.k==="reps"?2600:0;
     $("#pfig").innerHTML=fig(ex.fig||ex.id,null,{anim:true,zones:ex.z,sides:!!(ex.sides||(d&&d.sides)),mode:stat?"static":iso?"iso":"",period});
     $("#pname").textContent=ex.n;
+    $("#pinfo").innerHTML=demoInfo(ex,it);frameStage($("#stage"),ex.fig||ex.id);
     renderCards(ex);
   }
   $("#pmeta").textContent=it.dose?`${s.i+1}/${P.items.length} • ${doseText(it)}`:`${s.i+1}/${P.items.length} • ${fmt(it.hold)}${ex.sides?" each side":""} • ${ex.dyn?"Active":"Passive"} stretch`;
@@ -1803,7 +1827,7 @@ ACT.libMode=d=>{libMode=d.k;libM="";render()};
 ACT.libMuscle=d=>{libM=d.m;libQ="";render();scrollTo(0,0)};
 ACT.openEx=d=>go("exercise",{id:d.id});
 SCREENS.exercise=p=>{const e=LIBI[p.id];return hdr()+`<div class="stack" style="padding-top:4px">
-  <div class="detailstage">${fig(e.fig||e.id,null,{anim:true,zones:e.z,sides:!!e.sides,mode:exMode(e)})}</div>
+  <div class="detailstage${innerWidth<700&&tallPose(e.fig||e.id)?" tall":""}">${fig(e.fig||e.id,null,{anim:true,zones:e.z,sides:!!e.sides,mode:exMode(e)})}<div class="dov">${demoInfo(e,null)}</div></div>
   <div><h1>${esc(e.n)}</h1><div class="muted" style="margin-top:4px">${e.rehab?`${RCAT[e.a]} · Strength & rehab`:`${AN[e.a]} · ${fmt(e.hold)}${e.sides?" each side":""} · ${e.dyn?"Active":"Passive"} stretch`}</div></div>
   <div class="panel"><div><span class="eyebrow">What you should feel</span><div style="margin-top:4px">${esc(e.stim)}</div></div>
    <div><span class="eyebrow">Instructions</span><ul style="margin:6px 0 0;padding-left:18px;display:grid;gap:6px">${e.c.map(c=>`<li>${esc(c)}</li>`).join("")}</ul></div>
