@@ -289,7 +289,7 @@ img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;o
 .feel button{padding:12px 2px;border-radius:10px;background:var(--surface);font-size:12px;font-weight:700}
 .feel button.on{background:var(--accent);color:var(--accent-ink)}
 /* rebuild */
-.tsfig{position:relative;background:var(--stage);border-radius:14px;display:grid;place-items:center;padding:6px}.tsfig svg{width:100%;max-width:300px;height:auto}.tsfig.mir svg{transform:scaleX(-1)}.tsfig .pill{position:absolute;top:8px;left:8px}
+.tsfig{position:relative;background:var(--stage);border-radius:14px;display:grid;place-items:center;padding:6px}.tsfig svg{width:100%;max-width:300px;height:auto}.tsfig.mir .fig,.tsstage.mir .fig{transform:scaleX(-1)}.tsstage{position:relative}.tsstage>.pill{position:absolute;top:10px;left:10px;z-index:2}.tsfig .pill{position:absolute;top:8px;left:8px}
 .tsides{display:grid;grid-template-columns:1fr 1fr;gap:6px}.tsides span{text-align:center;padding:8px;border-radius:10px;background:var(--surface2);font-size:14px;font-weight:600;color:var(--muted)}.tsides span.on{background:var(--accent);color:var(--bg)}.tsides span.done{color:var(--ink)}
 textarea{font:inherit}.edex{gap:10px}.edhead{display:grid;grid-template-columns:72px 1fr auto;gap:10px;align-items:center}.edhead .th{width:72px;height:auto;background:var(--stage);border-radius:10px;display:block}.edhead .th svg{width:72px;height:auto;display:block}.edbtns{display:flex;gap:12px}
 .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--surface2);border-radius:10px;padding:3px}.seg button{padding:8px 4px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted)}.seg button.on{background:var(--surface);color:var(--ink)}
@@ -456,12 +456,12 @@ const SPORTS=[
 const SPI=Object.fromEntries(SPORTS.map(s=>[s.k,s]));
 
 const TEST=[
- {k:"ankles",t:"Knee-to-wall",pose:"calf",props:[["wall",188]],how:"Barefoot, facing a wall. Keep the heel down and touch the knee to the wall. How far can your big toe be from the wall?",o:["Under 5 cm","5–8 cm","8–12 cm","Over 12 cm"]},
+ {k:"ankles",t:"Knee-to-wall",uni:1,pose:"calf",props:[["wall",188]],how:"Barefoot, facing a wall, {s} foot forward. Keep the {s} heel down and touch the {s} knee to the wall. How far can your big toe be from the wall?",o:["Under 5 cm","5–8 cm","8–12 cm","Over 12 cm"]},
  {k:"posterior",t:"Standing toe touch",pose:"fold",how:"Feet together, knees locked, fold forward slowly. Where do your fingertips reach?",o:["Above mid-shin","Mid-shin to ankles","Fingertips touch toes","Palms flat on the floor"]},
  {k:"hips",t:"Deep squat",pose:"squat",how:"Feet shoulder-width, squat as low as you can and hold for 30 seconds without holding on.",o:["Can't get below parallel","Below parallel, heels lift","Heels down, chest drops","Heels down, chest tall, relaxed"]},
- {k:"shoulders",t:"Back scratch",pose:"crossBody",how:"One hand reaches over the shoulder and down the back, the other comes up from below. Measure the gap on your tighter side.",o:["Gap over 10 cm","Gap 5–10 cm","Fingertips touch","Fingers overlap"]},
+ {k:"shoulders",t:"Back scratch",pose:"crossBody",uni:1,how:"The {s} hand reaches over the {s} shoulder and down the back, the {o} hand comes up from below. How big is the gap between your fingers?",o:["Gap over 10 cm","Gap 5–10 cm","Fingertips touch","Fingers overlap"]},
  {k:"overhead",t:"Wall overhead reach",pose:"armsUp",props:[["wall",108]],how:"Heels, butt and lower back on a wall. Raise straight arms overhead toward the wall without arching.",o:["Hands far from the wall","Hands halfway to the wall","Thumbs touch, ribs flare","Thumbs touch, ribs stay down"]},
- {k:"thoracic",t:"Seated rotation",pose:"quadRot",how:"Sit cross-legged with a stick across your upper back. Rotate without moving the hips and estimate the angle.",o:["Under 30°","30–45°","45–60°","Over 60°"]},
+ {k:"thoracic",t:"Lumbar-locked rotation",pose:"quadRot",uni:1,how:"On all fours, sit the hips back toward the heels, {s} hand behind your head. Turn the {s} elbow up toward the ceiling without moving the hips, and estimate the angle.",o:["Under 30°","30–45°","45–60°","Over 60°"]},
 ];
 const OPT_SCORES=[22,48,72,94];
 
@@ -594,6 +594,7 @@ const FIGS={
  s2:mk({p:[118,86],t:-90,...STAND_L,A1:{plant:[146,30]},A2:{a:[95,95]}},{p:[130,86],t:-80,L1:{plant:[138,138],f:0}},[["frame",150]]),
  s3:mk({p:[112,86],t:-84,L1:{plant:[118,138],f:0},L2:{plant:[110,138],f:0},A1:{a:[-50,-45]},A2:{a:[95,95]}},{p:[104,88],t:-25,h:-15,A1:{a:[-20,-18]},A2:{a:[95,95]}},[["band","w1",210,20]]),
  s4:mk({view:"front",p:[120,86],t:-90,...FRONT_L,A1:{a:[178,175]},A2:{a:[110,-60]}},{A1:{a:[183,190]},A2:{a:[114,-66]}}),
+ bscratch:mk({view:"front",p:[120,86],t:-90,...FRONT_L,A1:{a:[-95,105],s:[1,.95],back:1},A2:{a:[100,-55],s:[1,.8],back:1}},{A1:{a:[-96,100]},A2:{a:[97,-50]}},[],{cam:{yaw:-105,pitch:10}}),
  s5:mk({view:"front",p:[120,86],t:-90,...FRONT_L,A1:{a:[-75,120],back:1},A2:{a:[105,-60],back:1}},{A1:{a:[-80,112]},A2:{a:[100,-70]}},[["towel"]]),
  s6:mk({p:[120,86],t:-90,...STAND_L,A1:{a:[75,75]},A2:{a:[78,78]}},{A1:{a:[-200,-200]},A2:{a:[-197,-197]}},[["pipe"]]),
  s7:mk({p:[120,86],t:-90,...STAND_L,A1:{a:[50,-112]},A2:{a:[53,-109]}},{A1:{a:[-10,-170]},A2:{a:[-7,-167]}},[["pipe"]]),
@@ -661,7 +662,7 @@ Object.assign(FIGS,{
 // Generic pose names used on cards map to a representative stretch
 ["h1","h6","h8"].forEach(k=>FIGS[k].work="2"); // the stretched hip is the kneeling (back) leg
 const FIG_ALIAS={squat:"h7",armsUp:"o3",kneel:"h6",calf:"a1",fold:"p1",pike:"p3",pigeon:"h2",s9090:"h3",child:"o1",latBench:"o2",crossBody:"s4",quadRot:"t5"};
-const TEST_FIG={ankles:"a1",posterior:"p1",hips:"h7",shoulders:"s5",overhead:"o3",thoracic:"t5"};
+const TEST_FIG={ankles:"a1",posterior:"p1",hips:"h7",shoulders:"bscratch",overhead:"o3",thoracic:"t5"};
 
 function solveFig(F){
   let p=F.p;
@@ -937,6 +938,8 @@ const FIG3D=(()=>{
       else{e=bone(sh,ar.sh,ar.e,BONE.ua,sg);w=bone(e,ar.e,ar.w,BONE.fa,sg)}
       // seated, seen from above: hands that are drawn out to the side rest on the floor
       if(above&&!lying&&w[1]>6&&!A.rot){const reach=BONE.ua+BONE.fa,hz=len(sub([w[0],0,w[2]],[sh[0],0,sh[2]]));w=[w[0],Math.max(4,sh[1]-Math.sqrt(Math.max(0,reach*reach-hz*hz))),w[2]];e=add(lerp3(sh,w,.5),[0,4,0])}
+      // front view: an arm drawn behind the body (back scratch) goes back, not forward
+      if(front&&A.back){e=[-Math.max(Math.abs(e[0]-sh[0]),4)+sh[0],e[1],e[2]];w=[-Math.max(Math.abs(w[0]-sh[0]),9)+sh[0],w[1],w[2]]}
       // optional hand direction (2D angle), e.g. a palm resting on the side of the head instead of pointing along the forearm
       const hn=A.hand!=null?[Math.cos(A.hand*Math.PI/180),Math.sin(A.hand*Math.PI/180)]:null;
       out.arms[s]={sh,e,w,hd:hn?(side?[hn[0],-hn[1],0]:front?[0,-hn[1],hn[0]]:null):null};
@@ -3356,40 +3359,54 @@ ACT.setReady=d=>{S.settings.ready=+d.v;save();render()};
 
 /* ================= mobility test ================= */
 let T=null;
-ACT.openTest=()=>{T={i:0,ans:{},side:{...(S.sideBias||{})}};const last=S.tests[S.tests.length-1];if(last&&last.ans)T.ans={...last.ans};drawTest()};
+// one-sided tests run right side first, then left, each scored on its own; two-sided ones (squat, toe touch, wall reach) run once
+const TSTEPS=TEST.flatMap(q=>q.uni?[{q,sd:"R"},{q,sd:"L"}]:[{q,sd:""}]);
+const tKey=st=>st.q.k+st.sd;
+function testScores(ans){const sc={},side={};
+  TEST.forEach(q=>{if(!q.uni){sc[q.k]=OPT_SCORES[ans[q.k]];return}
+    const r=ans[q.k+"R"],l=ans[q.k+"L"];sc[q.k]=OPT_SCORES[Math.min(r,l)];side[q.k]=r<l?"R":l<r?"L":""}); // the tighter side sets the score
+  return{sc,side}}
+ACT.openTest=()=>{T={i:0,ans:{},side:{...(S.sideBias||{})}};const last=S.tests[S.tests.length-1];
+  if(last&&last.ans){T.ans={...last.ans};TEST.forEach(q=>{if(q.uni&&last.ans[q.k]!=null&&last.ans[q.k+"R"]==null){T.ans[q.k+"R"]=T.ans[q.k+"L"]=last.ans[q.k]}})}
+  drawTest()};
 function drawTest(){
   document.body.style.overflow="hidden";
-  if(T.i>=TEST.length){
-    const sc={};TEST.forEach(q=>sc[q.k]=OPT_SCORES[T.ans[q.k]]);const ov=overall(sc),lv=level(ov);
+  if(T.i>=TSTEPS.length){
+    const{sc,side}=testScores(T.ans);const ov=overall(sc),lv=level(ov);
     const weakest=AREAS.slice().sort((a,b)=>sc[a.k]-sc[b.k]).slice(0,2).map(a=>a.n).join(" and ");
+    const lr=TEST.filter(q=>q.uni);
     $("#layer").innerHTML=`<div class="full"><div class="inner"><div class="hdr" style="grid-template-columns:1fr"><div class="brand" style="text-align:center">Range<b>.</b></div></div>
     <div class="stack" style="align-content:start"><span class="eyebrow">Your results</span><div class="score"><b>${ov}</b><span class="pill ${lv.c}">${lv.t}</span></div>
     <p class="muted" style="margin:0">Your routines will now spend the most time on your ${weakest}.</p>${radar(sc)}
-    <ul class="bars">${AREAS.map(a=>{const v=sc[a.k],l=level(v);return`<li><span>${a.n}</span><span class="tr"><i style="width:${v}%;background:${l.v}"></i></span><b>${v}</b></li>`}).join("")}</ul></div>
+    <ul class="bars">${AREAS.map(a=>{const v=sc[a.k],l=level(v);return`<li><span>${a.n}</span><span class="tr"><i style="width:${v}%;background:${l.v}"></i></span><b>${v}</b></li>`}).join("")}</ul>
+    <div class="panel"><span class="eyebrow">Right vs left</span>${lr.map(q=>{const r=T.ans[q.k+"R"],l=T.ans[q.k+"L"],s=side[q.k];
+      return`<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0"><span>${AN[q.k]}</span><span class="muted">Right ${r+1} · Left ${l+1}${s?` · <b style="color:var(--ink)">${SIDE_N[s]} is tighter</b>`:" · even"}</span></div>`}).join("")}
+      <p class="muted" style="margin:6px 0 0;font-size:13px">Each area is scored on its tighter side. One-sided stretches give the tighter side 50% more time.</p></div></div>
     <div class="bottomcta"><button class="btn" data-act="testSave">Save my scores</button><button class="btn sec" data-act="testExit">Discard</button></div></div></div>`;
     return;
   }
-  const q=TEST[T.i];
+  const st=TSTEPS[T.i],q=st.q,sd=st.sd,key=tKey(st),how=q.how.replace(/\{s\}/g,sd==="L"?"left":"right").replace(/\{o\}/g,sd==="L"?"right":"left");
   $("#layer").innerHTML=`<div class="full"><div class="inner">
    <div><div class="hdr"><button data-act="testBack" aria-label="Back">${ic("back")}</button><div class="brand">Range<b>.</b></div><button data-act="testExit" aria-label="Close test">${ic("x")}</button></div>
-   <div class="tprog">${TEST.map((_,k)=>`<i class="${k<=T.i?"on":""}"></i>`).join("")}</div></div>
+   <div class="tprog">${TSTEPS.map((_,k)=>`<i class="${k<=T.i?"on":""}"></i>`).join("")}</div></div>
    <div class="stack" style="align-content:start">
-    <span class="eyebrow">Position ${T.i+1} of ${TEST.length} · ${AN[q.k]}</span><h1>${q.t}</h1>
-    <div class="detailstage">${fig(TEST_FIG[q.k],null,{anim:true,zones:AREA_ZONES[q.k]})}</div>
-    <p class="muted" style="margin:0">${q.how}</p>
-    <div class="stack" style="gap:8px">${q.o.map((o,k)=>`<button class="opt ${T.ans[q.k]===k?"on":""}" data-act="testPick" data-k="${k}"><span>${o}</span><span class="muted" style="font-size:12px">Level ${k+1}</span></button>`).join("")}</div>
-    ${["ankles","hips","shoulders","thoracic"].includes(q.k)?`<div class="stack" style="gap:6px"><span class="eyebrow">Test both sides. Which is tighter?</span><div class="chipset">${[["L","Left"],["","About even"],["R","Right"]].map(([v,n])=>`<button class="chip ${(T.side[q.k]||"")===v?"on":""}" data-act="testSide" data-v="${v}">${n}</button>`).join("")}</div></div>`:""}
+    <span class="eyebrow">Test ${T.i+1} of ${TSTEPS.length} · ${AN[q.k]}</span><h1>${q.t}${sd?` · ${SIDE_N[sd]}`:""}</h1>
+    <div class="detailstage tsstage${sd==="L"?" mir":""}">${fig(TEST_FIG[q.k],null,{anim:true,zones:AREA_ZONES[q.k]})}${sd?`<span class="pill">${SIDE_N[sd]} side</span>`:""}</div>
+    ${sd?`<div class="tsides">${["R","L"].map(k=>`<span class="${sd===k?"on":T.ans[q.k+k]!=null&&k==="R"?"done":""}">${SIDE_N[k]}</span>`).join("")}</div><p style="margin:0"><b>${sd==="R"?"Test your right side first.":"Now the left side, the same way."}</b></p>`:""}
+    <p class="muted" style="margin:0">${how}</p>
+    <div class="stack" style="gap:8px">${q.o.map((o,k)=>`<button class="opt ${T.ans[key]===k?"on":""}" data-act="testPick" data-k="${k}"><span>${o}</span><span class="muted" style="font-size:12px">Level ${k+1}</span></button>`).join("")}</div>
+    ${q.k==="hips"?`<div class="stack" style="gap:6px"><span class="eyebrow">Does one side feel tighter in the squat?</span><div class="chipset">${[["L","Left"],["","About even"],["R","Right"]].map(([v,n])=>`<button class="chip ${(T.side[q.k]||"")===v?"on":""}" data-act="testSide" data-v="${v}">${n}</button>`).join("")}</div></div>`:""}
    </div>
-   <div class="bottomcta"><button class="btn" data-act="testNext" ${T.ans[q.k]==null?"disabled":""}>${T.i===TEST.length-1?"See my results":"Next position"}</button></div>
+   <div class="bottomcta"><button class="btn" data-act="testNext" ${T.ans[key]==null?"disabled":""}>${T.i===TSTEPS.length-1?"See my results":sd==="R"?"Now the left side":"Next test"}</button></div>
   </div></div>`;
   $(".full").scrollTop=0;
 }
-ACT.testSide=d=>{T.side[TEST[T.i].k]=d.v;drawTest()};
-ACT.testPick=d=>{T.ans[TEST[T.i].k]=+d.k;drawTest()};
+ACT.testSide=d=>{T.side[TSTEPS[T.i].q.k]=d.v;drawTest()};
+ACT.testPick=d=>{T.ans[tKey(TSTEPS[T.i])]=+d.k;drawTest()};
 ACT.testNext=()=>{T.i++;drawTest()};
 ACT.testBack=()=>{if(T.i>0){T.i--;drawTest()}else ACT.testExit()};
 ACT.testExit=()=>{T=null;$("#layer").innerHTML="";document.body.style.overflow=""};
-ACT.testSave=()=>{const sc={};TEST.forEach(q=>sc[q.k]=OPT_SCORES[T.ans[q.k]]);S.scores=sc;S.sideBias={...T.side};S.tests.push({at:Date.now(),scores:sc,ans:T.ans,side:{...T.side}});save();ACT.testExit();render()};
+ACT.testSave=()=>{const{sc,side}=testScores(T.ans);S.scores=sc;S.sideBias={...T.side,...side};S.tests.push({at:Date.now(),scores:sc,ans:T.ans,side:{...T.side,...side}});save();ACT.testExit();render()};
 
 /* keyboard for player */
 document.addEventListener("keydown",e=>{
