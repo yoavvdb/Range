@@ -37,3 +37,9 @@ On iPhone this needs iOS 16.4 or later and Range opened from the home screen ico
 SugarWOD's pages may differ from what the reader expects. Open an issue or ask Claude to adjust `sugarwod-sync/src/whiteboard.js`.
 
 Automated access may go against SugarWOD's terms of use. This only reads your own account, every hour.
+
+## Demo QA
+
+`qa/render-demos.js` renders every exercise demo in 3D, as the app shows it, into contact sheets. `.claude/agents/demo-qa.md` is a Claude Code agent that reviews those sheets the way a coach would watch a demo video. It flags demos that show the wrong exercise, wrong contact points, impossible joints, or a camera angle that hides the key detail.
+
+To run it, open this repo in Claude Code and ask: "Use the demo-qa agent to check all exercise demos." To check only a few, list their ids, for example `h4,a_sots`.
