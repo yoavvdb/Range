@@ -586,7 +586,9 @@ const FIGS={
  // overhead
  o1:mk({root:["k1",[110,137]],t:22,h:35,L1:{a:[90,180],f:180},L2:{a:[88,180],f:180},A1:{plant:[180,138]},A2:{plant:[176,135]}},{t:30,h:45}),
  o2:mk({root:["k1",[100,137]],t:2,h:10,L1:{a:[96,180],f:180},L2:{a:[94,180],f:180},A1:{a:[-15,200]},A2:{a:[-12,197]}},{t:12,h:25,A1:{a:[-25,195]},A2:{a:[-22,193]}},[["bench"],["pipe"]]),
- o3:mk({view:"front",p:[120,86],t:-90,...FRONT_L,A1:{a:[15,-85]},A2:{a:[165,-95]}},{A1:{a:[-62,-80]},A2:{a:[-118,-100]}}),
+ o3:mk({p:[121,86],t:-90,h:-90,L1:{plant:[129,138],f:0},L2:{plant:[125,138],f:0},A1:{a:[-100,-92],s:[.15,1]},A2:{a:[-98,-90],s:[.15,1]}},{A1:{a:[-97,-97],s:[.72,.72]},A2:{a:[-95,-95],s:[.72,.72]}},[["wall",111]],{cam:{yaw:60,pitch:10}}),
+ wallreach:mk({p:[121,86],t:-90,h:-90,L1:{plant:[127,138],f:0},L2:{plant:[123,138],f:0},A1:{a:[0,0]},A2:{a:[2,2]}},{A1:{a:[-100,-100]},A2:{a:[-98,-98]}},[["wall",111]],{cam:{yaw:60,pitch:10}}),
+ armsUp:mk({view:"front",p:[120,86],t:-90,...FRONT_L,A1:{a:[15,-85]},A2:{a:[165,-95]}},{A1:{a:[-62,-80]},A2:{a:[-118,-100]}}),
  o4:mk({root:["k1",[112,137]],t:12,h:20,L1:{a:[45,180],f:180},L2:{a:[43,180],f:180},A1:{plant:[164,138]},A2:{plant:[160,135]}},{t:4,h:12,L1:{a:[22,180]},L2:{a:[20,180]}},[["band","w1",214,134]]),
  o5:mk({root:["k1",[112,137]],t:12,h:20,L1:{a:[45,180],f:180},L2:{a:[43,180],f:180},A1:{plant:[164,138]},A2:{plant:[160,135]}},{t:2,h:10,L1:{a:[20,180]},L2:{a:[18,180]}}),
 };
@@ -647,7 +649,7 @@ Object.assign(FIGS,{
 // Generic pose names used on cards map to a representative stretch
 ["h1","h6","h8"].forEach(k=>FIGS[k].work="2"); // the stretched hip is the kneeling (back) leg
 const FIG_ALIAS={squat:"h7",armsUp:"o3",kneel:"h6",calf:"a1",fold:"p1",pike:"p3",pigeon:"h2",s9090:"h3",child:"o1",latBench:"o2",crossBody:"s4",quadRot:"t5"};
-const TEST_FIG={ankles:"a1",posterior:"p1",hips:"h7",shoulders:"bscratch",overhead:"o3",thoracic:"t5"};
+const TEST_FIG={ankles:"a1",posterior:"p1",hips:"h7",shoulders:"bscratch",overhead:"wallreach",thoracic:"t5"};
 
 function solveFig(F){
   let p=F.p;
