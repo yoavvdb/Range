@@ -561,7 +561,7 @@ const FIGS={
  h1:mk({root:["k2",[88,137]],t:-62,L2:{a:[120,-88],f:-95},L1:{plant:[134,138],f:0},A1:{a:[55,60]},A2:{a:[60,60]}},{t:-92,L2:{a:[100,-88]},A1:{a:[115,-25]},A2:{a:[115,-20]}},[["wall",79]]),
  h2:mk({p:[116,130],t:-50,h:-40,L1:{a:[12,178],f:180},L2:{a:[165,179],f:180},A1:{plant:[146,138]},A2:{plant:[142,138]}},{t:-16,h:-8,A1:{plant:[178,138]},A2:{plant:[174,138]}}),
  h3:mk({view:"above",tl:.15,p:[110,78],t:-90,h:-90,L1:{a:[0,-90],f:-90},L2:{a:[-90,-180],f:-90},A1:{a:[150,170]},A2:{a:[-150,-170]}},{L1:{a:[90,-180],f:-90},L2:{a:[0,90],f:90}}),
- h4:mk({root:["k1",[106,137]],t:12,h:20,L1:{a:[90,180],f:180},L2:{a:[88,180],f:180},A1:{plant:[166,139]},A2:{plant:[162,139]}},{t:8,L1:{a:[62,180]},L2:{a:[60,180]}}),
+ h4:mk({p:[104,132],t:-20,h:-10,L1:{a:[90,180],s:[.15,1],f:180},L2:{a:[90,180],s:[.15,1],f:180},A1:{a:[95,0]},A2:{a:[93,0]}},{p:[96,131],t:-24,L1:{a:[90,180],s:[.15,1]},L2:{a:[90,180],s:[.15,1]}},[],{cam:{yaw:-115,pitch:35}}),
  h5:mk({view:"front",p:[120,90],t:-90,L1:{plant:[150,138],f:0,d:1},L2:{plant:[90,138],f:180,d:-1},A1:{a:[110,180]},A2:{a:[70,0]}},{p:[140,116],t:-78,L2:{plant:[90,138],f:270,d:-1}}),
  h6:mk({root:["k2",[100,137]],t:-90,L2:{a:[90,180],f:180},L1:{plant:[134,138],f:0},A1:{a:[95,90]},A2:{a:[100,95]}},{t:-92,L2:{a:[115,180]},A1:{a:[-95,-95]}}),
  h7:mk({p:[112,124],t:-66,L1:{plant:[134,138],f:0},L2:{plant:[130,138],f:0},A1:{a:[72,-45]},A2:{a:[76,-40]}},{p:[112,122],t:-73}),
@@ -922,7 +922,9 @@ const FIG3D=(()=>{
       else{e=bone(sh,ar.sh,ar.e,BONE.ua,sg);w=bone(e,ar.e,ar.w,BONE.fa,sg)}
       // seated, seen from above: hands that are drawn out to the side rest on the floor
       if(above&&!lying&&w[1]>6&&!A.rot){const reach=BONE.ua+BONE.fa,hz=len(sub([w[0],0,w[2]],[sh[0],0,sh[2]]));w=[w[0],Math.max(4,sh[1]-Math.sqrt(Math.max(0,reach*reach-hz*hz))),w[2]];e=add(lerp3(sh,w,.5),[0,4,0])}
-      out.arms[s]={sh,e,w};
+      // optional hand direction (2D angle), e.g. a palm resting on the side of the head instead of pointing along the forearm
+      const hn=A.hand!=null?[Math.cos(A.hand*Math.PI/180),Math.sin(A.hand*Math.PI/180)]:null;
+      out.arms[s]={sh,e,w,hd:hn?(side?[hn[0],-hn[1],0]:front?[0,-hn[1],hn[0]]:null):null};
     });
     // body axes: up the spine, across the shoulders, and forward (the way the chest faces)
     const U=norm(sub(out.n,out.p)),lat=norm(sub(out.arms["1"].sh,out.arms["2"].sh));
@@ -1028,7 +1030,7 @@ const FIG3D=(()=>{
       const fd=norm(sub(lg.ft,lg.f)),fc=lerp3(lg.f,lg.ft,.45),fx=norm(cross(fd,[0,1,0]))||[1,0,0];
       const up=norm(cross(fx,fd));blob(P["foot"+s],add(fc,mul(up,-1.2)),4.3,3.2,8.2,[fx,up,fd]);
       seg(P["upper"+s],ar.sh,ar.e,4.6,4.9,Fw);seg(P["sleeve"+s],ar.sh,lerp3(ar.sh,ar.e,.5),5.6,5.9,Fw);seg(P["fore"+s],ar.e,ar.w,4.3,3.9,Fw);
-      blob(P["elbow"+s],ar.e,3.9,3.9,3.9);{const hd=norm(sub(ar.w,ar.e)),hx=perpTo(Fw,hd)||Lt,hz=norm(cross(hx,hd));blob(P["hand"+s],add(ar.w,mul(hd,2.2)),3.6,5.4,2.5,[hx,hd,hz])}blob(P["shoulder"+s],ar.sh,6.4,6.4,6.4);
+      blob(P["elbow"+s],ar.e,3.9,3.9,3.9);{const hd=ar.hd||norm(sub(ar.w,ar.e)),hx=perpTo(Fw,hd)||Lt,hz=norm(cross(hx,hd));blob(P["hand"+s],add(ar.w,mul(hd,2.2)),3.6,5.4,2.5,[hx,hd,hz])}blob(P["shoulder"+s],ar.sh,6.4,6.4,6.4);
     });
     const basis=[Lt,U,Fw],mid=lerp3(B.p,B.n,.5);
     blob(P.pelvis,add(B.p,mul(U,2)),11.5,9.5,8.8,basis);
@@ -1145,7 +1147,8 @@ const FIG3D=(()=>{
   }
   function camDir(D,yawExtra){
     const wallAhead=(D.P.props||[]).some(([k,a])=>(k==="wall"||k==="frame")&&a>D.cx);
-    const yaw=(D.view==="front"?68:D.view==="above"?40:wallAhead?-24:26)*Math.PI/180+yawExtra,pitch=(D.view==="above"?28:10)*Math.PI/180;
+    const C=D.P.cam||{};// a pose can pick its own camera, e.g. from behind to show how wide the knees are
+    const yaw=(C.yaw??(D.view==="front"?68:D.view==="above"?40:wallAhead?-24:26))*Math.PI/180+yawExtra,pitch=(C.pitch??(D.view==="above"?28:10))*Math.PI/180;
     return norm([Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),Math.cos(yaw)*Math.cos(pitch)]);
   }
   function frame(key,aspect,yawExtra=0,reserve=0){
@@ -1912,7 +1915,7 @@ Object.assign(FIGS,{
  a_scappush:mk({p:[106,114],t:-27,h:-22,L1:{plant:[54.5,131],f:65},L2:{plant:[54.5,130],f:65},A1:{plant:[141,138]},A2:{plant:[137,138]}},{p:[106,115.5],t:-26.5,h:-20}),
  a_pullapart:mk({view:"front",p:[120,86],t:-90,...FRONT_L,A1:{a:[0,0],s:[.12,.12]},A2:{a:[180,180],s:[.12,.12]}},{A1:{s:[1,1]},A2:{s:[1,1]}},[["towel"]]),
  a_halo:mk({view:"front",p:[120,86],t:-90,...FRONT_L,A1:{plant:[127,66],d:1},A2:{plant:[125,66],d:-1}},{A1:{plant:[147,32],d:1},A2:{plant:[145,32],d:-1}},[["plate","w1"]]),
- a_sots:mk({p:[112,124],t:-74,h:-74,L1:{plant:[134,138],f:0},L2:{plant:[130,138],f:0},A1:{a:[115,-85],s:[.45,1]},A2:{a:[117,-83],s:[.45,1]}},{A1:{a:[-94,-94],s:[1,1]},A2:{a:[-92,-92],s:[1,1]}},[["pipe"]]),
+ a_sots:mk({p:[112,124],t:-74,h:-74,L1:{plant:[134,138],f:0},L2:{plant:[130,138],f:0},A1:{a:[95,-104],s:[.65,1]},A2:{a:[97,-102],s:[.65,1]}},{h:-80,A1:{a:[-100,-100],s:[.85,.85]},A2:{a:[-98,-98],s:[.85,.85]}},[["pipe"]]),
  a_hang:mk({p:[120,89],t:-90,sho:0,L1:{a:[105,150],f:45},L2:{a:[103,148],f:45},A1:{plant:[123,9]},A2:{plant:[117,9]}},{p:[120,91],sho:-2},[["bar",88,8,152]]),
  a_german:mk({p:[127,111],t:-84,L1:{plant:[142,138],f:0},L2:{plant:[138,138],f:0},A1:{plant:[94,62]},A2:{plant:[92,62]}},{p:[108,133],t:-82},[["bar",70,62,104]]),
  a_wallserr:mk({p:[118,86],t:-90,L1:{plant:[122,138],f:0},L2:{plant:[114,138],f:0},A1:{a:[15,-90]},A2:{a:[18,-88]}},{p:[124,87],t:-84,A1:{a:[-55,-85]},A2:{a:[-52,-83]}},[["wall",146]]),
@@ -2263,7 +2266,7 @@ addStretches([
 // Batch E1: neck & traps, biceps, triceps, forearms & wrists, chest
 Object.assign(FIGS,{
  // neck: front view, head side-bends toward the right shoulder, right hand over the head assists
- e1_uptrap:mk({view:"front",p:[120,86],t:-90,h:-90,...FRONT_L,A1:{a:[95,88],s:[1,1]},A2:{a:[95,92]}},{h:-45,A1:{a:[-72,192],s:[1,.97]},A2:{a:[98,94]}}),
+ e1_uptrap:mk({view:"front",p:[120,86],t:-90,h:-90,...FRONT_L,A1:{plant:[132,89],d:-1,hand:90},A2:{a:[95,92]}},{h:-45,A1:{plant:[121,33],d:-1,hand:75},A2:{a:[98,94]}},[],{cam:{yaw:84,pitch:8}}),
  // neck: side view, seated, head drops forward toward the chest, hand on the back of the head
  e1_levator:mk({p:[100,111],t:-90,h:-90,L1:{plant:[136,138],f:0},L2:{plant:[132,138],f:0},A1:{plant:[103,56]},A2:{a:[95,85]}},{h:-12,A1:{plant:[112,62]}},[["box",76,114,32]]),
  // neck: side view, back to a wall, head slides straight back
