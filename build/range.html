@@ -537,7 +537,9 @@ function lerpF(a,b,t){
   return a;
 }
 function merge(a,b){const o=JSON.parse(JSON.stringify(a));for(const k in b){o[k]=b[k]&&typeof b[k]==="object"&&!Array.isArray(b[k])&&o[k]&&typeof o[k]==="object"?Object.assign(o[k],b[k]):b[k]}return o}
-const mk=(A,B,props=[],extra={})=>({A,B:merge(A,B),props,...extra});
+// extra.mid: an optional middle keyframe (merged over A), for movements that pass through a different position
+const mk=(A,B,props=[],extra={})=>({A,B:merge(A,B),props,...extra,...(extra.mid?{M:merge(A,extra.mid)}:{})});
+const poseAt=(P,t)=>P.M?(t<.5?lerpF(P.A,P.M,t*2):lerpF(P.M,P.B,(t-.5)*2)):lerpF(P.A,P.B,t);
 const STAND_L={L1:{plant:[124,138],f:0},L2:{plant:[116,138],f:0}};
 const FRONT_L={L1:{plant:[129,138],f:10,d:1},L2:{plant:[111,138],f:170,d:-1}};
 const QUAD={p:[104,110],L1:{a:[92,180],f:180},L2:{a:[90,180],f:180},A2:{plant:[140,139]}};
@@ -678,7 +680,7 @@ function solveFig(F){
 }
 const ZONE_SEGS={core:["lowback","chest"],forearm:["forearm"],hamstrings:["thigh"],quads:["thigh"],adductors:["thigh"],hipflex:["hip"],glutes:["hip"],calves:["shin"],ankles:["shin","foot"],shoulders:["shoulder","upperarm"],chest:["chest"],lats:["chest","upperarm"],upperback:["chest"],lowback:["lowback"]};
 function figInner(key,t,_props,opt={}){
-  const P=FIGS[key]||FIGS[FIG_ALIAS[key]]||FIGS.h7,J=solveFig(lerpF(P.A,P.B,t)),top=P.A.top||J.above,front=J.front;
+  const P=FIGS[key]||FIGS[FIG_ALIAS[key]]||FIGS.h7,J=solveFig(poseAt(P,t)),top=P.A.top||J.above,front=J.front;
   const hl=new Set();(opt.zones||[]).forEach(z=>(ZONE_SEGS[z]||[]).forEach(s=>hl.add(s)));
   const op=(.5+.5*t).toFixed(2),n1=v=>v.toFixed(1);
   const L=(a,b,w,cls,o)=>`<line class="${cls}" x1="${n1(a[0])}" y1="${n1(a[1])}" x2="${n1(b[0])}" y2="${n1(b[1])}" stroke-width="${w}"${o?` opacity="${o}"`:""}/>`;
@@ -1074,7 +1076,8 @@ const FIG3D=(()=>{
 
   /* ---------- target muscles: glowing shapes on the body surface ---------- */
   function muscles(B,zones,sides,workFar,front){
-    const g=new T.Group(),add1=(a,b,u0,u1,dir,r,depth=.55)=>{const A=lerp3(a,b,u0),Bp=lerp3(a,b,u1),off=dir?mul(dir,r*depth):[0,0,0];
+    const g=new T.Group(),add1=(a,b,u0,u1,dir,r0,depth=.55)=>{const r=r0<7?r0*1.5:r0; // small zones (neck, arms) must come out past the limb surface to show
+      const A=lerp3(a,b,u0),Bp=lerp3(a,b,u1),off=dir?mul(dir,r*depth):[0,0,0];
       const o=part(geo.capsule,M.hl,false);const L=len(sub(Bp,A));const y=norm(sub(Bp,A));let z=(dir&&perpTo(dir,y))||perpTo([0,1,0],y)||perpTo([1,0,0],y)||perpTo([0,0,1],y);const x=norm(cross(y,z));
       const c=add(lerp3(A,Bp,.5),off);const m=new T.Matrix4().makeBasis(_v(x),_v(y),_v(z));m.scale(new T.Vector3(r*.62,Math.max(.1,L*.5-r*.3),r*.5));m.setPosition(c[0],c[1],c[2]);o.matrix.copy(m);g.add(o)};
     const lit=s=>!sides||(workFar?s==="2":s==="1");
@@ -1115,7 +1118,7 @@ const FIG3D=(()=>{
     const rod=(a,b,r,mat)=>{const o=part(geo.cyl,mat);seg(o,a,b,r,r,null);g.add(o)},ball=(c,r,mat)=>{const o=part(geo.sph,mat);blob(o,c,r,r,r);g.add(o)};
     const W1=B.arms["1"].w,W2=B.arms["2"].w,side=B.side;
     const lateral=v=>side?[0,0,v]:[0,0,v];
-    list.forEach(([k,a,b,c])=>{
+    list.forEach(([k,a,b,c,d])=>{
       if(k==="wall")box(X(a),70,0,5,140,90,M.wall);
       if(k==="frame")box(X(a),70,0,4,140,4,M.propDark);
       if(k==="box"||k==="stack")box(X(a+c/2),Y(b)/2,0,c,Y(b),34,M.prop);
@@ -1141,10 +1144,10 @@ const FIG3D=(()=>{
       if(k==="post")box(X(a),(b?Y(b):60)/2,c||0,4,b?Y(b):60,4,M.propDark);   // anchor post or rack upright, a=x, b=top y
       if(k==="bandw")rod(W1,W2,1.1,M.band);                                    // band between the wrists
       if(k==="bandank")rod(B.legs["1"].f,B.legs["2"].f,1.1,M.band);           // loop band around the ankles
-      if(k==="bandto"){const pt={w1:W1,w2:W2,k1:B.legs["1"].k,k2:B.legs["2"].k,f1:B.legs["1"].f,f2:B.legs["2"].f,p:B.p,hip1:B.legs["1"].hip,hip2:B.legs["2"].hip}[a]||W1;rod(pt,[X(b),Y(c),pt[2]],1,M.band)} // band from a body point to an anchor at (b,c)
+      if(k==="bandto"){const pt={w1:W1,w2:W2,k1:B.legs["1"].k,k2:B.legs["2"].k,f1:B.legs["1"].f,f2:B.legs["2"].f,p:B.p,hip1:B.legs["1"].hip,hip2:B.legs["2"].hip}[a]||W1;rod(pt,[X(b),Y(c),d??pt[2]],1,M.band)} // band from a body point to an anchor at (b,c[,z])
       if(k==="pad")box(X(a),1.5,0,b||14,3,c||16,M.prop);                       // mat / pad on the floor at x=a
-      if(k==="ball2")ball([X(a),Y(b),c||0],5.5,M.band);                        // ball at a fixed spot (x,y[,z])
-      if(k==="ball")ball(lerp3(B.legs["1"].k,B.legs["2"].k,.5),5.5,M.band);
+      if(k==="ball2")ball([X(a),Y(b),c||0],5.5,M.propDark);                        // ball at a fixed spot (x,y[,z])
+      if(k==="ball")ball(lerp3(B.legs["1"].k,B.legs["2"].k,.5),5.5,M.propDark);
       if(k==="football"){const l=B.legs["1"];ball([(l.f[0]+l.ft[0])/2,5,l.f[2]],5,M.band)}
       if(k==="towelpad")box(B.arms["1"].e[0],B.arms["1"].e[1]-3,B.arms["1"].e[2],10,4,6,M.prop);
     });
@@ -1170,7 +1173,7 @@ const FIG3D=(()=>{
   function figData(key){
     if(cache[key])return cache[key];
     const P=FIGS[key]||FIGS[FIG_ALIAS[key]]||FIGS.h7;
-    const JA=solveFig(P.A),JB=solveFig(P.B),BA=lift(JA,P.A,JA.p[0]),BB=lift(JB,P.B,JA.p[0]),FM=lerpF(P.A,P.B,.5),BM=lift(solveFig(FM),FM,JA.p[0]);
+    const JA=solveFig(P.A),JB=solveFig(P.B),BA=lift(JA,P.A,JA.p[0]),BB=lift(JB,P.B,JA.p[0]),FM=poseAt(P,.5),BM=lift(solveFig(FM),FM,JA.p[0]);
     // camera: side view seen from the near side, a little from the front; front view from the front
     const pts=[];[BA,BB,BM].forEach(B=>{pts.push(B.p,B.n,B.h);["1","2"].forEach(s=>{pts.push(B.legs[s].k,B.legs[s].f,B.legs[s].ft,B.arms[s].e,B.arms[s].w)})});
     const mn=[0,1,2].map(i=>Math.min(...pts.map(p=>p[i]))),mx=[0,1,2].map(i=>Math.max(...pts.map(p=>p[i])));
@@ -1197,7 +1200,7 @@ const FIG3D=(()=>{
   }
   let curKey=null,curExtras=[];
   function setFigure(key,t,zones,sides,guide){
-    const D=figData(key),F=lerpF(D.P.A,D.P.B,t),J=solveFig(F),B=lift(J,F,D.cx);
+    const D=figData(key),F=poseAt(D.P,t),J=solveFig(F),B=lift(J,F,D.cx);
     pose(rig,B);
     const showG=guide&&t<.9;ghost.G.visible=showG;if(showG)pose(ghost,D.BB);
     curExtras.forEach(o=>extras.remove(o));curExtras=[];
