@@ -852,14 +852,20 @@ function figBox(key){
   const cx=(x0+x1)/2;
   return FIGBOX[key]=[cx-w/2,top?(y0+y1)/2-hh/2:y1-hh,w,hh].map(v=>+v.toFixed(1));
 }
+// a static exercise is shown holding its position: passive stretches and drills done as one long hold
+function isStatic(e,dose){if(!e)return false;if(e.still&&!(dose&&dose.k==="reps"))return true;const d=dose||(e.rehab?progDose&&progDose(e.id):null);
+  if(d)return d.k==="hold"||(d.k==="time"&&e.id!=="r_walk");return !e.dyn&&!e.rehab}
+const exMode=(e,dose)=>isStatic(e,dose)?"static":"";
 function fig(poseKey,props,{anim=false,t=.6,zones=null,sides=false,mode="",period=0}={}){
-  return `<svg class="fig${anim?" anim":""}" viewBox="${figBox(poseKey).join(" ")}" data-mode="${mode}" data-period="${period||""}" data-pose="${poseKey}" data-t="${t}" data-zones="${zones?zones.join(","):""}" data-sides="${sides?1:""}" aria-hidden="true">${figInner(poseKey,t,null,{zones,sides})}</svg>`;
+  if(mode==="static")t=1;
+  return `<svg class="fig${anim?" anim":""}" viewBox="${figBox(poseKey).join(" ")}" data-mode="${mode}" data-period="${period||""}" data-pose="${poseKey}" data-t="${t}" data-zones="${zones?zones.join(","):""}" data-sides="${sides?1:""}" aria-hidden="true">${figInner(poseKey,t,null,{zones,sides,guide:mode!=="static"})}</svg>`;
 }
 let animPaused=false;
 (function loop(ts){
   if(!REDUCED){
     document.querySelectorAll("svg.fig.anim").forEach(el=>{
       if(el.closest(".player")&&animPaused)return;
+      if(el.dataset.mode==="static")return; // a static stretch holds still
       const per=+el.dataset.period||3400;
       const t=el.dataset.mode==="iso"?.86+.14*(.5-.5*Math.cos(ts/4200*2*Math.PI)):.5-.5*Math.cos(ts/per*2*Math.PI);
       let props=null;try{props=el.dataset.props?JSON.parse(el.dataset.props):null}catch(e){}
@@ -1166,7 +1172,7 @@ const FIG3D=(()=>{
   function renderTo(key,t,o,w,h,yaw=0){if(!TR)TR=makeRenderer(true);return draw(TR,key,t,o,w,h,yaw)}
 
   /* ---------- DOM: upgrade 2D figures ---------- */
-  function opts(el){return{zones:el.dataset.zones?el.dataset.zones.split(","):[],sides:!!el.dataset.sides}}
+  function opts(el){return{zones:el.dataset.zones?el.dataset.zones.split(","):[],sides:!!el.dataset.sides,guide:el.dataset.mode!=="static"}}
   const near=el=>{const r=el.getBoundingClientRect();return r.bottom>-innerHeight&&r.top<innerHeight*2};
   function upgrade(){
     if(!ready)return;
@@ -1174,7 +1180,7 @@ const FIG3D=(()=>{
       const key=el.dataset.pose;if(!key){el.dataset.x3=1;return}
       const o=opts(el),anim=el.classList.contains("anim");
       if(anim){el.dataset.x3=1;const cv=document.createElement("canvas");cv.className=el.getAttribute("class")+" f3";Object.assign(cv.dataset,el.dataset);cv.dataset.yaw="0";el.replaceWith(cv);hookDrag(cv);return}
-      const t=+(el.dataset.t||.75),ck=[key,t,o.zones.join(","),o.sides,M.style].join("|");
+      const t=+(el.dataset.t||.75),ck=[key,t,o.zones.join(","),o.sides,o.guide,M.style].join("|");
       if(thumbs.has(ck)){el.dataset.x3=1;const img=new Image();img.className=el.getAttribute("class")+" f3";img.alt="";img.src=thumbs.get(ck);el.replaceWith(img);return}
       if(!near(el))return; // off screen: stays 2D until you scroll near it
       el.dataset.x3=1;const img=new Image();img.className=el.getAttribute("class")+" f3";img.alt="";
@@ -1207,7 +1213,8 @@ const FIG3D=(()=>{
     if(!ready)return;
     try{
       document.querySelectorAll("canvas.fig.f3.anim").forEach(cv=>{
-        const paused=cv.closest(".player")&&animPaused;if(paused&&cv.dataset.drawn)return;
+        // a static stretch is drawn once in its held position (and again only when you turn it)
+        const paused=(cv.closest(".player")&&animPaused)||cv.dataset.mode==="static";if(paused&&cv.dataset.drawn)return;
         // size from the container, never from the canvas itself: on iPhone a canvas can take its pixel size as its
         // display size, which made it grow every frame and look zoomed in
         const box=cv.parentElement.getBoundingClientRect(),stg=cv.closest(".stage,.detailstage,.tsfig");
@@ -1216,7 +1223,7 @@ const FIG3D=(()=>{
         const cssW=Math.round(dw)+"px",cssH=Math.round(dh)+"px";if(cv.style.width!==cssW){cv.style.width=cssW;cv.style.height=cssH}
         const dpr=Math.min(1.5,devicePixelRatio||1),w=Math.min(960,Math.round(dw*dpr)),h=Math.round(w/1.6);
         if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}
-        const per=+cv.dataset.period||3400,t=REDUCED?.75:cv.dataset.mode==="iso"?.86+.14*(.5-.5*Math.cos(ts/4200*2*Math.PI)):.5-.5*Math.cos(ts/per*2*Math.PI);
+        const per=+cv.dataset.period||3400,t=cv.dataset.mode==="static"?1:REDUCED?.75:cv.dataset.mode==="iso"?.86+.14*(.5-.5*Math.cos(ts/4200*2*Math.PI)):.5-.5*Math.cos(ts/per*2*Math.PI);
         const src=draw(R,cv.dataset.pose,t,opts(cv),w,h,+cv.dataset.yaw||0);
         const g=cv.getContext("2d");g.clearRect(0,0,w,h);g.drawImage(src,0,0,w,h);cv.dataset.drawn=paused?"1":"";
       });
@@ -1626,9 +1633,9 @@ function enterSeg(){
   P.total=segSecs(s);P.remaining=P.total;P.endAt=performance.now()+P.total*1000;P.lastBeep=-1;
   if(P.curI!==s.i){
     P.curI=s.i;
-    const d=it.dose,iso=d&&(d.k==="hold"||d.k==="rephold"||d.k==="pyramid")&&ex.rehab;
+    const d=it.dose,stat=isStatic(ex,d),iso=!stat&&d&&(d.k==="rephold"||d.k==="pyramid")&&ex.rehab;
     const period=d&&d.tempo?(d.tempo[0]+d.tempo[2]+Math.max(.5,d.tempo[1]))*1000*1.3:d&&d.k==="reps"?2600:0;
-    $("#pfig").innerHTML=fig(ex.fig||ex.id,null,{anim:true,zones:ex.z,sides:!!(ex.sides||(d&&d.sides)),mode:iso?"iso":"",period});
+    $("#pfig").innerHTML=fig(ex.fig||ex.id,null,{anim:true,zones:ex.z,sides:!!(ex.sides||(d&&d.sides)),mode:stat?"static":iso?"iso":"",period});
     $("#pname").textContent=ex.n;
     renderCards(ex);
   }
@@ -1700,7 +1707,7 @@ function swapOptions(it){const ex=LIBI[it.id],ov=e=>e.z.filter(z=>ex.z.includes(
   return LIB.filter(e=>e.id!==ex.id&&!!e.rehab===!!ex.rehab&&!e.custom&&(e.a===ex.a||ov(e)>=2)&&ov(e)>0&&e.eq.every(q=>S.equip.includes(q))&&!P.items.some(x=>x.id===e.id)&&(!S.rehab||!rehabHooks().x.has(e.id)))
    .sort((a,b)=>ov(b)-ov(a)+((S.swapped||{})[a.id]||0)*.5-((S.swapped||{})[b.id]||0)*.5).slice(0,6)}
 ACT.pSwap=()=>{const i=P.segs[P.si].i,it=P.items[i],opts=swapOptions(it);
-  sheet(`<h3>Swap ${esc(LIBI[it.id].n)}</h3><div class="scroll"><div class="rxlist">${opts.length?opts.map(e=>`<button class="rx" data-act="pSwapTo" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8})}</span><span><b>${esc(e.n)}</b><small>${esc(e.stim)}</small></span></button>`).join(""):`<p class="muted" style="margin:0">No alternative with your equipment. Add equipment in Profile to see more.</p>`}</div></div><button class="btn sec" data-act="closeSheetP">Keep this one</button>`,true)};
+  sheet(`<h3>Swap ${esc(LIBI[it.id].n)}</h3><div class="scroll"><div class="rxlist">${opts.length?opts.map(e=>`<button class="rx" data-act="pSwapTo" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><span><b>${esc(e.n)}</b><small>${esc(e.stim)}</small></span></button>`).join(""):`<p class="muted" style="margin:0">No alternative with your equipment. Add equipment in Profile to see more.</p>`}</div></div><button class="btn sec" data-act="closeSheetP">Keep this one</button>`,true)};
 ACT.pSwapTo=d=>{const i=P.segs[P.si].i,old=P.items[i],e=LIBI[d.id];
   S.swapped=S.swapped||{};S.swapped[old.id]=(S.swapped[old.id]||0)+1;save();
   P.items[i]=old.dose?{...old,id:e.id}:{...old,id:e.id,hold:old.hold||e.hold};
@@ -1781,7 +1788,7 @@ SCREENS.library=()=>`<div class="hdr" style="grid-template-columns:1fr"><div cla
   ${libMode==="area"?`<div class="hscroll">${[["","All"],...AREAS.map(a=>[a.k,a.n]),["rehab","Strength & rehab"]].map(([k,n])=>`<button class="chip ${libA===k?"on":""}" data-act="libArea" data-a="${k}">${n}</button>`).join("")}</div>`:
    libM?`<div style="display:flex;align-items:center;gap:10px"><button class="link" data-act="libMuscle" data-m="">${ic("back")} All muscles</button></div>`:""}
   <div id="lib"></div></div>`;
-const libCard=e=>`<button class="lcard" data-act="openEx" data-id="${e.id}"><div class="art">${fig(e.fig||e.id,null,{zones:e.z,sides:!!e.sides})}</div><div class="t"><b>${esc(e.n)}</b><small>${e.rehab?`${RCAT[e.a]} · Strength`:`${AN[e.a]} · ${fmt(e.hold)}${e.sides?" each side":""} · ${e.dyn?"Active":"Passive"}`}</small></div></button>`;
+const libCard=e=>`<button class="lcard" data-act="openEx" data-id="${e.id}"><div class="art">${fig(e.fig||e.id,null,{zones:e.z,sides:!!e.sides,mode:exMode(e)})}</div><div class="t"><b>${esc(e.n)}</b><small>${e.rehab?`${RCAT[e.a]} · Strength`:`${AN[e.a]} · ${fmt(e.hold)}${e.sides?" each side":""} · ${e.dyn?"Active":"Passive"}`}</small></div></button>`;
 function drawLib(){
   const q=libQ.toLowerCase().trim(),el=$("#lib"),lib=LIB.filter(e=>!e.custom||libMode==="area");
   // by muscle, nothing chosen: one tile per muscle, head to toe, with how many stretches it has
@@ -1811,7 +1818,7 @@ ACT.libMode=d=>{libMode=d.k;libM="";render()};
 ACT.libMuscle=d=>{libM=d.m;libQ="";render();scrollTo(0,0)};
 ACT.openEx=d=>go("exercise",{id:d.id});
 SCREENS.exercise=p=>{const e=LIBI[p.id];return hdr()+`<div class="stack" style="padding-top:4px">
-  <div class="detailstage">${fig(e.fig||e.id,null,{anim:true,zones:e.z,sides:!!e.sides})}</div>
+  <div class="detailstage">${fig(e.fig||e.id,null,{anim:true,zones:e.z,sides:!!e.sides,mode:exMode(e)})}</div>
   <div><h1>${esc(e.n)}</h1><div class="muted" style="margin-top:4px">${e.rehab?`${RCAT[e.a]} · Strength & rehab`:`${AN[e.a]} · ${fmt(e.hold)}${e.sides?" each side":""} · ${e.dyn?"Active":"Passive"} stretch`}</div></div>
   <div class="panel"><div><span class="eyebrow">What you should feel</span><div style="margin-top:4px">${esc(e.stim)}</div></div>
    <div><span class="eyebrow">Instructions</span><ul style="margin:6px 0 0;padding-left:18px;display:grid;gap:6px">${e.c.map(c=>`<li>${esc(c)}</li>`).join("")}</ul></div>
@@ -2292,6 +2299,8 @@ addStretches([
  ["o5","obliques"],["t1","obliques"],["t5","obliques"],["wgs","obliques"],["t2","obliques"],["h5","obliques"],
  ["c_cobra","core"],["inch","core"],["d_shinstretch","shins"],["d_tibraise","shins"],["d_toestretch","feet"],["a2","feet"],["r_wristrock","forearm"]
 ].forEach(([id,...zs])=>{const e=LIBI[id];if(e)zs.forEach(z=>{if(!e.z.includes(z))e.z.push(z)})});
+// strength work done as one long hold: shown still, like a static stretch
+["c_plank","c_hollow","c_superman","r_breath","r_bandsquat","r_spanish","r_wallsit","r_calfiso","r_wristiso","r_rackhold","b_horse"].forEach(id=>{if(LIBI[id])LIBI[id].still=1});
 // advanced positions: in the library and Swap, never picked automatically
 ["a_german"].forEach(id=>{if(LIBI[id])LIBI[id].manual=1});
 
@@ -3060,7 +3069,7 @@ SCREENS.rebuild=()=>{
       <p class="muted" style="margin:0;font-size:14px"><b>And:</b> ${esc(ph.exit)}</p>
       ${g.timeOk&&g.painOk?"":`<p style="margin:0;font-size:14px">Earliest: <b>${g.earliest.toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short"})}</b>, if every session stays at ${PAIN_OK}/10 or lower. A session above that restarts the count.</p><button class="link muted" style="justify-self:start" data-act="rbForce">My physio cleared me to move on</button>`}</div>`})()}
    <div class="panel"><span class="eyebrow">Phase ${st.phase+1} · ${esc(ph.freq)}</span><h3>${esc(ph.goal)}</h3>
-    <div class="rxlist">${items.map(it=>{const e=LIBI[it.id];return`<button class="rx" data-act="openEx" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8})}</span><span><b>${esc(e.n)}</b><small>${esc(doseText(it))}</small></span></button>`}).join("")}</div>
+    <div class="rxlist">${items.map(it=>{const e=LIBI[it.id];return`<button class="rx" data-act="openEx" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><span><b>${esc(e.n)}</b><small>${esc(doseText(it))}</small></span></button>`}).join("")}</div>
     <button class="btn" data-act="rbStart">${icf("play")}Start today's session</button>
     </div>
    <div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline"><span class="eyebrow">${esc(R.test.n)} · pain before each session</span>${st.logs.length?(()=>{const L=st.logs[st.logs.length-1];return`<b style="font-variant-numeric:tabular-nums;white-space:nowrap">${L.testR!=null?`R ${L.testR} · L ${L.testL}`:`${L.testPain}/10`}</b>`})():""}</div>
@@ -3173,7 +3182,7 @@ SCREENS.myproto=()=>{
     ${inp("edFreq",ED.freq,"How often")}<div class="chipset">${["Daily","Every other day","3× a week","Before training"].map(f=>`<button class="chip" data-act="edFreq" data-f="${f}">${f}</button>`).join("")}</div></div>
    <div class="stack" style="gap:8px"><span class="eyebrow">Exercises · in order</span>
    ${ED.items.length?ED.items.map((it,i)=>{const e=LIBI[it.id],d=it.dose;return`<div class="panel edex">
-     <div class="edhead"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8})}</span><b>${i+1}. ${esc(e.n)}</b>
+     <div class="edhead"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><b>${i+1}. ${esc(e.n)}</b>
       <span class="edbtns">${i?`<button class="link" data-act="edUp" data-i="${i}" aria-label="Move up">↑</button>`:""}<button class="link c-bad" data-act="edRm" data-i="${i}">Remove</button></span></div>
      <div class="seg">${Object.entries(DOSE_K).map(([k,n])=>`<button class="${d.k===k?"on":""}" data-act="edKind" data-i="${i}" data-k="${k}">${n}</button>`).join("")}</div>
      <div class="ednums">${num("edSets"+i,d.sets||1,"Sets")}${d.k!=="hold"?num("edReps"+i,d.reps||10,"Reps"):""}${d.k!=="reps"?num("edSecs"+i,d.secs||30,"Seconds"):""}</div>
@@ -3206,7 +3215,7 @@ function drawExRes(){
   const q=($("#exq").value||"").trim(),ql=q.toLowerCase();
   const list=LIB.filter(e=>!ql||e.n.toLowerCase().includes(ql)).slice(0,40);
   $("#exres").innerHTML=`${q?`<button class="rx" data-act="edCustom" data-n="${esc(q)}"><span class="th" style="display:grid;place-items:center">${ic("plus","")}</span><span><b>Add “${esc(q)}”</b><small>As my own exercise, with a demo you choose</small></span></button>`:`<button class="rx" data-act="edCustom" data-n=""><span class="th" style="display:grid;place-items:center">${ic("plus","")}</span><span><b>My own exercise</b><small>Not in the library? Type its name above or tap here</small></span></button>`}
-   ${list.map(e=>`<button class="rx" data-act="edPick" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8})}</span><span><b>${esc(e.n)}</b><small>${e.custom?"My exercise":e.rehab?RCAT[e.a]+" · Strength":AN[e.a]+" · Stretch"}</small></span></button>`).join("")}`;
+   ${list.map(e=>`<button class="rx" data-act="edPick" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><span><b>${esc(e.n)}</b><small>${e.custom?"My exercise":e.rehab?RCAT[e.a]+" · Strength":AN[e.a]+" · Stretch"}</small></span></button>`).join("")}`;
 }
 ACT.edPick=d=>{ED.items.push({id:d.id,dose:newDose(d.id)});closeSheet();edRe()};
 let CX=null;
@@ -3238,7 +3247,7 @@ const myProtosPanel=()=>`<div class="stack" style="gap:8px"><div style="display:
   ${S.myProtocols.length?S.myProtocols.map(p=>{const L=(p.logs||[]).slice(-1)[0];return`<div class="panel">
    <div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><h3>${esc(p.name)}</h3><button class="link" data-act="myEdit" data-id="${p.id}">Edit</button></div>
    <p class="muted" style="margin:0;font-size:14px">${[p.from,p.freq,`${p.items.length} exercise${p.items.length===1?"":"s"}`].filter(Boolean).map(esc).join(" · ")}</p>
-   <div class="rxlist">${p.items.map(it=>{const e=LIBI[it.id];return e?`<button class="rx" data-act="openEx" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8})}</span><span><b>${esc(e.n)}</b><small>${esc(doseText(it))}</small></span></button>`:""}).join("")}</div>
+   <div class="rxlist">${p.items.map(it=>{const e=LIBI[it.id];return e?`<button class="rx" data-act="openEx" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><span><b>${esc(e.n)}</b><small>${esc(doseText(it))}</small></span></button>`:""}).join("")}</div>
    ${p.notes?`<div class="note-warn">${esc(p.notes)}</div>`:""}
    ${(p.logs||[]).length>1?spark(p.logs):L?`<p class="muted" style="margin:0;font-size:13px">Last session ${new Date(L.at).toLocaleDateString()}${L.sessionPain!=null?` · pain ${L.sessionPain}/10`:""}</p>`:""}
    <button class="btn" data-act="myStart" data-id="${p.id}">${icf("play")}Start</button></div>`}).join(""):`<button class="panel" data-act="myNew" style="text-align:left"><b>Got exercises from a physiotherapist?</b><span class="muted" style="font-size:14px">Add them here and Range guides you through them with demos, timers and a pain log.</span></button>`}</div>`;
