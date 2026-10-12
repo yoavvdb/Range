@@ -53,7 +53,7 @@ a.btn{text-decoration:none}.btn{display:flex;align-items:center;justify-content:
 .fig .seg.far{stroke:var(--fig-far)}
 .fig .j{fill:var(--fig)}.fig .jf{fill:var(--fig-far)}
 .fig .head{fill:var(--fig-torso)}
-img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;object-fit:contain;touch-action:pan-y}.stage .fig.f3{height:100%;width:auto;margin:0 auto}canvas.fig.f3.anim{cursor:grab}
+img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;object-fit:contain;touch-action:pan-y;max-width:100%}canvas.fig.f3{margin:0 auto}.stage .fig.f3{height:100%;width:auto;margin:0 auto}canvas.fig.f3.anim{cursor:grab}
 .fig .shadow{fill:#000;opacity:.25}
 .fig .hl{fill:none;stroke:var(--accent);stroke-linecap:round}
 .fig .hlc{fill:var(--accent)}
@@ -1193,8 +1193,13 @@ const FIG3D=(()=>{
     try{
       document.querySelectorAll("canvas.fig.f3.anim").forEach(cv=>{
         const paused=cv.closest(".player")&&animPaused;if(paused&&cv.dataset.drawn)return;
-        const r=cv.getBoundingClientRect();if(!r.width||r.bottom<0||r.top>innerHeight)return;
-        const dpr=Math.min(1.5,devicePixelRatio||1),w=Math.min(960,Math.round(r.width*dpr)),h=Math.round(w/1.6);
+        // size from the container, never from the canvas itself: on iPhone a canvas can take its pixel size as its
+        // display size, which made it grow every frame and look zoomed in
+        const box=cv.parentElement.getBoundingClientRect(),stg=cv.closest(".stage,.detailstage,.tsfig");
+        const maxH=stg?stg.getBoundingClientRect().height:Infinity,dw=Math.max(1,Math.min(box.width,maxH*1.6)),dh=dw/1.6;
+        if(!box.width||box.bottom<0||box.top>innerHeight)return;
+        const cssW=Math.round(dw)+"px",cssH=Math.round(dh)+"px";if(cv.style.width!==cssW){cv.style.width=cssW;cv.style.height=cssH}
+        const dpr=Math.min(1.5,devicePixelRatio||1),w=Math.min(960,Math.round(dw*dpr)),h=Math.round(w/1.6);
         if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}
         const per=+cv.dataset.period||3400,t=REDUCED?.75:cv.dataset.mode==="iso"?.86+.14*(.5-.5*Math.cos(ts/4200*2*Math.PI)):.5-.5*Math.cos(ts/per*2*Math.PI);
         const src=draw(R,cv.dataset.pose,t,opts(cv),w,h,+cv.dataset.yaw||0);
