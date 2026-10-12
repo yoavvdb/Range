@@ -558,107 +558,108 @@ const FRONT_L={L1:{plant:[129,138],f:10,d:1},L2:{plant:[111,138],f:170,d:-1}};
 const QUAD={p:[104,110],L1:{a:[92,180],f:180},L2:{a:[90,180],f:180},A2:{plant:[140,139]}};
 const FIGS={
  // ankles
- a1:mk({p:[140,96],t:-80,L1:{plant:[170,138],f:0},L2:{plant:[112,131],f:55},A1:{plant:[180,62]},A2:{plant:[178,65]}},{p:[156,104],t:-76},[["wall",190]]),
- a2:mk({root:["k2",[102,137]],t:-90,L2:{a:[90,180],f:180},L1:{plant:[132,138],f:0},A1:{a:[70,30]},A2:{a:[74,34]}},{t:-84,L2:{a:[114,180]}}),
- a3:mk({p:[140,90],t:-86,L1:{plant:[164,136],f:-22},L2:{plant:[124,138],f:0},A1:{plant:[180,60]},A2:{plant:[178,63]}},{p:[150,86],t:-79,L2:{plant:[128,134],f:30}},[["wall",190],["plate","ft1"]]),
- a4:mk({p:[110,124],t:-62,L1:{plant:[132,138],f:0},L2:{plant:[128,138],f:0},A1:{a:[70,-50]},A2:{a:[75,-45]}},{p:[119,124],t:-56}),
- a5:mk({p:[148,88],t:-82,L1:{plant:[170,138],f:0},L2:{plant:[138,138],f:0},A1:{plant:[182,58]},A2:{plant:[180,61]}},{p:[144,95],t:-80},[["wall",190]]),
- a6:mk({root:["k2",[102,137]],t:-90,L2:{a:[90,180],f:180},L1:{plant:[132,138],f:0},A1:{a:[70,30]},A2:{a:[74,34]}},{t:-84,L2:{a:[114,180]}},[["band","f1",44,136]]),
+ a1:mk({p:[155,99],t:-84,L1:{plant:[175,138],f:0},L2:{plant:[124,132],f:50},A1:{plant:[186,62]},A2:{plant:[185,64]}},{p:[160,104.5],t:-84},[["wall",190]]),
+ a2:mk({root:["k2",[100,137]],t:-80,L2:{a:[100,180],f:180},L1:{plant:[122,138],f:0},A1:{plant:[130,109]},A2:{plant:[129,110]}},{t:-66,L2:{a:[118,180]},A1:{plant:[139,110]},A2:{plant:[138,111]}}),
+ a3:mk({p:[163,84],t:-82,L1:{plant:[164,137],f:-14},L2:{plant:[150,134],f:45},A1:{plant:[202,54]},A2:{plant:[201,56]}},{p:[167,83.2],t:-80},[["wall",206],["plate","ft1"]]),
+ a4:mk({p:[126,122],t:-66,L1:{a:[1.3,143.4],s:[.989,.955],f:0},L2:{a:[-10.2,131.2],s:[.896,1],f:0},A1:{a:[75,-70],s:[1,.82],dz:[1,-1]},A2:{a:[75,-70],s:[1,.82],dz:[1,-1]}},{L1:{a:[-10.2,131.2],s:[.896,1]},L2:{a:[1.3,143.4],s:[.989,.955]}},[],{cam:{yaw:40,pitch:12}}),
+ a5:mk({p:[139,88],t:-78,L1:{plant:[138,138],f:0},L2:{plant:[158,138],f:0},A1:{plant:[184,62]},A2:{plant:[183,64]}},{p:[142,92],t:-77},[["wall",190]]),
+ a6:mk({root:["k2",[100,137]],t:-82,L2:{a:[98,180],f:180},L1:{plant:[122,138],f:0},A1:{plant:[129,109]},A2:{plant:[128,110]}},{t:-66,L2:{a:[118,180]},A1:{plant:[139,110]},A2:{plant:[138,111]}},[["post",54,122,7],["bandto","f1",55,134]]),
  // posterior chain
- p1:mk({p:[124,85],t:-88,h:-88,...STAND_L,A1:{a:[95,-5]},A2:{a:[98,-2]}},{p:[126,85.5],t:54,h:100}),
- p2:mk({p:[110,134],t:180,h:180,L2:{plant:[164,136],f:-80},L1:{a:[-55,-55],f:-145},A1:{a:[-35,-40]},A2:{a:[-30,-35]}},{L1:{a:[-88,-88],f:-178},A1:{a:[-55,-62]},A2:{a:[-50,-58]}},[["strap"]]),
- p3:mk({p:[96,134],t:-82,L1:{a:[1,1],f:-75},L2:{a:[2,2],f:-75},A1:{a:[55,25]},A2:{a:[60,25]}},{t:-30,h:-10,A1:{a:[30,40]},A2:{a:[34,42]}}),
- p4:mk({p:[122,86],t:40,h:75,L1:{plant:[126,138],f:0},L2:{plant:[118,131],f:45},A1:{plant:[164,137]},A2:{plant:[160,137]}},{L1:{plant:[126,131],f:45},L2:{plant:[118,138],f:0}}),
- p5:mk({root:["k2",[104,137]],t:-86,L2:{a:[90,180],f:180},L1:{a:[30,30],f:-80},A1:{a:[80,60]},A2:{a:[84,64]}},{t:8,h:25,L2:{a:[75,180]},A1:{a:[60,0]},A2:{a:[62,2]}}),
- p6:mk({p:[96,134],t:-80,L1:{a:[3,3],f:-75},L2:{a:[-7,-7],f:-82},A1:{a:[70,40]},A2:{a:[75,45]}},{t:-38,h:-18,A1:{a:[25,8]},A2:{a:[30,10]}}),
- p7:mk({p:[96,134],t:-55,L1:{a:[1,1],f:-75},L2:{a:[2,2],f:-75},A1:{a:[25,10]},A2:{a:[28,12]}},{t:-28,h:-8,A1:{a:[22,18]},A2:{a:[24,18]}},[["plate","w1"]]),
+ p1:mk({p:[124,85],t:-88,h:-88,tl:1,...STAND_L,A1:{a:[95,-5],s:[1,.1],dz:[1,-1]},A2:{a:[97,-3],s:[1,.1],dz:[1,-1]}},{p:[109,90],t:40,tl:.92,h:100,L1:{plant:[124,138],f:0},L2:{plant:[118,138],f:0},A1:{a:[92,0]},A2:{a:[92,0]}}),
+ p2:mk({p:[110,134],t:180,h:180,L2:{plant:[164,136],f:-80},L1:{a:[-55,-55],f:-145},A1:{a:[-40,-50],s:[1,.9],dz:[1,-1]},A2:{a:[-40,-50],s:[1,.9],dz:[1,-1]}},{L1:{a:[-88,-88],f:-178},A1:{a:[-62,-68]},A2:{a:[-62,-68]}},[["strap"]]),
+ p3:mk({p:[96,134],t:-82,L1:{a:[1,1],s:[.985,1],dz:[-1,1],f:-75},L2:{a:[1.5,1.5],s:[.985,1],dz:[-1,1],f:-75},A1:{a:[55,25]},A2:{a:[60,25]}},{t:-45,h:-25,A1:{plant:[151,128]},A2:{plant:[149,128]}}),
+ p4:mk({p:[116,86],t:30,h:95,L1:{plant:[124,138],f:0},L2:{plant:[121,132],f:45},A1:{plant:[166,138]},A2:{plant:[163,138]}},{L1:{plant:[127,132],f:45},L2:{plant:[118,138],f:0}}),
+ p5:mk({root:["k2",[100,137]],t:-80,h:-80,L2:{a:[90,180],f:180},L1:{a:[29,29],f:-80},A1:{a:[90,10]},A2:{a:[92,10]}},{t:-15,h:10,A1:{plant:[141,138]},A2:{plant:[139,138]}}),
+ p6:mk({p:[96,134],t:-82,L1:{a:[1,1],s:[.57,.57],f:-75},L2:{a:[1,1],s:[.57,.57],f:-75},A1:{plant:[114,137]},A2:{plant:[112,137]}},{t:-42,h:-25,A1:{plant:[151,137]},A2:{plant:[149,137]}},[],{cam:{yaw:72,pitch:24}}),
+ p7:mk({p:[96,134],t:-42,h:-20,L1:{a:[1,1],s:[.985,1],dz:[-1,1],f:-75},L2:{a:[1.5,1.5],s:[.985,1],dz:[-1,1],f:-75},A1:{plant:[157,128],s:[1,1]},A2:{plant:[156,128]}},{t:-36,h:-12,A1:{plant:[160,119]},A2:{plant:[159,119]}},[["plate2"]]),
  // hips
- h1:mk({root:["k2",[88,137]],t:-62,L2:{a:[120,-88],f:-95},L1:{plant:[134,138],f:0},A1:{a:[55,60]},A2:{a:[60,60]}},{t:-92,L2:{a:[100,-88]},A1:{a:[115,-25]},A2:{a:[115,-20]}},[["wall",79]]),
- h2:mk({p:[116,130],t:-50,h:-40,L1:{a:[12,178],f:180},L2:{a:[165,179],f:180},A1:{plant:[146,138]},A2:{plant:[142,138]}},{t:-16,h:-8,A1:{plant:[178,138]},A2:{plant:[174,138]}}),
- h3:mk({view:"above",tl:.15,p:[110,78],t:-90,h:-90,L1:{a:[0,-90],f:-90},L2:{a:[-90,-180],f:-90},A1:{a:[150,170]},A2:{a:[-150,-170]}},{L1:{a:[90,-180],f:-90},L2:{a:[0,90],f:90}}),
+ h1:mk({root:["k2",[86,137]],t:-75,L2:{a:[112,-90],f:-95},L1:{plant:[129,138],f:0},A1:{plant:[124,110]},A2:{plant:[123,111]}},{t:-87,L2:{a:[125,-90]},A1:{plant:[122,110]},A2:{plant:[121,111]}},[["wall",79]],{cam:{yaw:2,pitch:10}}),
+ h2:mk({p:[104,124],t:-45,h:-30,L1:{a:[15,160],s:[.9,.3],dz:[1,-1],f:160},L2:{a:[168,175],f:180},A1:{plant:[136,138]},A2:{plant:[134,138]}},{p:[104,127],t:-45,h:-30,A1:{plant:[136,138]},A2:{plant:[134,138]}},[],{cam:{yaw:60,pitch:22}}),
+ h3:mk({view:"above",tl:.15,p:[110,78],t:-90,h:-90,L1:{a:[0,-90],f:-90},L2:{a:[-90,180],f:180},A1:{a:[150,150],s:[.7,.7]},A2:{a:[-150,-150],s:[.7,.7]}},{L1:{a:[90,-180],f:-180},L2:{a:[0,90],f:90}}),
  h4:mk({p:[104,132],t:-20,h:-10,L1:{a:[90,180],s:[.15,1],f:180},L2:{a:[90,180],s:[.15,1],f:180},A1:{a:[95,0]},A2:{a:[93,0]}},{p:[96,131],t:-24,L1:{a:[90,180],s:[.15,1]},L2:{a:[90,180],s:[.15,1]}},[],{cam:{yaw:-115,pitch:35}}),
- h5:mk({view:"front",p:[120,90],t:-90,L1:{plant:[150,138],f:0,d:1},L2:{plant:[90,138],f:180,d:-1},A1:{a:[110,180]},A2:{a:[70,0]}},{p:[140,116],t:-78,L2:{plant:[90,138],f:270,d:-1}}),
+ h5:mk({view:"front",p:[138.9,120],t:-88,h:-92,L1:{plant:[157.5,138],f:0,d:1},L2:{plant:[82.5,138],f:180,d:-1},A1:{a:[80,80],s:[.3,.3]},A2:{a:[100,100],s:[.3,.3]}},{p:[101.1,120],t:-92,h:-88}),
  h6:mk({root:["k2",[100,137]],t:-90,L2:{a:[90,180],f:180},L1:{plant:[134,138],f:0},A1:{a:[95,90]},A2:{a:[100,95]}},{t:-92,L2:{a:[115,180]},A1:{a:[-95,-95]}}),
- h7:mk({p:[112,124],t:-66,L1:{plant:[134,138],f:0},L2:{plant:[130,138],f:0},A1:{a:[72,-45]},A2:{a:[76,-40]}},{p:[112,122],t:-73}),
- h8:mk({root:["k2",[100,137]],t:-90,L2:{a:[95,180],f:180},L1:{plant:[134,138],f:0},A1:{a:[110,-30]},A2:{a:[110,-30]}},{L2:{a:[118,180]}},[["band","p",40,104]]),
- h9:mk({p:[112,124],t:-66,L1:{plant:[134,138],f:0},L2:{plant:[130,138],f:0},A1:{a:[60,-85]},A2:{a:[64,-82]}},{p:[117,124],t:-60},[["plate","w1"]]),
+ h7:mk({p:[124,121],t:-70,h:-75,L1:{a:[-11.9,125.5],s:[.896,1],f:0},L2:{a:[-11.9,125.5],s:[.896,1],f:0},A1:{a:[75,-65],s:[1,.83],dz:[1,-1]},A2:{a:[75,-65],s:[1,.83],dz:[1,-1]}},{t:-71},[],{cam:{yaw:45,pitch:12}}),
+ h8:mk({root:["k2",[100,137]],t:-88,L2:{a:[92,180],f:180},L1:{plant:[134,138],f:0},A1:{plant:[104,104]},A2:{plant:[103,105]}},{t:-92,L2:{a:[120,180]},A1:{plant:[117,107]},A2:{plant:[116,108]}},[["post",42,100,-7],["bandto","hip2",44,106]]),
+ h9:mk({p:[126,122],t:-66,L1:{a:[1.3,143.4],s:[.989,.955],f:0},L2:{a:[-10.2,131.2],s:[.896,1],f:0},A1:{a:[75,-72],s:[1,.8],dz:[1,-1]},A2:{a:[75,-72],s:[1,.8],dz:[1,-1]}},{L1:{a:[-10.2,131.2],s:[.896,1]},L2:{a:[1.3,143.4],s:[.989,.955]}},[["plate2"]],{cam:{yaw:45,pitch:12}}),
+ goblethold:mk({p:[119,121],t:-72,h:-80,L1:{a:[-12,128],s:[.89,1],f:0},L2:{a:[-12,128],s:[.89,1],f:0},A1:{a:[80,-64],s:[1,.97]},A2:{a:[82,-62],s:[1,.97]}},{p:[118,117],L1:{a:[-3.5,126.3]},L2:{a:[-3.5,126.3]}},[["plate2"]],{cam:{yaw:55,pitch:10}}),
  // thoracic
- t1:mk({top:true,p:[150,78],t:180,h:180,L1:{a:[90,0],f:0},L2:{a:[92,2],f:0},A2:{a:[90,90]},A1:{rot:0}},{A1:{rot:172},h:200}),
- t2:mk({...QUAD,t:-6,h:-10,A1:{plant:[144,139]}},{t:6,h:85,A1:{plant:[114,138]}}),
- t3:mk({p:[152,134],t:195,bend:-4,h:200,L1:{plant:[186,138],f:0},L2:{plant:[182,138],f:0},A1:{a:[-110,160]},A2:{a:[-115,155]}},{t:184,h:175,bend:-8},[["roller",127,133]]),
- t4:mk({...QUAD,t:-4,bend:4,h:-35,A1:{plant:[144,139]}},{t:-8,bend:-7,h:55}),
- t5:mk({...QUAD,t:-6,h:-5,A1:{a:[95,-60],s:[1,1]}},{t:-10,h:-30,A1:{a:[280,40],s:[.45,1]}}),
- t6:mk({p:[148,122],t:183,h:180,bend:-3,L1:{plant:[184,138],f:0},L2:{plant:[180,138],f:0},A1:{a:[-110,160]},A2:{a:[-115,155]}},{p:[158,122],t:181},[["roller",124,132]]),
+ t1:mk({p:[150,120],t:180,h:180,hy:0,roll:-90,L1:{a:[-85,5],s:[1,1],dz:[1,1],f:-90},L2:{a:[-90,0],s:[1,1],dz:[-1,1],f:-90},A1:{a:[-90,-90],s:[1,1],dz:[1,1]},A2:{a:[-90,-90],s:[.7,.7],dz:[-1,-1]}},{roll:-20,hy:40,L1:{a:[-85,5],s:[.45,1]},L2:{a:[-90,0],s:[.45,1]},A1:{a:[-90,-90],s:[.5,.5]},A2:{a:[90,90],s:[.8,.8],dz:[1,1]}},[],{work:"2",cam:{yaw:40,pitch:45}}),
+ t2:mk({...QUAD,t:-16,h:20,hy:0,roll:0,A2:{plant:[142,139]},A1:{a:[90,90],s:[.955,.955],dz:[1,1]}},{p:[103,110],t:12,h:40,hy:40,roll:25,A2:{plant:[150,139]},A1:{a:[92,92],s:[.47,.47],dz:[-1,-1]}},[],{cam:{yaw:55,pitch:25}}),
+ t3:mk({p:[152,134],t:212,h:215,L1:{plant:[184,138],f:0},L2:{plant:[180,138],f:0},A1:{a:[-102,122]},A2:{a:[-106,120]}},{t:205,h:160,A1:{a:[-144,88]},A2:{a:[-148,86]}},[["roller",125,134]],{cam:{yaw:18,pitch:16}}),
+ t4:mk({root:["k1",[103,137]],t:-18,h:52,L1:{a:[92,180],f:180},L2:{a:[90,180],f:180},A1:{plant:[141,138]},A2:{plant:[139,139]}},{t:-11,h:-48,L1:{a:[98,180]},L2:{a:[96,180]}},[],{cam:{yaw:12,pitch:8}}),
+ t5:mk({...QUAD,t:-10,h:30,hy:0,A2:{plant:[142,139]},A1:{a:[47,-98],s:[1,1],dz:[1,1]}},{h:-20,hy:30,A1:{a:[-80,54],s:[.95,.73],dz:[1,-1]}},[],{cam:{yaw:30,pitch:14}}),
+ t6:mk({p:[140,117],t:180,h:185,L1:{plant:[184,138],f:0},L2:{plant:[180,138],f:0},A1:{a:[-138,88]},A2:{a:[-142,86]}},{p:[160,117],t:181},[["roller",124,134]],{cam:{yaw:18,pitch:16}}),
  // shoulders
- s1:mk({top:true,p:[150,78],t:180,h:180,L1:{a:[90,0],f:0},L2:{a:[92,2],f:0},A1:{a:[90,0],s:[1,.12]},A2:{a:[4,4]}},{A1:{a:[90,0],s:[1,.9]}}),
- s2:mk({p:[118,86],t:-90,...STAND_L,A1:{plant:[146,30]},A2:{a:[95,95]}},{p:[130,86],t:-80,L1:{plant:[138,138],f:0}},[["frame",150]]),
+ s1:mk({p:[150,120],t:180,h:180,roll:-90,L1:{a:[-45,10],f:-80},L2:{a:[-40,15],f:-80},A1:{a:[-90,0],s:[1,.1],dz:[1,-1]},A2:{a:[-21,-121],s:[.92,.86],dz:[-1,-1]}},{A1:{a:[-90,0],s:[1,.8]},A2:{a:[-18,-110],s:[.9,.78]}},[],{work:"1",cam:{yaw:30,pitch:50}}),
+ s2:mk({p:[122,86],t:-90,L1:{plant:[128,138],f:0},L2:{plant:[114,138],f:0},A1:{a:[180,-90],s:[.14,1]},A2:{a:[95,95]}},{p:[127,86],t:-84,L1:{plant:[146,138],f:0},L2:{plant:[115,138],f:0},A1:{a:[180,-90],s:[.57,1]}},[["post",115,20,33.5]],{cam:{yaw:45,pitch:10}}),
  s3:mk({p:[112,86],t:-84,L1:{plant:[118,138],f:0},L2:{plant:[110,138],f:0},A1:{a:[-50,-45]},A2:{a:[95,95]}},{p:[104,88],t:-25,h:-15,A1:{a:[-20,-18]},A2:{a:[95,95]}},[["band","w1",210,20]]),
- s4:mk({view:"front",p:[120,86],t:-90,...FRONT_L,A1:{a:[178,175]},A2:{a:[110,-60]}},{A1:{a:[183,190]},A2:{a:[114,-66]}}),
+ s4:mk({view:"front",p:[120,86],t:-90,hy:0,...FRONT_L,A1:{a:[180,180],s:[.8,.9]},A2:{a:[95,-60],s:[.6,.8]}},{hy:-40,A1:{a:[182,182],s:[.75,.85]},A2:{a:[95,-62],s:[.6,.8]}}),
  bscratch:mk({view:"front",p:[120,86],t:-90,...FRONT_L,A1:{a:[-95,105],s:[1,.95],back:1},A2:{a:[100,-55],s:[1,.8],back:1}},{A1:{a:[-96,100]},A2:{a:[97,-50]}},[],{cam:{yaw:-105,pitch:10}}),
- s5:mk({view:"front",p:[120,86],t:-90,...FRONT_L,A1:{a:[-75,120],back:1},A2:{a:[105,-60],back:1}},{A1:{a:[-80,112]},A2:{a:[100,-70]}},[["towel"]]),
- s6:mk({p:[120,86],t:-90,...STAND_L,A1:{a:[75,75]},A2:{a:[78,78]}},{A1:{a:[-200,-200]},A2:{a:[-197,-197]}},[["pipe"]]),
+ s5:mk({view:"front",p:[120,86],t:-90,...FRONT_L,A1:{a:[-95,110],s:[1,1],back:1},A2:{a:[107,22],s:[1,.85],back:1}},{A1:{a:[-96,108]},A2:{a:[104,10],s:[1,.85]}},[["towel"]],{cam:{yaw:-105,pitch:10}}),
+ s6:mk({p:[120,86],t:-90,...STAND_L,A1:{a:[70,70],s:[.93,.93]},A2:{a:[72,72],s:[.93,.93]}},{A1:{a:[-245,-245]},A2:{a:[-243,-243]}},[["pipe"]]),
  s7:mk({p:[120,86],t:-90,...STAND_L,A1:{a:[50,-112]},A2:{a:[53,-109]}},{A1:{a:[-10,-170]},A2:{a:[-7,-167]}},[["pipe"]]),
  // overhead
- o1:mk({root:["k1",[110,137]],t:22,h:35,L1:{a:[90,180],f:180},L2:{a:[88,180],f:180},A1:{plant:[180,138]},A2:{plant:[176,135]}},{t:30,h:45}),
+ o1:mk({root:["k1",[110,137]],t:26,h:-5,L1:{a:[90,180],f:180},L2:{a:[88,180],f:180},A1:{plant:[181,138]},A2:{plant:[181,138]}},{t:34,h:-10,A1:{plant:[180,138]},A2:{plant:[180,138]}}),
  o2:mk({root:["k1",[100,137]],t:2,h:10,L1:{a:[96,180],f:180},L2:{a:[94,180],f:180},A1:{a:[-15,200]},A2:{a:[-12,197]}},{t:12,h:25,A1:{a:[-25,195]},A2:{a:[-22,193]}},[["bench"],["pipe"]]),
  o3:mk({p:[121,86],t:-90,h:-90,L1:{plant:[129,138],f:0},L2:{plant:[125,138],f:0},A1:{a:[-100,-92],s:[.15,1]},A2:{a:[-98,-90],s:[.15,1]}},{A1:{a:[-97,-97],s:[.72,.72]},A2:{a:[-95,-95],s:[.72,.72]}},[["wall",111]],{cam:{yaw:60,pitch:10}}),
  wallreach:mk({p:[121,86],t:-90,h:-90,L1:{plant:[127,138],f:0},L2:{plant:[123,138],f:0},A1:{a:[0,0]},A2:{a:[2,2]}},{A1:{a:[-100,-100]},A2:{a:[-98,-98]}},[["wall",111]],{cam:{yaw:60,pitch:10}}),
  armsUp:mk({view:"front",p:[120,86],t:-90,...FRONT_L,A1:{a:[15,-85]},A2:{a:[165,-95]}},{A1:{a:[-62,-80]},A2:{a:[-118,-100]}}),
- o4:mk({root:["k1",[112,137]],t:12,h:20,L1:{a:[45,180],f:180},L2:{a:[43,180],f:180},A1:{plant:[164,138]},A2:{plant:[160,135]}},{t:4,h:12,L1:{a:[22,180]},L2:{a:[20,180]}},[["band","w1",214,134]]),
- o5:mk({root:["k1",[112,137]],t:12,h:20,L1:{a:[45,180],f:180},L2:{a:[43,180],f:180},A1:{plant:[164,138]},A2:{plant:[160,135]}},{t:2,h:10,L1:{a:[20,180]},L2:{a:[18,180]}}),
+ o4:mk({root:["k1",[112,137]],t:12,h:20,L1:{a:[45,180],f:180},L2:{a:[43,180],f:180},A1:{a:[15,12],s:[1,1]},A2:{plant:[160,135]}},{t:4,h:12,L1:{a:[22,180]},L2:{a:[20,180]},A1:{a:[15,12],s:[.8,.8]}},[["band","w1",214,134]],{cam:{yaw:-30,pitch:40}}),
+ o5:mk({root:["k1",[112,137]],t:12,h:20,hy:0,L1:{a:[45,180],f:180},L2:{a:[43,180],f:180},A1:{a:[15,12],s:[1,1]},A2:{a:[15,12],s:[1,1],dz:[-1,-1]}},{t:2,h:10,hy:-25,L1:{a:[20,180]},L2:{a:[18,180]},A1:{a:[15,12],s:[.78,.78]},A2:{a:[15,12],s:[.72,.72]}},[],{cam:{yaw:-40,pitch:40}}),
 };
 // Strength & rehab movements (Rebuild programs)
 const SUPINE={p:[110,134],t:180,h:180};
 const QUAD12={p:[104,110],t:-12,L1:{a:[92,180],f:180},L2:{a:[90,180],f:180},A2:{plant:[140,139]}};
 Object.assign(FIGS,{
  // back & core
- r_curlup:mk({...SUPINE,p:[118,134],L1:{plant:[152,138],f:0},L2:{a:[1,1],f:-80},A1:{a:[2,0]},A2:{a:[4,0]}},{t:193,h:214}),
- r_sideplank:mk({p:[118,132],t:201,h:198,L1:{plant:[172,138],f:0},L2:{plant:[170,136],f:0},A1:{a:[90,0]},A2:{a:[30,-30]}},{p:[120,118],t:181,h:182}),
+ r_curlup:mk({p:[110,134],t:180,h:180,L1:{plant:[146,138],f:0},L2:{a:[3,3],f:-80},A1:{a:[10,180],s:[.8,.5],dz:[1,-1]},A2:{a:[10,180],s:[.8,.5],dz:[1,-1]}},{t:187,h:187}),
+ r_sideplank:mk({view:"front",lie:1,p:[119.2,125.1],t:-152,h:-152,L1:{a:[2.5,2.5],f:0},L2:{a:[0,0],f:0},A1:{plant:[121,117],d:1},A2:{a:[90,0],s:[1,.15]}},{p:[120,116],t:-166,h:-166,L1:{a:[14,14]},L2:{a:[14,14]},A1:{plant:[120,107]}},[],{cam:{yaw:68,pitch:14}}),
  r_birddog:mk({...QUAD12,A1:{a:[88,90]}},{A1:{a:[-4,-4]},L2:{a:[178,178],f:180},h:-12}),
- r_bridge:mk({...SUPINE,L1:{plant:[146,138],f:0},L2:{plant:[142,138],f:0},A1:{a:[0,0]},A2:{a:[3,0]}},{p:[116,110],t:148}),
- r_slbridge:mk({...SUPINE,L2:{plant:[144,138],f:0},L1:{a:[-45,-45],f:-60},A1:{a:[0,0]},A2:{a:[3,0]}},{p:[116,111],t:148,L1:{a:[-28,-28],f:-50}}),
- r_hinge:mk({p:[120,86],t:-90,...STAND_L,A1:{a:[0,0]},A2:{a:[3,3]}},{p:[110,92],t:-32,h:-28,A1:{a:[5,5]},A2:{a:[8,8]}}),
- r_pallof:mk({view:"front",p:[124,88],t:-90,L1:{plant:[138,138],f:10,d:1},L2:{plant:[110,138],f:170,d:-1},A1:{a:[105,-150],s:[1,1]},A2:{a:[75,-30],s:[1,1]}},{A1:{a:[172,172],s:[.4,.4]},A2:{a:[8,8],s:[.4,.4]}},[["band","w1",40,70]]),
- r_walk:mk({p:[120,87],t:-88,L1:{plant:[138,138],f:0},L2:{plant:[104,138],f:20},A1:{a:[112,100]},A2:{a:[68,78]}},{L1:{plant:[104,138],f:20},L2:{plant:[138,138],f:0},A1:{a:[68,78]},A2:{a:[112,100]}}),
+ r_bridge:mk({p:[110,134],t:180,h:180,L1:{plant:[146,138],f:0},L2:{plant:[142,138],f:0},A1:{a:[0,0]},A2:{a:[3,0]}},{p:[118,121],t:164,h:164}),
+ r_slbridge:mk({p:[110,134],t:180,h:180,L2:{plant:[144,138],f:0},L1:{a:[-40,-40],f:-50},A1:{a:[0,0]},A2:{a:[3,0]}},{p:[118,121],t:164,h:164,L1:{a:[-16,-16],f:-30}}),
+ r_hinge:mk({p:[120,86],t:-90,h:-90,...STAND_L,A1:{a:[85,85]},A2:{a:[88,88]}},{p:[101,91],t:-38,h:-42,A1:{a:[75,75]},A2:{a:[78,78]}}),
+ r_pallof:mk({view:"front",p:[120,88],t:-90,h:-90,L1:{plant:[128,138],f:10,d:1},L2:{plant:[112,138],f:170,d:-1},A1:{a:[92,-131.6],s:[.95,.7]},A2:{a:[88,-48.4],s:[.95,.7]}},{A1:{a:[168,168],s:[.243,.243]},A2:{a:[12,12],s:[.243,.243]}},[["post",120,50,-70]]),
+ r_walk:mk({p:[120,84],t:-88,h:-88,L1:{a:[70,72],f:-15},L2:{a:[112,135],f:60},A1:{a:[115,100]},A2:{a:[65,50]}},{L1:{a:[108,112],f:20},L2:{a:[68,70],f:-15},A1:{a:[65,50]},A2:{a:[115,100]}}),
  // hips
  r_airplane:mk({p:[118,90],t:-4,h:4,L1:{plant:[124,138],f:0},L2:{a:[178,178],f:180},A1:{a:[90,90]},A2:{plant:[164,96]}},{t:-14,h:-55,L2:{a:[205,200],s:[.6,.6],f:200},A1:{a:[-95,-95]}},[["frame",168]]),
- r_breath:mk({...SUPINE,p:[112,134],L1:{a:[-90,0],f:-90},L2:{a:[-88,2],f:-88},A1:{a:[4,0]},A2:{a:[6,2]}},{bend:-3,h:184},[["box",134,108,30]],{mode:"iso"}),
- r_ohs:mk({p:[120,86],t:-90,...STAND_L,A1:{a:[-96,-96]},A2:{a:[-93,-93]}},{p:[106,113],t:-66,h:-35,A1:{a:[-94,-92]},A2:{a:[-91,-89]}},[["pipe"]]),
- r_wristrock:mk({...QUAD12,root:["k1",[103,137]],L1:{a:[92,180],f:180},L2:{a:[90,180],f:180},A1:{plant:[144,139]},A2:{plant:[140,139]}},{L1:{a:[112,180]},L2:{a:[110,180]},t:-4}),
- wgs:mk({p:[110,116],t:-20,h:-25,L1:{plant:[146,138],f:0},L2:{plant:[60,128],f:70,d:1},A1:{a:[80,52]},A2:{plant:[140,138]}},{t:-24,h:-80,A1:{a:[-98,-98]}}),
- legsw:mk({p:[118,86],t:-90,L2:{plant:[116,138],f:0},L1:{a:[128,128],f:128},A1:{a:[80,60]},A2:{plant:[150,80]}},{L1:{a:[42,48],f:-20}},[["wall",158]]),
- inch:mk({root:["f1",[76,138]],t:55,h:85,L1:{a:[86,94],f:0},L2:{a:[87,95],f:0},A1:{plant:[110,138]},A2:{plant:[106,138]}},{root:["f1",[76,132]],t:-21,h:-15,L1:{a:[157,157],f:55},L2:{a:[157,157],f:55},A1:{plant:[161,138]},A2:{plant:[157,138]}}),
- r_slrdl:mk({p:[122,85],t:-88,L1:{plant:[124,138],f:0},L2:{a:[95,92],f:0},A1:{a:[92,92]},A2:{a:[95,95]}},{p:[118,90],t:-2,h:5,L2:{a:[178,178],f:90},A1:{a:[90,90]},A2:{a:[92,92]}}),
- r_addsqueeze:mk({...SUPINE,L1:{plant:[146,138],f:0},L2:{plant:[142,138],f:0},A1:{a:[0,0]},A2:{a:[3,0]}},{p:[110,133]},[["ball"]]),
- r_copenhagen:mk({p:[122,130],t:201,h:198,L1:{plant:[168,108],f:0},L2:{plant:[164,112],f:0},A1:{a:[90,0]},A2:{a:[30,-30]}},{p:[124,114],t:182,h:182},[["highbench",156,113,56]]),
- r_hipflexiso:mk({...SUPINE,L1:{a:[-90,0],f:-90},L2:{a:[-88,2],f:-88},A1:{a:[0,0]},A2:{a:[3,0]}},{L2:{a:[-14,-14],f:-100}}),
- r_gmedwall:mk({view:"front",p:[122,86],t:-90,L1:{plant:[130,138],f:10,d:1},L2:{a:[100,92],s:[.35,1],f:180},A1:{a:[100,-40]},A2:{a:[80,-140]}},{t:-97,p:[118,86]},[["wall",100]]),
- r_bandwalk:mk({view:"front",p:[112,99],t:-90,L1:{plant:[125,138],f:10,d:1},L2:{plant:[99,138],f:170,d:-1},A1:{a:[100,-40]},A2:{a:[80,-140]}},{p:[127,100],L1:{plant:[152,138],f:10,d:1}},[["bandknees"]]),
+ r_breath:mk({...SUPINE,p:[112,134],L1:{a:[-90,0],f:-90},L2:{a:[-88,2],f:-88},A1:{a:[4,0]},A2:{a:[6,2]}},{bend:-3,h:184},[["box",134,108,30]],{mode:"iso",cam:{yaw:-10,pitch:22}}),
+ r_ohs:mk({p:[120,86],t:-90,...STAND_L,A1:{a:[-90,-90],s:[.86,.86]},A2:{a:[-90,-90],s:[.86,.86]}},{p:[106,113],t:-66,h:-30,A1:{a:[-93,-93]},A2:{a:[-93,-93]}},[["pipe"]],{cam:{yaw:30,pitch:6}}),
+ r_wristrock:mk({root:["k1",[100,137]],t:-15,h:-20,L1:{a:[90,180],f:180},L2:{a:[88,180],f:180},A1:{plant:[138,139]},A2:{plant:[134,139]}},{t:-17,h:-10,L1:{a:[115,180]},L2:{a:[113,180]}},[],{cam:{yaw:15,pitch:8}}),
+ wgs:mk({p:[110,116],t:-20,h:-25,L1:{plant:[146,138],f:0},L2:{plant:[60,128],f:70,d:1},A1:{a:[92,0],frot:42},A2:{plant:[140,138]}},{t:-26,h:-90,A1:{a:[268,0],frot:180}}),
+ legsw:mk({p:[118,86],t:-90,h:-90,L2:{plant:[118,138],f:0},L1:{a:[106,110],f:20},A1:{a:[95,80]},A2:{a:[8,-8],s:[.25,.25]}},{L1:{a:[5,12],f:-25}},[["swall",-57,118]]),
+ inch:mk({root:["f1",[76,138]],t:40,h:115,L1:{a:[80,80],f:0},L2:{a:[81,81],f:0},A1:{plant:[100,138]},A2:{plant:[97,138]}},{root:["f1",[76,132]],t:-21,h:-15,L1:{a:[157,157],f:55},L2:{a:[157,157],f:55},A1:{plant:[161,138]},A2:{plant:[157,138]}}),
+ r_slrdl:mk({p:[122,85],t:-88,h:-88,L1:{plant:[124,138],f:0},L2:{a:[95,92],f:0},A1:{a:[92,92]},A2:{a:[95,95]}},{p:[119,86],t:-2,h:5,L2:{a:[178,178],f:90},A1:{a:[90,90]},A2:{a:[92,92]}}),
+ r_addsqueeze:mk({p:[110,134],t:180,h:180,L1:{a:[-50,58],s:[.96,1],f:0},L2:{a:[-50,58],s:[.96,1],f:0},A1:{a:[2,2]},A2:{a:[4,4]}},{L1:{s:[.975,1]},L2:{s:[.975,1]}},[["ball"]],{cam:{yaw:75,pitch:35}}),
+ r_copenhagen:mk({view:"front",lie:1,p:[119.2,125.1],t:-152,h:-152,L1:{plant:[168,96],d:1,f:0},L2:{a:[3,3],s:[.9,1],f:0},A1:{plant:[121,117],d:1},A2:{a:[90,0],s:[1,.15]}},{p:[117.9,104.5],t:-184,h:-184,L2:{a:[0,0]},A1:{plant:[116,96]}},[["post",109.2,100,44.8],["post",109.2,100,48.8],["post",109.2,100,52.8],["post",113.2,100,44.8],["post",113.2,100,48.8],["post",113.2,100,52.8],["post",117.2,100,44.8],["post",117.2,100,48.8],["post",117.2,100,52.8],["post",121.2,100,44.8],["post",121.2,100,48.8],["post",121.2,100,52.8]],{cam:{yaw:68,pitch:14}}),
+ r_hipflexiso:mk({p:[110,134],t:180,h:180,L1:{a:[-90,0],f:-90},L2:{a:[-90,0],f:-90},A1:{a:[2,2]},A2:{a:[4,4]}},{L1:{a:[-32,-32],f:-100}},[["bandank"]]),
+ r_gmedwall:mk({p:[120,86],t:-90,h:-90,L1:{plant:[121,138],f:0},L2:{a:[2,90],s:[.985,1],f:0},A1:{a:[105,50],s:[.96,.96]},A2:{a:[105,50],s:[.96,.96]}},{p:[119,87],L2:{a:[0,90],s:[.955,1]}},[["swall",-22,120]],{cam:{yaw:90,pitch:8}}),
+ r_bandwalk:mk({view:"front",p:[120,88],t:-90,h:-90,L1:{a:[85,90],s:[.85,1],f:10},L2:{a:[95,90],s:[.85,1],f:170},A1:{a:[100,-40]},A2:{a:[80,-140]}},{p:[124,88],L1:{a:[68,82]}},[["bandknees"]]),
  r_fig4:mk({...SUPINE,L2:{a:[-75,0],f:-90},L1:{a:[-50,-170],s:[.75,.8],f:-90},A1:{a:[-20,-25]},A2:{a:[-18,-23]}},{L2:{a:[-102,-15],f:-100},L1:{a:[-72,-185],s:[.75,.8],f:-90},A1:{a:[-25,-35]},A2:{a:[-23,-33]}}),
  // knees
- r_wallsit:mk({p:[105,98],t:-90,L1:{plant:[132,138],f:0},L2:{plant:[128,138],f:0},A1:{a:[92,88]},A2:{a:[95,90]}},{p:[105,111]},[["wall",96]]),
- r_spanish:mk({p:[118,94],t:-90,L1:{plant:[140,138],f:0},L2:{plant:[136,138],f:0},A1:{a:[0,0]},A2:{a:[3,3]}},{p:[108,112],t:-86},[["bandk",206,112]]),
+ r_wallsit:mk({p:[105,98],t:-90,L1:{plant:[132,138],f:0},L2:{plant:[128,138],f:0},A1:{a:[92,88]},A2:{a:[95,90]}},{p:[105,111]},[["wall",96]],{cam:{yaw:60,pitch:10}}),
+ r_spanish:mk({p:[118,94],t:-90,h:-90,L1:{plant:[140,138],f:0},L2:{plant:[136,138],f:0},A1:{a:[0,0]},A2:{a:[3,3]}},{p:[108,112],t:-86,h:-88},[["bandk",206,112],["post",206,40,8],["post",206,40,-8]]),
  r_boxsquat:mk({p:[120,86],t:-90,...STAND_L,A1:{a:[0,0]},A2:{a:[3,3]}},{p:[102,111],t:-58,h:-40},[["box",80,114,30]]),
  r_splitsq:mk({p:[120,90],t:-88,L1:{plant:[144,138],f:0},L2:{plant:[96,134],f:50},A1:{a:[100,-40]},A2:{a:[100,-40]}},{p:[120,113]}),
- r_touchdown:mk({p:[122,70],t:-90,L1:{plant:[124,124],f:0},L2:{a:[80,90],f:0},A1:{a:[30,10]},A2:{a:[33,12]}},{p:[114,86],t:-56,h:-45,L2:{a:[70,95],f:0},A1:{a:[-5,0]},A2:{a:[-2,2]}},[["stack",108,124,34]]),
- r_abduction:mk({view:"front",p:[116,86],t:-90,L2:{plant:[110,138],f:170,d:-1},L1:{a:[80,85],f:10},A1:{a:[100,-40]},A2:{a:[80,-140]}},{L1:{a:[50,55],f:0}}),
+ r_touchdown:mk({p:[118,70],t:-88,h:-88,L1:{plant:[120,124],f:0},L2:{a:[74,74],f:0},A1:{a:[85,85]},A2:{a:[87,87]}},{p:[110,88],t:-60,h:-45,L2:{a:[61,63],f:-15},A1:{a:[10,5]},A2:{a:[12,7]}},[["stack",94,124,34]]),
+ r_abduction:mk({view:"front",p:[116,85.5],t:-90,h:-90,L2:{a:[95,92],s:[.95,1],f:170},L1:{a:[75,75],s:[.97,.97],f:10},A1:{a:[100,-40]},A2:{a:[80,-140]}},{L1:{a:[52,52]}},[["bandank"]]),
  // shoulders
- r_ser:mk({p:[150,126],t:180,h:180,L1:{a:[1,1],f:0},L2:{a:[0,0],f:0},A2:{a:[180,180]},A1:{a:[2,0],frot:15}},{A1:{a:[2,0],frot:172}},[["dumbbell"],["towelpad"]]),
- r_bandw:mk({view:"front",p:[120,86],t:-90,...FRONT_L,A1:{a:[96,0],s:[1,.2]},A2:{a:[84,180],s:[1,.2]}},{A1:{a:[96,0],s:[1,1]},A2:{a:[84,180],s:[1,1]}}),
- r_proneY:mk({prone:1,p:[150,132],t:180,h:184,L1:{a:[1,1],f:8},L2:{a:[0,0],f:8},A1:{a:[179,179]},A2:{a:[178,178]}},{A1:{a:[197,197]},A2:{a:[195,195]},h:189}),
- r_scappull:mk({p:[120,95],t:-90,sho:0,L1:{a:[105,150],f:45},L2:{a:[103,148],f:45},A1:{plant:[123,16]},A2:{plant:[117,16]}},{p:[120,89],sho:7},[["bar",88,15,152]]),
- r_kbpress:mk({p:[120,86],t:-90,...STAND_L,A1:{a:[75,-75]},A2:{a:[95,95]}},{A1:{a:[-88,-90]}},[["kb",0,-7]]),
- r_row:mk({root:["f1",[160,137]],t:-147,h:-147,L1:{a:[33,33],f:-57},L2:{a:[34,34],f:-56},A1:{plant:[119,71]},A2:{plant:[117,72]}},{t:-125,h:-122,L1:{a:[55,55],f:-35},L2:{a:[56,56],f:-34}},[["strap2",119,6]]),
+ r_ser:mk({p:[150,134],t:180,h:180,roll:90,L1:{a:[-20,15],f:0},L2:{a:[-20,15],f:0},A2:{a:[180,180]},A1:{a:[0,-90],s:[1,1]}},{A1:{a:[0,-90],s:[1,.15]}},[["dumbbell"],["towelpad"]],{cam:{yaw:160,pitch:22}}),
+ r_bandw:mk({view:"front",p:[120,86],t:-90,h:-90,...FRONT_L,A1:{a:[88,0],s:[1,.05]},A2:{a:[92,180],s:[1,.05]}},{A1:{s:[1,.75]},A2:{s:[1,.75]}},[["bandw"]]),
+ r_proneY:mk({prone:1,p:[150,132],t:180,h:184,L1:{a:[1,1],f:8},L2:{a:[0,0],f:8},A1:{a:[180,180],s:[.82,.82]},A2:{a:[180,180],s:[.82,.82]}},{A1:{a:[189,189]},A2:{a:[189,189]},h:187},[],{cam:{yaw:-55,pitch:35}}),
+ r_scappull:mk({p:[120,70],t:-90,h:-90,sho:0,L1:{a:[92,90],f:70},L2:{a:[90,88],f:70},A1:{plant:[120,-8]},A2:{plant:[120,-8]}},{p:[120,63],sho:7},[["bar",88,-8,152]],{cam:{yaw:22,pitch:2}}),
+ r_kbpress:mk({p:[120,86],t:-90,h:-90,...STAND_L,A1:{a:[75,-90],s:[.6,1]},A2:{a:[95,92]}},{A1:{a:[-90,-90],s:[.92,1]}},[["kb",0,-7]],{cam:{yaw:40,pitch:6}}),
+ r_row:mk({root:["f1",[170,137]],t:-150,h:-150,L1:{a:[30,30],f:-60},L2:{a:[31,31],f:-59},A1:{plant:[91,52]},A2:{plant:[90,53]}},{t:-135,h:-135,L1:{a:[45,45],f:-45},L2:{a:[46,46],f:-44},A1:{plant:[110,66]},A2:{plant:[109,67]}},[["strap2",98,6],["bandto","w2",98,6]]),
  // elbow & grip
- r_wristiso:mk({p:[108,111],t:-60,h:-40,L1:{plant:[140,138],f:0},L2:{plant:[136,138],f:0},A1:{a:[80,6]},A2:{a:[85,10]}},{A1:{a:[80,2]}},[["box",80,114,32],["dumbbell"]]),
- r_wristcurl:mk({p:[108,111],t:-60,h:-40,L1:{plant:[140,138],f:0},L2:{plant:[136,138],f:0},A1:{a:[80,14]},A2:{a:[85,10]}},{A1:{a:[80,-10]}},[["box",80,114,32],["dumbbell"]]),
+ r_wristiso:mk({p:[108,111],t:-35,h:-5,L1:{plant:[140,138],f:0},L2:{plant:[136,138],f:0},A1:{a:[130,0],hand:-10},A2:{a:[132,2]}},{A1:{hand:-15}},[["box",80,114,32],["dumbbell"]],{cam:{yaw:15,pitch:8}}),
+ r_wristcurl:mk({p:[108,111],t:-35,h:-5,L1:{plant:[140,138],f:0},L2:{plant:[136,138],f:0},A1:{a:[130,9],hand:100},A2:{a:[132,2]}},{A1:{a:[130,-4],hand:-40}},[["box",80,114,32],["dumbbell"]],{cam:{yaw:5,pitch:4}}),
  r_farmer:mk({p:[120,87],t:-90,L1:{plant:[136,138],f:0},L2:{plant:[106,138],f:20},A1:{a:[98,94]},A2:{a:[95,92]}},{L1:{plant:[106,138],f:20},L2:{plant:[136,138],f:0}},[["dbs"]]),
- r_rackhold:mk({p:[120,86],t:-88,...STAND_L,A1:{a:[96,92]},A2:{a:[94,90]}},{t:-90,A1:{a:[95,90]}},[["bbhang"]]),
+ r_rackhold:mk({p:[120,86],t:-90,h:-90,...STAND_L,A1:{a:[83,87],s:[.98,.98]},A2:{a:[83,87],s:[.98,.98]}},{t:-90},[["bar",100,89,140]],{cam:{yaw:45,pitch:6}}),
  // calves & Achilles
- r_calfiso:mk({p:[124,84],t:-88,L1:{plant:[124,138],f:0},L2:{a:[100,150],f:150},A1:{plant:[156,66]},A2:{plant:[154,68]}},{p:[124,77],L1:{plant:[124,131],f:52},A1:{plant:[156,62]},A2:{plant:[154,64]}},[["wall",168]]),
+ r_calfiso:mk({p:[124,84],t:-88,L1:{plant:[124,138],f:0},L2:{a:[95,170],f:120},A1:{plant:[156,66]},A2:{plant:[154,68]}},{p:[124,79],L1:{plant:[123,133],f:35},A1:{plant:[156,62]},A2:{plant:[154,64]}},[["wall",168]],{cam:{yaw:12,pitch:6}}),
  r_calfraise:mk({p:[124,84],t:-90,L1:{plant:[124,138],f:0},L2:{plant:[118,138],f:0},A1:{plant:[154,66]},A2:{plant:[152,68]}},{p:[124,74],L1:{plant:[123,128],f:66},L2:{plant:[117,128],f:66},A1:{plant:[154,60]},A2:{plant:[152,62]}},[["wall",168]]),
- r_soleus:mk({p:[108,111],t:-80,h:-70,L1:{plant:[138,138],f:5},L2:{plant:[134,138],f:5},A1:{a:[70,10]},A2:{a:[74,12]}},{L1:{plant:[137,132],f:58},L2:{plant:[133,132],f:58}},[["box",80,114,32],["plate","k1"]]),
- r_hops:mk({p:[120,90],t:-86,L1:{plant:[124,138],f:0},L2:{plant:[118,138],f:0},A1:{a:[110,80]},A2:{a:[105,85]}},{p:[120,70],t:-90,L1:{plant:[123,123],f:62},L2:{plant:[117,123],f:62},A1:{a:[80,60]},A2:{a:[78,60]}}),
+ r_soleus:mk({p:[108,111],t:-80,h:-70,L1:{plant:[138,138],f:5},L2:{plant:[134,138],f:5},A1:{plant:[128,97]},A2:{plant:[126,98]}},{L1:{plant:[137,132],f:58},L2:{plant:[133,132],f:58},A1:{plant:[128,94]},A2:{plant:[126,95]}},[["box",80,114,32],["plate","w1"]],{cam:{yaw:15,pitch:8}}),
+ r_hops:mk({p:[120,79],t:-88,h:-88,L1:{plant:[123,132],f:55},L2:{plant:[118,132],f:55},A1:{a:[100,75]},A2:{a:[98,73]}},{p:[120,72],L1:{plant:[123,125]},L2:{plant:[118,125]}}),
 });
 
 // Generic pose names used on cards map to a representative stretch
@@ -676,11 +677,12 @@ function solveFig(F){
   const q=u=>[(1-u)*(1-u)*p[0]+2*(1-u)*u*c[0]+u*u*n[0],(1-u)*(1-u)*p[1]+2*(1-u)*u*c[1]+u*u*n[1]];
   const h=above?n:vadd(n,D(F.h??F.t),BONE.neck),J={p,n,c,q,h,front:front||above,above,legs:{},arms:{}};
   ["1","2"].forEach(s=>{
-    const L=F["L"+s],hip=front?vadd(p,[s==="1"?6:-6,0]):above?vadd(p,[0,s==="1"?7:-7]):p;let k,f;
+    const sg=s==="1"?1:-1,lie=front&&F.lie; // lie: front view of someone lying on their side, so hips and shoulders turn with the torso
+    const L=F["L"+s],hip=lie?vadd(p,D(F.t+90),6*sg):front?vadd(p,[s==="1"?6:-6,0]):above?vadd(p,[0,s==="1"?7:-7]):p;let k,f;
     if(L.plant)[k,f]=ik2(hip,L.plant,BONE.th,BONE.sh,L.d??1);
     else{const sc=L.s||[1,1];k=vadd(hip,D(L.a[0]),BONE.th*sc[0]);f=vadd(k,D(L.a[1]),BONE.sh*sc[1])}
     J.legs[s]={hip,k,f,ft:vadd(f,D(L.f??0),BONE.foot)};
-    const A=F["A"+s],sh=front?vadd(n,[s==="1"?10:-10,4+(F.sho??0)]):above?vadd(n,[0,s==="1"?11:-11]):vadd(n,D(F.t+180),F.sho??3);let e,w;
+    const A=F["A"+s],sh=lie?vadd(vadd(n,D(F.t+90),10*sg),D(F.t+180),4+(F.sho??0)):front?vadd(n,[s==="1"?10:-10,4+(F.sho??0)]):above?vadd(n,[0,s==="1"?11:-11]):vadd(n,D(F.t+180),F.sho??3);let e,w;
     if(A.plant)[e,w]=ik2(sh,A.plant,BONE.ua,BONE.fa,A.d??-1);
     else if(A.rot!=null){const v=[0,Math.cos(A.rot*Math.PI/180)];e=vadd(sh,v,BONE.ua);w=vadd(e,v,BONE.fa)}
     else if(A.frot!=null){e=vadd(sh,D(A.a[0]),BONE.ua);w=vadd(e,[0,Math.cos(A.frot*Math.PI/180)],BONE.fa)}
@@ -908,12 +910,13 @@ const FIG3D=(()=>{
   const FLOOR=143,HIPW=7,SHW=14.5;
 
   /* ---------- 2D pose -> 3D joints ---------- */
-  function lift(J,F){
-    const above=!!(J.above||F.top),side=!J.front&&!above,front=!!(J.front&&!above),cx=J.p[0],cy=J.p[1],lying=!!F.top;
+  // ox: the x the whole animation is centred on, so hips that travel (rolling over a foam roller) visibly move
+  function lift(J,F,ox){
+    const above=!!(J.above||F.top),side=!J.front&&!above,front=!!(J.front&&!above),cx=side&&ox!=null?ox:J.p[0],cy=J.p[1],lying=!!F.top;
     const base=above?(lying?8:11):0;
     const P=(q,z=0)=>side?[q[0]-cx,FLOOR-q[1],z]:front?[0,FLOOR-q[1],q[0]-cx]:[q[0]-cx,base,q[1]-cy];
     // add the depth a foreshortened bone must have: outward (side view), forward (front view), up (above)
-    const bone=(a3,a2,b2,len,sgn)=>{const pr=Math.hypot(b2[0]-a2[0],b2[1]-a2[1]),d=Math.sqrt(Math.max(0,len*len-pr*pr));
+    const bone=(a3,a2,b2,len,sgn,m=1)=>{const pr=Math.hypot(b2[0]-a2[0],b2[1]-a2[1]),d=Math.sqrt(Math.max(0,len*len-pr*pr))*m;
       const v=side?[b2[0]-a2[0],-(b2[1]-a2[1]),d*sgn]:front?[d,-(b2[1]-a2[1]),b2[0]-a2[0]]:[b2[0]-a2[0],d,b2[1]-a2[1]];
       return[a3[0]+v[0],a3[1]+v[1],a3[2]+v[2]]};
     const out={legs:{},arms:{},front,above,side};
@@ -926,7 +929,9 @@ const FIG3D=(()=>{
       const sg=s==="1"?1:-1,lg=J.legs[s],ar=J.arms[s],L=F["L"+s]||{},A=F["A"+s]||{};
       const hip=side?P(lg.hip,sg*HIPW):flat?add(P(lg.hip),[0,0,sg*HIPW]):P(lg.hip);
       const ls=L.s||[1,1],as=A.s||[1,1];
-      let k=bone(hip,lg.hip,lg.k,BONE.th,sg),f=bone(k,lg.k,lg.f,BONE.sh,sg);
+      // dz: depth direction per bone (-1 = toward the midline / backward instead of outward / forward)
+      const ldz=L.dz||[1,1],adz=A.dz||[1,1];
+      let k=bone(hip,lg.hip,lg.k,BONE.th,sg,ldz[0]),f=bone(k,lg.k,lg.f,BONE.sh,sg,ldz[1]);
       // seen from above, legs rest on the floor unless the drawing shows them lifted
       if(above){if(k[1]<=hip[1]+.5)k[1]=5.5;if(f[1]<=hip[1]+.5)f[1]=4.5}
       let ft;
@@ -937,22 +942,33 @@ const FIG3D=(()=>{
       const sh=side?[out.n[0]+(ar.sh[0]-J.n[0]),out.n[1]-(ar.sh[1]-J.n[1]),sg*SHW]:flat?[out.n[0],out.n[1],sg*SHW]:above?[out.n[0],out.n[1]-4,ar.sh[1]-cy]:P(ar.sh);
       let e,w;
       if(A.rot!=null&&above){const r=A.rot*Math.PI/180,v=[0,Math.sin(r),Math.cos(r)*(s==="1"?1:-1)];e=add(sh,mul(v,BONE.ua));w=add(e,mul(v,BONE.fa))}
-      else{e=bone(sh,ar.sh,ar.e,BONE.ua,sg);w=bone(e,ar.e,ar.w,BONE.fa,sg)}
+      else{e=bone(sh,ar.sh,ar.e,BONE.ua,sg,adz[0]);w=bone(e,ar.e,ar.w,BONE.fa,sg,adz[1])}
       // seated, seen from above: hands that are drawn out to the side rest on the floor
       if(above&&!lying&&w[1]>6&&!A.rot){const reach=BONE.ua+BONE.fa,hz=len(sub([w[0],0,w[2]],[sh[0],0,sh[2]]));w=[w[0],Math.max(4,sh[1]-Math.sqrt(Math.max(0,reach*reach-hz*hz))),w[2]];e=add(lerp3(sh,w,.5),[0,4,0])}
+      if(w[1]<2.8)w=[w[0],2.8,w[2]];if(e[1]<3)e=[e[0],3,e[2]];
       // front view: an arm drawn behind the body (back scratch) goes back, not forward
       if(front&&A.back){e=[-Math.max(Math.abs(e[0]-sh[0]),4)+sh[0],e[1],e[2]];w=[-Math.max(Math.abs(w[0]-sh[0]),9)+sh[0],w[1],w[2]]}
       // optional hand direction (2D angle), e.g. a palm resting on the side of the head instead of pointing along the forearm
       const hn=A.hand!=null?[Math.cos(A.hand*Math.PI/180),Math.sin(A.hand*Math.PI/180)]:null;
       out.arms[s]={sh,e,w,hd:hn?(side?[hn[0],-hn[1],0]:front?[0,-hn[1],hn[0]]:null):null};
     });
+    // roll: turn the whole body about the spine (degrees), e.g. 90 to lie on one side; then rest it on the floor
+    let f2rot=v=>v;
+    if(F.roll){const ax=norm(sub(out.n,out.p)),o=out.p,an=F.roll*Math.PI/180,R=v=>rotAx(v,ax,an),RP=q=>add(o,R(sub(q,o)));
+      ["n","c","h"].forEach(k=>out[k]=RP(out[k]));
+      ["1","2"].forEach(s=>{const l=out.legs[s],a=out.arms[s];["hip","k","f","ft"].forEach(k=>l[k]=RP(l[k]));["sh","e","w"].forEach(k=>a[k]=RP(a[k]));if(a.hd)a.hd=R(a.hd)});
+      const lo=Math.min(...["1","2"].flatMap(s=>[out.legs[s].hip[1],out.arms[s].sh[1]]),out.p[1]),dy=7-lo;
+      const T_=q=>[q[0],q[1]+dy,q[2]];out.p=T_(out.p);["n","c","h"].forEach(k=>out[k]=T_(out[k]));
+      ["1","2"].forEach(s=>{const l=out.legs[s],a=out.arms[s];["hip","k","f","ft"].forEach(k=>l[k]=T_(l[k]));["sh","e","w"].forEach(k=>{a[k]=T_(a[k]);if(a[k][1]<2.8)a[k]=[a[k][0],2.8,a[k][2]]})});
+      f2rot=R}
+    out.hy=F.hy||0;
     // body axes: up the spine, across the shoulders, and forward (the way the chest faces)
     const U=norm(sub(out.n,out.p)),lat=norm(sub(out.arms["1"].sh,out.arms["2"].sh));
     let Fw=norm(cross(lat,U));
     // check against the 2D facing so prone and supine poses face the right way
     const ta=Math.atan2(J.h[1]-J.n[1],J.h[0]-J.n[0]),fa=ta+((F.prone)?-1:1)*Math.PI/2;
     const f2=side?[Math.cos(fa),-Math.sin(fa),0]:front?[1,0,0]:lying?[0,1,0]:[1,0,0];
-    if(dot(Fw,f2)<0)Fw=[-Fw[0],-Fw[1],-Fw[2]];
+    if(dot(Fw,f2rot(f2))<0)Fw=[-Fw[0],-Fw[1],-Fw[2]];
     out.U=U;out.F=Fw;out.Lat=norm(cross(U,Fw));
     return out;
   }
@@ -960,6 +976,7 @@ const FIG3D=(()=>{
   const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
   const len=a=>Math.hypot(a[0],a[1],a[2]),norm=a=>{const l=len(a)||1;return[a[0]/l,a[1]/l,a[2]/l]},lerp3=(a,b,u)=>[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,a[2]+(b[2]-a[2])*u];
   const perpTo=(v,d)=>{const p=sub(v,mul(d,dot(v,d)));return len(p)<1e-3?null:norm(p)};
+  const rotAx=(v,k,a)=>{const c=Math.cos(a),s=Math.sin(a),kv=cross(k,v),kd=dot(k,v);return[v[0]*c+kv[0]*s+k[0]*kd*(1-c),v[1]*c+kv[1]*s+k[1]*kd*(1-c),v[2]*c+kv[2]*s+k[2]*kd*(1-c)]};
 
   /* ---------- the body ---------- */
   let M={},geo={},rig=null,ghost=null,extras=null;
@@ -1050,7 +1067,10 @@ const FIG3D=(()=>{
       const fd=norm(sub(lg.ft,lg.f)),fc=lerp3(lg.f,lg.ft,.45),fx=norm(cross(fd,[0,1,0]))||[1,0,0];
       const up=norm(cross(fx,fd));blob(P["foot"+s],add(fc,mul(up,-1.2)),4.3,3.2,8.2,[fx,up,fd]);
       seg(P["upper"+s],ar.sh,ar.e,4.6,4.9,Fw);seg(P["sleeve"+s],ar.sh,lerp3(ar.sh,ar.e,.5),5.6,5.9,Fw);seg(P["fore"+s],ar.e,ar.w,4.3,3.9,Fw);
-      blob(P["elbow"+s],ar.e,3.9,3.9,3.9);{const hd=ar.hd||norm(sub(ar.w,ar.e)),hx=perpTo(Fw,hd)||Lt,hz=norm(cross(hx,hd));blob(P["hand"+s],add(ar.w,mul(hd,2.2)),3.6,5.4,2.5,[hx,hd,hz])}blob(P["shoulder"+s],ar.sh,6.4,6.4,6.4);
+      blob(P["elbow"+s],ar.e,3.9,3.9,3.9);if(ar.w[1]<7.5){// a hand on the floor lies flat, palm down, fingers pointing where the body faces (or where the pose says)
+        const hz=[0,1,0],hv=ar.hd?[ar.hd[0],0,ar.hd[2]]:null,head=[B.n[0]-B.p[0],0,B.n[2]-B.p[2]],fw=[Fw[0],0,Fw[2]];
+        const hd=norm(hv&&len(hv)>.2?hv:len(head)>8?head:len(fw)>.2?fw:[1,0,0]),hx=norm(cross(hd,hz));blob(P["hand"+s],[ar.w[0]+hd[0]*3,1.6,ar.w[2]+hd[2]*3],3.8,5.6,1.7,[hx,hd,hz])}
+      else{const hd=ar.hd||norm(sub(ar.w,ar.e)),hx=perpTo(Fw,hd)||Lt,hz=norm(cross(hx,hd));blob(P["hand"+s],add(ar.w,mul(hd,2.2)),3.6,5.4,2.5,[hx,hd,hz])}blob(P["shoulder"+s],ar.sh,6.4,6.4,6.4);
     });
     const basis=[Lt,U,Fw],mid=lerp3(B.p,B.n,.5);
     blob(P.pelvis,add(B.p,mul(U,2)),11.5,9.5,8.8,basis);
@@ -1059,7 +1079,7 @@ const FIG3D=(()=>{
     blob(P.chest,add(lerp3(B.p,B.n,.74),mul(Fw,.8)),12.6,13.5,9.6,basis);
     const bm=new T.Matrix4().makeBasis(_v(Lt),_v(U),_v(Fw));bm.scale(new T.Vector3(10.6,14,8.4));const bc=lerp3(B.p,B.n,.42);bm.setPosition(bc[0],bc[1],bc[2]);P.belly.matrix.copy(bm);P.belly.visible=true;
     const hd=norm(sub(B.h,B.n)),nk=lerp3(B.n,B.h,.15);seg(P.neck,B.n,lerp3(B.n,B.h,.6),3.9,3.9,Fw);
-    const hc=add(B.h,mul(hd,1.5)),hf=perpTo(Fw,hd)||Fw,hx=norm(cross(hd,hf));
+    const hc=add(B.h,mul(hd,1.5)),hf0=perpTo(Fw,hd)||Fw,hf=B.hy?rotAx(hf0,hd,B.hy*Math.PI/180):hf0,hx=norm(cross(hd,hf)); // hy: head turn
     blob(P.head,hc,8.4,9.8,9.0,[hx,hd,hf]);
     blob(P.hair,add(add(hc,mul(hd,1.6)),mul(hf,-1.6)),8.9,9.4,9.2,[hx,hd,hf]);P.hair.visible=!M.bald;
     blob(P.nose,add(add(hc,mul(hf,8.6)),mul(hd,-.8)),1.3,2.0,1.6,[hx,hd,hf]);
@@ -1082,7 +1102,7 @@ const FIG3D=(()=>{
         if(z==="hipflex")add1(lg.hip,lg.k,0,.34,tf,7.8);
         if(z==="calves")add1(lg.k,lg.f,.08,.58,mul(sf,-1),6.2);
         if(z==="ankles")add1(lg.k,lg.f,.72,1.02,null,4.6);
-        if(z==="forearm")add1(ar.e,ar.w,.1,.8,null,4.3);
+        if(z==="forearm")add1(ar.e,ar.w,.08,.85,null,8);
         {const ud=norm(sub(ar.e,ar.sh)),uf=perpTo(B.F,ud)||perpTo(sub(ar.w,ar.e),ud)||B.F;
          if(z==="biceps")add1(ar.sh,ar.e,.2,.85,uf,4.6);
          if(z==="triceps")add1(ar.sh,ar.e,.15,.88,mul(uf,-1),4.8);}
@@ -1122,14 +1142,23 @@ const FIG3D=(()=>{
       if(k==="band"){const q=a==="p"?B.p:a==="f1"?B.legs["1"].f:W1;rod(q,[X(b),Y(c),q[2]],.9,M.band)}
       if(k==="bandk"){[B.legs["1"].k,B.legs["2"].k].forEach(q=>rod(q,[X(a),Y(b),q[2]],.9,M.band))}
       if(k==="bandknees")rod(B.legs["1"].k,B.legs["2"].k,1.3,M.band);
-      if(k==="strap"||k==="strap2")rod(W1,k==="strap"?B.legs["1"].ft:[X(a),Y(b),W1[2]],1,M.band);
+      if(k==="strap"&&a==="both"){const ft=B.legs["1"].ft;rod(W1,ft,1,M.band);rod(W2,ft,1,M.band)}  // strap looped round the foot, an end in each hand
+      else if(k==="strap"||k==="strap2")rod(W1,k==="strap"?B.legs["1"].ft:[X(a),Y(b),W1[2]],1,M.band);
       if(k==="plate"){const q=a==="ft1"?B.legs["1"].ft:a==="w1"?W1:a==="k1"?add(B.legs["1"].k,[0,5,0]):B.legs["1"].f;
         const qo=a==="w1"&&B.side?add(q,[0,0,3]):q;
         if(a==="ft1")box(q[0]-4,1.5,q[2],16,3,14,M.propDark);else{const o=part(geo.cyl,M.propDark);seg(o,add(qo,[0,0,-1.5]),add(qo,[0,0,1.5]),9,9,null);g.add(o)}}
-      if(k==="kb"||k==="dumbbell"||k==="dbs"){[W1,W2].forEach((w,i)=>{if(i&&!(k==="dbs"||c))return;
-        if(k==="kb"){ball(add(w,[0,(b||6)<0?6:-6,0]),5.2,M.propDark)}
+      if(k==="kb"||k==="dumbbell"||k==="dbs"){[W1,W2].map((w,i)=>{const ar=B.arms[i?"2":"1"];return add(w,mul(norm(sub(w,ar.e)),2.5))}).forEach((w,i)=>{if(i&&!(k==="dbs"||c))return;
+        if(k==="kb"){const up=(b||6)<0;ball(add(w,[0,up?6:-6,0]),5.2,M.propDark);rod(add(w,[0,0,-2.6]),add(w,[0,0,2.6]),1.1,M.propDark)}
         else{rod(add(w,[0,0,-5]),add(w,[0,0,5]),1.2,M.propDark);[-5,5].forEach(z=>{const o=part(geo.cyl,M.propDark);seg(o,add(w,[0,0,z-1.5]),add(w,[0,0,z+1.5]),4.2,4.2,null);g.add(o)})}})}
-      if(k==="bbhang"){rod(add(W1,[0,0,-50]),add(W1,[0,0,50]),1.4,M.propDark);[-36,36].forEach(z=>{const o=part(geo.cyl,M.propDark);seg(o,add(W1,[0,0,z-2]),add(W1,[0,0,z+2]),15,15,null);g.add(o)})}
+      if(k==="bbhang"){const c0=len(sub(W1,W2))<60?[(W1[0]+W2[0])/2,(W1[1]+W2[1])/2,0]:[W1[0],W1[1],0];rod(add(c0,[0,0,-50]),add(c0,[0,0,50]),1.4,M.propDark);[-36,36].forEach(z=>{const o=part(geo.cyl,M.propDark);seg(o,add(c0,[0,0,z-2]),add(c0,[0,0,z+2]),15,15,null);g.add(o)})}
+      if(k==="plate2"){const c0=lerp3(W1,W2,.5),ax=a==="flat"?[0,1,0]:B.F||[1,0,0],o=part(geo.cyl,M.propDark);seg(o,add(c0,mul(ax,-1.5)),add(c0,mul(ax,1.5)),9,9,null);g.add(o)}   // plate held in both hands (facing forward, or "flat")
+      if(k==="swall")box(X(b||120),70,a,90,140,5,M.wall);                       // wall beside the person: a = sideways offset (+ = right side), b = centre x
+      if(k==="post")box(X(a),(b?Y(b):60)/2,c||0,4,b?Y(b):60,4,M.propDark);   // anchor post or rack upright, a=x, b=top y
+      if(k==="bandw")rod(W1,W2,1.1,M.band);                                    // band between the wrists
+      if(k==="bandank")rod(B.legs["1"].f,B.legs["2"].f,1.1,M.band);           // loop band around the ankles
+      if(k==="bandto"){const pt={w1:W1,w2:W2,k1:B.legs["1"].k,k2:B.legs["2"].k,f1:B.legs["1"].f,f2:B.legs["2"].f,p:B.p,hip1:B.legs["1"].hip,hip2:B.legs["2"].hip}[a]||W1;rod(pt,[X(b),Y(c),pt[2]],1,M.band)} // band from a body point to an anchor at (b,c)
+      if(k==="pad")box(X(a),1.5,0,b||14,3,c||16,M.prop);                       // mat / pad on the floor at x=a
+      if(k==="ball2")ball([X(a),Y(b),c||0],5.5,M.band);                        // ball at a fixed spot (x,y[,z])
       if(k==="ball")ball(lerp3(B.legs["1"].k,B.legs["2"].k,.5),5.5,M.band);
       if(k==="football"){const l=B.legs["1"];ball([(l.f[0]+l.ft[0])/2,5,l.f[2]],5,M.band)}
       if(k==="towelpad")box(B.arms["1"].e[0],B.arms["1"].e[1]-3,B.arms["1"].e[2],10,4,6,M.prop);
@@ -1156,9 +1185,9 @@ const FIG3D=(()=>{
   function figData(key){
     if(cache[key])return cache[key];
     const P=FIGS[key]||FIGS[FIG_ALIAS[key]]||FIGS.h7;
-    const JA=solveFig(P.A),JB=solveFig(P.B),BA=lift(JA,P.A),BB=lift(JB,P.B);
+    const JA=solveFig(P.A),JB=solveFig(P.B),BA=lift(JA,P.A,JA.p[0]),BB=lift(JB,P.B,JA.p[0]),FM=lerpF(P.A,P.B,.5),BM=lift(solveFig(FM),FM,JA.p[0]);
     // camera: side view seen from the near side, a little from the front; front view from the front
-    const pts=[];[BA,BB].forEach(B=>{pts.push(B.p,B.n,B.h);["1","2"].forEach(s=>{pts.push(B.legs[s].k,B.legs[s].f,B.legs[s].ft,B.arms[s].e,B.arms[s].w)})});
+    const pts=[];[BA,BB,BM].forEach(B=>{pts.push(B.p,B.n,B.h);["1","2"].forEach(s=>{pts.push(B.legs[s].k,B.legs[s].f,B.legs[s].ft,B.arms[s].e,B.arms[s].w)})});
     const mn=[0,1,2].map(i=>Math.min(...pts.map(p=>p[i]))),mx=[0,1,2].map(i=>Math.max(...pts.map(p=>p[i])));
     (P.props||[]).forEach(([k,a,b,c])=>{if(k==="box"||k==="stack"||k==="highbench"){mn[0]=Math.min(mn[0],a-JA.p[0]);mx[0]=Math.max(mx[0],a+c-JA.p[0])}if(k==="wall"||k==="frame"){mn[0]=Math.min(mn[0],a-JA.p[0]);mx[0]=Math.max(mx[0],a-JA.p[0])}});
     mn[1]=0;
@@ -1183,7 +1212,7 @@ const FIG3D=(()=>{
   }
   let curKey=null,curExtras=[];
   function setFigure(key,t,zones,sides,guide){
-    const D=figData(key),F=lerpF(D.P.A,D.P.B,t),J=solveFig(F),B=lift(J,F);
+    const D=figData(key),F=lerpF(D.P.A,D.P.B,t),J=solveFig(F),B=lift(J,F,D.cx);
     pose(rig,B);
     const showG=guide&&t<.9;ghost.G.visible=showG;if(showG)pose(ghost,D.BB);
     curExtras.forEach(o=>extras.remove(o));curExtras=[];
@@ -1872,7 +1901,7 @@ ACT.tryEx=d=>{const e=LIBI[d.id];openPlayer([e.rehab?{id:e.id,dose:defaultDose(e
 const RCAT={core:"Core & back",hipr:"Hips",knee:"Knees",shoul:"Shoulders",elbow:"Elbow & grip",calf:"Calves & Achilles"};
 
 FIGS.r_bwsquat={...FIGS.r_boxsquat,props:[]};
-FIGS.r_bandsquat=mk({view:"front",p:[120,88],t:-90,L1:{plant:[134,138],f:10,d:1},L2:{plant:[106,138],f:170,d:-1},A1:{a:[100,-40]},A2:{a:[80,-140]}},{p:[120,103]},[["bandknees"]]);
+FIGS.r_bandsquat=mk({view:"front",p:[120,84.5],t:-90,h:-90,L1:{a:[86,90],s:[1,1],f:10},L2:{a:[94,90],s:[1,1],f:170},A1:{a:[100,-40]},A2:{a:[80,-140]}},{p:[120,88],L1:{s:[.85,1]},L2:{s:[.85,1]}},[["bandknees"]]);
 const REHAB_LIB=[
  {id:"r_curlup",n:"McGill curl-up",a:"core",z:["core"],eq:[],stim:"The front of your core working while your low back stays still",c:["Hands under the small of your back, one knee bent","Brace, then lift head and shoulders a finger-width","Breathe in small sips while you hold"],easy:"Keep the head on the floor and just brace."},
  {id:"r_sideplank",n:"Side plank",a:"core",z:["core","glutes"],eq:[],stim:"The side of your trunk and hip",c:["Elbow under the shoulder","Push the hips forward and up","Body in one straight line"],easy:"Bend the knees and support from them."},
@@ -1882,7 +1911,7 @@ const REHAB_LIB=[
  {id:"r_hinge",n:"Hip hinge drill",a:"core",z:["hamstrings","glutes"],eq:[],stim:"Tension in the glutes and hamstrings, not the low back",c:["Grip the floor with your feet","Push the hips back, chest forward, arms out","The back doesn't move, only the hips"],easy:"Hinge with a dowel along your spine."},
  {id:"r_pallof",n:"Pallof press",a:"core",z:["core"],eq:["band"],stim:"Your core resisting the band's pull to the side",c:["Band anchored at chest height to your side","Press the hands straight out and hold","Don't let the band twist you"],easy:"Stand closer to the anchor."},
  {id:"r_walk",n:"Brisk walk",a:"core",z:["core"],eq:[],stim:"Easy movement that loosens the back",c:["Fast enough to swing your arms","Stand tall","Stop if it starts to build pain"],easy:"Several shorter walks."},
- {id:"r_goblethold",fig:"h9",n:"Deep goblet squat hold",a:"core",z:["glutes","adductors"],eq:["plate"],stim:"Glutes switching on at the bottom of the squat",c:["Weight at the chest, sit deep","Push the knees out against the elbows","Rise a few cm, squeeze the glutes, hold"],easy:"Squat only to pain-free depth."},
+ {id:"r_goblethold",fig:"goblethold",n:"Deep goblet squat hold",a:"core",z:["glutes","adductors"],eq:["plate"],stim:"Glutes switching on at the bottom of the squat",c:["Weight at the chest, sit deep","Push the knees out against the elbows","Rise a few cm, squeeze the glutes, hold"],easy:"Squat only to pain-free depth."},
  {id:"r_row",n:"Ring row with pause",a:"core",z:["lats","upperback"],eq:[],stim:"Upper back pulling the shoulder blades together",c:["Body straight from heels to head","Pull the chest to the hands","Hold the top for 3 seconds"],easy:"Walk the feet back to stand more upright."},
  {id:"r_airplane",n:"Hip airplane",a:"hipr",z:["glutes"],eq:[],stim:"Deep in the hip of the standing leg as the pelvis turns",c:["Hold a rack, tip forward on one leg","Rotate the pelvis open toward the ceiling and hold","Then turn it down toward the standing leg and hold"],easy:"Smaller rotations with more hand support."},
  {id:"r_slrdl",n:"Single-leg RDL",a:"hipr",z:["hamstrings","glutes"],eq:[],stim:"The hamstring and glute of the standing leg",c:["Soft standing knee","Hinge until the body is level, back leg straight","Hips stay square to the floor"],easy:"Touch the back toe down for balance."},
@@ -1927,18 +1956,18 @@ function addDrills(list){list.forEach(e=>{Object.assign(e,{rehab:true,pose:e.pos
 // Batch A: wrists & forearms, elbows/triceps, shoulders, lats, front rack, overhead, scapular control
 Object.assign(FIGS,{
  a_bandrack:mk({p:[120,90],t:-88,h:-88,L1:{plant:[140,138],f:0},L2:{plant:[100,133],f:45},A1:{a:[-20,182]},A2:{a:[100,-40]}},{p:[119,106],t:-68,h:-55,A1:{a:[-102,100]}},[["band","w1",92,22]]),
- a_wristflex:mk({root:["k1",[100,137]],t:-17,h:-10,L1:{a:[90,180],f:180},L2:{a:[88,180],f:180},A1:{plant:[136,139]},A2:{plant:[132,139]}},{t:-18,h:-12,L1:{a:[60,180]},L2:{a:[58,180]}}),
- a_wristext:mk({root:["k1",[100,137]],t:-16,h:-10,L1:{a:[90,180],f:180},L2:{a:[88,180],f:180},A1:{plant:[128,139]},A2:{plant:[124,139]}},{t:-19,h:-12,L1:{a:[70,180]},L2:{a:[68,180]}}),
+ a_wristflex:mk({root:["k1",[100,137]],t:-15,h:-10,L1:{a:[90,180],f:180},L2:{a:[88,180],f:180},A1:{plant:[134,139],hand:180},A2:{plant:[130,139],hand:180}},{t:-18,h:-16,L1:{a:[60,180]},L2:{a:[58,180]}},[],{cam:{yaw:20,pitch:12}}),
+ a_wristext:mk({root:["k1",[100,137]],t:-15,h:-10,L1:{a:[90,180],f:180},L2:{a:[88,180],f:180},A1:{plant:[134,139],hand:180},A2:{plant:[130,139],hand:180}},{t:-17,h:-14,L1:{a:[75,180]},L2:{a:[73,180]}},[],{cam:{yaw:20,pitch:12}}),
  a_pinch:mk({p:[120,87],t:-90,L1:{plant:[136,138],f:0},L2:{plant:[106,138],f:14},A1:{a:[92,92]},A2:{a:[95,92]}},{L1:{plant:[106,138],f:14},L2:{plant:[136,138],f:0}},[["plate","w1"]]),
- a_pushdown:mk({p:[120,86],t:-86,...STAND_L,A1:{a:[96,-35]},A2:{a:[98,-33]}},{A1:{a:[96,90]},A2:{a:[98,92]}},[["band","w1",172,8]]),
- a_extpull:mk({p:[116,87],t:-80,L1:{plant:[126,138],f:0},L2:{plant:[118,138],f:0},A1:{a:[-38,-38]},A2:{a:[-35,-35]}},{A1:{a:[100,100]},A2:{a:[103,103]}},[["band","w1",196,22]]),
- a_scappush:mk({p:[106,114],t:-27,h:-22,L1:{plant:[54.5,131],f:65},L2:{plant:[54.5,130],f:65},A1:{plant:[141,138]},A2:{plant:[137,138]}},{p:[106,115.5],t:-26.5,h:-20}),
- a_pullapart:mk({view:"front",p:[120,86],t:-90,...FRONT_L,A1:{a:[0,0],s:[.12,.12]},A2:{a:[180,180],s:[.12,.12]}},{A1:{s:[1,1]},A2:{s:[1,1]}},[["towel"]]),
- a_halo:mk({view:"front",p:[120,86],t:-90,...FRONT_L,A1:{plant:[127,66],d:1},A2:{plant:[125,66],d:-1}},{A1:{plant:[147,32],d:1},A2:{plant:[145,32],d:-1}},[["plate","w1"]]),
+ a_pushdown:mk({p:[120,86],t:-86,h:-88,...STAND_L,A1:{a:[84,-15]},A2:{a:[84,-15]}},{A1:{a:[84,84]},A2:{a:[84,84]}},[["bandto","w1",160,10],["bandto","w2",160,10]],{cam:{yaw:25,pitch:6}}),
+ a_extpull:mk({p:[116,87],t:-80,h:-82,L1:{plant:[126,138],f:0},L2:{plant:[118,138],f:0},A1:{a:[-38,-38]},A2:{a:[-35,-35]}},{A1:{a:[82,82]},A2:{a:[82,82]}},[["bandto","w1",196,22],["bandto","w2",196,22]],{cam:{yaw:25,pitch:6}}),
+ a_scappush:mk({p:[107.7,117],t:-29,sho:3,bend:3,h:-20,L1:{plant:[54.5,131],f:65},L2:{plant:[54.5,130],f:65},A1:{plant:[140,138]},A2:{plant:[136,138]}},{p:[106.2,114],t:-24,bend:-5,h:-40},[],{cam:{yaw:10,pitch:6}}),
+ a_pullapart:mk({view:"front",p:[120,86],t:-90,...FRONT_L,A1:{a:[0,0],s:[.12,.12]},A2:{a:[180,180],s:[.12,.12]}},{A1:{s:[.93,.93]},A2:{s:[.93,.93]}},[["bandw"]],{cam:{yaw:55,pitch:10}}),
+ a_halo:mk({p:[120,86],t:-90,h:-90,...STAND_L,A1:{a:[70,292],s:[1,.95]},A2:{a:[70,292],s:[1,.95]}},{A1:{a:[-70,152]},A2:{a:[-70,152]}},[["plate","w1"]],{cam:{yaw:40,pitch:8}}),
  a_sots:mk({p:[112,124],t:-74,h:-74,L1:{plant:[134,138],f:0},L2:{plant:[130,138],f:0},A1:{a:[95,-104],s:[.65,1]},A2:{a:[97,-102],s:[.65,1]}},{h:-80,A1:{a:[-100,-100],s:[.85,.85]},A2:{a:[-98,-98],s:[.85,.85]}},[["pipe"]]),
- a_hang:mk({p:[120,89],t:-90,sho:0,L1:{a:[105,150],f:45},L2:{a:[103,148],f:45},A1:{plant:[123,9]},A2:{plant:[117,9]}},{p:[120,91],sho:-2},[["bar",88,8,152]]),
- a_german:mk({p:[127,111],t:-84,L1:{plant:[142,138],f:0},L2:{plant:[138,138],f:0},A1:{plant:[94,62]},A2:{plant:[92,62]}},{p:[108,133],t:-82},[["bar",70,62,104]]),
- a_wallserr:mk({p:[118,86],t:-90,L1:{plant:[122,138],f:0},L2:{plant:[114,138],f:0},A1:{a:[15,-90]},A2:{a:[18,-88]}},{p:[124,87],t:-84,A1:{a:[-55,-85]},A2:{a:[-52,-83]}},[["wall",146]]),
+ a_hang:mk({p:[120,70],t:-90,h:-90,sho:0,L1:{a:[92,90],f:70},L2:{a:[90,88],f:70},A1:{plant:[120,-8]},A2:{plant:[120,-8]}},{p:[120,72],sho:-2},[["bar",88,-8,152]],{cam:{yaw:22,pitch:2}}),
+ a_german:mk({p:[96,97],t:-84,h:-84,L1:{plant:[128,138],f:0},L2:{plant:[124,138],f:0},A1:{plant:[85,92]},A2:{plant:[85,92]}},{p:[116,126],t:-78,h:-80},[["bar",80,92,90],["post",85,92,-46],["post",85,92,46]],{cam:{yaw:12,pitch:6}}),
+ a_wallserr:mk({p:[119,86],t:-90,h:-90,L1:{plant:[124,138],f:0},L2:{plant:[116,138],f:0},A1:{a:[0,-90]},A2:{a:[0,-90]}},{p:[127,87],t:-84,h:-95,A1:{a:[-60,-90],s:[.85,.9]},A2:{a:[-60,-90],s:[.85,.9]}},[["wall",146],["bandw"]],{cam:{yaw:-35,pitch:8}}),
 });
 
 addStretches([
@@ -1950,7 +1979,7 @@ addStretches([
 ]);
 addDrills([
  {id:"a_pinch",n:"Plate pinch carry",a:"elbow",z:["forearm"],eq:["plate"],stim:"Grip in the fingers, thumb and forearm",c:["Pinch a smooth plate between fingers and thumb","Walk tall, shoulders down and back","Set it down before the grip fails"],easy:"Use a lighter plate or pinch two small plates together."},
- {id:"a_pushdown",n:"Banded triceps pushdown",a:"elbow",z:["forearm"],eq:["band"],stim:"Back of the upper arm, around the elbow",c:["Band anchored high, elbows pinned to your sides","Push the hands down until the arms are straight","Control the band back up slowly"],easy:"Lighter band or smaller range."},
+ {id:"a_pushdown",n:"Banded triceps pushdown",a:"elbow",z:["triceps","forearm"],eq:["band"],stim:"Back of the upper arm, around the elbow",c:["Band anchored high, elbows pinned to your sides","Push the hands down until the arms are straight","Control the band back up slowly"],easy:"Lighter band or smaller range."},
  {id:"a_extpull",n:"Banded shoulder extension pull-down",a:"shoul",z:["lats","upperback"],eq:["band"],stim:"Lats and the back of the shoulders",c:["Band anchored high in front, arms straight","Pull the hands down to the hips","Keep the ribs down; don't let the shoulders roll forward"],easy:"Lighter band; stop at the thighs."},
  {id:"a_scappush",n:"Scap push-up",a:"shoul",z:["shoulders","upperback"],eq:[],stim:"Around the shoulder blades and under the armpits",c:["High plank, arms locked straight","Let the chest sink between the shoulder blades","Push the floor away and round the upper back slightly"],easy:"Do them from the knees or with hands on a box."},
  {id:"a_pullapart",n:"Band pull-apart",a:"shoul",z:["upperback","shoulders"],eq:["band"],stim:"Between the shoulder blades and the back of the shoulders",c:["Arms straight at shoulder height, band in both hands","Pull the band to the chest by spreading the arms wide","Keep the shoulders down and control the return"],easy:"Lighter band or a wider grip."},
@@ -1962,23 +1991,20 @@ addDrills([
 // Batch C: thoracic spine, low back, posterior chain, trunk control
 Object.assign(FIGS,{
  // Jefferson curl: standing on a box, roll down one vertebra at a time, plate sinks below the toes
- c_jcurl:mk({p:[118,56],t:-90,h:-90,L1:{plant:[120,108],f:0},L2:{plant:[114,108],f:0},A1:{a:[90,90]},A2:{a:[92,92]}},
-   {p:[119,55],t:58,bend:-10,h:118,A1:{a:[88,88]},A2:{a:[90,90]}},[["box",78,110,46],["plate","w1"]]),
+ c_jcurl:mk({p:[108,54],t:-90,h:-90,L1:{plant:[110,108],f:0},L2:{plant:[106,108],f:0},A1:{a:[88,90]},A2:{a:[90,92]}},{p:[98,58],t:46,bend:-9,h:100,A1:{a:[80,80]},A2:{a:[82,82]}},[["box",72,110,48],["plate","w1"]],{cam:{yaw:18,pitch:6}}),
  // Good morning: PVC on the upper back, hips push back, flat back to near horizontal
- c_goodmorn:mk({p:[120,86],t:-90,h:-90,L1:{plant:[122,138],f:0},L2:{plant:[118,138],f:0},A1:{a:[115,-80],s:[.55,1]},A2:{a:[117,-78],s:[.55,1]}},
-   {p:[102,88],t:-12,h:-12,A1:{a:[193,-2],s:[.55,1]},A2:{a:[195,0],s:[.55,1]}},[["pipe"]]),
+ c_goodmorn:mk({p:[120,86],t:-90,h:-90,L1:{plant:[122,138],f:0},L2:{plant:[118,138],f:0},A1:{a:[112,-90],s:[.876,1]},A2:{a:[112,-90],s:[.876,1]}},{p:[102,88],t:-12,h:-12,A1:{a:[190,-12]},A2:{a:[190,-12]}},[["pipe"]],{cam:{yaw:20,pitch:8}}),
  // Supine hamstring floss: thigh held at 90°, knee straightens and bends
  c_hamfloss:mk({...SUPINE,L2:{plant:[164,136],f:-80},L1:{a:[-95,0],f:-40},A1:{a:[-50,-60]},A2:{a:[-47,-57]}},
    {L1:{a:[-95,-92],f:-178},A1:{a:[-60,-85]},A2:{a:[-57,-82]}},[["strap"]]),
  // Box hamstring stretch: heel on a box, hinge forward with a long spine
- c_boxham:mk({p:[116,84.5],t:-88,h:-88,L1:{plant:[169,92],f:-75},L2:{plant:[115,138],f:0},A1:{a:[100,60]},A2:{a:[102,62]}},
-   {t:-32,h:-25,A1:{a:[40,20]},A2:{a:[42,22]}},[["box",156,96,34]]),
+ c_boxham:mk({p:[116,84.5],t:-88,h:-88,L1:{plant:[169,90],f:-75},L2:{plant:[115,138],f:0},A1:{plant:[128,80]},A2:{plant:[126,80]}},{t:-32,h:-25,A1:{plant:[156,84]},A2:{plant:[154,84]}},[["box",156,96,34]],{cam:{yaw:15,pitch:8}}),
  // Back extension on a GHD / high bench: thighs on the pad, feet hooked, trunk rises to parallel
- c_backext:mk({prone:1,p:[110,82],t:105,h:98,L1:{a:[-1,-1],f:80},L2:{a:[1,1],f:80},A1:{a:[-30,115]},A2:{a:[-28,117]}},
-   {t:182,h:186,A1:{a:[47,192]},A2:{a:[49,194]}},[["highbench",112,89,60]]),
+ c_backext:mk({prone:1,p:[110,59],t:92,h:92,L1:{a:[-1,-1],f:80},L2:{a:[1,1],f:80},A1:{a:[-50,105]},A2:{a:[-48,107]}},
+   {t:181,h:181,A1:{a:[40,195]},A2:{a:[42,197]}},[["highbench",112,66,60],["roller",159,47]],{cam:{yaw:15,pitch:8}}),
  // Sphinx to cobra: hips stay down, forearms to straight arms
  c_cobra:mk({prone:1,p:[150,132],t:202,bend:0,h:195,L1:{a:[1,1],f:15},L2:{a:[0,0],f:15},A1:{a:[90,180]},A2:{a:[92,182]}},
-   {t:220,bend:-5,h:240,A1:{a:[131,131]},A2:{a:[133,133]}}),
+   {t:228,bend:-5,h:218,A1:{a:[70.6,133.9]},A2:{a:[72.6,135.9]}},[],{cam:{yaw:20,pitch:8}}),
  // Knees to chest
  c_kneehug:mk({...SUPINE,L1:{a:[-50,60],f:-10},L2:{a:[-48,62],f:-8},A1:{a:[0,-3]},A2:{a:[3,0]}},
    {p:[110,133],h:186,L1:{a:[-128,-12],f:-60},L2:{a:[-126,-10],f:-58},A1:{a:[-17,-69]},A2:{a:[-14,-66]}}),
@@ -2049,31 +2075,31 @@ addDrills([
 // Batch D: ankles, feet, calves, knees, loaded leg mobility, recovery tools
 Object.assign(FIGS,{
  // ATG split squat: front knee travels far past the toes, back knee drops toward the floor
- d_atgsplit:mk({p:[124,92],t:-88,L1:{plant:[150,138],f:0},L2:{plant:[90,130],f:75},A1:{a:[70,30]},A2:{a:[74,34]}},{p:[136,116],t:-80,A1:{a:[40,0]},A2:{a:[44,4]}}),
+ d_atgsplit:mk({p:[124,92],t:-88,L1:{plant:[150,138],f:0,d:1},L2:{plant:[96,131],f:75},A1:{a:[70,30]},A2:{a:[74,34]}},{p:[140,116],t:-78,A1:{a:[30,0]},A2:{a:[34,4]}},[],{cam:{yaw:15,pitch:6}}),
  // Tibialis raise: back on the wall, heels out front, toes lift
- d_tibraise:mk({p:[106,92],t:-96,L1:{plant:[130,138],f:0},L2:{plant:[126,138],f:0},A1:{a:[95,95]},A2:{a:[98,98]}},{L1:{plant:[130,138],f:-35},L2:{plant:[126,138],f:-35}},[["wall",89]]),
+ d_tibraise:mk({p:[98,88],t:-93,h:-88,L1:{plant:[118,138],f:0,d:1},L2:{plant:[116,138],f:0,d:1},A1:{a:[97,92]},A2:{a:[99,94]}},{L1:{plant:[118,138],f:-62,d:1},L2:{plant:[116,138],f:-62,d:1}},[["wall",89]],{cam:{yaw:4,pitch:4}}),
  // Heels-elevated goblet squat: heels on a plate
- d_heelsq:mk({p:[124,82],t:-90,L1:{plant:[128,131],f:40},L2:{plant:[124,131],f:40},A1:{a:[80,-75]},A2:{a:[84,-72]}},{p:[114,120],t:-74,h:-60,A1:{a:[70,-80]},A2:{a:[74,-78]}},[["box",108,134,26],["kb",0,3]]),
+ d_heelsq:mk({p:[118,85],t:-90,h:-90,L1:{plant:[122,134],f:25,d:1},L2:{plant:[120,134],f:25,d:1},A1:{a:[70,-80],s:[.95,.9],dz:[-1,-1]},A2:{a:[72,-78],s:[.95,.9],dz:[-1,-1]}},{p:[113,121],t:-82,h:-88,A1:{a:[64,-84],s:[.95,.9],dz:[-1,-1]},A2:{a:[66,-82],s:[.95,.9],dz:[-1,-1]}},[["box",116,134,10],["plate2"]],{cam:{yaw:30,pitch:8}}),
  // Kneeling toe stretch: toes tucked, sit back on the heels
- d_toestretch:mk({root:["k1",[112,137]],t:-90,L1:{a:[70,198],f:75},L2:{a:[68,196],f:75},A1:{a:[80,15]},A2:{a:[84,18]}},{L1:{a:[38,198]},L2:{a:[36,196]},t:-88}),
+ d_toestretch:mk({root:["k1",[112,137]],t:-90,L1:{a:[70,198],f:75},L2:{a:[68,196],f:75},A1:{a:[88,80]},A2:{a:[90,82]}},{L1:{a:[38,198]},L2:{a:[36,196]},t:-88,A1:{a:[84,75]},A2:{a:[86,77]}},[],{cam:{yaw:20,pitch:8}}),
  // Kneeling shin stretch: tops of the feet flat, lean back
- d_shinstretch:mk({root:["f1",[86,137]],t:-150,h:-120,L1:{a:[38,180],f:180},L2:{a:[36,180],f:180},A1:{plant:[70,138]},A2:{plant:[73,138]}},{t:-165,h:-150,L1:{a:[50,165]},L2:{a:[48,165]}}),
+ d_shinstretch:mk({root:["f1",[86,137]],t:-124,h:-104,L1:{a:[20,180],f:180},L2:{a:[22,180],f:180},A1:{plant:[72,138],hand:180},A2:{plant:[74,138],hand:180}},{t:-135,h:-110,L1:{a:[4,166]},L2:{a:[6,166]},A1:{plant:[70,138],hand:180},A2:{plant:[72,138],hand:180}},[],{cam:{yaw:10,pitch:8}}),
  // Downward dog calf pedal
- d_ddcalf:mk({p:[104,86],t:50,h:72,L1:{plant:[90,138],f:0},L2:{plant:[96,133],f:40},A1:{plant:[156,138]},A2:{plant:[152,138]}},{L1:{plant:[90,133],f:40},L2:{plant:[96,138],f:0}}),
+ d_ddcalf:mk({p:[104,86],t:50,h:72,L1:{plant:[99,130],f:62,d:1},L2:{plant:[90,138],f:0,d:1},A1:{plant:[156,138]},A2:{plant:[152,138]}},{L1:{plant:[90,138],f:0,d:1},L2:{plant:[99,130],f:62,d:1}},[],{cam:{yaw:5,pitch:6}}),
  // Rear-foot-elevated quad stretch: back foot on a bench, sink the back knee
  d_rfequad:mk({p:[124,94],t:-88,L1:{plant:[156,138],f:0},L2:{plant:[88,106],f:170},A1:{a:[90,90]},A2:{a:[94,94]}},{p:[121,111],t:-84},[["highbench",60,112,40]]),
  // Reverse Nordic: kneel tall, lean back in one line from the knees
- d_revnordic:mk({root:["k1",[124,137]],t:-90,L1:{a:[90,180],f:180},L2:{a:[90,180],f:180},A1:{a:[70,-50]},A2:{a:[74,-46]}},{t:-122,L1:{a:[58,180]},L2:{a:[58,180]},A1:{a:[38,-82]},A2:{a:[42,-78]}}),
+ d_revnordic:mk({root:["k1",[124,137]],t:-90,h:-88,L1:{a:[90,180],f:180},L2:{a:[90,180],f:180},A1:{a:[70,-50]},A2:{a:[74,-46]}},{t:-122,h:-114,L1:{a:[58,180]},L2:{a:[58,180]},A1:{a:[38,-82]},A2:{a:[42,-78]}},[],{cam:{yaw:5,pitch:6}}),
  // Foam roll quads: face down, roller under the thighs, forearms on the floor
- d_frquad:mk({p:[112,116],t:-4,h:-10,L1:{a:[165,165],f:165},L2:{a:[164,164],f:164},A1:{a:[90,0]},A2:{a:[92,2]}},{p:[128,116]},[["roller",100,134]]),
+ d_frquad:mk({p:[103,116],t:-4,h:-8,L1:{a:[168,168],f:168},L2:{a:[167,167],f:167},A1:{a:[90,0]},A2:{a:[92,2]}},{p:[129,115],A1:{a:[106,0]},A2:{a:[108,2]}},[["roller",100,134]],{cam:{yaw:10,pitch:12}}),
  // Foam roll calves: seated, calves on the roller, hips lifted
- d_frcalf:mk({p:[104,122],t:-145,h:-130,L1:{a:[2,2],f:-70},L2:{a:[-4,-2],f:-70},A1:{plant:[76,138]},A2:{plant:[80,138]}},{p:[96,122]},[["roller",146,134]]),
+ d_frcalf:mk({p:[97,121],t:-150,h:-100,L1:{a:[1,1],f:-70},L2:{a:[-5,-5],f:-70},A1:{plant:[69,138]},A2:{plant:[71,138]}},{p:[118,121],A1:{plant:[90,138]},A2:{plant:[92,138]}},[["roller",146,134]],{cam:{yaw:8,pitch:10}}),
  // Foam roll glutes: sit on the roller, ankle over the opposite knee, lean toward the crossed side
- d_frglute:mk({p:[106,123],t:-138,h:-120,L2:{plant:[142,138],f:0},L1:{a:[-20,-50],s:[.55,.63],f:5},A1:{plant:[84,138]},A2:{a:[40,-30]}},{p:[100,123],L1:{a:[-20,-40],s:[.55,.58]}},[["roller",104,134]]),
+ d_frglute:mk({p:[107,121],t:-143,h:-105,L2:{plant:[140,138],f:0},L1:{a:[-47.2,31.5],s:[.896,.27],dz:[1,-1],f:-20},A1:{plant:[80,138]},A2:{plant:[82,138]}},{p:[101,121],L1:{a:[-43.3,39.2],s:[.896,.27],dz:[1,-1],f:-20},A1:{plant:[74,138]},A2:{plant:[76,138]}},[["roller",104,134]],{cam:{yaw:20,pitch:12}}),
  // Legs up the wall
- d_legsup:mk({...SUPINE,L1:{a:[-90,-90],f:-90},L2:{a:[-92,-92],f:-92},A1:{a:[170,175]},A2:{a:[175,180]}},{L1:{a:[-90,-86],f:-80},L2:{a:[-92,-88],f:-82},h:184},[["wall",121]]),
+ d_legsup:mk({...SUPINE,L1:{a:[-90,-90],f:-90},L2:{a:[-92,-92],f:-92},A1:{a:[0,0],s:[.3,.3]},A2:{a:[0,0],s:[.3,.3]}},{L1:{a:[-90,-86],f:-80},L2:{a:[-92,-88],f:-82},h:184,A1:{a:[0,0],s:[.26,.26]},A2:{a:[0,0],s:[.26,.26]}},[["wall",121]],{cam:{yaw:-35,pitch:30}}),
  // Banded terminal knee extension
- d_tke:mk({p:[119,90],t:-86,L1:{plant:[128,138],f:0},L2:{plant:[110,133],f:40},A1:{a:[100,-40]},A2:{a:[100,-40]}},{p:[126,86],t:-88},[["bandk",206,112]]),
+ d_tke:mk({p:[119,90],t:-86,L1:{plant:[128,138],f:0},L2:{plant:[110,133],f:40},A1:{a:[100,-40]},A2:{a:[100,-40]}},{p:[126,86],t:-88},[["post",172,100,7],["bandto","k1",172,112]],{cam:{yaw:30,pitch:8}}),
 });
 addStretches([
  {id:"d_toestretch",n:"Kneeling toe stretch",a:"ankles",z:["ankles"],eq:[],pose:"kneel",hold:45,sides:0,dyn:0,stim:"Strong stretch along the soles of the feet and under the toes",c:["Kneel with all ten toes tucked under","Sit your hips back toward your heels","Stay tall and breathe; ease off before it burns"],easy:"Keep your hands on the floor in front to take weight off."},
@@ -2101,30 +2127,28 @@ const B_9090={view:"above",tl:.15,p:[110,78],t:-90,h:-90,L1:{a:[0,-90],s:[1,1],f
 const B_9090M={view:"above",tl:.15,p:[110,78],t:-90,h:-90,L1:{a:[90,180],s:[1,1],f:90},L2:{a:[0,90],s:[1,1],f:90},A1:{a:[20,10],s:[.35,.35]},A2:{a:[-20,-10],s:[.35,.35]}};
 Object.assign(FIGS,{
  // 90/90 seen from above: the lifted shin rises toward the camera (shorter in the drawing)
- b_9090ir:mk(B_9090M,{L1:{a:[90,180],s:[.97,.9],f:90}}),
- b_9090er:mk(B_9090,{L1:{a:[0,-90],s:[.9,1],f:-90}}),
+ b_9090ir:mk({view:"above",tl:.15,p:[110,78],t:-90,h:-90,L1:{a:[90,180],s:[1,1],f:180},L2:{a:[0,90],s:[1,1],f:90},A1:{a:[160,170],s:[.35,.35]},A2:{a:[-160,-170],s:[.35,.35]}},{L1:{a:[90,180],s:[.96,1],f:180}},[],{cam:{yaw:20,pitch:30}}),
+ b_9090er:mk({view:"above",tl:.3,p:[110,78],t:0,h:-90,L1:{a:[0,-90],s:[1,1],f:-90},L2:{a:[-90,-180],s:[1,1],f:180},A1:{a:[125,125],s:[.5,.5]},A2:{a:[-140,-140],s:[.5,.5]}},{L1:{a:[0,-90],s:[.94,1],f:-90}},[],{cam:{yaw:55,pitch:28}}),
  // quadruped, near leg straight out to the side (toward the camera), rock the hips back
- b_addrock:mk({root:["k2",[104,137]],t:-12,h:-20,L2:{a:[90,180],f:180},L1:{a:[90,90],s:[.52,.52],f:0},A1:{plant:[150,139]},A2:{plant:[146,139]}},
-   {t:-10,h:-14,L2:{a:[50,180]},L1:{a:[51.3,51.3],s:[.515,.515],f:0}}),
+ b_addrock:mk({root:["k2",[104,137]],t:-12,h:-20,L2:{a:[90,180],f:180},L1:{a:[90,90],s:[.52,.52],f:0},A1:{plant:[142,139]},A2:{plant:[138,139]}},
+   {t:-10,h:-14,L2:{a:[50,180]},L1:{a:[51.3,51.3],s:[.515,.515],f:0}},[],{cam:{yaw:55,pitch:22}}),
  // half-kneeling, band pulls the front hip back, front knee drives out
  b_bandext:mk({root:["k2",[100,137]],t:-90,L2:{a:[90,180],f:180},L1:{a:[0,90],s:[1,1],f:0},A1:{a:[95,90]},A2:{a:[100,95]}},
-   {t:-86,L2:{a:[75,180]},L1:{a:[0,90],s:[.74,1],f:0}},[["band","p",40,104]]),
- b_lizard:mk({root:["k2",[86,137]],t:-34,h:-30,L2:{a:[140,180],f:180},L1:{plant:[158,138],f:0},A1:{plant:[142,138]},A2:{plant:[139,138]}},
-   {t:-6,h:0,A1:{plant:[162,138]},A2:{plant:[159,138]}}),
+   {t:-86,L2:{a:[80,180]},L1:{a:[6,78],s:[.8,1],f:0}},[["post",48,96,7],["bandto","hip1",48,110]],{cam:{yaw:55,pitch:12}}),
+ b_lizard:mk({p:[115,112],t:-20,h:-10,L2:{a:[118,180],f:180},L1:{a:[-4,90],s:[.85,1],f:0},A1:{plant:[146,138]},A2:{plant:[143,138]}},
+   {p:[119,116],t:-15,h:-5,L2:{a:[125,180]},L1:{a:[-11,90],s:[.8,1]},A1:{plant:[150,138]},A2:{plant:[147,138]}},[],{cam:{yaw:30,pitch:14}}),
  // seen from the front: right ankle crossed over the left knee, then sit back
- b_fig4:mk({view:"front",p:[120,84],t:-90,h:-90,L2:{a:[90,90],s:[1,1],f:170},L1:{a:[60,180],s:[.97,1],f:180},A1:{a:[100,-40],s:[1,1]},A2:{a:[80,-140],s:[1,1]}},
-   {p:[120,100],h:-80,L2:{a:[90,90],s:[.41,1]},L1:{a:[33.7,180],s:[.667,1]},A1:{a:[95,95],s:[.35,.35]},A2:{a:[85,85],s:[.35,.35]}}),
+ b_fig4:mk({p:[110,94],t:-65,h:-40,L2:{plant:[120,138],f:0,d:1},L1:{a:[68.2,-63.4],s:[.955,.58],dz:[1,-1],f:-10},A1:{a:[95,95],s:[.93,.93],dz:[-1,-1]},A2:{a:[97,97],s:[.93,.93],dz:[-1,-1]}},
+   {p:[102,104],t:-45,h:-20,L1:{a:[39.6,-82.4],s:[.955,.58],dz:[1,-1],f:-10},A1:{a:[98.6,98.6],s:[.9,.9],dz:[-1,-1]},A2:{a:[100,100],s:[.9,.9],dz:[-1,-1]}},[],{cam:{yaw:35,pitch:10}}),
  // on your back, knee hugged in, shin swings out (hip internal rotation)
  b_kneechest:mk({p:[110,134],t:180,h:180,L2:{a:[0,0],f:-80},L1:{a:[-110,5],s:[1,1],f:-60},A1:{plant:[103,106]},A2:{plant:[101,107]}},
-   {L1:{a:[-110,5],s:[1,.5],f:-60}}),
- b_butterfly:mk({view:"front",p:[120,128],t:-90,tl:.9,h:-90,L1:{a:[5,165],s:[.75,.89],f:180},L2:{a:[175,15],s:[.75,.89],f:0},A1:{plant:[124,133]},A2:{plant:[116,133]}},
-   {tl:.85,h:-72,L1:{a:[24,179],s:[.75,.8]},L2:{a:[156,1],s:[.75,.8]}}),
+   {L1:{a:[-110,5],s:[1,.5],f:-60}},[],{cam:{yaw:90,pitch:55}}),
+ b_butterfly:mk({view:"above",tl:.15,p:[110,78],t:0,h:-90,L1:{a:[56.5,-90],s:[1,1],f:0},L2:{a:[-56.5,90],s:[1,1],f:0},A1:{a:[-50,-50],s:[.33,.33]},A2:{a:[50,50],s:[.33,.33]}},
+   {tl:.38,A1:{a:[-90,-90],s:[.2,.2]},A2:{a:[90,90],s:[.2,.2]}},[],{cam:{yaw:70,pitch:25}}),
  b_horse:mk({view:"front",p:[120,94],t:-90,L1:{plant:[152,138],f:10,d:1},L2:{plant:[88,138],f:170,d:-1},A1:{a:[70,170]},A2:{a:[110,10]}},{p:[120,114]}),
- b_gate:mk({p:[118,86],t:-90,L2:{plant:[116,138],f:0},L1:{a:[0,90],s:[1,1],f:60},A1:{a:[110,45]},A2:{a:[112,47]}},{L1:{a:[0,90],s:[.35,1],f:60}}),
- b_sqstand:mk({p:[112,88],t:30,h:60,L1:{plant:[124,138],f:0},L2:{plant:[120,138],f:0},A1:{plant:[132,138]},A2:{plant:[128,138]}},
-   {p:[104,120],t:-35,h:-40}),
- b_hydrant:mk({p:[104,111],t:-10,h:-14,L2:{a:[90,180],f:180},L1:{a:[90,180],s:[1,1],f:180},A1:{plant:[146,139]},A2:{plant:[142,139]}},
-   {L1:{a:[90,180],s:[.35,1],f:180}}),
+ b_gate:mk({p:[118,86],t:-90,L2:{plant:[116,138],f:0},L1:{a:[0,90],s:[1,1],f:60},A1:{a:[110,45]},A2:{a:[112,47]}},{L1:{a:[0,90],s:[.3,1],f:60}},[],{cam:{yaw:60,pitch:12}}),
+ b_sqstand:mk({root:["f1",[122,137]],t:60,h:80,L1:{a:[80,88],s:[1,1],f:0},L2:{a:[80,88],s:[1,1],f:0},A1:{plant:[132,136]},A2:{plant:[131,136]}},{root:["f1",[122,137]],t:-46,h:-55,L1:{a:[-25,115],s:[.85,1]},L2:{a:[-25,115],s:[.85,1]}},[],{cam:{yaw:40,pitch:10}}),
+ b_hydrant:mk({p:[104,110],t:-15,h:-15,L2:{a:[90,180],f:180},L1:{a:[90,180],s:[1,1],f:180},A1:{plant:[141,139]},A2:{plant:[140,139]}},{L1:{a:[90,180],s:[.15,1],f:180}},[],{cam:{yaw:-50,pitch:16}}),
 });
 const S=o=>Object.assign({hold:40,sides:1,dyn:1,eq:[]},o);
 addStretches([
@@ -2195,11 +2219,9 @@ Object.assign(FIGS,{
  e2_backbend:mk({p:[120,86],t:-90,h:-90,...STAND_L,A1:{a:[-92,-92]},A2:{a:[-90,-90]}},
    {p:[127,88],t:-116,bend:6,h:-150,A1:{a:[-138,-150]},A2:{a:[-136,-148]}}),
  // Standing side bend (front view): top arm reaches up and over
- e2_sidebend:mk({view:"front",p:[120,86],t:-90,h:-90,...FRONT_L,A1:{a:[95,90]},A2:{a:[-95,-92]}},
-   {p:[115,87],t:-62,bend:-5,h:-50,A1:{a:[82,85]},A2:{a:[-60,-25]}}),
+ e2_sidebend:mk({view:"front",p:[120,84.3],t:-90,h:-90,L1:{plant:[124,138],f:10,d:1},L2:{plant:[116,138],f:170,d:-1},A1:{a:[95,92]},A2:{a:[-92,-90]}},{p:[115,84.6],t:-64,bend:-5,h:-55,A1:{a:[100,96]},A2:{a:[-58,-48]}}),
  // Seated straddle side bend (front view): lean over the near leg, far arm overhead
- e2_seatside:mk({view:"front",p:[120,131],t:-90,h:-90,L1:{a:[2,2],f:0},L2:{a:[178,178],f:180},A1:{plant:[138,134]},A2:{a:[-92,-90]}},
-   {t:-52,bend:-6,h:-35,A1:{plant:[156,138]},A2:{a:[-62,-22]}}),
+ e2_seatside:mk({view:"front",p:[120,131],t:-90,h:-90,L1:{a:[0,2],s:[.75,.75],f:0},L2:{a:[180,178],s:[.75,.75],f:180},A1:{a:[75.3,78],s:[.952,.951]},A2:{a:[-92,-90],s:[.97,.97]}},{t:-50,bend:-6,h:-40,A1:{a:[83.2,119],s:[.801,.836]},A2:{a:[-60,-40],s:[.95,.95]}}),
  // Supine knee-drop twist, seen from above: 90/90 legs fall to one side, arms out, opposite shoulder down
  e2_twist:mk({top:true,p:[124,78],t:180,h:180,L1:{a:[0,0],s:[.12,1],f:0},L2:{a:[0,0],s:[.12,1],f:0},A1:{a:[90,90]},A2:{a:[-90,-90]}},
    {h:160,L1:{a:[90,0],s:[1,1],f:0},L2:{a:[84,-4],s:[1,1],f:0}}),
@@ -2207,23 +2229,17 @@ Object.assign(FIGS,{
  e2_standquad:mk({p:[120,86],t:-94,h:-90,L2:{plant:[122,138],f:0},L1:{a:[75,-120],f:-160},A1:{plant:[114,89]},A2:{plant:[152,62]}},
    {t:-96,L1:{a:[102,-105],f:-175},A1:{plant:[108,88]}},[["frame",156]]),
  // Half-kneeling quad stretch: back foot pulled to the glute by hand, hips pushed forward (no wall)
- e2_kneelquad:mk({root:["k1",[100,137]],t:-96,h:-90,L1:{a:[95,-112],f:-170},L2:{plant:[146,138],f:0},A1:{plant:[92,113]},A2:{a:[70,30]}},
-   {root:["k1",[100,137]],t:-92,h:-88,L1:{a:[114,-100],f:-170},A1:{plant:[103,112]},A2:{a:[60,20]}}),
+ e2_kneelquad:mk({root:["k1",[100,137]],t:-88,h:-88,L1:{a:[95,-108],f:-170},L2:{plant:[132,138],f:0},A1:{plant:[92,111]},A2:{plant:[123,107]}},{root:["k1",[100,137]],t:-90,h:-88,L1:{a:[108,-100],f:-170},A1:{plant:[95.5,110]},A2:{plant:[128,107]}},[["pad",100,14,22]],{cam:{yaw:-30,pitch:8}}),
  // Prone quad stretch with strap: lying face down, strap pulls the heel to the glute
- e2_pronequad:mk({prone:1,p:[150,131],t:182,h:186,L1:{a:[1,-60],f:-30},L2:{a:[0,0],f:8},A1:{a:[-10,-15]},A2:{a:[178,178]}},
-   {L1:{a:[1,-112],f:-80},A1:{a:[-25,-40]}},[["strap"]]),
+ e2_pronequad:mk({prone:1,p:[150,131],t:182,h:186,L1:{a:[1,-70],f:-40},L2:{a:[0,0],f:8},A1:{a:[175,-60]},A2:{a:[178,178]}},{L1:{a:[1,-158],f:-70},A1:{a:[175,-80]}},[["strap"]]),
  // Half-kneeling shin stretch: back foot laces-down, back knee lifts off the floor
- e2_tibkneel:mk({root:["f1",[92,136]],t:-88,h:-88,L1:{a:[95,180],f:178},L2:{plant:[140,138],f:0},A1:{a:[82,60]},A2:{a:[86,62]}},
-   {root:["f1",[92,136]],t:-80,h:-80,L1:{a:[70,150],f:168},A1:{a:[70,45]},A2:{a:[74,48]}}),
+ e2_tibkneel:mk({root:["f1",[92,136]],t:-88,h:-85,L1:{a:[45,180],f:178},L2:{plant:[128,138],f:0},A1:{plant:[110,112]},A2:{plant:[124,104]}},{root:["f1",[92,136]],L1:{a:[45,172],f:178},A1:{plant:[110,108]},A2:{plant:[124,100]}}),
  // Standing toe-drag: top of the back foot on the floor, knee bends forward to drag it
- e2_toedrag:mk({p:[120,86],t:-88,h:-88,L2:{plant:[126,138],f:0},L1:{plant:[106,132],f:120,d:1},A1:{a:[95,85]},A2:{a:[97,88]}},
-   {p:[124,88],L1:{plant:[100,132],f:150,d:1}}),
+ e2_toedrag:mk({p:[120,86],t:-88,h:-86,L2:{plant:[126,138],f:0},L1:{plant:[99,134],f:140,d:1},A1:{a:[95,88]},A2:{a:[97,90]}},{p:[123,94],L1:{plant:[99,134],f:155,d:1}}),
  // Plantar fascia ball roll: one foot rolls a lacrosse ball forward and back (needs "football" prop)
- e2_ballroll:mk({p:[118,86],t:-88,h:-80,L2:{plant:[114,138],f:0},L1:{plant:[136,128],f:0},A1:{a:[95,85]},A2:{plant:[154,68]}},
-   {L1:{plant:[128,128],f:0}},[["football"],["frame",160]]),
+ e2_ballroll:mk({p:[118,86],t:-90,h:-78,L2:{plant:[115,138],f:0},L1:{plant:[133,127],f:0},A1:{a:[95,88]},A2:{plant:[146,72],hand:-90}},{L1:{plant:[125,127],f:0}},[["ball2",132,137.5,7],["post",147,20,-15]],{cam:{yaw:40,pitch:14}}),
  // Big-toe wall stretch: toes up the wall, heel down, knee drives forward to the wall
- e2_bigtoe:mk({p:[136,88],t:-86,h:-86,L1:{plant:[150,136],f:-15},L2:{plant:[118,138],f:0},A1:{plant:[166,64]},A2:{plant:[164,66]}},
-   {p:[145,92],L1:{plant:[150,136],f:-15},A1:{plant:[166,64]},A2:{plant:[164,66]}},[["wall",161]]),
+ e2_bigtoe:mk({p:[133,90],t:-80,h:-82,L1:{plant:[150.5,136.5],f:-30},L2:{plant:[110,138],f:0},A1:{plant:[156,64],hand:-90},A2:{plant:[155,66],hand:-90}},{p:[139,93],t:-82},[["wall",161]],{cam:{yaw:10,pitch:8}}),
 });
 addStretches([
  {id:"e2_updog",n:"Upward-facing dog",a:"thoracic",z:["core","hipflex","lowback"],eq:[],pose:"sideLying",hold:30,sides:0,dyn:1,
@@ -2286,27 +2302,27 @@ addStretches([
 // Batch E1: neck & traps, biceps, triceps, forearms & wrists, chest
 Object.assign(FIGS,{
  // neck: front view, head side-bends toward the right shoulder, right hand over the head assists
- e1_uptrap:mk({view:"front",p:[120,86],t:-90,h:-90,...FRONT_L,A1:{plant:[132,89],d:-1,hand:90},A2:{a:[95,92]}},{h:-45,A1:{plant:[121,33],d:-1,hand:75},A2:{a:[98,94]}},[],{cam:{yaw:84,pitch:8}}),
+ e1_uptrap:mk({view:"front",p:[120,84.3],t:-90,h:-90,L1:{plant:[127,138],f:10,d:1},L2:{plant:[113,138],f:170,d:-1},A1:{plant:[132,89],d:-1,hand:90},A2:{a:[95,92]}},{h:-35,A1:{plant:[122.4,34.8],d:-1,hand:75},A2:{a:[98,94]}},[],{cam:{yaw:84,pitch:8}}),
  // neck: side view, seated, head drops forward toward the chest, hand on the back of the head
- e1_levator:mk({p:[100,111],t:-90,h:-90,L1:{plant:[136,138],f:0},L2:{plant:[132,138],f:0},A1:{plant:[103,56]},A2:{a:[95,85]}},{h:-12,A1:{plant:[112,62]}},[["box",76,114,32]]),
+ e1_levator:mk({p:[100,111],t:-90,h:-60,hy:0,L1:{plant:[136,138],f:0},L2:{plant:[132,138],f:0},A1:{plant:[99.5,54],hand:-60},A2:{plant:[100,113],hand:90}},{h:-15,hy:40,A1:{plant:[110,57.5],hand:-15}},[["box",76,114,32]],{cam:{yaw:35,pitch:10}}),
  // neck: side view, back to a wall, head slides straight back
- e1_chintuck:mk({p:[121,86],t:-90,h:-50,L1:{plant:[126,138],f:0},L2:{plant:[120,138],f:0},A1:{a:[92,90]},A2:{a:[95,92]}},{h:-100},[["wall",108]]),
+ e1_chintuck:mk({p:[119,86],t:-90,h:-74,L1:{plant:[124,138],f:0},L2:{plant:[118,138],f:0},A1:{a:[92,90]},A2:{a:[95,92]}},{h:-92},[["wall",108]]),
  // neck: side view, hands pin the collarbone, chin lifts up and back
- e1_scm:mk({p:[120,86],t:-90,h:-90,...STAND_L,A1:{plant:[128,56]},A2:{plant:[127,58]}},{h:-132}),
+ e1_scm:mk({p:[120,86],t:-90,h:-90,hy:0,...STAND_L,A1:{a:[76.4,-75.2],s:[.998,.836],dz:[1,-1],hand:-70},A2:{a:[67.7,-79.1],s:[.968,.632],dz:[-1,-1],hand:-70}},{h:-125,hy:35},[],{cam:{yaw:60,pitch:6}}),
  // biceps: side view, palm on the wall behind at shoulder height, body steps away
- e1_wallbicep:mk({p:[118,86],t:-90,L1:{plant:[128,138],f:0},L2:{plant:[110,138],f:0},A1:{plant:[81,51]},A2:{a:[92,88]}},{p:[119.5,86],t:-89,A2:{a:[88,80]}},[["wall",80]]),
+ e1_wallbicep:mk({p:[119,86],t:-90,h:-90,hy:0,L1:{plant:[124,138],f:0},L2:{plant:[114,138],f:0},A1:{a:[172,172],s:[.78,.78],hand:-90},A2:{a:[94,90]}},{hy:-30,A1:{a:[180,180],s:[.78,.78],hand:-90}},[["swall",43,96]],{cam:{yaw:170,pitch:10}}),
  // biceps/chest: side view, hands joined behind the back, straight arms lift
  e1_clasp:mk({p:[120,86],t:-90,h:-90,...STAND_L,A1:{a:[105,105]},A2:{a:[107,107]}},{t:-93,h:-104,A1:{a:[148,148]},A2:{a:[150,150]}},[["towel"]]),
  // biceps: side view, seated, hands planted behind, hips slide forward
  e1_floorbicep:mk({p:[100,132],t:-118,h:-80,L1:{plant:[138,138],f:0},L2:{plant:[134,138],f:0},A1:{plant:[70,138]},A2:{plant:[67,138]}},{p:[108,133],t:-123,h:-85}),
  // triceps: side view, near elbow points up, hand behind the neck, left hand pulls the elbow
- e1_ohtri:mk({p:[120,86],t:-90,h:-90,...STAND_L,A1:{a:[-100,95]},A2:{a:[-95,105]}},{h:-82,A1:{a:[-112,100]},A2:{a:[-102,100]}}),
+ e1_ohtri:mk({view:"front",p:[120,84.3],t:-90,h:-90,L1:{plant:[127,138],f:10,d:1},L2:{plant:[113,138],f:170,d:-1},A1:{a:[-94,98],s:[.97,.9],back:1},A2:{a:[-118,10],s:[.9,.9],back:1}},{h:-98,A1:{a:[-100,92],s:[.95,.88]},A2:{a:[-125,5],s:[.92,.92]}},[],{cam:{yaw:95,pitch:8}}),
  // forearms: front view, palms together in front of the chest, hands lower toward the waist
- e1_prayer:mk({view:"front",p:[120,86],t:-90,...FRONT_L,A1:{a:[95,-114],s:[.8,.96]},A2:{a:[85,-66],s:[.8,.96]}},{A1:{a:[40,168],s:[.6,.98]},A2:{a:[140,12],s:[.6,.98]}}),
+ e1_prayer:mk({view:"front",p:[120,84.3],t:-90,h:-90,L1:{plant:[127,138],f:10,d:1},L2:{plant:[113,138],f:170,d:-1},A1:{a:[52,180],s:[.78,.97],hand:-90},A2:{a:[128,0],s:[.78,.97],hand:-90}},{A1:{a:[66,200],s:[.94,.97],hand:-90},A2:{a:[114,-20],s:[.94,.97],hand:-90}}),
  // forearms: front view, right arm reaches forward and straightens, left hand pulls the fingers back
- e1_wristflex:mk({view:"front",p:[120,86],t:-90,...FRONT_L,A1:{a:[90,150],s:[.75,.45]},A2:{a:[120,30],s:[.6,.6]}},{A1:{a:[135,135],s:[.3,.3]},A2:{a:[40,20],s:[.38,.38]}}),
+ e1_wristflex:mk({p:[120,86],t:-90,h:-90,...STAND_L,A1:{a:[1.4,-1.5],s:[.899,.899],dz:[-1,-1],hand:20},A2:{a:[95,92],s:[1,1],dz:[-1,-1],hand:90}},{A1:{hand:100},A2:{a:[26.9,-6.8],s:[.962,.953],hand:-90}},[],{cam:{yaw:40,pitch:10}}),
  // chest: lying on the back seen from above, arms sweep from a W to a Y along the floor
- e1_snowangel:mk({top:true,p:[150,78],t:180,h:180,L1:{a:[0,0],f:0},L2:{a:[2,2],f:0},A1:{a:[70,160]},A2:{a:[-70,-160]}},{A1:{a:[135,135]},A2:{a:[-135,-135]}}),
+ e1_snowangel:mk({top:true,p:[150,78],t:180,h:180,L1:{a:[0,0],f:0},L2:{a:[2,2],f:0},A1:{a:[90,180]},A2:{a:[-90,180]}},{A1:{a:[135,135]},A2:{a:[-135,-135]}},[],{cam:{yaw:90,pitch:50}}),
 });
 
 addStretches([
