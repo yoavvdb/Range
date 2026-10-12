@@ -448,6 +448,22 @@ const KEY="range-mobility-v2";
 const EXAMPLE={shoulders:58,overhead:44,thoracic:66,hips:52,posterior:71,ankles:38};
 let S={scores:null,tests:[],sessions:[],sports:["crossfit"],equip:EQUIP.map(e=>e.k),moves:{},settings:{sound:true,voice:false,easy:false,ready:10}};
 try{const r=localStorage.getItem(KEY);if(r){const o=JSON.parse(r);S=Object.assign(S,o);S.settings=Object.assign({sound:true,voice:false,easy:false,ready:10},o.settings||{})}}catch(e){}
+/* ---- error capture: keep the last few errors so a crash on the phone can be diagnosed ---- */
+function noteError(err,where){
+  try{const e={at:new Date().toISOString(),where:where||"",msg:String(err&&err.message||err),stack:String(err&&err.stack||"").split("\n").slice(0,6).join("\n"),screen:(typeof stack!=="undefined"&&stack.length)?stack[stack.length-1].name:"",ua:navigator.userAgent.slice(0,140)};
+    const list=JSON.parse(localStorage.getItem("range-errors")||"[]");list.push(e);localStorage.setItem("range-errors",JSON.stringify(list.slice(-5)))}catch(_){}
+}
+function errToast(){
+  if(document.getElementById("errToast"))return;
+  const d=document.createElement("div");d.id="errToast";d.setAttribute("role","alert");
+  d.style.cssText="position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:9999;background:#2A1A1C;color:#F7D6D3;border:1px solid #6B2E2E;border-radius:12px;padding:12px 14px;font:14px/1.4 system-ui;display:grid;gap:8px";
+  d.innerHTML='<b>Something went wrong.</b><span>Your data is safe. Copy the details and send them to Claude so it can be fixed.</span><span style="display:flex;gap:8px"><button id="errCopy" style="flex:1;padding:10px;border-radius:10px;background:#F07167;color:#1b0d0e;font-weight:700">Copy details</button><button id="errClose" style="padding:10px 14px;border-radius:10px;background:#3a2427;color:#F7D6D3">Close</button></span>';
+  document.body.appendChild(d);
+  d.querySelector("#errClose").onclick=()=>d.remove();
+  d.querySelector("#errCopy").onclick=async()=>{const t=localStorage.getItem("range-errors")||"";try{await navigator.clipboard.writeText(t);d.querySelector("#errCopy").textContent="Copied"}catch(_){prompt("Copy this:",t)}};
+}
+addEventListener("error",e=>{noteError(e.error||e.message,"page");errToast()});
+addEventListener("unhandledrejection",e=>{noteError(e.reason,"promise");errToast()});
 function applyFigStyle(){document.documentElement.dataset.fig=(S.settings&&S.settings.figStyle)||"gymkit"}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 const scores=()=>S.scores||EXAMPLE;
@@ -895,13 +911,11 @@ const FIG3D=(()=>{
   let M={},geo={},rig=null,ghost=null,extras=null;
   function lathe(profile,seg=28){const pts=profile.map(([y,r])=>new T.Vector2(r,y));const g=new T.LatheGeometry(pts,seg);g.computeVertexNormals();return g}
   function setup(){
-    R=new T.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:true});
-    R.setPixelRatio(1);R.outputColorSpace=T.SRGBColorSpace;R.toneMapping=T.ACESFilmicToneMapping;R.toneMappingExposure=1.05;
-    R.shadowMap.enabled=true;R.shadowMap.type=T.PCFSoftShadowMap;
+    R=makeRenderer(false);
     scene=new T.Scene();cam=new T.PerspectiveCamera(28,1.6,1,4000);
     scene.add(new T.HemisphereLight(0xffffff,0x8a8f99,1.1));
     const key=new T.DirectionalLight(0xffffff,2.2);key.position.set(120,260,180);key.castShadow=true;
-    key.shadow.mapSize.set(2048,2048);Object.assign(key.shadow.camera,{left:-220,right:220,top:220,bottom:-220,near:10,far:900});key.shadow.radius=6;key.shadow.bias=-.0008;
+    key.shadow.mapSize.set(1024,1024);Object.assign(key.shadow.camera,{left:-220,right:220,top:220,bottom:-220,near:10,far:900});key.shadow.radius=6;key.shadow.bias=-.0008;
     scene.add(key);scene.add(key.target);
     const rim=new T.DirectionalLight(0xdfe8ff,1.1);rim.position.set(-200,160,-220);scene.add(rim);
     const fill=new T.DirectionalLight(0xfff1e6,.5);fill.position.set(-150,60,200);scene.add(fill);
@@ -918,6 +932,16 @@ const FIG3D=(()=>{
     geo.capsule=new T.CapsuleGeometry(1,1,8,20);
     makeMaterials();
     rig=buildRig(false);ghost=buildRig(true);extras=new T.Group();scene.add(extras);
+  }
+  // two renderers with fixed sizes: one for the live demo, one for thumbnails (resizing a WebGL canvas every
+  // frame reallocates GPU memory, which phones punish by reloading the page)
+  let TR=null,liveSize="",thumbSize="";
+  function makeRenderer(keep){
+    const r=new T.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:keep,powerPreference:"low-power"});
+    r.setPixelRatio(1);r.outputColorSpace=T.SRGBColorSpace;r.toneMapping=T.ACESFilmicToneMapping;r.toneMappingExposure=1.05;
+    r.shadowMap.enabled=true;r.shadowMap.type=T.PCFSoftShadowMap;
+    r.domElement.addEventListener("webglcontextlost",e=>{e.preventDefault();disable("WebGL context lost")});
+    return r;
   }
   function makeMaterials(){
     const style=document.documentElement.dataset.fig||"gymkit";
@@ -1103,59 +1127,76 @@ const FIG3D=(()=>{
     add2(props(B,D.P.props||[],{cx:D.cx}));
     if(guide){const ak="arrow|"+M.style;if(!(ak in D))D[ak]=arrow(D.BA,D.BB,camDir(D,0));add2(D[ak])}
   }
-  function renderTo(key,t,o,w,h,yaw=0){
-    if(M.style!==(document.documentElement.dataset.fig||"gymkit")){makeMaterials();[rig,ghost].forEach(r=>scene.remove(r.G));rig=buildRig(false);ghost=buildRig(true)}
-    R.setSize(w,h,false);setFigure(key,t,o.zones,o.sides,o.guide!==false);frame(key,w/h,yaw);R.render(scene,cam);return R.domElement;
+  function draw(r,key,t,o,w,h,yaw=0){
+    if(M.style!==(document.documentElement.dataset.fig||"gymkit")){makeMaterials();[rig,ghost].forEach(x=>scene.remove(x.G));rig=buildRig(false);ghost=buildRig(true);for(const k in cache)for(const j in cache[k])if(j.startsWith("arrow|"))delete cache[k][j]}
+    const sz=w+"x"+h;if(r===R){if(liveSize!==sz){R.setSize(w,h,false);liveSize=sz}}else if(thumbSize!==sz){r.setSize(w,h,false);thumbSize=sz}
+    setFigure(key,t,o.zones,o.sides,o.guide!==false);frame(key,w/h,yaw);r.render(scene,cam);return r.domElement;
   }
+  function renderTo(key,t,o,w,h,yaw=0){if(!TR)TR=makeRenderer(true);return draw(TR,key,t,o,w,h,yaw)}
 
   /* ---------- DOM: upgrade 2D figures ---------- */
   function opts(el){return{zones:el.dataset.zones?el.dataset.zones.split(","):[],sides:!!el.dataset.sides}}
+  const near=el=>{const r=el.getBoundingClientRect();return r.bottom>-innerHeight&&r.top<innerHeight*2};
   function upgrade(){
     if(!ready)return;
     document.querySelectorAll("svg.fig:not([data-x3])").forEach(el=>{
-      el.dataset.x3=1;const key=el.dataset.pose;if(!key)return;
+      const key=el.dataset.pose;if(!key){el.dataset.x3=1;return}
       const o=opts(el),anim=el.classList.contains("anim");
-      if(anim){const cv=document.createElement("canvas");cv.className=el.getAttribute("class")+" f3";Object.assign(cv.dataset,el.dataset);cv.dataset.yaw="0";el.replaceWith(cv);hookDrag(cv);return}
+      if(anim){el.dataset.x3=1;const cv=document.createElement("canvas");cv.className=el.getAttribute("class")+" f3";Object.assign(cv.dataset,el.dataset);cv.dataset.yaw="0";el.replaceWith(cv);hookDrag(cv);return}
       const t=+(el.dataset.t||.75),ck=[key,t,o.zones.join(","),o.sides,M.style].join("|");
-      const img=new Image();img.className=el.getAttribute("class")+" f3";img.alt="";img.decoding="async";
-      if(thumbs.has(ck)){img.src=thumbs.get(ck);el.replaceWith(img);return}
+      if(thumbs.has(ck)){el.dataset.x3=1;const img=new Image();img.className=el.getAttribute("class")+" f3";img.alt="";img.src=thumbs.get(ck);el.replaceWith(img);return}
+      if(!near(el))return; // off screen: stays 2D until you scroll near it
+      el.dataset.x3=1;const img=new Image();img.className=el.getAttribute("class")+" f3";img.alt="";
       queue.push({el,img,key,t,o,ck});
     });
     pump();
   }
   function pump(){
     if(pumping||!queue.length)return;pumping=true;
-    const step=()=>{const t0=performance.now();
-      while(queue.length&&performance.now()-t0<12){const q=queue.shift();if(!q.el.isConnected)continue;
-        const url=thumbs.get(q.ck)||(()=>{renderTo(q.key,q.t,q.o,640,400);const u=R.domElement.toDataURL("image/webp",.86);thumbs.set(q.ck,u);return u})();
-        q.img.src=url;q.el.replaceWith(q.img)}
-      if(queue.length)requestAnimationFrame(step);else pumping=false};
+    const step=()=>{
+      if(!ready){pumping=false;return}
+      const q=queue.shift();
+      if(!q||!q.el.isConnected){if(queue.length)requestAnimationFrame(step);else pumping=false;return}
+      const done=url=>{q.img.src=url;if(q.el.isConnected)q.el.replaceWith(q.img);if(queue.length)requestAnimationFrame(step);else pumping=false};
+      if(thumbs.has(q.ck))return done(thumbs.get(q.ck));
+      try{const c=renderTo(q.key,q.t,q.o,480,300);
+        c.toBlob(b=>{if(!b){pumping=false;return}const u=URL.createObjectURL(b);thumbs.set(q.ck,u);done(u)},"image/png")}
+      catch(e){disable(e)}
+    };
     requestAnimationFrame(step);
   }
   function hookDrag(cv){
-    let x0=null,y0=0;
-    cv.addEventListener("pointerdown",e=>{x0=e.clientX;cv.setPointerCapture(e.pointerId);cv.dataset.drag=1});
+    let x0=null;
+    cv.addEventListener("pointerdown",e=>{x0=e.clientX;try{cv.setPointerCapture(e.pointerId)}catch(_){};cv.dataset.drag=1});
     cv.addEventListener("pointermove",e=>{if(x0==null)return;cv.dataset.yaw=(+cv.dataset.yaw||0)+(e.clientX-x0)*.012;x0=e.clientX;cv.dataset.drawn=""});
     const end=e=>{if(x0!=null&&Math.abs(+cv.dataset.yaw)<.02)cv.dataset.drag="";x0=null};
     cv.addEventListener("pointerup",end);cv.addEventListener("pointercancel",end);
   }
   function tick(ts){
-    if(ready){
+    if(!ready)return;
+    try{
       document.querySelectorAll("canvas.fig.f3.anim").forEach(cv=>{
         const paused=cv.closest(".player")&&animPaused;if(paused&&cv.dataset.drawn)return;
         const r=cv.getBoundingClientRect();if(!r.width||r.bottom<0||r.top>innerHeight)return;
-        const dpr=Math.min(2,devicePixelRatio||1),w=Math.round(r.width*dpr),h=Math.round(r.height*dpr);
+        const dpr=Math.min(1.5,devicePixelRatio||1),w=Math.min(960,Math.round(r.width*dpr)),h=Math.round(w/1.6);
         if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}
         const per=+cv.dataset.period||3400,t=REDUCED?.75:cv.dataset.mode==="iso"?.86+.14*(.5-.5*Math.cos(ts/4200*2*Math.PI)):.5-.5*Math.cos(ts/per*2*Math.PI);
-        renderTo(cv.dataset.pose,t,opts(cv),w,h,+cv.dataset.yaw||0);
-        const g=cv.getContext("2d");g.clearRect(0,0,w,h);g.drawImage(R.domElement,0,0,w,h);cv.dataset.drawn=paused?"1":"";
+        const src=draw(R,cv.dataset.pose,t,opts(cv),w,h,+cv.dataset.yaw||0);
+        const g=cv.getContext("2d");g.clearRect(0,0,w,h);g.drawImage(src,0,0,w,h);cv.dataset.drawn=paused?"1":"";
       });
       upgrade();
-    }
+    }catch(e){disable(e);return}
     requestAnimationFrame(tick);
   }
-  function supported(){try{const c=document.createElement("canvas");return!!(c.getContext("webgl2")||c.getContext("webgl"))}catch(e){return false}}
-  function start(){if(loading||!supported())return;loading=import(SRC).then(m=>{T=m;setup();ready=true;document.documentElement.classList.add("fig3d");requestAnimationFrame(tick)}).catch(e=>{failed=true;console.warn("3D figures unavailable, using 2D",e)})}
+  // anything goes wrong in 3D: switch back to the 2D figure for this session, never take the app down
+  function disable(err){
+    if(!ready&&failed)return;ready=false;failed=true;console.warn("3D figures off:",err);noteError(err,"3D");
+    document.documentElement.classList.remove("fig3d");
+    document.querySelectorAll("canvas.fig.f3").forEach(cv=>{const d=document.createElement("div");d.innerHTML=fig(cv.dataset.pose,null,{anim:true,zones:cv.dataset.zones?cv.dataset.zones.split(","):null,sides:!!cv.dataset.sides,mode:cv.dataset.mode,period:+cv.dataset.period||0});cv.replaceWith(d.firstElementChild)});
+    document.querySelectorAll("svg.fig[data-x3]").forEach(el=>el.removeAttribute("data-x3"));
+  }
+  function supported(){try{const c=document.createElement("canvas"),g=c.getContext("webgl2")||c.getContext("webgl");if(g&&g.getExtension("WEBGL_lose_context"))g.getExtension("WEBGL_lose_context").loseContext();return!!g}catch(e){return false}}
+  function start(){if(loading||!supported())return;loading=import(SRC).then(m=>{T=m;try{setup();ready=true;document.documentElement.classList.add("fig3d");requestAnimationFrame(tick)}catch(e){disable(e)}}).catch(e=>{failed=true;console.warn("3D figures unavailable, using 2D",e)})}
   return{start,get ready(){return ready},renderTo,lift,clear(){thumbs.clear()}};
 })();
 
@@ -1277,7 +1318,8 @@ function whyFor(ex,o,moves,ctx,parts,zd){
 /* ================= router ================= */
 let stack=[{name:"home",p:{}}];
 const ACT={};
-document.addEventListener("click",e=>{const el=e.target.closest("[data-act]");if(!el)return;const f=ACT[el.dataset.act];if(f)f(el.dataset,el,e)});
+document.addEventListener("click",e=>{const el=e.target.closest("[data-act]");if(!el)return;const f=ACT[el.dataset.act];if(!f)return;
+  try{const r=f(el.dataset,el,e);if(r&&r.catch)r.catch(err=>{noteError(err,el.dataset.act);errToast()})}catch(err){noteError(err,el.dataset.act);errToast()}});
 function go(name,p={}){stack.push({name,p});render();window.scrollTo(0,0)}
 function back(){if(stack.length>1)stack.pop();render()}
 ACT.back=back;
