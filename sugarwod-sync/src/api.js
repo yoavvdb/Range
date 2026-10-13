@@ -49,7 +49,8 @@ export async function fetchSugarwod(page, { back = 7, ahead = 7, historyDays = 6
   });
   raw.results.forEach((r) => {
     const iso = toIso(r.dateInt);
-    if (iso >= from && iso < today) day(iso).results.push({ title: clean(r.title), text: clean(r.description), result: `${clean(r.title) || "Result"}: ${r.result}${r.rx ? " RX" : " scaled"}${r.pr ? " · PR" : ""}`, loggedAt: r.createdAt || null });
+    // include today: a score logged right after class must show up straight away
+    if (iso >= from && iso <= today) day(iso).results.push({ title: clean(r.title), text: clean(r.description), result: `${clean(r.title) || "Result"}: ${r.result}${r.rx ? " RX" : " scaled"}${r.pr ? " · PR" : ""}`, loggedAt: r.createdAt || null });
   });
 
   const workouts = [...days.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([date, d]) => {

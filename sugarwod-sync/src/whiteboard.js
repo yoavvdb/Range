@@ -76,6 +76,8 @@ export async function loginWithPassword(email, password) {
     // a saved session that is still valid sends /login straight on to the app
     await page.waitForURL((u) => !isLoginUrl(u.toString()), { timeout: 3000 }).catch(() => {});
     if (!isLoginUrl(page.url())) { await saveSession(ctx); return true; }
+    // the saved browser profile may have pre-filled the fields: clear them so the typed text isn't doubled
+    await page.fill('input[name="username"]', "");
     await page.click('input[name="username"]');
     await page.keyboard.type(email, { delay: 35 });
     // SugarWOD asks for the email first, then shows the password step
@@ -84,6 +86,7 @@ export async function loginWithPassword(email, password) {
       await cont.click();
       await page.locator('input[name="password"]').waitFor({ state: "visible", timeout: 20000 });
     }
+    await page.fill('input[name="password"]', "");
     await page.click('input[name="password"]');
     await page.keyboard.type(password, { delay: 35 });
     const resp = page.waitForResponse((r) => r.url().includes("/api/v1/login"), { timeout: 30000 }).catch(() => null);

@@ -2884,6 +2884,9 @@ function mergeRows(rows,source){
   rows.forEach((w,i)=>{
     if(!w.date||!/^\d{4}-\d{2}-\d{2}$/.test(w.date)){skipped++;return}
     if(have.has(key(w))){const o=S.training.find(x=>key(x)===key(w));if(o){if(w.result&&!o.result&&o.date>=recent)fresh.push(o);if(w.result)o.result=w.result;if(w.loggedAt)o.loggedAt=w.loggedAt}return}
+    // a score for a day we only had the programming for: replace that synced entry instead of adding a second one
+    const plan=w.result&&S.training.find(x=>x.date===w.date&&x.source===source&&!x.result);
+    if(plan){plan.title=w.title||"";plan.text=w.text||"";plan.result=w.result;plan.loggedAt=w.loggedAt||null;plan.moves=parseMoves(plan.title+"\n"+plan.text);have.add(key(w));if(plan.date>=recent)fresh.push(plan);return}
     have.add(key(w));added++;
     const row={id:"i"+Date.now().toString(36)+i,date:w.date,title:w.title||"",text:w.text||"",result:w.result||"",loggedAt:w.loggedAt||null,source,moves:parseMoves((w.title||"")+"\n"+(w.text||"")),done:w.date<todayIso()};
     S.training.push(row);if(row.result&&row.date>=recent)fresh.push(row);
