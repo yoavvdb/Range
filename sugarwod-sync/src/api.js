@@ -9,8 +9,8 @@ const toIso = (n) => { const s = String(n); return `${s.slice(0, 4)}-${s.slice(4
 const sundayOf = (iso) => { const [y, m, d] = iso.split("-").map(Number); const x = new Date(y, m - 1, d); x.setDate(x.getDate() - x.getDay()); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`; };
 const clean = (s) => String(s || "").replace(/\r/g, "").replace(/\n{3,}/g, "\n\n").trim();
 
-export async function fetchSugarwod(page, { back = 7, ahead = 7, historyDays = 60, track = process.env.SUGARWOD_TRACK } = {}) {
-  await page.goto("https://app.sugarwod.com/workouts/calendar", { waitUntil: "networkidle", timeout: 45000 });
+export async function fetchSugarwod(page, { back = 7, ahead = 7, historyDays = 60, track = process.env.SUGARWOD_TRACK, base = "https://app.sugarwod.com" } = {}) {
+  await page.goto(`${base}/workouts/calendar`, { waitUntil: "networkidle", timeout: 45000 });
   const today = todayIso(), from = addDays(today, -Math.max(back, historyDays)), to = addDays(today, ahead);
   const weeks = []; for (let d = sundayOf(addDays(today, -back)); d <= to; d = addDays(d, 7)) weeks.push(toInt(d));
   // older weeks, only to work out which program you follow from your logged results

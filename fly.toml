@@ -1,0 +1,23 @@
+# Example for Fly.io (fly launch --copy-config). One small machine is enough to start.
+app = "range-app"            # change to a unique name
+primary_region = "fra"       # pick the region nearest your users
+
+[build]
+
+[env]
+  PORT = "8080"
+  RANGE_DB = "/data/range.db"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "off"  # keep it running so hourly syncs happen
+  min_machines_running = 1
+
+[[mounts]]
+  source = "range_data"
+  destination = "/data"
+
+[[vm]]
+  memory = "1gb"              # headless Chromium needs some room
+  cpus = 1

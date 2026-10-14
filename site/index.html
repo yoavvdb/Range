@@ -469,6 +469,9 @@ const OPT_SCORES=[22,48,72,94];
 const KEY="range-mobility-v2";
 const EXAMPLE={shoulders:58,overhead:44,thoracic:66,hips:52,posterior:71,ankles:38};
 let S={scores:null,tests:[],sessions:[],sports:["crossfit"],equip:EQUIP.map(e=>e.k),moves:{},settings:{sound:true,voice:false,easy:false,ready:10}};
+const S_FRESH=JSON.stringify(S); // a new person's starting state (account mode)
+// account mode: when the Range server hosts the app it sets window.RANGE_API (each person signs in and connects their own platforms)
+const API=typeof window.RANGE_API==="string"?window.RANGE_API:null;let ACCOUNT=null;
 try{const r=localStorage.getItem(KEY);if(r){const o=JSON.parse(r);S=Object.assign(S,o);S.settings=Object.assign({sound:true,voice:false,easy:false,ready:10},o.settings||{})}}catch(e){}
 /* ---- error capture: keep the last few errors so a crash on the phone can be diagnosed ---- */
 function noteError(err,where){
@@ -487,7 +490,7 @@ function errToast(){
 addEventListener("error",e=>{noteError(e.error||e.message,"page");errToast()});
 addEventListener("unhandledrejection",e=>{noteError(e.reason,"promise");errToast()});
 function applyFigStyle(){document.documentElement.dataset.fig=(S.settings&&S.settings.figStyle)||"gymkit"}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function save(){S._upd=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(API&&ACCOUNT)acctSave()}
 const scores=()=>S.scores||EXAMPLE;
 
 /* ================= helpers ================= */
@@ -2795,6 +2798,7 @@ SCREENS.training=()=>{
   <div class="stack" style="padding-top:8px">
   <div style="display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap"><h1>Training</h1><span style="display:flex;gap:14px"><button class="link" data-act="importW">Import</button><button class="link" data-act="addW">${ic("plus","")} Add workout</button></span></div>
   ${(()=>{const sy=S.sync||{};
+    if(API)return connPanel();
     if(syncAvail===false&&!sy.key&&sy.preload)return`<div class="panel"><span class="eyebrow c-good">SugarWOD · connected</span><div style="font-size:14px">Pulled from your account ${agoText(sy.preload.syncedAt)} · ${sy.preload.count} workouts: your logged results and the coming week's programming. In the installed app this refreshes every hour.</div></div>`;
     if(syncAvail===false&&!sy.key)return`<div class="panel"><span class="eyebrow">SugarWOD auto-sync</span><div style="font-size:14px">Automatic sync runs in the installed Range app. Set up the free GitHub workflow once and your whiteboard arrives here every hour. Until then, use Import.</div></div>`;
     if(!sy.key)return`<div class="panel"><span class="eyebrow">SugarWOD auto-sync</span><div style="font-size:14px">${syncAvail?"Your sync file is ready. Enter your passphrase to unlock it.":"Checking for your sync file…"}</div><button class="btn" data-act="syncKey">Connect</button></div>`;
@@ -2906,6 +2910,7 @@ async function unsealBox(box,pass){
   return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM",iv:u(box.iv)},key,u(box.ct))));
 }
 async function autoSync(force){
+  if(API)return acctPull(force);
   S.sync=S.sync||{};
   if(!force&&S.sync.checked&&Date.now()-S.sync.checked<20*60e3)return;
   let box;
@@ -2974,7 +2979,7 @@ async function showNote(title,body,url,tag){
   try{const n=new Notification(title,{body,tag});n.onclick=()=>{focus();openUrl(url)};return true}catch(e){return false}
 }
 function recoverNudge(list){
-  if(!notifyOn())return;
+  if(!notifyOn()||!list||!list.length)return;
   const w=list.slice().sort((a,b)=>b.date.localeCompare(a.date))[0],f=focusOf({kind:"recover",moves:w.moves});
   showNote(`Scores in: ${wTitle(w)}`,`Nice work. Take 10 minutes to recover your ${f.map(k=>AN[k].toLowerCase()).join(" and ")||"body"}.`,`./#recover=${w.date}`,`recover-${w.date}`);
 }
@@ -2993,6 +2998,7 @@ ACT.notifTog=async()=>{
 ACT.notifTest=async()=>{const w=scoredRecent(1)[0];const ok=await showNote(w?`Scores in: ${wTitle(w)}`:"Range","This is how the recover reminder looks. Tap it to start recovery.",w?`./#recover=${w.date}`:"./","range-test");$("#ntMsg").textContent=ok?"Sent. Check your notifications.":"Couldn't show it. Check that notifications are allowed for Range."};
 const b64u=s=>{const p="=".repeat((4-s.length%4)%4),b=atob((s+p).replace(/-/g,"+").replace(/_/g,"/"));return Uint8Array.from(b,c=>c.charCodeAt(0))};
 ACT.pushSetup=async()=>{
+  if(API)return acctPush();
   const msg=$("#ntMsg");msg.textContent="Setting up…";
   let key="";try{const r=await fetch("push-key.txt",{cache:"no-store"});if(r.ok)key=(await r.text()).trim()}catch(e){}
   if(!key){msg.textContent="No push key next to the app yet. On your computer run: node src/cli.js vapid, add VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY as GitHub secrets, run the workflow once, then try again.";return}
@@ -3006,7 +3012,7 @@ ACT.pushSetup=async()=>{
 };
 const notifPanel=()=>`<div class="panel"><h3>Notifications</h3>
   <button class="toggle" data-act="notifTog"><span>Remind me to recover when I log a score</span><span class="sw ${notifyOn()?"on":""}"></span></button>
-  ${notifyOn()?`<p class="muted" style="margin:0;font-size:14px">Range checks your SugarWOD sync when you open it. For reminders while it's closed, connect this phone to the GitHub sync once.</p>
+  ${notifyOn()?`<p class="muted" style="margin:0;font-size:14px">${API?"Range checks for new scores when you open it. Connect this phone to also get reminders while Range is closed.":"Range checks your SugarWOD sync when you open it. For reminders while it's closed, connect this phone to the GitHub sync once."}</p>
   <div class="frow"><button class="btn sec" style="flex:1" data-act="pushSetup">Connect this phone</button><button class="btn sec" style="flex:1" data-act="notifTest">Send a test</button></div>
   <textarea id="subBox" class="field" rows="3" hidden readonly style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px;font-size:12px"></textarea>`:""}
   <p id="ntMsg" class="muted" style="margin:0;font-size:13px" aria-live="polite"></p></div>`;
@@ -3351,10 +3357,11 @@ SCREENS.profile=()=>{
     <button class="toggle" data-act="set3d"><span>3D demos <small class="muted">(drag to turn)</small></span><span class="sw ${S.settings.fig3d!==false?"on":""}"></span></button>
     <div class="toggle" style="border:0"><span>Get-ready countdown</span><span class="chipset">${[5,10,15].map(v=>`<button class="chip ${S.settings.ready===v?"on":""}" data-act="setReady" data-v="${v}">${v}s</button>`).join("")}</span></div>
   </div>
+  ${API?acctPanel():""}
   ${notifPanel()}
-  <div class="panel"><h3>Your data</h3><p class="muted" style="margin:0;font-size:14px">Range keeps everything on this device. To move it to the installed app or another phone, copy it here and paste it there.</p>
+  ${API?"":`<div class="panel"><h3>Your data</h3><p class="muted" style="margin:0;font-size:14px">Range keeps everything on this device. To move it to the installed app or another phone, copy it here and paste it there.</p>
     <div class="frow"><button class="btn sec" style="flex:1" data-act="copyData">Copy my data</button><button class="btn sec" style="flex:1" data-act="pasteData">Paste data</button></div>
-    <p id="dataMsg" class="muted" style="margin:0;font-size:13px" aria-live="polite"></p><textarea id="dataBox" class="field" rows="3" hidden style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px"></textarea></div>
+    <p id="dataMsg" class="muted" style="margin:0;font-size:13px" aria-live="polite"></p><textarea id="dataBox" class="field" rows="3" hidden style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px"></textarea></div>`}
   <div class="panel"><h3>History</h3><div class="hist">${S.sessions.length?S.sessions.slice(-12).reverse().map(s=>`<div><span>${esc(s.title||KN[s.kind]||"Session")}<br><small>${new Date(s.at).toLocaleDateString()} · ${s.count} stretches${s.feel!=null?" · felt "+["stiff","tight","OK","loose","great"][s.feel]:""}</small></span><span style="font-variant-numeric:tabular-nums">${s.mins} min</span></div>`).join(""):`<p class="muted" style="margin:0">No sessions yet. Finish a protocol from Today and it appears here.</p>`}</div></div>
   ${S.tests.length?`<div class="panel"><h3>Test history</h3><div class="hist">${S.tests.slice().reverse().map(t=>`<div><span>${new Date(t.at).toLocaleDateString()}<br><small>${AREAS.map(a=>a.n+" "+t.scores[a.k]).join(" · ")}</small></span><b style="font-variant-numeric:tabular-nums">${overall(t.scores)}</b></div>`).join("")}</div></div>`:""}
   </div>`;
@@ -3448,6 +3455,123 @@ setTimeout(()=>autoSync(false),400);
 if(/^#recover=/.test(location.hash)){const u=location.hash;history.replaceState(null,"",location.pathname+location.search);setTimeout(()=>openUrl(u),300)}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")autoSync(false)});
 
+/* ================= account mode (Range server) =================
+   Sign in, data saved to the account (so it follows you to every device), connected training platforms
+   synced on the server every hour, and recover reminders as push notifications. */
+async function api(method,path,body){
+  const r=await fetch(API+path,{method,credentials:"same-origin",headers:{...(method!=="GET"?{"x-range":"1"}:{}),...(body?{"content-type":"application/json"}:{})},body:body?JSON.stringify(body):undefined});
+  let j=null;try{j=await r.json()}catch(e){}
+  if(!r.ok){const e=new Error((j&&j.error)||"Couldn't reach Range. Check your connection.");e.status=r.status;throw e}
+  return j;
+}
+let CONNS=null,PROVIDERS=null,acctTimer=null;
+function acctSave(){clearTimeout(acctTimer);acctTimer=setTimeout(()=>{const d={...S};delete d.sync;api("PUT","/data",{data:d}).catch(()=>{})},1500)}
+async function acctBoot(){
+  try{ACCOUNT=(await api("GET","/me")).user}catch(e){ACCOUNT=null}
+  if(!ACCOUNT)return authScreen("in");
+  // this device may hold someone else's data: start from a clean slate for a different account
+  if(S._owner&&S._owner!==ACCOUNT.email){const keep=S.settings;S=JSON.parse(S_FRESH);S.settings=keep}
+  try{const r=await api("GET","/data");if(r.data&&(r.data._upd||0)>=(S._upd||0)){const keep=S.settings;S=Object.assign(JSON.parse(S_FRESH),r.data);S.settings=Object.assign({},keep,r.data.settings||{})}}catch(e){}
+  S._owner=ACCOUNT.email;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+  acctSave();render();refreshConns();acctPull(true);
+}
+async function acctPull(force){
+  if(!ACCOUNT)return;
+  S.sync=S.sync||{};
+  if(!force&&S.sync.checked&&Date.now()-S.sync.checked<5*60e3)return;
+  try{
+    const r=await api("GET","/workouts");
+    const m=mergeRows(r.workouts.map(w=>({date:w.date,title:w.title,text:w.text,result:w.result,loggedAt:w.loggedAt})),"sugarwod-auto");
+    S.sync={...S.sync,checked:Date.now(),syncedAt:r.syncedAt,count:r.workouts.length,error:""};
+    if(m.fresh.length)recoverNudge(m.fresh);
+  }catch(e){if(e.status===401)return authScreen("in");S.sync={...S.sync,checked:Date.now(),error:e.message}}
+  save();const top=stack[stack.length-1].name;if(top==="training"||top==="home")render();
+}
+async function refreshConns(){try{CONNS=(await api("GET","/connections")).connections}catch(e){CONNS=CONNS||[]}const top=stack[stack.length-1].name;if(top==="training"||top==="profile")render()}
+const connStatus=c=>c.status==="ok"?{c:"c-good",t:"on"}:c.status==="auth_failed"?{c:"c-bad",t:"login rejected"}:c.status==="error"?{c:"c-bad",t:"needs attention"}:{c:"",t:"connecting"};
+function connPanel(){
+  if(CONNS===null)return`<div class="panel"><span class="eyebrow">Connected platforms</span><div class="muted" style="font-size:14px">Loading…</div></div>`;
+  if(!CONNS.length)return`<div class="panel"><span class="eyebrow">Connect your gym</span><div style="font-size:14px">Connect SugarWOD and your gym's programming and your scores arrive here every hour. Range then prepares you for what's coming and helps you recover from what you did.</div><button class="btn" data-act="connAdd">Connect a platform</button></div>`;
+  return`<div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span class="eyebrow">Connected platforms</span><button class="link" data-act="conns">Manage</button></div>
+    ${CONNS.map(c=>{const st=connStatus(c);return`<div style="display:flex;justify-content:space-between;gap:10px;font-size:14px"><span><b>${esc(c.name)}</b>${c.info&&c.info.track?` · ${esc(c.info.track)}`:""}</span><span class="${st.c}">${st.t}${c.lastSync?` · ${agoText(c.lastSync)}`:""}</span></div>${c.error&&c.status!=="ok"?`<div class="muted" style="font-size:13px">${esc(c.error)}</div>`:""}`}).join("")}
+    <button class="link" style="justify-self:start" data-act="syncNow">Refresh now</button></div>`;
+}
+ACT.conns=()=>{
+  sheet(`<h3>Connected platforms</h3><div class="scroll"><div class="stack" style="gap:10px">${(CONNS||[]).map(c=>{const st=connStatus(c);return`<div class="panel" style="gap:8px">
+    <div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(c.name)}</b><span class="${st.c}" style="font-size:13px">${st.t}</span></div>
+    <div class="muted" style="font-size:13px">${esc(c.label||"")}${c.info&&c.info.track?` · program ${esc(c.info.track)}`:""}${c.lastSync?` · synced ${agoText(c.lastSync)}`:""}</div>
+    ${c.error&&c.status!=="ok"?`<div class="c-bad" style="font-size:13px">${esc(c.error)}</div>`:""}
+    <div class="frow"><button class="btn sec" style="flex:1" data-act="connSync" data-id="${c.id}">Sync now</button><button class="btn sec" style="flex:1" data-act="connForm" data-p="${c.provider}" data-id="${c.id}">Update login</button></div>
+    <button class="link" style="justify-self:start;color:var(--bad)" data-act="connDel" data-id="${c.id}">Remove and delete the stored login</button></div>`}).join("")}
+    <p id="cMsg" class="muted" style="margin:0;font-size:13px" aria-live="polite"></p></div></div><button class="btn" data-act="connAdd">Connect another platform</button>`);
+};
+ACT.connAdd=async()=>{
+  sheet(`<h3>Connect a platform</h3><div class="scroll"><p class="muted" style="margin:0">Loading…</p></div>`);
+  try{PROVIDERS=PROVIDERS||(await api("GET","/providers")).providers}catch(e){$(".sheet .scroll").innerHTML=`<p class="c-bad">${esc(e.message)}</p>`;return}
+  $(".sheet .scroll").innerHTML=`<div class="stack" style="gap:8px">${PROVIDERS.map(p=>p.available?`<button class="opt" data-act="connForm" data-p="${p.id}"><span><b>${esc(p.name)}</b><br><small class="muted">${esc(p.blurb)}</small></span></button>`
+    :`<div class="opt" style="opacity:.55;cursor:default"><span><b>${esc(p.name)}</b> <small>· coming</small><br><small class="muted">${esc(p.blurb)}</small></span></div>`).join("")}</div>`;
+};
+ACT.connForm=async d=>{
+  try{PROVIDERS=PROVIDERS||(await api("GET","/providers")).providers}catch(e){return}
+  const p=PROVIDERS.find(x=>x.id===d.p);if(!p)return;
+  sheet(`<h3>${d.id?"Update":"Connect"} ${esc(p.name)}</h3><div class="scroll"><form id="cForm" class="stack" style="gap:10px" onsubmit="return false">
+    ${p.fields.map(f=>`<label class="field"><span class="eyebrow">${esc(f.label)}</span><input name="${f.key}" type="${f.type==="password"?"password":f.type==="email"?"email":"text"}" autocomplete="off" ${f.required?"required":""}></label>`).join("")}
+    <p class="muted" style="margin:0;font-size:13px">${esc(p.consent)}</p><p id="cMsg" style="margin:0;font-size:14px" aria-live="polite"></p></form></div>
+    <button class="btn" data-act="connSave" data-p="${p.id}" ${d.id?`data-id="${d.id}"`:""}>${d.id?"Save and sync":"Connect"}</button>`);
+};
+ACT.connSave=async d=>{
+  const f=$("#cForm"),fields=Object.fromEntries([...f.querySelectorAll("input")].map(i=>[i.name,i.value])),msg=$("#cMsg"),btn=$("[data-act=connSave]");
+  msg.className="muted";msg.textContent="Connecting and reading your training. This can take up to a minute…";btn.disabled=true;
+  try{
+    const r=d.id?await api("PATCH","/connections/"+d.id,{fields}):await api("POST","/connections",{provider:d.p,fields});
+    await refreshConns();await acctPull(true);
+    if(r.result&&!r.result.ok){msg.className="c-bad";msg.textContent="Connected, but the first sync failed: "+r.result.error+" Range will retry.";btn.disabled=false;return}
+    closeSheet();render();
+  }catch(e){msg.className="c-bad";msg.textContent=e.message;btn.disabled=false}
+};
+ACT.connSync=async d=>{const m=$("#cMsg");if(m)m.textContent="Syncing…";try{const r=await api("POST",`/connections/${d.id}/sync`);if(m)m.textContent=r.result.ok?`Synced ${r.result.count} days.`:r.result.error;await refreshConns();acctPull(true)}catch(e){if(m)m.textContent=e.message}};
+ACT.connDel=async d=>{if(!confirm("Remove this connection? Its stored login and synced workouts are deleted from Range."))return;try{await api("DELETE","/connections/"+d.id);S.training=S.training.filter(w=>w.source!=="sugarwod-auto");save();await refreshConns();acctPull(true);closeSheet();render()}catch(e){const m=$("#cMsg");if(m)m.textContent=e.message}};
+function acctPanel(){return`<div class="panel"><h3>Account</h3><div style="font-size:14px">Signed in as <b>${esc(ACCOUNT?ACCOUNT.email:"")}</b>. Your data is saved to your account and follows you to every device.</div>
+  <div class="frow"><button class="btn sec" style="flex:1" data-act="conns">Connected platforms</button><button class="btn sec" style="flex:1" data-act="signOut">Sign out</button></div>
+  <button class="link" style="justify-self:start;color:var(--bad)" data-act="delAcct">Delete my account</button></div>`}
+ACT.signOut=async()=>{try{await api("POST","/auth/logout")}catch(e){}ACCOUNT=null;CONNS=null;const keep=S.settings;S=JSON.parse(S_FRESH);S.settings=keep;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}authScreen("in")};
+ACT.delAcct=()=>sheet(`<h3>Delete your account</h3><div class="scroll"><p style="margin:0">This permanently deletes your Range account, your data, and every connected login stored for you. It can't be undone.</p>
+  <label class="field"><span class="eyebrow">Your Range password</span><input id="daPw" type="password" autocomplete="current-password"></label><p id="daMsg" class="c-bad" style="margin:0;font-size:14px"></p></div>
+  <button class="btn" style="background:var(--bad)" data-act="delAcctGo">Delete everything</button>`);
+ACT.delAcctGo=async()=>{try{await api("DELETE","/me",{password:$("#daPw").value});ACCOUNT=null;CONNS=null;S=JSON.parse(S_FRESH);try{localStorage.removeItem(KEY)}catch(e){}closeSheet();authScreen("up")}catch(e){$("#daMsg").textContent=e.message}};
+function authScreen(mode){
+  document.body.style.overflow="hidden";
+  $("#layer").innerHTML=`<div class="full"><div class="inner"><div class="hdr" style="grid-template-columns:1fr"><div class="brand" style="text-align:center">Range<b>.</b></div></div>
+   <form id="auth" class="stack" style="align-content:start" onsubmit="return false">
+    <h1>${mode==="up"?"Create your account":"Welcome back"}</h1>
+    <p class="muted" style="margin:0">${mode==="up"?"Mobility and recovery built around your actual training. Connect your gym's app and Range keeps up with you.":"Sign in to your Range account."}</p>
+    <label class="field"><span class="eyebrow">Email</span><input name="email" type="email" autocomplete="email" required></label>
+    <label class="field"><span class="eyebrow">Password${mode==="up"?" (at least 10 characters)":""}</span><input name="password" type="password" autocomplete="${mode==="up"?"new-password":"current-password"}" required></label>
+    <p id="auMsg" class="c-bad" style="margin:0;font-size:14px" aria-live="polite"></p>
+   </form>
+   <div class="bottomcta"><button class="btn" data-act="authGo" data-m="${mode}">${mode==="up"?"Create account":"Sign in"}</button>
+    <button class="btn sec" data-act="authSwitch" data-m="${mode==="up"?"in":"up"}">${mode==="up"?"I already have an account":"Create an account"}</button></div></div></div>`;
+}
+ACT.authSwitch=d=>authScreen(d.m);
+ACT.authGo=async d=>{
+  const f=$("#auth"),email=f.email.value.trim(),password=f.password.value,msg=$("#auMsg"),btn=$("[data-act=authGo]");
+  if(!email||!password){msg.textContent="Enter your email and password.";return}
+  btn.disabled=true;msg.textContent="";
+  try{await api("POST",d.m==="up"?"/auth/signup":"/auth/login",{email,password});$("#layer").innerHTML="";document.body.style.overflow="";await acctBoot()}
+  catch(e){msg.textContent=e.message;btn.disabled=false}
+};
+async function acctPush(){
+  const msg=$("#ntMsg");msg.textContent="Setting up…";
+  try{
+    const {key}=await api("GET","/push/key");
+    if(!key){msg.textContent="Push reminders aren't switched on for this Range server yet.";return}
+    const reg=await navigator.serviceWorker.ready;
+    const sub=(await reg.pushManager.getSubscription())||await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64u(key)});
+    await api("POST","/push/subscribe",{sub:sub.toJSON()});
+    msg.textContent="This phone is connected. When a new score syncs, you'll get a recover reminder, even with Range closed.";
+  }catch(e){msg.textContent=e.status?e.message:"This phone couldn't subscribe. On iPhone, open Range from the home screen icon (iOS 16.4 or later)."}
+}
+
 /* move data between the web link and the installed app (each keeps its own storage) */
 ACT.copyData=async()=>{
   const txt=JSON.stringify({format:"range-backup/1",data:{...S,sync:{}}});
@@ -3463,7 +3587,7 @@ ACT.applyPaste=()=>{
     S=Object.assign(S,j.data);save();closeSheet();render()}
   catch(e){$("#pasteMsg").textContent="That isn't Range data. Copy it again with Profile → Copy my data.";$("#pasteMsg").style.color="var(--bad)"}
 };
-render();
+if(API)acctBoot();else render();
 </script>
 
 <script>if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>

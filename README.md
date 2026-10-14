@@ -6,6 +6,10 @@ Your mobility and rehab app, plus automatic SugarWOD sync.
 - `sugarwod-sync/` logs in to SugarWOD and reads your gym's whiteboard.
 - `.github/workflows/sugarwod-sync.yml` runs that every hour and publishes the result, encrypted, next to the app.
 
+## Range for many people (accounts)
+
+`server/` turns Range into a multi-user app. Each person signs up, connects their own SugarWOD (or a gym's SugarWOD API key), and the server syncs everyone every hour. The same app switches to account mode when the server hosts it. See `server/README.md` for running, deploying (Docker or Fly.io) and what to check before opening it to the public.
+
 ## One-time setup
 
 1. **Secrets:** Settings → Secrets and variables → Actions → New repository secret. Add three:

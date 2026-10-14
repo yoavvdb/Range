@@ -24,7 +24,7 @@ const URL_PATTERNS = [
   (d) => `${BASE}/whiteboard/${d}`,
 ];
 
-const isLoginUrl = (u) => /\/(login|signin|sign-in|sign_in)(\b|\/|\?|$)/i.test(new URL(u).pathname + "/");
+export const isLoginUrl = (u) => /\/(login|signin|sign-in|sign_in)(\b|\/|\?|$)/i.test(new URL(u).pathname + "/");
 
 function waitForEnter(prompt) {
   const rl = readline.createInterface({ input: process.stdin, output: process.stderr });
@@ -72,38 +72,47 @@ function captureJson(page, sink, dumps) {
 export async function loginWithPassword(email, password) {
   const { ctx, page } = await openContext(true);
   try {
-    await page.goto(`${BASE}/login`, { waitUntil: "domcontentloaded", timeout: 30000 });
-    // a saved session that is still valid sends /login straight on to the app
-    await page.waitForURL((u) => !isLoginUrl(u.toString()), { timeout: 3000 }).catch(() => {});
-    if (!isLoginUrl(page.url())) { await saveSession(ctx); return true; }
-    // the saved browser profile may have pre-filled the fields: clear them so the typed text isn't doubled
-    await page.fill('input[name="username"]', "");
-    await page.click('input[name="username"]');
-    await page.keyboard.type(email, { delay: 35 });
-    // SugarWOD asks for the email first, then shows the password step
-    const cont = page.locator("#continue-button");
-    if (await cont.count()) {
-      await cont.click();
-      await page.locator('input[name="password"]').waitFor({ state: "visible", timeout: 20000 });
-    }
-    await page.fill('input[name="password"]', "");
-    await page.click('input[name="password"]');
-    await page.keyboard.type(password, { delay: 35 });
-    const resp = page.waitForResponse((r) => r.url().includes("/api/v1/login"), { timeout: 30000 }).catch(() => null);
-    await page.click('#login-button, button[type="submit"]');
-    const r = await resp;
-    if (r && r.status() >= 400) {
-      let msg = "";
-      try { msg = (await r.json()).message || ""; } catch {}
-      throw new Error(`SugarWOD rejected the login (${r.status()}${msg ? `: ${msg}` : ""}). Check the SUGARWOD_EMAIL and SUGARWOD_PASSWORD secrets.`);
-    }
-    await page.waitForURL((u) => !isLoginUrl(u.toString()), { timeout: 30000 }).catch(() => {});
-    if (isLoginUrl(page.url())) throw new Error("Still on the login page after signing in. SugarWOD may be asking for something extra (for example a verification step).");
+    await loginOnPage(page, email, password);
     await saveSession(ctx);
     return true;
   } finally {
     await ctx.close();
   }
+}
+
+export class LoginRejected extends Error {}
+
+// Fills SugarWOD's own two-step login form on `page`, like typing it in. Throws LoginRejected when the
+// email/password is wrong (so callers can stop retrying and avoid a lockout). Never logs the password.
+export async function loginOnPage(page, email, password, base = BASE) {
+  await page.goto(`${base}/login`, { waitUntil: "domcontentloaded", timeout: 30000 });
+  // a saved session that is still valid sends /login straight on to the app
+  await page.waitForURL((u) => !isLoginUrl(u.toString()), { timeout: 3000 }).catch(() => {});
+  if (!isLoginUrl(page.url())) return;
+  // a saved browser profile may have pre-filled the fields: clear them so the typed text isn't doubled
+  await page.fill('input[name="username"]', "");
+  await page.click('input[name="username"]');
+  await page.keyboard.type(email, { delay: 35 });
+  // SugarWOD asks for the email first, then shows the password step
+  const cont = page.locator("#continue-button");
+  if (await cont.count()) {
+    await cont.click();
+    await page.locator('input[name="password"]').waitFor({ state: "visible", timeout: 20000 });
+  }
+  await page.fill('input[name="password"]', "");
+  await page.click('input[name="password"]');
+  await page.keyboard.type(password, { delay: 35 });
+  const resp = page.waitForResponse((r) => r.url().includes("/api/v1/login"), { timeout: 30000 }).catch(() => null);
+  await page.click('#login-button, button[type="submit"]');
+  const r = await resp;
+  if (r && r.status() >= 400) {
+    let msg = "";
+    try { msg = (await r.json()).message || ""; } catch {}
+    if (r.status() === 401 || r.status() === 403) throw new LoginRejected(`SugarWOD rejected the login (${r.status()}${msg ? `: ${msg}` : ""}). Check the SugarWOD email and password.`);
+    throw new Error(`SugarWOD login failed (${r.status()}${msg ? `: ${msg}` : ""}).`);
+  }
+  await page.waitForURL((u) => !isLoginUrl(u.toString()), { timeout: 30000 }).catch(() => {});
+  if (isLoginUrl(page.url())) throw new Error("Still on the login page after signing in. SugarWOD may be asking for something extra (for example a verification step).");
 }
 
 export async function withSession(fn) {

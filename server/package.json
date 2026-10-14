@@ -1,0 +1,17 @@
+{
+  "name": "range-server",
+  "version": "0.1.0",
+  "description": "Range for many people: accounts, connected training platforms (SugarWOD and more), hourly sync per user, and the Range app.",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning src/index.js",
+    "test": "node --disable-warning=ExperimentalWarning --test --test-concurrency=1"
+  },
+  "engines": { "node": ">=22.13" },
+  "dependencies": {
+    "playwright": "^1.47.2",
+    "web-push": "^3.6.7"
+  },
+  "license": "MIT"
+}
