@@ -289,7 +289,7 @@ img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;o
 .feel button{padding:12px 2px;border-radius:10px;background:var(--surface);font-size:12px;font-weight:700}
 .feel button.on{background:var(--accent);color:var(--accent-ink)}
 /* rebuild */
-.tsfig{position:relative;background:var(--stage);border-radius:14px;display:grid;place-items:center;padding:6px}.tsfig svg{width:100%;max-width:300px;height:auto}.tsfig.mir .fig,.tsstage.mir .fig{transform:scaleX(-1)}.tsstage{position:relative}.tsstage>.pill{position:absolute;top:10px;left:10px;z-index:2}.tsfig .pill{position:absolute;top:8px;left:8px}
+.tsfig{position:relative;background:var(--stage);border-radius:14px;display:grid;place-items:center;padding:6px}.tsfig svg{width:100%;max-width:300px;height:auto}.tsfig.mir .fig,.tsstage.mir .fig{transform:scaleX(-1)}.tsstage{position:relative}.rtgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}.rtpos{display:grid;gap:2px;background:var(--surface2);border-radius:12px;padding:8px}.rtfig{background:var(--stage);border-radius:10px;overflow:hidden}.rtfig .fig{width:100%;height:auto;max-height:120px;display:block}.tsstage>.pill{position:absolute;top:10px;left:10px;z-index:2}.tsfig .pill{position:absolute;top:8px;left:8px}
 .tsides{display:grid;grid-template-columns:1fr 1fr;gap:6px}.tsides span{text-align:center;padding:8px;border-radius:10px;background:var(--surface2);font-size:14px;font-weight:600;color:var(--muted)}.tsides span.on{background:var(--accent);color:var(--bg)}.tsides span.done{color:var(--ink)}
 textarea{font:inherit}.edex{gap:10px}.edhead{display:grid;grid-template-columns:72px 1fr auto;gap:10px;align-items:center}.edhead .th{width:72px;height:auto;background:var(--stage);border-radius:10px;display:block}.edhead .th svg{width:72px;height:auto;display:block}.edbtns{display:flex;gap:12px}
 .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--surface2);border-radius:10px;padding:3px}.seg button{padding:8px 4px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted)}.seg button.on{background:var(--surface);color:var(--ink)}
@@ -1831,7 +1831,10 @@ function finishSession(complete){
       <h1>${esc(P.meta.title)}</h1>
       <div class="tiles"><div class="tile"><span class="eyebrow">Minutes</span><b>${rec.mins}</b></div><div class="tile"><span class="eyebrow">${isRehab?"Exercises":"Stretches"}</span><b>${doneCount}</b></div></div>
       ${isRehab&&doneCount>0?`<div class="panel"><span class="eyebrow">Highest pain during the session</span>${painGrid("rbSessionPain",null)}<p id="rbAfter" class="muted" style="margin:0;font-size:14px" aria-live="polite">Tomorrow morning, check your test movement again. If it's worse, Range will tell you to back off.</p></div>`:""}
-      ${canRetest?`<div class="panel"><span class="eyebrow">Quick retest</span><div>Redo your <b>${esc(P.meta.focus.map(k=>(TEST.find(t=>t.k===k)||{}).t).filter(Boolean).join(" and "))}</b> test. Compared with before the session it feels:</div><div class="feel" style="grid-template-columns:repeat(3,1fr)">${["Worse","Same","Better"].map((f,i)=>`<button data-act="retest" data-v="${i-1}">${f}</button>`).join("")}</div><p class="muted" style="margin:0;font-size:12px">Range learns which stretches work for you and picks them more often.</p></div>`:""}
+      ${canRetest?`<div class="panel"><span class="eyebrow">Optional · did it help?</span>
+        <div style="font-size:14px">Quick check, like in your mobility test (not a workout). Do each position for a few seconds:</div>
+        <div class="rtgrid">${P.meta.focus.filter(k=>RETEST_HOW[k]).map(k=>`<div class="rtpos"><div class="rtfig">${fig(TEST_FIG[k],null,{t:1,mode:"static",zones:AREA_ZONES[k]})}</div><b>${esc(RETEST_HOW[k][0])}</b><small class="muted">${esc(RETEST_HOW[k][1])}</small></div>`).join("")}</div>
+        <div style="font-size:14px">Compared with before the session, it feels:</div><div class="feel" style="grid-template-columns:repeat(3,1fr)">${["Worse","Same","Better"].map((f,i)=>`<button data-act="retest" data-v="${i-1}">${f}</button>`).join("")}</div><p class="muted" style="margin:0;font-size:12px">Range uses your answer to pick the stretches that work best for you. Skip it if you like.</p></div>`:""}
       <div class="panel"><span class="eyebrow">Areas you worked</span><div class="ztags">${zones.map(z=>`<span>${ZONES[z]}</span>`).join("")}</div>${bodyMap(zones)}</div>
       ${meaningful&&!isRehab?`<div class="stack" style="gap:8px"><span class="eyebrow">How do you feel now?</span><div class="feel">${["Stiff","Tight","OK","Loose","Great"].map((f,i)=>`<button data-act="feel" data-f="${i}">${f}</button>`).join("")}</div></div>`:`<p class="muted" style="margin:0">Sessions under 20 seconds aren't saved to your log.</p>`}
     </div>
@@ -1839,6 +1842,8 @@ function finishSession(complete){
   P=null;animPaused=false;
 }
 let RETEST=null;
+// the quick before/after check for each area, in plain words
+const RETEST_HOW={hips:["Deep squat","Sit as low as you can, heels down, for a few breaths"],posterior:["Toe touch","Feet together, knees straight, fold forward"],ankles:["Knee to wall","Front foot near a wall, drive the knee to it, heel down"],shoulders:["Back scratch","One hand down your back, the other up from below"],overhead:["Overhead reach","Back on a wall, raise straight arms toward the wall"],thoracic:["Rotation","On all fours, hand behind your head, turn the elbow up"]};
 ACT.retest=(d,el)=>{
   if(!RETEST)return;S.helped=S.helped||{};const v=+d.v;
   RETEST.items.forEach(id=>{const e=LIBI[id];if(e&&RETEST.focus.includes(e.a))S.helped[id]=Math.max(-3,Math.min(4,(S.helped[id]||0)+v))});
