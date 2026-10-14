@@ -14,7 +14,9 @@ export function newlyScored(previous, current, { days = 3 } = {}) {
   if (!previous.length) return [];
   const had = new Set(previous.filter((w) => w.result).map((w) => w.date));
   const from = addDays(todayIso(), -days);
-  return current.filter((w) => w.result && w.date >= from && !had.has(w.date));
+  // judged by when the score was logged, so catching up on an older day's programme still counts as just done
+  const doneOn = (w) => (w.loggedAt && w.loggedAt.slice(0, 10) > w.date ? w.loggedAt.slice(0, 10) : w.date);
+  return current.filter((w) => w.result && doneOn(w) >= from && !had.has(w.date));
 }
 
 function subscriptions(raw) {

@@ -1471,7 +1471,7 @@ SCREENS.home=()=>{
     ${S.rehab?(()=>{const R=REGIONS[S.rehab.region],ph=rbPhases(R,S.rehab.cls)[S.rehab.phase],st=rbStatus();return`<button class="ntile" data-act="tab" data-t="rebuild"><span class="eyebrow">Rebuild · ${R.n} · Phase ${S.rehab.phase+1}</span><b>${esc(ph.n)}</b><span class="go ${st.k==="back"||st.k==="stuck"?"c-bad":""}">${st.k==="back"?"Back off":st.k==="ready"?"Progress":"Open"}</span></button>`})():""}
     ${(()=>{const nx=nextSession(),rec=recentSessions();if(!nx&&!rec.length)return"";return`<div class="nexttiles">
       ${nx?`<button class="ntile" data-act="prepNext"><span class="eyebrow">Next session · ${dayLabel(nx.date)}</span><b>${esc(wTitle(nx))}</b><span class="go">Prepare</span></button>`:""}
-      ${rec.length?`<button class="ntile" data-act="recoverRecent"><span class="eyebrow">Recover · ${rec.length===1?dayLabel(rec[0].date):"last 2 days"}</span><b>${esc(rec.map(wTitle).join(" + "))}</b><span class="go">Recover</span></button>`:""}</div>`})()}
+      ${rec.length?`<button class="ntile" data-act="recoverRecent"><span class="eyebrow">Recover · ${rec.length===1?dayLabel(doneDay(rec[0])):"last 2 days"}</span><b>${esc(rec.map(wTitle).join(" + "))}</b><span class="go">Recover</span></button>`:""}</div>`})()}
     ${S.scores?"":`<div class="banner"><div><h3>Find your weak spots</h3><div class="muted" style="font-size:14px;margin-top:4px">Take the 6-position test. Until then, routines use an example profile.</div></div><button class="btn" data-act="openTest">Test my mobility</button></div>`}
     <div class="tiles">
       <button class="tile" data-act="tab" data-t="profile"><span class="eyebrow">Mobility score</span><b>${ov}</b><span class="pill ${lv.c}" style="justify-self:start">${S.scores?lv.t:"Example"}</span></button>
@@ -2740,14 +2740,18 @@ if(!Array.isArray(S.training))S.training=[];
 const isPast=w=>w.date<todayIso()||(w.date===todayIso()&&w.done);
 function upcoming(){return S.training.filter(w=>!isPast(w)).sort((a,b)=>a.date.localeCompare(b.date))}
 function past(){return S.training.filter(isPast).sort((a,b)=>b.date.localeCompare(a.date))}
+// the day you actually did a session: when you logged its score if that's later than its programmed date
+// (catching up on missed days means doing the 5 Oct programme on the 14th and logging it under the 5th)
+const isoLocal=t=>{const d=new Date(t);return isNaN(d)?"":`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`};
+const doneDay=w=>{const l=w.loggedAt?isoLocal(w.loggedAt):"";return l&&l>w.date?l:w.date};
 // the last n past sessions you logged scores for (falls back to sessions marked done)
-function scoredRecent(n){const p=past();const s=p.filter(w=>w.result);return(s.length?s:p.filter(w=>w.done)).slice(0,n)}
+function scoredRecent(n){const p=past().sort((a,b)=>doneDay(b).localeCompare(doneDay(a))||(b.loggedAt||"").localeCompare(a.loggedAt||""));const s=p.filter(w=>w.result);return(s.length?s:p.filter(w=>w.done)).slice(0,n)}
 function nextSession(){return upcoming()[0]||null}
-function recentSessions(){const t=todayIso();return past().filter(w=>daysFrom(w.date,t)<=1)}
+function recentSessions(){const t=todayIso();return past().filter(w=>daysFrom(doneDay(w),t)<=1)}
 // Load on each area from the last 3 days: today 1, yesterday .8, 2 days .5, 3 days .3
 function recentLoad(){
   const t=todayIso(),wt=[1,.8,.5,.3],load={};AREAS.forEach(a=>load[a.k]=0);
-  past().forEach(w=>{const ago=daysFrom(w.date,t);if(ago<0||ago>3)return;const d=demandOf(w.moves);for(const k in d)load[k]+=d[k]*wt[ago]});
+  past().forEach(w=>{const ago=daysFrom(doneDay(w),t);if(ago<0||ago>3)return;const d=demandOf(w.moves);for(const k in d)load[k]+=d[k]*wt[ago]});
   return load;
 }
 function wTitle(w){return w.title||(w.text||"").split("\n").map(s=>s.trim()).find(Boolean)?.slice(0,40)||"Workout"}
@@ -2810,7 +2814,7 @@ SCREENS.training=()=>{
      <div class="chipset">${nx.moves.map(m=>`<span class="mchip">${esc(m)}</span>`).join("")}</div>
      <p class="muted" style="margin:0;font-size:14px">${nx.moves.length?`Needs the most from your ${focusOf({kind:"activate",moves:nx.moves}).map(k=>`${AN[k]} (score ${sc[k]})`).join(" and ")}.`:"Add movements so Range knows what to prepare."}</p>
      <button class="btn" data-act="prepNext" ${nx.moves.length?"":"disabled"}>Prepare for it</button></div>`:""}
-  ${rec.length?`<div class="panel"><span class="eyebrow">Recover · ${rec.length===1?dayLabel(rec[0].date):"last 2 days"}</span><h3>${esc(rec.map(wTitle).join(" + "))}</h3>
+  ${rec.length?`<div class="panel"><span class="eyebrow">Recover · ${rec.length===1?dayLabel(doneDay(rec[0])):"last 2 days"}</span><h3>${esc(rec.map(wTitle).join(" + "))}</h3>
      <p class="muted" style="margin:0;font-size:14px">Long holds for the areas these sessions loaded.</p><button class="btn sec" data-act="recoverRecent">Start recovery</button></div>`:""}
   ${S.training.length?`<div class="panel"><span class="eyebrow">Load from the last 3 days</span>
      <ul class="bars">${AREAS.map(a=>{const v=load[a.k]/mx;const c=v>.66?"var(--bad)":v>.33?"var(--warn)":"var(--good)";return`<li><span>${a.n}</span><span class="tr"><i style="width:${Math.max(4,v*100)}%;background:${c}"></i></span><b style="font-size:11px;color:var(--muted)">${v>.66?"High":v>.33?"Mid":"Low"}</b></li>`}).join("")}</ul></div>`:""}
@@ -2887,13 +2891,13 @@ function mergeRows(rows,source){
   const have=new Set(S.training.map(key));let added=0,skipped=0;const fresh=[],recent=addDays(todayIso(),-3);
   rows.forEach((w,i)=>{
     if(!w.date||!/^\d{4}-\d{2}-\d{2}$/.test(w.date)){skipped++;return}
-    if(have.has(key(w))){const o=S.training.find(x=>key(x)===key(w));if(o){if(w.result&&!o.result&&o.date>=recent)fresh.push(o);if(w.result)o.result=w.result;if(w.loggedAt)o.loggedAt=w.loggedAt}return}
+    if(have.has(key(w))){const o=S.training.find(x=>key(x)===key(w));if(o){const nowScored=w.result&&(!o.result||(w.loggedAt&&w.loggedAt!==o.loggedAt));if(w.result)o.result=w.result;if(w.loggedAt)o.loggedAt=w.loggedAt;if(nowScored&&doneDay(o)>=recent)fresh.push(o)}return}
     // a score for a day we only had the programming for: replace that synced entry instead of adding a second one
     const plan=w.result&&S.training.find(x=>x.date===w.date&&x.source===source&&!x.result);
-    if(plan){plan.title=w.title||"";plan.text=w.text||"";plan.result=w.result;plan.loggedAt=w.loggedAt||null;plan.moves=parseMoves(plan.title+"\n"+plan.text);have.add(key(w));if(plan.date>=recent)fresh.push(plan);return}
+    if(plan){plan.title=w.title||"";plan.text=w.text||"";plan.result=w.result;plan.loggedAt=w.loggedAt||null;plan.moves=parseMoves(plan.title+"\n"+plan.text);have.add(key(w));if(doneDay(plan)>=recent)fresh.push(plan);return}
     have.add(key(w));added++;
     const row={id:"i"+Date.now().toString(36)+i,date:w.date,title:w.title||"",text:w.text||"",result:w.result||"",loggedAt:w.loggedAt||null,source,moves:parseMoves((w.title||"")+"\n"+(w.text||"")),done:w.date<todayIso()};
-    S.training.push(row);if(row.result&&row.date>=recent)fresh.push(row);
+    S.training.push(row);if(row.result&&doneDay(row)>=recent)fresh.push(row);
   });
   return{total:rows.length,added,skipped,fresh};
 }

@@ -30,7 +30,9 @@ export function makeSyncer({ db, vault, launchBrowser, notify = async () => {}, 
       if (!/^\d{4}-\d{2}-\d{2}$/.test(w.date || "")) continue;
       up.run(conn.user_id, conn.id, w.date, w.title || "", w.text || "", w.result || null, w.loggedAt || null, w.source || conn.provider);
       // a score that wasn't there last time, for a recent day: time to recover
-      if (w.result && !prev.get(w.date) && prev.size && w.date >= daysAgo(3)) fresh.push(w);
+      // (judged by when it was logged: catching up on an old day's programme still counts as just done)
+      const doneOn = w.loggedAt && w.loggedAt.slice(0, 10) > w.date ? w.loggedAt.slice(0, 10) : w.date;
+      if (w.result && !prev.get(w.date) && prev.size && doneOn >= daysAgo(3)) fresh.push(w);
     }
     return fresh;
   }
