@@ -10,6 +10,7 @@ const SESSION_DAYS = 30;
 const COOKIE = "range_session";
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".mjs": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json", ".webmanifest": "application/manifest+json", ".png": "image/png", ".svg": "image/svg+xml", ".txt": "text/plain; charset=utf-8", ".ico": "image/x-icon" };
 const EMAIL = /^[^\s@]{1,64}@[^\s@]{1,190}\.[^\s@]{2,}$/;
+const USERNAME = /^[a-z0-9][a-z0-9._-]{2,29}$/; // people sign in with a username or an email
 
 class HttpError extends Error { constructor(status, message) { super(message); this.status = status; } }
 
@@ -77,10 +78,10 @@ export function createApp({ db, vault, syncer, push, siteDir, secureCookies = tr
       limit("signup:" + ip(req), 10, 60 * 60e3);
       const { email, password } = await readJson(req);
       const e = String(email || "").trim().toLowerCase();
-      if (!EMAIL.test(e)) throw new HttpError(400, "Enter a valid email address.");
+      if (!(e.includes("@") ? EMAIL.test(e) : USERNAME.test(e))) throw new HttpError(400, e.includes("@") ? "Enter a valid email address." : "Usernames are 3 to 30 letters or numbers (dots, dashes and underscores are fine).");
       if (typeof password !== "string" || password.length < 10) throw new HttpError(400, "Use a password of at least 10 characters.");
       if (password.length > 200) throw new HttpError(400, "That password is too long.");
-      if (db.prepare("SELECT 1 FROM users WHERE email = ?").get(e)) throw new HttpError(409, "There's already an account with this email. Sign in instead.");
+      if (db.prepare("SELECT 1 FROM users WHERE email = ?").get(e)) throw new HttpError(409, "That username or email is taken. Sign in, or pick another.");
       const id = newId("u");
       db.prepare("INSERT INTO users (id, email, pw, created) VALUES (?,?,?,?)").run(id, e, hashPassword(password), Date.now());
       return [201, { user: { email: e } }, { "set-cookie": startSession(req, id) }];
@@ -91,8 +92,8 @@ export function createApp({ db, vault, syncer, push, siteDir, secureCookies = tr
       limit("login-ip:" + ip(req), 30, 15 * 60e3);
       limit("login:" + e, 8, 15 * 60e3);
       const u = db.prepare("SELECT id, pw FROM users WHERE email = ?").get(e);
-      if (!u) { burnPasswordTime(String(password || "")); throw new HttpError(401, "Wrong email or password."); }
-      if (!checkPassword(String(password || ""), u.pw)) throw new HttpError(401, "Wrong email or password.");
+      if (!u) { burnPasswordTime(String(password || "")); throw new HttpError(401, "Wrong username or password."); }
+      if (!checkPassword(String(password || ""), u.pw)) throw new HttpError(401, "Wrong username or password.");
       return [200, { user: { email: e } }, { "set-cookie": startSession(req, u.id) }];
     },
     "POST /api/auth/logout": async (req) => {

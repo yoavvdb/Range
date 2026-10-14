@@ -110,6 +110,12 @@ test("accounts: sign up, sign in, sign out, guards", async () => {
   assert.equal((await B.post("/api/auth/signup", { email: "a@example.com", password: "another-password" })).status, 409);
   assert.equal((await B.post("/api/auth/login", { email: "a@example.com", password: "wrong-password!" })).status, 401);
   assert.equal((await B.post("/api/auth/signup", { email: "b@example.com", password: "b-long-password" })).status, 201);
+  // a plain username works too
+  const C = client();
+  assert.equal((await C.post("/api/auth/signup", { email: "x", password: "c-long-password" })).status, 400);
+  assert.equal((await C.post("/api/auth/signup", { email: "Yoav_Lifts", password: "c-long-password" })).status, 201);
+  assert.equal((await C.post("/api/auth/login", { email: "yoav_lifts", password: "c-long-password" })).status, 200);
+  assert.equal((await C.get("/api/me")).body.user.email, "yoav_lifts");
   // changes need the X-Range header (cross-site forms can't send it)
   assert.equal((await A.raw("POST", "/api/auth/logout", null, { "x-range": "0" })).status, 403);
   // passwords are stored hashed

@@ -3530,7 +3530,7 @@ function authScreen(mode){
    <form id="auth" class="stack" style="align-content:start" onsubmit="return false">
     <h1>${mode==="up"?"Create your account":"Welcome back"}</h1>
     <p class="muted" style="margin:0">${mode==="up"?"Mobility and recovery built around your actual training. Connect your gym's app and Range keeps up with you.":"Sign in to your Range account."}</p>
-    <label class="field"><span class="eyebrow">Email</span><input name="email" type="email" autocomplete="email" required></label>
+    <label class="field"><span class="eyebrow">Username or email</span><input name="email" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
     <label class="field"><span class="eyebrow">Password${mode==="up"?" (at least 10 characters)":""}</span><input name="password" type="password" autocomplete="${mode==="up"?"new-password":"current-password"}" required></label>
     <p id="auMsg" class="c-bad" style="margin:0;font-size:14px" aria-live="polite"></p>
    </form>
@@ -3540,7 +3540,7 @@ function authScreen(mode){
 ACT.authSwitch=d=>authScreen(d.m);
 ACT.authGo=async d=>{
   const f=$("#auth"),email=f.email.value.trim(),password=f.password.value,msg=$("#auMsg"),btn=$("[data-act=authGo]");
-  if(!email||!password){msg.textContent="Enter your email and password.";return}
+  if(!email||!password){msg.textContent="Enter your username and password.";return}
   btn.disabled=true;msg.textContent="";
   try{await api("POST",d.m==="up"?"/auth/signup":"/auth/login",{email,password});$("#layer").innerHTML="";document.body.style.overflow="";await acctBoot()}
   catch(e){msg.textContent=e.message;btn.disabled=false}
