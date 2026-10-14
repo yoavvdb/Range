@@ -437,7 +437,7 @@ const MOVES={
  "Strict Press":{overhead:3,thoracic:2,shoulders:2},"Push Press":{overhead:3,thoracic:2,shoulders:1},"Bench Press":{shoulders:3,thoracic:1},
  "Pull-up":{overhead:3,shoulders:2},"Chest-to-bar Pull-up":{overhead:3,shoulders:2,thoracic:1},"Bar Muscle-up":{shoulders:3,overhead:3,thoracic:1},"Ring Muscle-up":{shoulders:3,overhead:2,thoracic:1},
  "Handstand Push-up":{overhead:3,shoulders:2,thoracic:2},"Handstand Walk":{overhead:3,shoulders:2},"Toes-to-bar":{overhead:2,posterior:3},"Rope Climb":{shoulders:2,overhead:2},
- "Kettlebell Swing":{posterior:3,hips:2},"Box Jump":{ankles:2,hips:2},"Lunges":{hips:3,ankles:2},"Pistol":{ankles:3,hips:3,posterior:2},"Burpee":{hips:1,shoulders:1,posterior:1},
+ "Kettlebell Swing":{posterior:3,hips:2},"Box Jump":{ankles:2,hips:2},"Lunges":{hips:3,ankles:2},"Step-ups":{hips:2,ankles:2},"Bulgarian Split Squat":{hips:3,ankles:1,posterior:1},"Front Rack Hold":{shoulders:2,thoracic:2},"Lateral Raise":{shoulders:1},"DB Row":{thoracic:1,shoulders:1},"Pistol":{ankles:3,hips:3,posterior:2},"Burpee":{hips:1,shoulders:1,posterior:1},
  "Double-unders":{ankles:3},"Rowing":{posterior:2,hips:2,ankles:2,thoracic:1},"Ski Erg":{overhead:2,posterior:2},"Assault Bike":{hips:3,thoracic:1},
  "Push-up":{shoulders:3},"Dips":{shoulders:3},"GHD Sit-up":{hips:2},"Running":{ankles:3,hips:3,posterior:2},"Sprints":{hips:3,posterior:3,ankles:2},"Hill Running":{ankles:3,hips:2,posterior:2},
  "Sled Push":{ankles:3,hips:2,posterior:1},"Sled Pull":{posterior:2,shoulders:1},"Burpee Broad Jump":{hips:2,ankles:2,posterior:1},"Farmers Carry":{shoulders:1,posterior:1,thoracic:1},"Sandbag Lunges":{hips:3,ankles:2,thoracic:1},
@@ -1383,7 +1383,7 @@ const MOVE_ZONES={
  "Front Squat":["quads","lats","ankles","adductors","upperback","forearm"],"Back Squat":["quads","glutes","adductors","ankles"],"Deadlift":["hamstrings","lowback","glutes"],"Romanian Deadlift":["hamstrings","lowback"],
  "Thruster":["ankles","quads","lats","upperback"],"Wall Ball":["ankles","quads","lats"],"Strict Press":["lats","upperback","shoulders"],"Push Press":["lats","upperback","ankles"],"Bench Press":["chest","shoulders"],
  "Pull-up":["lats","shoulders"],"Chest-to-bar Pull-up":["lats","shoulders","upperback"],"Bar Muscle-up":["chest","shoulders","lats"],"Ring Muscle-up":["chest","shoulders"],"Handstand Push-up":["shoulders","lats","upperback"],"Handstand Walk":["shoulders","lats"],
- "Toes-to-bar":["lats","hamstrings"],"Rope Climb":["lats","shoulders"],"Kettlebell Swing":["hamstrings","lowback","glutes"],"Box Jump":["calves","ankles"],"Lunges":["hipflex","quads"],"Pistol":["ankles","glutes","hamstrings"],
+ "Toes-to-bar":["lats","hamstrings"],"Rope Climb":["lats","shoulders"],"Kettlebell Swing":["hamstrings","lowback","glutes"],"Box Jump":["calves","ankles"],"Lunges":["hipflex","quads"],"Step-ups":["quads","glutes","hipflex"],"Bulgarian Split Squat":["hipflex","quads","glutes"],"Front Rack Hold":["lats","upperback","forearm"],"Lateral Raise":["shoulders"],"DB Row":["lats","upperback","biceps"],"Pistol":["ankles","glutes","hamstrings"],
  "Burpee":["hipflex","chest"],"Double-unders":["calves","ankles"],"Rowing":["hamstrings","upperback","ankles"],"Ski Erg":["lats","hamstrings"],"Assault Bike":["hipflex","quads"],"Push-up":["chest","shoulders"],"Dips":["chest","shoulders"],
  "GHD Sit-up":["hipflex"],"Running":["calves","hipflex","hamstrings"],"Sprints":["hamstrings","hipflex","calves"],"Hill Running":["calves","ankles","hipflex"],"Sled Push":["calves","hipflex"],"Sled Pull":["hamstrings","lowback"],
  "Burpee Broad Jump":["hipflex","hamstrings"],"Farmers Carry":["upperback"],"Sandbag Lunges":["hipflex","quads","upperback"],"Cycling":["hipflex","quads","upperback"],"Swimming":["lats","chest","shoulders"],"Climbing":["shoulders","lats","hipflex"]};
@@ -2534,13 +2534,13 @@ REGIONS.back.phasesBy={flexion:REGIONS.back.phases,extension:REGIONS.back.phases
    TARGET: Mobility for one area, then Lock it in with a strength drill in the new range.
    Every block skips exercises your active Rebuild program says to avoid (e.g. no Achilles stretching). */
 const MOVE_PREP=[
- {moves:["Squat Clean","Front Squat","Back Squat","Overhead Squat","Thruster","Wall Ball","Pistol","Clean & Jerk","Snatch","Lunges","Sandbag Lunges","Box Jump"],
+ {moves:["Squat Clean","Front Squat","Back Squat","Overhead Squat","Thruster","Wall Ball","Pistol","Clean & Jerk","Snatch","Lunges","Sandbag Lunges","Box Jump","Step-ups","Bulgarian Split Squat"],
   drills:[["b_hydrant",D_.reps(1,10,{sides:1}),"switches on the glutes that turn the knee out at the bottom"],["r_bandsquat",D_.hold(1,30),"wakes up the sides of the hips so your knees track over your toes"],["d_atgsplit",D_.reps(1,6,{sides:1,tempo:[3,1,1]}),"takes the knee forward past the toes under control, the range a deep squat needs"],["d_heelsq",D_.reps(1,8,{tempo:[3,1,1]}),"lets you sit deep and upright with the heels raised, grooving the squat bottom"],["r_goblethold",D_.rep(1,5,5),"rehearses a braced squat bottom before you load it"]]},
  {moves:["Deadlift","Romanian Deadlift","Power Clean","Squat Clean","Kettlebell Swing","Rowing","Sled Pull","Clean & Jerk"],
   drills:[["r_bridge",D_.rep(1,10,3),"switches the glutes on so the low back doesn't do their job"],["r_hinge",D_.reps(1,10),"grooves moving at the hips with a still spine before you pull"],["c_goodmorn",D_.reps(1,10,{tempo:[3,1,1]}),"rehearses the hinge with a load on your back, hamstrings long and back flat"]]},
  {moves:["Snatch","Power Snatch","Overhead Squat","Split Jerk","Push Jerk","Clean & Jerk","Strict Press","Push Press","Handstand Push-up","Handstand Walk","Wall Ball","Thruster"],
   drills:[["a_pullapart",D_.reps(1,15),"wakes up the upper back that holds the bar overhead"],["r_proneY",D_.reps(1,8),"turns on the lower traps so the shoulder blade rotates up under the bar"],["r_scappull",D_.reps(1,6),"teaches the shoulder blades to set before you press or hang"],["a_sots",D_.reps(1,6),"presses from the bottom of a squat, the hardest overhead position"],["r_ohs",D_.reps(2,5,{tempo:[3,2,1],note:"Pause at the bottom"}),"rehearses the exact overhead position you'll need, slowly, before the bar is loaded"]]},
- {moves:["Front Squat","Squat Clean","Power Clean","Clean & Jerk","Thruster","Push Press","Handstand Push-up","Handstand Walk","Push-up","Burpee"],
+ {moves:["Front Squat","Squat Clean","Power Clean","Clean & Jerk","Thruster","Push Press","Handstand Push-up","Handstand Walk","Push-up","Burpee","Front Rack Hold"],
   drills:[["r_wristrock",D_.reps(1,10),"warms up the wrists for the front rack and pressing"],["s7",null,"opens the lats and triceps so the elbows stay high in the front rack"],["a_bandrack",null,"lets the band pull the elbow up into a better rack position"]]},
  {moves:["Pull-up","Chest-to-bar Pull-up","Bar Muscle-up","Ring Muscle-up","Toes-to-bar","Rope Climb","Climbing","Ski Erg"],
   drills:[["r_bandw",D_.reps(1,12),"warms up the rotator cuff for high-rep pulling"],["a_extpull",D_.reps(1,12),"rehearses the lat pull-down of the kip with straight arms"],["r_scappull",D_.reps(1,6),"sets the shoulder blades before you hang and kip"]]},
@@ -2711,6 +2711,11 @@ const ALIASES=[
  ["Kettlebell Swing",/(kettlebell|kb|american|russian) swings?/],
  ["Box Jump",/box jump( over)?s?|\bbjos?\b/],
  ["Pistol",/pistols?/],
+ ["Bulgarian Split Squat",/bulgarian split squats?|\bbss\b|split squats?/],
+ ["Step-ups",/step[ -]?ups?/],
+ ["Front Rack Hold",/front rack holds?/],
+ ["Lateral Raise",/lateral raises?/],
+ ["DB Row",/\b(?:db|dumbbell|trap|kb|single[- ]arm|bent[ -]over|chest[ -]supported|seal)\b[^\n]{0,24}\brows?\b/],
  ["Sandbag Lunges",/sandbag lunges?/],
  ["Lunges",/lunges?/],
  ["Burpee",/burpees?/],
@@ -2745,18 +2750,21 @@ if(!Array.isArray(S.training))S.training=[];
 const isPast=w=>w.date<todayIso()||(w.date===todayIso()&&w.done);
 function upcoming(){return S.training.filter(w=>!isPast(w)).sort((a,b)=>a.date.localeCompare(b.date))}
 function past(){return S.training.filter(isPast).sort((a,b)=>b.date.localeCompare(a.date))}
+// did you actually do it? A synced day is only your gym's programme until you log a score or tick it done;
+// workouts you add yourself count as done once their day has passed (or when ticked)
+const didIt=w=>!!w.result||!!w.marked||(w.source!=="sugarwod-auto"&&!!w.done);
 // the day you actually did a session: when you logged its score if that's later than its programmed date
 // (catching up on missed days means doing the 5 Oct programme on the 14th and logging it under the 5th)
 const isoLocal=t=>{const d=new Date(t);return isNaN(d)?"":`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`};
 const doneDay=w=>{const l=w.loggedAt?isoLocal(w.loggedAt):"";return l&&l>w.date?l:w.date};
 // the last n past sessions you logged scores for (falls back to sessions marked done)
-function scoredRecent(n){const p=past().sort((a,b)=>doneDay(b).localeCompare(doneDay(a))||(b.loggedAt||"").localeCompare(a.loggedAt||""));const s=p.filter(w=>w.result);return(s.length?s:p.filter(w=>w.done)).slice(0,n)}
+function scoredRecent(n){const p=past().sort((a,b)=>doneDay(b).localeCompare(doneDay(a))||(b.loggedAt||"").localeCompare(a.loggedAt||""));const s=p.filter(w=>w.result);return(s.length?s:p.filter(didIt)).slice(0,n)}
 function nextSession(){return upcoming()[0]||null}
-function recentSessions(){const t=todayIso();return past().filter(w=>daysFrom(doneDay(w),t)<=1)}
+function recentSessions(){const t=todayIso();return past().filter(w=>didIt(w)&&daysFrom(doneDay(w),t)<=1)}
 // Load on each area from the last 3 days: today 1, yesterday .8, 2 days .5, 3 days .3
 function recentLoad(){
   const t=todayIso(),wt=[1,.8,.5,.3],load={};AREAS.forEach(a=>load[a.k]=0);
-  past().forEach(w=>{const ago=daysFrom(doneDay(w),t);if(ago<0||ago>3)return;const d=demandOf(w.moves);for(const k in d)load[k]+=d[k]*wt[ago]});
+  past().forEach(w=>{if(!didIt(w))return;const ago=daysFrom(doneDay(w),t);if(ago<0||ago>3)return;const d=demandOf(w.moves);for(const k in d)load[k]+=d[k]*wt[ago]});
   return load;
 }
 function wTitle(w){return w.title||(w.text||"").split("\n").map(s=>s.trim()).find(Boolean)?.slice(0,40)||"Workout"}
@@ -2766,7 +2774,7 @@ ACT.prepNext=()=>{const n=nextSession();if(n)prepFor(n)};
 ACT.recoverRecent=()=>{const r=recentSessions();if(r.length)recoverFrom(r)};
 ACT.prepW=d=>{const w=S.training.find(x=>x.id===d.id);if(w)prepFor(w)};
 ACT.recW=d=>{const w=S.training.find(x=>x.id===d.id);if(w)recoverFrom([w])};
-ACT.doneW=d=>{const w=S.training.find(x=>x.id===d.id);if(w){w.done=!w.done;save();render()}};
+ACT.doneW=d=>{const w=S.training.find(x=>x.id===d.id);if(!w)return;if(isPast(w)&&w.source==="sugarwod-auto"&&!w.result)w.marked=!w.marked;else{w.done=!w.done;w.marked=w.done}save();render()};
 
 /* Back from a break: a gap of 7+ days since the last session with scores.
    Detraining research: strength holds for ~2-3 weeks off, but tissue tolerance and bar speed drop sooner,
@@ -2798,7 +2806,7 @@ const wRow=w=>{
    ${w.loggedAt?(()=>{const late=daysFrom(w.date,iso(new Date(w.loggedAt)));return`<small>Scores entered ${fromIso(iso(new Date(w.loggedAt))).toLocaleDateString(undefined,{day:"numeric",month:"short"})}${late>1?` · ${late} days later`:""}</small>`})():""}
    ${up&&reentryFor(w)?`<small class="c-warn">Re-entry: ${esc(reentryFor(w))}</small>`:""}
    ${w.moves.length?`<small>Loads ${f.map(k=>AN[k]).join(" & ")}</small>`:`<small>No movements found. Tap to add them.</small>`}</button>
-   <div class="wa">${up&&w.moves.length?`<button class="link" data-act="prepW" data-id="${w.id}">Prepare</button>`:""}${w.moves.length?`<button class="link" data-act="recW" data-id="${w.id}">Recover</button>`:""}${up&&w.date===todayIso()?`<button class="link muted" data-act="doneW" data-id="${w.id}">Mark done</button>`:""}</div></div>`;
+   <div class="wa">${up&&w.moves.length?`<button class="link" data-act="prepW" data-id="${w.id}">Prepare</button>`:""}${w.moves.length?`<button class="link" data-act="recW" data-id="${w.id}">Recover</button>`:""}${up&&w.date===todayIso()?`<button class="link muted" data-act="doneW" data-id="${w.id}">Mark done</button>`:""}${!up&&!w.result&&w.source==="sugarwod-auto"?`<button class="link ${w.marked?"":"muted"}" data-act="doneW" data-id="${w.id}">${w.marked?"Done ✓":"I did this"}</button>`:""}</div></div>`;
 };
 SCREENS.training=()=>{
   const nx=nextSession(),rec=recentSessions(),load=recentLoad(),mx=Math.max(1,...Object.values(load)),ups=upcoming().filter(w=>w.date<=addDays(todayIso(),6)),ps=scoredRecent(3);
