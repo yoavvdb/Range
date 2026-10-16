@@ -1482,7 +1482,7 @@ SCREENS.home=()=>{
   <div class="carousel" id="car">${Object.entries(KINDS).map(([k,v])=>`
     <button class="pcard ${v.g}" data-act="startKind" data-kind="${k}" aria-label="${v.n}, ${v.sub}">
       <div class="art">${fig(v.pose,null,{anim:true})}</div>
-      <h2>${v.n}</h2><p>${k==="recover"&&loggedToday().length?`From today's ${loggedToday().length===1?"workout":loggedToday().length+" workouts"}`:v.sub}</p><span class="go">Start ▶</span></button>`).join("")}</div>
+      <h2>${v.n}</h2><p>${k==="activate"&&nextWorkout()?`For ${(w=>{const d=dayLabel(w.date);return d==="Today"?"today's":d==="Tomorrow"?"tomorrow's":fromIso(w.date).toLocaleDateString(undefined,{weekday:"long"})+"'s"})(nextWorkout())} workout`:k==="recover"&&loggedToday().length?`From today's ${loggedToday().length===1?"workout":loggedToday().length+" workouts"}`:v.sub}</p><span class="go">Start ▶</span></button>`).join("")}</div>
   <div class="dots" id="cardots">${Object.keys(KINDS).map((_,i)=>`<i class="${i?"":"on"}"></i>`).join("")}</div>
   <div class="stack">
     ${S.rehab?(()=>{const R=REGIONS[S.rehab.region],ph=rbPhases(R,S.rehab.cls)[S.rehab.phase],st=rbStatus();return`<button class="ntile" data-act="tab" data-t="rebuild"><span class="eyebrow">Rebuild · ${R.n} · Phase ${S.rehab.phase+1}</span><b>${esc(ph.n)}</b><span class="go ${st.k==="back"||st.k==="stuck"?"c-bad":""}">${st.k==="back"?"Back off":st.k==="ready"?"Progress":"Open"}</span></button>`})():""}
@@ -1505,6 +1505,8 @@ ACT.startKind=d=>{
   if(k==="rebuild"){ACT.tab({t:"rebuild"});return}
   // Recover goes straight to everything you logged a score for today (from SugarWOD or added by hand)
   if(k==="recover"){const td=loggedToday();if(td.length){recoverFrom(td);return}}
+  // Activate goes straight to your next workout's movements
+  if(k==="activate"){const nx=nextWorkout();if(nx){prepFor(nx);return}}
   if(k==="activate"||k==="recover")go("sport",{kind:k});
   else startWizard({kind:k});
 };
@@ -2849,6 +2851,7 @@ function scoredRecent(n){const p=past().sort((a,b)=>doneDay(b).localeCompare(don
 function nextSession(){return upcoming()[0]||null}
 // what to recover from: everything you did today (whatever day it was programmed for), or else yesterday's sessions
 function recentSessions(){const t=todayIso(),done=past().filter(didIt),td=done.filter(w=>doneDay(w)===t);return td.length?td:done.filter(w=>doneDay(w)===addDays(t,-1))}
+const nextWorkout=()=>upcoming().find(w=>w.moves.length)||null;
 const loggedToday=()=>sessionsDoneOn(todayIso()).filter(w=>w.moves.length);
 function sessionsDoneOn(day){return past().filter(w=>didIt(w)&&doneDay(w)===day)}
 const recLabel=rec=>`Recover · ${dayLabel(doneDay(rec[0]))}${rec.length>1?` · ${rec.length} workouts`:""}`;
