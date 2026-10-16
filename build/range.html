@@ -2925,7 +2925,7 @@ async function autoSync(force){
     const r=mergeRows((data.workouts||[]).map(w=>({date:w.date,title:w.title,text:w.text,result:w.result,loggedAt:w.loggedAt})),"sugarwod-auto");
     S.sync={...S.sync,checked:Date.now(),syncedAt:data.syncedAt||null,count:(data.workouts||[]).length,lastAdded:r.added,error:""};
     if(r.fresh.length)recoverNudge(r.fresh);
-  }catch(e){S.sync={...S.sync,checked:Date.now(),error:"The passphrase doesn't match. Use the same RANGE_SYNC_KEY you saved in GitHub."}}
+  }catch(e){S.sync={...S.sync,checked:Date.now(),error:"The passphrase doesn't open the sync file. Use the RANGE_SYNC_KEY saved in GitHub. If you just changed it there, the file switches to the new one at the next sync (hourly, or run it now: GitHub → Actions → SugarWOD sync → Run workflow)."}}
   save();const top=stack[stack.length-1].name;if(top==="training"||top==="home")render();
 }
 const agoText=t=>{if(!t)return"never";const m=Math.round((Date.now()-new Date(t))/6e4);return m<2?"just now":m<60?`${m} min ago`:m<1440?`${Math.round(m/60)} h ago`:`${Math.round(m/1440)} d ago`};
