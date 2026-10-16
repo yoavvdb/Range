@@ -61,7 +61,7 @@ export async function fetchSugarwod(page, { back = 7, ahead = 7, historyDays = 6
     if (!real.length) return { date, title: "Rest day", text: "", source: "sugarwod" };
     return {
       date,
-      title: real.map((p) => p.title).filter(Boolean).slice(0, 3).join(" · ").slice(0, 80) || "Workout",
+      title: [...new Set(real.map((p) => p.title).filter(Boolean))].slice(0, 3).reduce((t, x) => (!t ? x : (t + " · " + x).length <= 80 ? t + " · " + x : t), "") || "Workout",
       text: real.map((p) => [p.title, p.text].filter(Boolean).join("\n")).join("\n\n"),
       ...(d.results.length ? { result: d.results.map((r) => r.result).join("; "), done: true } : {}),
       // when you entered the scores (the latest one for that day), so late logging shows up
