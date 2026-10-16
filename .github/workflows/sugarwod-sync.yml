@@ -34,6 +34,12 @@ jobs:
           cache: npm
           cache-dependency-path: sugarwod-sync/package-lock.json
 
+      # the browser download is cached between runs, so most hourly runs skip it
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('sugarwod-sync/package-lock.json') }}
+
       - name: Install the sync tool
         working-directory: sugarwod-sync
         run: |
