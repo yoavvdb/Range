@@ -2846,7 +2846,8 @@ const addDays=(s,n)=>{const d=fromIso(s);d.setDate(d.getDate()+n);return iso(d)}
 const daysFrom=(a,b)=>Math.round((fromIso(b)-fromIso(a))/864e5); // b - a in days
 function dayLabel(s){const n=daysFrom(todayIso(),s);if(n===0)return"Today";if(n===1)return"Tomorrow";if(n===-1)return"Yesterday";return fromIso(s).toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short"})}
 if(!Array.isArray(S.training))S.training=[];
-const isPast=w=>w.date<todayIso()||(w.date===todayIso()&&w.done);
+// today's workout counts as done once it has a logged score (or you marked it), not only after "Mark done"
+const isPast=w=>w.date<todayIso()||(w.date===todayIso()&&(w.done||!!w.result||!!w.marked));
 function upcoming(){return S.training.filter(w=>!isPast(w)).sort((a,b)=>a.date.localeCompare(b.date))}
 function past(){return S.training.filter(isPast).sort((a,b)=>b.date.localeCompare(a.date))}
 // did you actually do it? A synced day is only your gym's programme until you log a score or tick it done;
