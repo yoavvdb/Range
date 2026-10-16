@@ -1482,7 +1482,7 @@ SCREENS.home=()=>{
   <div class="carousel" id="car">${Object.entries(KINDS).map(([k,v])=>`
     <button class="pcard ${v.g}" data-act="startKind" data-kind="${k}" aria-label="${v.n}, ${v.sub}">
       <div class="art">${fig(v.pose,null,{anim:true})}</div>
-      <h2>${v.n}</h2><p>${v.sub}</p><span class="go">Start ▶</span></button>`).join("")}</div>
+      <h2>${v.n}</h2><p>${k==="recover"&&loggedToday().length?`From today's ${loggedToday().length===1?"workout":loggedToday().length+" workouts"}`:v.sub}</p><span class="go">Start ▶</span></button>`).join("")}</div>
   <div class="dots" id="cardots">${Object.keys(KINDS).map((_,i)=>`<i class="${i?"":"on"}"></i>`).join("")}</div>
   <div class="stack">
     ${S.rehab?(()=>{const R=REGIONS[S.rehab.region],ph=rbPhases(R,S.rehab.cls)[S.rehab.phase],st=rbStatus();return`<button class="ntile" data-act="tab" data-t="rebuild"><span class="eyebrow">Rebuild · ${R.n} · Phase ${S.rehab.phase+1}</span><b>${esc(ph.n)}</b><span class="go ${st.k==="back"||st.k==="stuck"?"c-bad":""}">${st.k==="back"?"Back off":st.k==="ready"?"Progress":"Open"}</span></button>`})():""}
@@ -1503,6 +1503,8 @@ AFTER.home=()=>{
 ACT.startKind=d=>{
   const k=d.kind;
   if(k==="rebuild"){ACT.tab({t:"rebuild"});return}
+  // Recover goes straight to everything you logged a score for today (from SugarWOD or added by hand)
+  if(k==="recover"){const td=loggedToday();if(td.length){recoverFrom(td);return}}
   if(k==="activate"||k==="recover")go("sport",{kind:k});
   else startWizard({kind:k});
 };
@@ -2847,6 +2849,7 @@ function scoredRecent(n){const p=past().sort((a,b)=>doneDay(b).localeCompare(don
 function nextSession(){return upcoming()[0]||null}
 // what to recover from: everything you did today (whatever day it was programmed for), or else yesterday's sessions
 function recentSessions(){const t=todayIso(),done=past().filter(didIt),td=done.filter(w=>doneDay(w)===t);return td.length?td:done.filter(w=>doneDay(w)===addDays(t,-1))}
+const loggedToday=()=>sessionsDoneOn(todayIso()).filter(w=>w.moves.length);
 function sessionsDoneOn(day){return past().filter(w=>didIt(w)&&doneDay(w)===day)}
 const recLabel=rec=>`Recover · ${dayLabel(doneDay(rec[0]))}${rec.length>1?` · ${rec.length} workouts`:""}`;
 // Load on each area from the last 3 days: today 1, yesterday .8, 2 days .5, 3 days .3
@@ -2900,7 +2903,7 @@ const wRow=w=>{
    ${w.loggedAt?(()=>{const late=daysFrom(w.date,iso(new Date(w.loggedAt)));return late>1?`<small>Logged ${fromIso(iso(new Date(w.loggedAt))).toLocaleDateString(undefined,{day:"numeric",month:"short"})}, ${late} days after the workout</small>`:""})():""}
    ${up&&reentryFor(w)?`<small class="c-warn">Re-entry: ${esc(reentryFor(w))}</small>`:""}
    ${w.moves.length?`<small>Loads ${f.map(k=>AN[k]).join(" & ")}</small>`:/rest|recovery|off/i.test(w.title||"")?"":`<small>No movements found. Tap to add them.</small>`}</button>
-   <div class="wa">${up&&w.moves.length?`<button class="link" data-act="prepW" data-id="${w.id}">Prepare</button>`:""}${w.moves.length&&(!up||w.date===todayIso())?`<button class="link" data-act="recW" data-id="${w.id}">${(n=>n>1?`Recover all ${n}`:"Recover")(didIt(w)?sessionsDoneOn(doneDay(w)).length:0)}</button>`:""}${up&&w.date===todayIso()?`<button class="link muted" data-act="doneW" data-id="${w.id}">Mark done</button>`:""}${!up&&!w.result&&w.source==="sugarwod-auto"?`<button class="link ${w.marked?"":"muted"}" data-act="doneW" data-id="${w.id}">${w.marked?"Done ✓":"I did this"}</button>`:""}</div></div>`;
+   <div class="wa">${up&&w.moves.length?`<button class="link" data-act="prepW" data-id="${w.id}">Prepare</button>`:""}${w.moves.length&&(!up||w.date===todayIso())?`<button class="link" data-act="recW" data-id="${w.id}">${(n=>n>1?`Recover all ${n}`:"Recover")(didIt(w)?sessionsDoneOn(doneDay(w)).length:0)}</button>`:""}</div></div>`;
 };
 SCREENS.training=()=>{
   const nx=nextSession(),rec=recentSessions(),load=recentLoad(),mx=Math.max(1,...Object.values(load)),ups=upcoming().filter(w=>w.date<=addDays(todayIso(),6)),ps=scoredRecent(3);
