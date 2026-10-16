@@ -206,6 +206,8 @@ img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;o
 .res button{text-align:left;padding:12px 2px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
 .res small{color:var(--muted)}
 .selchip{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:12px;box-shadow:inset 0 0 0 1.5px var(--accent);font-weight:600}
+.fcard{flex:none;width:150px;min-height:92px;border-radius:14px;padding:14px;display:grid;align-content:end;gap:2px;text-align:left;color:#fff}.fcard b{font-size:16px;font-weight:800}.fcard small{font-size:12px;opacity:.85}
+.slv{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}.slv>div{display:grid;gap:2px}.slv small{font-size:12px}.slv .pill{font-size:14px;min-width:44px;text-align:center}
 .navrow{display:flex;justify-content:space-between;align-items:center;text-align:left;width:100%}.navrow>span:first-child{display:grid;gap:2px}.navrow small{font-size:13px}.navrow .chev{transform:rotate(180deg);display:inline-grid;color:var(--muted)}
 .panel>.toggle:last-child{border-bottom:0}
 .toggle{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);width:100%;text-align:left}
@@ -462,6 +464,26 @@ const SPORTS=[
  {k:"cycling",n:"Cycling",g:"g-c",pose:"pike",m:["Cycling"]},
 ];
 const SPI=Object.fromEntries(SPORTS.map(s=>[s.k,s]));
+// How much each sport depends on range in each area (0-1) and which areas it most often gets hurt in (Range's own estimates).
+const SPORT_NEEDS={
+ crossfit:{d:{shoulders:.8,overhead:1,thoracic:.8,hips:.9,posterior:.7,ankles:.8},inj:["shoulders","posterior"]},
+ weightlifting:{d:{shoulders:.6,overhead:1,thoracic:.9,hips:1,posterior:.5,ankles:1},inj:["posterior","overhead"]},
+ hyrox:{d:{shoulders:.4,overhead:.4,thoracic:.5,hips:.9,posterior:.8,ankles:.8},inj:["ankles","posterior"]},
+ running:{d:{shoulders:.2,overhead:.1,thoracic:.3,hips:.9,posterior:.8,ankles:1},inj:["ankles","hips"]},
+ strength:{d:{shoulders:.7,overhead:.4,thoracic:.6,hips:.9,posterior:.8,ankles:.7},inj:["posterior","shoulders"]},
+ climbing:{d:{shoulders:1,overhead:.9,thoracic:.6,hips:.8,posterior:.5,ankles:.3},inj:["shoulders"]},
+ swimming:{d:{shoulders:1,overhead:1,thoracic:.9,hips:.3,posterior:.3,ankles:.5},inj:["shoulders"]},
+ cycling:{d:{shoulders:.2,overhead:.1,thoracic:.6,hips:.9,posterior:.8,ankles:.4},inj:["posterior","hips"]},
+};
+// your mobility for one sport: area scores weighted by what the sport needs; the limiter is the gap that costs the most
+function sportLevel(k,sc){const N=SPORT_NEEDS[k];if(!N)return null;let t=0,w=0,lim=null,worst=-1;
+  AREAS.forEach(a=>{const d=N.d[a.k]||0;t+=d*sc[a.k];w+=d;const gap=Math.max(0,95-sc[a.k])*(.55+.45*Math.min(1,d+(N.inj.includes(a.k)?.15:0)));if(gap>worst){worst=gap;lim=a.k}});
+  return{level:Math.round(t/(w||1)),lim:worst>5?lim:null}}
+// how much your sports care about each area (about 0-1), averaged over your sports; injury-prone areas count a little more
+function sportWeight(){const ks=(S.sports||[]).filter(k=>SPORT_NEEDS[k]),o={};
+  AREAS.forEach(a=>{o[a.k]=ks.length?Math.min(1,ks.reduce((t,k)=>t+(SPORT_NEEDS[k].d[a.k]||0)+(SPORT_NEEDS[k].inj.includes(a.k)?.15:0),0)/ks.length):.6});return o}
+// the area whose improvement helps your sports most (what Daily leans toward), next to your plain weakest area
+function sportPriority(sc){const sw=sportWeight();return AREAS.slice().sort((a,b)=>(95-sc[b.k])*(.55+.45*sw[b.k])-(95-sc[a.k])*(.55+.45*sw[a.k]))[0].k}
 
 const TEST=[
  {k:"ankles",t:"Knee-to-wall",uni:1,pose:"calf",props:[["wall",188]],how:"Barefoot, facing a wall, {s} foot forward. Keep the {s} heel down and touch the {s} knee to the wall. How far can your big toe be from the wall?",o:["Under 5 cm","5–8 cm","8–12 cm","Over 12 cm"]},
@@ -1415,12 +1437,12 @@ function recentExercises(){const now=Date.now(),m=new Map();S.sessions.forEach(s
 function analyze(o){
   const sc=scores(),moves=planMoves(o),W=WEIGHTS[o.kind]||WEIGHTS.daily;
   const demand=normMap(demandOf(moves)),load=normMap(recentLoad());
-  const nx=nextSession(),nextD=normMap(nx&&o.kind!=="activate"?demandOf(nx.moves):{}),str=recentlyStretched(),wk=weekStretch();
+  const nx=nextSession(),nextD=normMap(nx&&o.kind!=="activate"?demandOf(nx.moves):{}),str=recentlyStretched(),wk=weekStretch(),sw=sportWeight();
   const need={},parts={};
   AREAS.forEach(({k})=>{
     if(o.kind==="target"){need[k]=k===o.zone?1:0;parts[k]={};return}
     // areas that already hit the weekly stretching target get less static time (more stretching won't add range)
-    const p={weak:W.weak*Math.max(0,(95-sc[k])/95),demand:W.demand*(demand[k]||0),load:W.load*(load[k]||0),next:W.next*(nextD[k]||0),pen:W.fresh*(str[k]||0)+(o.kind==="daily"&&(wk[k]||0)>=WEEK_TARGET?.2:0)};
+    const p={weak:W.weak*Math.max(0,(95-sc[k])/95)*(.55+.45*sw[k]),demand:W.demand*(demand[k]||0),load:W.load*(load[k]||0),next:W.next*(nextD[k]||0),pen:W.fresh*(str[k]||0)+(o.kind==="daily"&&(wk[k]||0)>=WEEK_TARGET?.2:0)};
     parts[k]=p;need[k]=Math.max(.03,p.weak+p.demand+p.load+p.next-p.pen);
   });
   return{need,parts,ctx:{sc,nx}};
@@ -1864,9 +1886,21 @@ ACT.doneHome=()=>{$("#layer").innerHTML="";document.body.style.overflow="";stack
 
 /* ================= library ================= */
 let libQ="",libA="",libMode="muscle",libM="";
+// Anytime flows: fixed routines for moments in the day, the same every time (no test or workout needed)
+const FLOWS=[
+ {k:"desk",n:"Desk break",sub:"Undo sitting",pose:"crossBody",items:[["e1_uptrap",30],["t4",40],["e2_sidebend",30],["h6",30],["e1_clasp",30],["e2_backbend",20]]},
+ {k:"wake",n:"Wake up",sub:"Morning",pose:"lunge",items:[["t4",45],["wgs",30],["h7",60],["t1",30],["inch",45],["e2_standquad",30]]},
+ {k:"travel",n:"After sitting",sub:"Drive or flight",pose:"kneel",items:[["h6",40],["p1",40],["t4",40],["e2_standquad",30],["a2",30],["e2_backbend",20]]},
+ {k:"night",n:"Wind down",sub:"Before bed",pose:"child",items:[["o5",45],["h2",60],["e2_twist",45],["c_kneehug",45],["d_legsup",90],["r_breath",120]]},
+];
+const flowItems=f=>f.items.filter(([id])=>LIBI[id]&&LIBI[id].eq.every(q=>S.equip.includes(q))).map(([id,t])=>LIBI[id].rehab?{id,dose:D_.time(t),why:"Slow breathing with long exhales to finish."}:{id,hold:t,why:`Part of the ${f.n} flow.`});
+ACT.flowStart=d=>{const f=FLOWS.find(x=>x.k===d.k);if(f)openPlayer(flowItems(f),{kind:"daily",focus:[],title:f.n})};
+const flowsRow=()=>`<div class="stack" style="gap:8px"><span class="eyebrow">Anytime flows</span><div class="hscroll">${FLOWS.map(f=>{const m=Math.max(1,Math.round(flowItems(f).reduce((t,it)=>t+itemSecs(it),0)/60));
+  return`<button class="fcard ${KINDS.daily.g}" data-act="flowStart" data-k="${f.k}"><b>${f.n}</b><small>${f.sub} · ${m} min</small></button>`}).join("")}</div></div>`;
 SCREENS.library=()=>`<div class="hdr" style="grid-template-columns:1fr"><div class="brand">Range<b>.</b></div></div>
   <div class="stack" style="padding-top:8px">
   <h1>Library</h1>
+  ${libQ?"":flowsRow()}
   <label class="search" style="box-shadow:none">${ic("search")}<input id="lq" placeholder="Search ${LIB.filter(e=>!e.custom).length} exercises or a muscle" value="${esc(libQ)}" autocomplete="off" aria-label="Search exercises"></label>
   <div class="seg" style="grid-template-columns:1fr 1fr">${[["muscle","By muscle"],["area","By area"]].map(([k,n])=>`<button class="${libMode===k?"on":""}" data-act="libMode" data-k="${k}">${n}</button>`).join("")}</div>
   ${libMode==="area"?`<div class="hscroll">${[["","All"],...AREAS.map(a=>[a.k,a.n]),["rehab","Strength & rehab"]].map(([k,n])=>`<button class="chip ${libA===k?"on":""}" data-act="libArea" data-a="${k}">${n}</button>`).join("")}</div>`:
@@ -2667,6 +2701,12 @@ function buildPlan(o){
     add("Mobilise",mob.items);add("Activate",act);
   }else if(o.kind==="recover"){
     const br=o.minutes>=10?(o.minutes>=15?150:90):0;left-=br;
+    // with a foam roller: self-massage the muscles you just worked first, then the long holds
+    if(!flash&&o.equip.includes("roller")){
+      const rel=LIB.filter(ex=>ex.eq.includes("roller")&&!ex.rehab&&!hooks.x.has(ex.id)).map(ex=>({ex,s:ex.z.reduce((t,z)=>t+(zd[z]||0),0)+(need[ex.a]||0)})).filter(x=>x.s>.4).sort((a,b)=>b.s-a.s)
+        .slice(0,o.minutes>=15?3:2).map(({ex})=>({id:ex.id,hold:60,why:`Rolling first: slow pressure on the ${ex.z.map(z=>ZONES[z].toLowerCase()).join(" and ")} you just worked eases tension, so the long holds that follow go deeper.`}));
+      add("Release",fit(rel,left*.3));
+    }
     pool=pool.filter(ex=>!ex.dyn||ex.roll);add("Long holds",pickMobility(o,C,left,pool,state).items);
     if(br)add("Wind down",[{id:"r_breath",dose:D_.time(br),why:"Slow breathing with long exhales shifts the nervous system from training mode into recovery mode. Ending here, lying down, is the best lead-in to rest and sleep."}]);
   }else if(o.kind==="daily"){
@@ -3368,8 +3408,16 @@ SCREENS.profile=()=>{
     <div class="score"><b>${ov}</b><span class="pill ${lv.c}">${lv.t}</span></div>
     ${radar(sc)}
     <ul class="bars">${AREAS.map(a=>{const v=sc[a.k],l=level(v);return`<li><span>${a.n}</span><span class="tr"><i style="width:${v}%;background:${l.v}"></i></span><b>${v}</b></li>`}).join("")}</ul>
+    ${(()=>{const prev=S.tests.length>1?S.tests[S.tests.length-2].scores:null;if(!prev||!S.scores)return"";
+      const ch=AREAS.map(a=>[a,sc[a.k]-(prev[a.k]??sc[a.k])]).filter(([,d])=>d);
+      return ch.length?`<p style="margin:0;font-size:13px"><span class="muted">Since your previous test:</span> ${ch.map(([a,d])=>`${a.n} <b class="${d>0?"c-good":"c-bad"}">${d>0?"+":""}${d}</b>`).join(" · ")}</p>`:`<p class="muted" style="margin:0;font-size:13px">Same scores as your previous test.</p>`})()}
     ${last&&left>0?`<p class="muted" style="margin:0;font-size:13px">Last tested ${new Date(last.at).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})}. Your next test is due in ${left} day${left===1?"":"s"}.</p><button class="btn sec" data-act="openTest">Retest early</button>`:`<button class="btn" data-act="openTest">Test my mobility</button>`}
   </div>
+  ${(()=>{const ks=(S.sports||[]).filter(k=>SPORT_NEEDS[k]);if(!ks.length)return"";
+    const pri=sportPriority(sc),weakest=AREAS.slice().sort((x,y)=>sc[x.k]-sc[y.k])[0].k;
+    return`<div class="panel"><span class="eyebrow">Your mobility for your sports${S.scores?"":" · example"}</span>
+    ${ks.map(k=>{const r=sportLevel(k,sc),l=level(r.level);return`<div class="slv"><div><b>${SPI[k].n}</b><small class="muted">${r.lim?`Held back most by ${AN[r.lim]}`:"No area holding you back"}</small></div><span class="pill ${l.c}">${r.level}</span></div>`}).join("")}
+    <p class="muted" style="margin:0;font-size:13px">${pri===weakest?`Daily sessions focus on ${AN[pri]}: your lowest score, and it matters for your sports.`:`Daily sessions lean toward ${AN[pri]}, not your lowest score (${AN[weakest]}): ${AN[pri]} matters more for ${ks.map(k=>SPI[k].n).join(" and ")} and is a common injury area, so improving it pays off most.`}</p></div>`})()}
   <div class="stats3">
     <div class="tile"><span class="eyebrow">Streak</span><b>${streak()}</b></div>
     <div class="tile"><span class="eyebrow">Min / week</span><b>${S.sessions.filter(s=>s.at>=wk).reduce((t,s)=>t+s.mins,0)}</b></div>
