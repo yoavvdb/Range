@@ -1487,9 +1487,7 @@ SCREENS.home=()=>{
   <div class="dots" id="cardots">${Object.keys(KINDS).map((_,i)=>`<i class="${i?"":"on"}"></i>`).join("")}</div>
   <div class="stack">
     ${S.rehab?(()=>{const R=REGIONS[S.rehab.region],ph=rbPhases(R,S.rehab.cls)[S.rehab.phase],st=rbStatus();return`<button class="ntile" data-act="tab" data-t="rebuild"><span class="eyebrow">Rebuild · ${R.n} · Phase ${S.rehab.phase+1}</span><b>${esc(ph.n)}</b><span class="go ${st.k==="back"||st.k==="stuck"?"c-bad":""}">${st.k==="back"?"Back off":st.k==="ready"?"Progress":"Open"}</span></button>`})():""}
-    ${(()=>{const nx=nextSession(),rec=recentSessions();if(!nx&&!rec.length)return"";return`<div class="nexttiles">
-      ${nx?`<button class="ntile" data-act="prepNext"><span class="eyebrow">Next session · ${dayLabel(nx.date)}</span><b>${esc(wTitle(nx))}</b><span class="go">Prepare</span></button>`:""}
-      ${rec.length?`<button class="ntile" data-act="recoverRecent"><span class="eyebrow">${recLabel(rec)}</span><b>${esc(rec.map(wTitle).join(" + "))}</b><span class="go">Recover</span></button>`:""}</div>`})()}
+    ${flowsRow()}
     ${S.scores?"":`<div class="banner"><div><h3>Find your weak spots</h3><div class="muted" style="font-size:14px;margin-top:4px">Take the 5-minute mobility test: ${TSTEPS.length} quick checks across 6 areas. Until then, routines use an example profile.</div></div><button class="btn" data-act="openTest">Test my mobility</button></div>`}
     <div class="tiles">
       <button class="tile" data-act="tab" data-t="profile"><span class="eyebrow">Mobility score</span><b>${ov}</b><span class="pill ${lv.c}" style="justify-self:start">${S.scores?lv.t:"Example"}</span></button>
@@ -1959,7 +1957,6 @@ const routinesPanel=()=>{const rs=myRoutines();return`<div class="stack" style="
 SCREENS.library=()=>`<div class="hdr" style="grid-template-columns:1fr"><div class="brand">Range<b>.</b></div></div>
   <div class="stack" style="padding-top:8px">
   <h1>Library</h1>
-  ${libQ?"":flowsRow()}
   ${libQ?"":routinesPanel()}
   <label class="search" style="box-shadow:none">${ic("search")}<input id="lq" placeholder="Search ${LIB.filter(e=>!e.custom).length} exercises or a muscle" value="${esc(libQ)}" autocomplete="off" aria-label="Search exercises"></label>
   <div class="seg" style="grid-template-columns:1fr 1fr">${[["muscle","By muscle"],["area","By area"]].map(([k,n])=>`<button class="${libMode===k?"on":""}" data-act="libMode" data-k="${k}">${n}</button>`).join("")}</div>
