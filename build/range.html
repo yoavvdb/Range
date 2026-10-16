@@ -1488,7 +1488,7 @@ SCREENS.home=()=>{
     ${S.rehab?(()=>{const R=REGIONS[S.rehab.region],ph=rbPhases(R,S.rehab.cls)[S.rehab.phase],st=rbStatus();return`<button class="ntile" data-act="tab" data-t="rebuild"><span class="eyebrow">Rebuild · ${R.n} · Phase ${S.rehab.phase+1}</span><b>${esc(ph.n)}</b><span class="go ${st.k==="back"||st.k==="stuck"?"c-bad":""}">${st.k==="back"?"Back off":st.k==="ready"?"Progress":"Open"}</span></button>`})():""}
     ${(()=>{const nx=nextSession(),rec=recentSessions();if(!nx&&!rec.length)return"";return`<div class="nexttiles">
       ${nx?`<button class="ntile" data-act="prepNext"><span class="eyebrow">Next session · ${dayLabel(nx.date)}</span><b>${esc(wTitle(nx))}</b><span class="go">Prepare</span></button>`:""}
-      ${rec.length?`<button class="ntile" data-act="recoverRecent"><span class="eyebrow">Recover · ${rec.length===1?dayLabel(doneDay(rec[0])):"last 2 days"}</span><b>${esc(rec.map(wTitle).join(" + "))}</b><span class="go">Recover</span></button>`:""}</div>`})()}
+      ${rec.length?`<button class="ntile" data-act="recoverRecent"><span class="eyebrow">${recLabel(rec)}</span><b>${esc(rec.map(wTitle).join(" + "))}</b><span class="go">Recover</span></button>`:""}</div>`})()}
     ${S.scores?"":`<div class="banner"><div><h3>Find your weak spots</h3><div class="muted" style="font-size:14px;margin-top:4px">Take the 5-minute mobility test: ${TSTEPS.length} quick checks across 6 areas. Until then, routines use an example profile.</div></div><button class="btn" data-act="openTest">Test my mobility</button></div>`}
     <div class="tiles">
       <button class="tile" data-act="tab" data-t="profile"><span class="eyebrow">Mobility score</span><b>${ov}</b><span class="pill ${lv.c}" style="justify-self:start">${S.scores?lv.t:"Example"}</span></button>
@@ -1882,10 +1882,59 @@ const flowItems=f=>f.items.filter(([id])=>LIBI[id]&&LIBI[id].eq.every(q=>S.equip
 ACT.flowStart=d=>{const f=FLOWS.find(x=>x.k===d.k);if(f)openPlayer(flowItems(f),{kind:"daily",focus:[],title:f.n})};
 const flowsRow=()=>`<div class="stack" style="gap:8px"><span class="eyebrow">Anytime flows</span><div class="hscroll">${FLOWS.map(f=>{const m=Math.max(1,Math.round(flowItems(f).reduce((t,it)=>t+itemSecs(it),0)/60));
   return`<button class="fcard ${KINDS.daily.g}" data-act="flowStart" data-k="${f.k}"><b>${f.n}</b><small>${f.sub} · ${m} min</small></button>`}).join("")}</div></div>`;
+/* ---- My routines: your own exercise lists, shared as a link that carries the whole routine ---- */
+const myRoutines=()=>S.myProtocols.filter(p=>p.kind==="routine");
+const rtItems=p=>p.items.filter(it=>LIBI[it.id]).map(it=>({id:it.id,dose:it.dose,why:`Part of your routine “${p.name}”.`}));
+ACT.routineStart=d=>{const p=S.myProtocols.find(x=>x.id===d.id);if(p&&p.items.length)openPlayer(rtItems(p),{kind:"daily",focus:[],title:p.name})};
+const RT64={enc:s=>btoa(String.fromCharCode(...new TextEncoder().encode(s))).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""),
+  dec:s=>new TextDecoder().decode(Uint8Array.from(atob(s.replace(/-/g,"+").replace(/_/g,"/")),c=>c.charCodeAt(0)))};
+function routineLink(p){
+  const own=p.items.map(it=>LIBI[it.id]).filter(e=>e&&e.custom).map(e=>{const x=S.myEx.find(m=>m.id===e.id)||e;return{id:x.id,n:x.n,fig:x.fig||null,c:(x.c||[]).slice(0,6)}});
+  const data={v:1,n:p.name,no:p.notes||"",i:p.items.map(it=>[it.id,it.dose]),x:own};
+  // inside the claude.ai preview, point friends at the installed app's address instead
+  const base=/^https?:$/.test(location.protocol)&&!/claude|anthropic/.test(location.host)?location.origin+location.pathname:"https://yoavvdb.github.io/Range/";
+  return base+"#r="+RT64.enc(JSON.stringify(data));
+}
+ACT.routineShare=async d=>{const p=S.myProtocols.find(x=>x.id===d.id);if(!p)return;const url=routineLink(p);
+  if(navigator.share){try{await navigator.share({title:`Range routine: ${p.name}`,text:`My mobility routine “${p.name}” (${p.items.length} exercises). Open it in Range:`,url});return}catch(e){if(e&&e.name==="AbortError")return}}
+  let ok=false;try{await navigator.clipboard.writeText(url);ok=true}catch(e){}
+  sheet(`<h3>Share “${esc(p.name)}”</h3><div class="scroll"><p class="muted" style="margin:0;font-size:14px">${ok?"Link copied. ":""}Anyone who opens it can add the routine to their Range.</p><textarea class="field" rows="4" readonly style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px;font-size:12px" onclick="this.select()">${esc(url)}</textarea></div><button class="btn sec" data-act="closeSheet">Done</button>`)};
+// read a shared routine (untrusted): keep only known exercises or the sender's own ones, with sane doses
+function parseRoutine(str){
+  const m=String(str||"").match(/#r=([A-Za-z0-9_-]{8,})/);if(!m)return null;
+  let d;try{d=JSON.parse(RT64.dec(m[1]))}catch(e){return null}
+  if(!d||d.v!==1||!Array.isArray(d.i))return null;
+  const cl=(x,n)=>String(x||"").slice(0,n),num=(x,lo,hi,df)=>Number.isFinite(+x)?Math.min(hi,Math.max(lo,Math.round(+x))):df;
+  const own=(Array.isArray(d.x)?d.x:[]).slice(0,20).filter(e=>e&&typeof e.id==="string").map(e=>({id:cl(e.id,40),n:cl(e.n,60)||"Exercise",fig:LIBI[e.fig]?e.fig:null,c:(Array.isArray(e.c)?e.c:[]).slice(0,6).map(c=>cl(c,140))}));
+  const items=d.i.slice(0,40).map(r=>Array.isArray(r)?r:[]).filter(([id])=>typeof id==="string"&&(LIBI[id]&&!LIBI[id].custom||own.some(e=>e.id===id))).map(([id,x])=>{x=x&&typeof x==="object"?x:{};
+    return{id,dose:{k:["reps","hold","rephold"].includes(x.k)?x.k:"hold",sets:num(x.sets,1,10,1),reps:num(x.reps,1,100,10),secs:num(x.secs,3,600,30),sides:!!x.sides,rest:num(x.rest,0,600,60),note:cl(x.note,140)}}});
+  return items.length?{name:cl(d.n,60)||"Shared routine",notes:cl(d.no,500),items,own}:null;
+}
+let RT_IN=null;
+function offerRoutine(r){RT_IN=r;sheet(`<h3>Add “${esc(r.name)}”?</h3><div class="scroll"><p class="muted" style="margin:0;font-size:14px">A routine someone shared with you · ${r.items.length} exercise${r.items.length===1?"":"s"}</p>
+  <div class="preview">${r.items.map((it,i)=>`<div><span>${i+1}</span><span>${esc((r.own.find(e=>e.id===it.id)||LIBI[it.id]).n)}</span><span>${esc(doseText(it))}</span></div>`).join("")}</div>${r.notes?`<p style="margin:0;font-size:14px">${esc(r.notes)}</p>`:""}</div>
+  <div style="display:grid;gap:8px"><button class="btn" data-act="routineAdd">Add to my routines</button><button class="btn sec" data-act="closeSheet">Not now</button></div>`)}
+ACT.routineAdd=()=>{const r=RT_IN;if(!r)return;const map={};
+  // the sender's own exercises join yours under a fresh id unless you already have the same one
+  r.own.forEach(e=>{const mine=S.myEx.find(m=>m.n===e.n);if(mine){map[e.id]=mine.id;return}const id="mx"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);const x={id,n:e.n,fig:e.fig,c:e.c};S.myEx.push(x);regMyEx(x);map[e.id]=id});
+  S.myProtocols.push({id:"p"+Date.now().toString(36),kind:"routine",name:r.name,notes:r.notes,from:"Shared with you",freq:"",test:{n:"",how:"",side:true,fig:null},items:r.items.map(it=>({id:map[it.id]||it.id,dose:it.dose})),created:Date.now(),logs:[]});
+  RT_IN=null;save();closeSheet();stack=[{name:"library",p:{}}];render();scrollTo(0,0)};
+ACT.routinePaste=async()=>{let t="";try{t=await navigator.clipboard.readText()}catch(e){}
+  const r=parseRoutine(t);if(r)return offerRoutine(r);
+  sheet(`<h3>Add a shared routine</h3><div class="scroll"><p class="muted" style="margin:0;font-size:14px">Paste the link someone sent you.</p><textarea id="rtLink" class="field" rows="4" style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px;font-size:13px"></textarea><p id="rtMsg" class="c-bad" style="margin:0;font-size:14px"></p></div>
+   <div style="display:grid;gap:8px"><button class="btn" data-act="routinePasteGo">Continue</button><button class="btn sec" data-act="closeSheet">Cancel</button></div>`)};
+ACT.routinePasteGo=()=>{const r=parseRoutine($("#rtLink").value);if(r){closeSheet();offerRoutine(r)}else $("#rtMsg").textContent="That doesn't look like a Range routine link."};
+const routinesPanel=()=>{const rs=myRoutines();return`<div class="stack" style="gap:8px"><div style="display:flex;justify-content:space-between;align-items:center"><span class="eyebrow">My routines</span><span style="display:flex;gap:14px;align-items:center"><button class="link" data-act="routinePaste">Paste a link</button><button class="link" data-act="routineNew">${ic("plus","")} New</button></span></div>
+  ${rs.length?rs.map(p=>{const m=Math.max(1,Math.round(rtItems(p).reduce((t,it)=>t+itemSecs(it),0)/60));return`<div class="panel rtcard">
+   <div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><h3>${esc(p.name)}</h3><button class="link" data-act="myEdit" data-id="${p.id}">Edit</button></div>
+   <p class="muted" style="margin:0;font-size:13px">${p.items.length} exercise${p.items.length===1?"":"s"} · about ${m} min${p.from?` · ${esc(p.from)}`:""}</p>
+   <p style="margin:0;font-size:14px">${p.items.map(it=>LIBI[it.id]).filter(Boolean).map(e=>esc(e.n)).join(" · ")}</p>
+   <div class="frow"><button class="btn" data-act="routineStart" data-id="${p.id}">${icf("play")}Start</button><button class="btn sec" data-act="routineShare" data-id="${p.id}">Share</button></div></div>`}).join(""):`<button class="panel" data-act="routineNew" style="text-align:left"><b>Build your own routine</b><span class="muted" style="font-size:14px">Pick exercises from the library, set holds or reps, then share it with a link.</span></button>`}</div>`};
 SCREENS.library=()=>`<div class="hdr" style="grid-template-columns:1fr"><div class="brand">Range<b>.</b></div></div>
   <div class="stack" style="padding-top:8px">
   <h1>Library</h1>
   ${libQ?"":flowsRow()}
+  ${libQ?"":routinesPanel()}
   <label class="search" style="box-shadow:none">${ic("search")}<input id="lq" placeholder="Search ${LIB.filter(e=>!e.custom).length} exercises or a muscle" value="${esc(libQ)}" autocomplete="off" aria-label="Search exercises"></label>
   <div class="seg" style="grid-template-columns:1fr 1fr">${[["muscle","By muscle"],["area","By area"]].map(([k,n])=>`<button class="${libMode===k?"on":""}" data-act="libMode" data-k="${k}">${n}</button>`).join("")}</div>
   ${libMode==="area"?`<div class="hscroll">${[["","All"],...AREAS.map(a=>[a.k,a.n]),["rehab","Strength & rehab"]].map(([k,n])=>`<button class="chip ${libA===k?"on":""}" data-act="libArea" data-a="${k}">${n}</button>`).join("")}</div>`:
@@ -2795,7 +2844,10 @@ const doneDay=w=>{const l=w.loggedAt?isoLocal(w.loggedAt):"";return l&&l>w.date?
 // the last n past sessions you logged scores for (falls back to sessions marked done)
 function scoredRecent(n){const p=past().sort((a,b)=>doneDay(b).localeCompare(doneDay(a))||(b.loggedAt||"").localeCompare(a.loggedAt||""));const s=p.filter(w=>w.result);return(s.length?s:p.filter(didIt)).slice(0,n)}
 function nextSession(){return upcoming()[0]||null}
-function recentSessions(){const t=todayIso();return past().filter(w=>didIt(w)&&daysFrom(doneDay(w),t)<=1)}
+// what to recover from: everything you did today (whatever day it was programmed for), or else yesterday's sessions
+function recentSessions(){const t=todayIso(),done=past().filter(didIt),td=done.filter(w=>doneDay(w)===t);return td.length?td:done.filter(w=>doneDay(w)===addDays(t,-1))}
+function sessionsDoneOn(day){return past().filter(w=>didIt(w)&&doneDay(w)===day)}
+const recLabel=rec=>`Recover · ${dayLabel(doneDay(rec[0]))}${rec.length>1?` · ${rec.length} workouts`:""}`;
 // Load on each area from the last 3 days: today 1, yesterday .8, 2 days .5, 3 days .3
 function recentLoad(){
   const t=todayIso(),wt=[1,.8,.5,.3],load={};AREAS.forEach(a=>load[a.k]=0);
@@ -2810,11 +2862,11 @@ function wTitle(w){
   p=p.map(x=>/[a-z]/.test(x)||x.length<5?x:x.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase()));
   return[...new Set(p)].join(" · ")||w.title}
 function prepFor(w){startWizard({kind:"activate",sport:S.sports[0]||"crossfit",moves:w.moves,from:wTitle(w)})}
-function recoverFrom(list){const moves=[...new Set(list.flatMap(w=>w.moves))];startWizard({kind:"recover",sport:S.sports[0]||"crossfit",moves,from:list.length===1?wTitle(list[0]):"Last 2 days"})}
+function recoverFrom(list){const moves=[...new Set(list.flatMap(w=>w.moves))];startWizard({kind:"recover",sport:S.sports[0]||"crossfit",moves,from:list.length===1?wTitle(list[0]):`${list.length} workouts · ${dayLabel(doneDay(list[0]))}`})}
 ACT.prepNext=()=>{const n=nextSession();if(n)prepFor(n)};
 ACT.recoverRecent=()=>{const r=recentSessions();if(r.length)recoverFrom(r)};
 ACT.prepW=d=>{const w=S.training.find(x=>x.id===d.id);if(w)prepFor(w)};
-ACT.recW=d=>{const w=S.training.find(x=>x.id===d.id);if(w)recoverFrom([w])};
+ACT.recW=d=>{const w=S.training.find(x=>x.id===d.id);if(!w)return;const same=didIt(w)?sessionsDoneOn(doneDay(w)).filter(x=>x.moves.length):[];recoverFrom(same.length>1&&same.includes(w)?same:[w])};
 ACT.doneW=d=>{const w=S.training.find(x=>x.id===d.id);if(!w)return;if(isPast(w)&&w.source==="sugarwod-auto"&&!w.result)w.marked=!w.marked;else{w.done=!w.done;w.marked=w.done}save();render()};
 
 /* Back from a break: a gap of 7+ days since the last session with scores.
@@ -2847,7 +2899,7 @@ const wRow=w=>{
    ${w.loggedAt?(()=>{const late=daysFrom(w.date,iso(new Date(w.loggedAt)));return late>1?`<small>Logged ${fromIso(iso(new Date(w.loggedAt))).toLocaleDateString(undefined,{day:"numeric",month:"short"})}, ${late} days after the workout</small>`:""})():""}
    ${up&&reentryFor(w)?`<small class="c-warn">Re-entry: ${esc(reentryFor(w))}</small>`:""}
    ${w.moves.length?`<small>Loads ${f.map(k=>AN[k]).join(" & ")}</small>`:/rest|recovery|off/i.test(w.title||"")?"":`<small>No movements found. Tap to add them.</small>`}</button>
-   <div class="wa">${up&&w.moves.length?`<button class="link" data-act="prepW" data-id="${w.id}">Prepare</button>`:""}${w.moves.length&&(!up||w.date===todayIso())?`<button class="link" data-act="recW" data-id="${w.id}">Recover</button>`:""}${up&&w.date===todayIso()?`<button class="link muted" data-act="doneW" data-id="${w.id}">Mark done</button>`:""}${!up&&!w.result&&w.source==="sugarwod-auto"?`<button class="link ${w.marked?"":"muted"}" data-act="doneW" data-id="${w.id}">${w.marked?"Done ✓":"I did this"}</button>`:""}</div></div>`;
+   <div class="wa">${up&&w.moves.length?`<button class="link" data-act="prepW" data-id="${w.id}">Prepare</button>`:""}${w.moves.length&&(!up||w.date===todayIso())?`<button class="link" data-act="recW" data-id="${w.id}">${(n=>n>1?`Recover all ${n}`:"Recover")(didIt(w)?sessionsDoneOn(doneDay(w)).length:0)}</button>`:""}${up&&w.date===todayIso()?`<button class="link muted" data-act="doneW" data-id="${w.id}">Mark done</button>`:""}${!up&&!w.result&&w.source==="sugarwod-auto"?`<button class="link ${w.marked?"":"muted"}" data-act="doneW" data-id="${w.id}">${w.marked?"Done ✓":"I did this"}</button>`:""}</div></div>`;
 };
 SCREENS.training=()=>{
   const nx=nextSession(),rec=recentSessions(),load=recentLoad(),mx=Math.max(1,...Object.values(load)),ups=upcoming().filter(w=>w.date<=addDays(todayIso(),6)),ps=scoredRecent(3);
@@ -2868,7 +2920,7 @@ SCREENS.training=()=>{
      <div class="chipset">${nx.moves.map(m=>`<span class="mchip">${esc(m)}</span>`).join("")}</div>
      <p class="muted" style="margin:0;font-size:14px">${nx.moves.length?`Needs the most from your ${focusOf({kind:"activate",moves:nx.moves}).map(k=>`${AN[k]} (score ${sc[k]})`).join(" and ")}.`:"Add movements so Range knows what to prepare."}</p>
      <button class="btn" data-act="prepNext" ${nx.moves.length?"":"disabled"}>Prepare for it</button></div>`:""}
-  ${rec.length?`<div class="panel"><span class="eyebrow">Recover · ${rec.length===1?dayLabel(doneDay(rec[0])):"last 2 days"}</span><h3>${esc(rec.map(wTitle).join(" + "))}</h3>
+  ${rec.length?`<div class="panel"><span class="eyebrow">${recLabel(rec)}</span><h3>${esc(rec.map(wTitle).join(" + "))}</h3>
      <p class="muted" style="margin:0;font-size:14px">Long holds for the areas these sessions loaded.</p><button class="btn sec" data-act="recoverRecent">Start recovery</button></div>`:""}
   ${S.training.length?`<div class="panel"><span class="eyebrow">Load from the last 3 days</span>
      <ul class="bars">${AREAS.map(a=>{const v=load[a.k]/mx;const c=v>.66?"var(--bad)":v>.33?"var(--warn)":"var(--good)";return`<li><span>${a.n}</span><span class="tr"><i style="width:${Math.max(4,v*100)}%;background:${c}"></i></span><b style="font-size:11px;color:var(--muted)">${v>.66?"High":v>.33?"Mid":"Low"}</b></li>`}).join("")}</ul></div>`:""}
@@ -3038,12 +3090,12 @@ async function showNote(title,body,url,tag){
 }
 function recoverNudge(list){
   if(!notifyOn()||!list||!list.length)return;
-  const w=list.slice().sort((a,b)=>b.date.localeCompare(a.date))[0],f=focusOf({kind:"recover",moves:w.moves});
-  showNote(`Scores in: ${wTitle(w)}`,`Nice work. Take 10 minutes to recover your ${f.map(k=>AN[k].toLowerCase()).join(" and ")||"body"}.`,`./#recover=${w.date}`,`recover-${w.date}`);
+  const w=list.slice().sort((a,b)=>doneDay(b).localeCompare(doneDay(a)))[0],day=doneDay(w),all=sessionsDoneOn(day),f=focusOf({kind:"recover",moves:[...new Set(all.flatMap(x=>x.moves))]});
+  showNote(`Scores in: ${all.length>1?`${all.length} workouts`:wTitle(w)}`,`Nice work. Take 10 minutes to recover your ${f.map(k=>AN[k].toLowerCase()).join(" and ")||"body"}.`,`./#recover=${day}`,`recover-${day}`);
 }
 function openUrl(u){
   const m=String(u||"").match(/#recover=(\d{4}-\d{2}-\d{2})/);if(!m)return;
-  const ws=S.training.filter(w=>w.date===m[1]&&w.moves.length);if(ws.length)recoverFrom(ws);
+  const ws=S.training.filter(w=>w.moves.length&&(doneDay(w)===m[1]||(w.date===m[1]&&!didIt(w))));if(ws.length)recoverFrom(ws);
 }
 if(navigator.serviceWorker)navigator.serviceWorker.addEventListener("message",e=>{if(e.data&&e.data.type==="open")openUrl(e.data.url)});
 ACT.notifTog=async()=>{
@@ -3285,20 +3337,23 @@ function progDose(id){for(const R of Object.values(REGIONS))for(const phs of[R.p
 function newDose(id){const e=LIBI[id],pd=progDose(id);if(pd){delete pd.hsr;return{sets:1,reps:10,secs:5,sides:false,rest:60,note:"",...pd}}return e&&!e.rehab&&e.hold?{k:"hold",sets:2,secs:Math.min(60,e.hold||30),sides:!!e.sides}:{k:"reps",sets:3,reps:10,secs:5,sides:false,rest:60,note:""}}
 function readEd(){
   if(!ED||!$("#edName"))return;
-  ED.name=$("#edName").value.trim();ED.from=$("#edFrom").value.trim();ED.freq=$("#edFreq").value.trim();ED.notes=$("#edNotes").value.trim();
-  ED.test.n=$("#edTestN").value.trim();ED.test.how=$("#edTestHow").value.trim();
+  const v=id=>{const el=$(id);return el?el.value.trim():null},set=(k,x)=>{if(x!=null)ED[k]=x};
+  set("name",v("#edName"));set("from",v("#edFrom"));set("freq",v("#edFreq"));set("notes",v("#edNotes"));
+  if(v("#edTestN")!=null){ED.test.n=v("#edTestN");ED.test.how=v("#edTestHow")}
   ED.items.forEach((it,i)=>{const g=k=>{const el=$(`#ed${k}${i}`);return el?el.value:null};const d=it.dose;
     if(g("Sets")!=null)d.sets=Math.max(1,+g("Sets")||1);if(g("Reps")!=null)d.reps=Math.max(1,+g("Reps")||1);if(g("Secs")!=null)d.secs=Math.max(3,+g("Secs")||3);if(g("Note")!=null)d.note=g("Note").trim()});
 }
-ACT.myNew=()=>{ED={id:null,name:"",from:"",freq:"Daily",notes:"",test:{n:"",how:"",side:true,fig:null},items:[]};go("myproto",{})};
+ACT.myNew=()=>{ED={id:null,kind:"physio",name:"",from:"",freq:"Daily",notes:"",test:{n:"",how:"",side:true,fig:null},items:[]};go("myproto",{})};
+ACT.routineNew=()=>{ED={id:null,kind:"routine",name:"",from:"",freq:"",notes:"",test:{n:"",how:"",side:true,fig:null},items:[]};go("myproto",{})};
 ACT.myEdit=d=>{const p=S.myProtocols.find(x=>x.id===d.id);ED=JSON.parse(JSON.stringify(p));ED.test=ED.test||{n:"",how:"",side:true,fig:null};go("myproto",{})};
 SCREENS.myproto=()=>{
   const inp=(id,v,ph,extra="")=>`<input id="${id}" class="field" value="${esc(v||"")}" placeholder="${esc(ph)}" autocomplete="off" ${extra} style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:12px">`;
   const num=(id,v,lab)=>`<label class="edn"><span>${lab}</span><input id="${id}" type="number" inputmode="numeric" min="1" value="${v}"></label>`;
   return hdr()+`<div class="stack" style="padding-top:4px">
-   <span class="eyebrow">Rebuild · My protocol</span><h1>${ED.id?"Edit protocol":"Add your physio's protocol"}</h1>
+   ${ED.kind==="routine"?`<span class="eyebrow">Library · My routine</span><h1>${ED.id?"Edit routine":"New routine"}</h1>
+   <div class="panel">${inp("edName",ED.name,"Name, e.g. Pre-snatch warm-up")}</div>`:`<span class="eyebrow">Rebuild · My protocol</span><h1>${ED.id?"Edit protocol":"Add your physio's protocol"}</h1>
    <div class="panel">${inp("edName",ED.name,"Name, e.g. Right knee, week 1–3")}${inp("edFrom",ED.from,"Given by (physio, date)")}
-    ${inp("edFreq",ED.freq,"How often")}<div class="chipset">${["Daily","Every other day","3× a week","Before training"].map(f=>`<button class="chip" data-act="edFreq" data-f="${f}">${f}</button>`).join("")}</div></div>
+    ${inp("edFreq",ED.freq,"How often")}<div class="chipset">${["Daily","Every other day","3× a week","Before training"].map(f=>`<button class="chip" data-act="edFreq" data-f="${f}">${f}</button>`).join("")}</div></div>`}
    <div class="stack" style="gap:8px"><span class="eyebrow">Exercises · in order</span>
    ${ED.items.length?ED.items.map((it,i)=>{const e=LIBI[it.id],d=it.dose;return`<div class="panel edex">
      <div class="edhead"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><b>${i+1}. ${esc(e.n)}</b>
@@ -3308,15 +3363,15 @@ SCREENS.myproto=()=>{
      <button class="toggle" data-act="edSides" data-i="${i}"><span>Each side (right, then left)</span><span class="sw ${d.sides?"on":""}"></span></button>
      ${inp("edNote"+i,d.note,"Notes: tempo, weight, band colour…")}</div>`}).join(""):`<p class="muted" style="margin:0">No exercises yet.</p>`}
    <button class="btn sec" data-act="edAdd">${ic("plus","")} Add exercise</button></div>
-   <div class="panel"><h3>Test movement <span class="muted" style="font-weight:400;font-size:14px">(optional)</span></h3>
+   ${ED.kind==="routine"?"":`<div class="panel"><h3>Test movement <span class="muted" style="font-weight:400;font-size:14px">(optional)</span></h3>
     <p class="muted" style="margin:0;font-size:14px">A movement you rate for pain before each session, so Range can show your trend.</p>
     ${inp("edTestN",ED.test.n,"e.g. Single-leg squat")}${inp("edTestHow",ED.test.how,"How to do it")}
     <button class="toggle" data-act="edTestSide"><span>Test each side (right, then left)</span><span class="sw ${ED.test.side?"on":""}"></span></button>
-    <button class="toggle" data-act="edTestFig"><span>Demo figure</span><span class="muted">${ED.test.fig?esc((LIBI[ED.test.fig]||{n:"Chosen"}).n):"None"} ›</span></button></div>
-   <div class="panel"><h3>Notes from your physio</h3><textarea id="edNotes" class="field" rows="3" placeholder="Pain rules, what to avoid, when to progress…" style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px">${esc(ED.notes||"")}</textarea></div>
+    <button class="toggle" data-act="edTestFig"><span>Demo figure</span><span class="muted">${ED.test.fig?esc((LIBI[ED.test.fig]||{n:"Chosen"}).n):"None"} ›</span></button></div>`}
+   <div class="panel"><h3>${ED.kind==="routine"?"Notes":"Notes from your physio"}</h3><textarea id="edNotes" class="field" rows="3" placeholder="${ED.kind==="routine"?"When to do it, what to focus on…":"Pain rules, what to avoid, when to progress…"}" style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px">${esc(ED.notes||"")}</textarea></div>
    <p id="edMsg" class="c-bad" style="margin:0;font-size:14px" aria-live="polite"></p>
-   ${ED.id?`<button class="btn sec" style="color:var(--bad)" data-act="edDel">Delete protocol</button>`:""}
-  </div><div class="bottomcta"><button class="btn" data-act="edSave">Save protocol</button></div>`;
+   ${ED.id?`<button class="btn sec" style="color:var(--bad)" data-act="edDel">Delete ${ED.kind==="routine"?"routine":"protocol"}</button>`:""}
+  </div><div class="bottomcta"><button class="btn" data-act="edSave">Save ${ED.kind==="routine"?"routine":"protocol"}</button></div>`;
 };
 const edRe=()=>{const y=scrollY;render();scrollTo(0,y)};
 ACT.edFreq=d=>{readEd();ED.freq=d.f;edRe()};
@@ -3352,18 +3407,18 @@ ACT.cxSave=()=>{cxRead();if(!CX.n){$("#cxMsg").textContent="Give it a name.";ret
   const e={id:"c_"+Date.now().toString(36),n:CX.n,fig:CX.fig||"r_walk",c:CX.c.split("\n").map(s=>s.trim()).filter(Boolean),stim:"As your physiotherapist described"};
   S.myEx.push(e);regMyEx(e);ED.items.push({id:e.id,dose:newDose(e.id)});save();closeSheet();edRe()};
 ACT.edSave=()=>{readEd();
-  if(!ED.name){$("#edMsg").textContent="Give the protocol a name.";$("#edName").focus();return}
+  if(!ED.name){$("#edMsg").textContent=`Give the ${ED.kind==="routine"?"routine":"protocol"} a name.`;$("#edName").focus();return}
   if(!ED.items.length){$("#edMsg").textContent="Add at least one exercise.";return}
   if(ED.id){const i=S.myProtocols.findIndex(x=>x.id===ED.id);S.myProtocols[i]={...S.myProtocols[i],...ED}}
   else S.myProtocols.push({...ED,id:"p"+Date.now().toString(36),created:Date.now(),logs:[]});
-  save();ED=null;stack=[{name:"rebuild",p:{}}];render();scrollTo(0,0)};
-ACT.edDel=()=>sheet(`<h3>Delete this protocol?</h3><div class="scroll"><p class="muted" style="margin:0">Its pain log is deleted too.</p></div><div style="display:grid;gap:8px"><button class="btn" style="background:var(--bad)" data-act="edDelYes">Delete</button><button class="btn sec" data-act="closeSheet">Keep it</button></div>`);
-ACT.edDelYes=()=>{S.myProtocols=S.myProtocols.filter(x=>x.id!==ED.id);save();ED=null;closeSheet();stack=[{name:"rebuild",p:{}}];render()};
+  const home=ED.kind==="routine"?"library":"rebuild";save();ED=null;stack=[{name:home,p:{}}];render();scrollTo(0,0)};
+ACT.edDel=()=>sheet(`<h3>Delete this ${ED.kind==="routine"?"routine":"protocol"}?</h3><div class="scroll"><p class="muted" style="margin:0">${ED.kind==="routine"?"Links you already shared keep working.":"Its pain log is deleted too."}</p></div><div style="display:grid;gap:8px"><button class="btn" style="background:var(--bad)" data-act="edDelYes">Delete</button><button class="btn sec" data-act="closeSheet">Keep it</button></div>`);
+ACT.edDelYes=()=>{const home=ED.kind==="routine"?"library":"rebuild";S.myProtocols=S.myProtocols.filter(x=>x.id!==ED.id);save();ED=null;closeSheet();stack=[{name:home,p:{}}];render()};
 ACT.myStart=d=>{const p=S.myProtocols.find(x=>x.id===d.id);if(!p)return;
   const run=t=>openPlayer(p.items.map(it=>({id:it.id,dose:it.dose})),{kind:"rehab",title:p.name,proto:p.id,...t});
   if(p.test&&p.test.n)testSheet({n:p.test.n,how:p.test.how,fig:p.test.fig,side:p.test.side,optional:true},run);else run({testPain:null})};
 const myProtosPanel=()=>`<div class="stack" style="gap:8px"><div style="display:flex;justify-content:space-between;align-items:center"><span class="eyebrow">My protocols · from your physio</span><button class="link" data-act="myNew">${ic("plus","")} Add</button></div>
-  ${S.myProtocols.length?S.myProtocols.map(p=>{const L=(p.logs||[]).slice(-1)[0];return`<div class="panel">
+  ${S.myProtocols.some(p=>p.kind!=="routine")?S.myProtocols.filter(p=>p.kind!=="routine").map(p=>{const L=(p.logs||[]).slice(-1)[0];return`<div class="panel">
    <div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><h3>${esc(p.name)}</h3><button class="link" data-act="myEdit" data-id="${p.id}">Edit</button></div>
    <p class="muted" style="margin:0;font-size:14px">${[p.from,p.freq,`${p.items.length} exercise${p.items.length===1?"":"s"}`].filter(Boolean).map(esc).join(" · ")}</p>
    <div class="rxlist">${p.items.map(it=>{const e=LIBI[it.id];return e?`<button class="rx" data-act="openEx" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><span><b>${esc(e.n)}</b><small>${esc(doseText(it))}</small></span></button>`:""}).join("")}</div>
@@ -3522,6 +3577,8 @@ const SEED={"syncedAt":"2026-10-14T19:47:12.415Z","workouts":[{"date":"2026-08-1
 applyFigStyle();
 if(S.settings.fig3d!==false)FIG3D.start();
 setTimeout(()=>autoSync(false),400);
+function checkRoutineHash(){if(!/^#r=/.test(location.hash))return;const r=parseRoutine(location.hash);history.replaceState(null,"",location.pathname+location.search);if(r)setTimeout(()=>offerRoutine(r),400)}
+checkRoutineHash();addEventListener("hashchange",checkRoutineHash);
 if(/^#recover=/.test(location.hash)){const u=location.hash;history.replaceState(null,"",location.pathname+location.search);setTimeout(()=>openUrl(u),300)}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")autoSync(false)});
 
