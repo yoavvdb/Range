@@ -165,6 +165,7 @@ img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;o
 .preview span:first-child,.preview span:last-child{color:var(--muted);font-variant-numeric:tabular-nums}
 .preview .blk{margin:10px 0 2px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);display:flex;justify-content:space-between;border:0}
 .preview .blk span{color:var(--muted)}
+.preview .rt{display:flex;flex-direction:column;align-items:flex-end;gap:6px}.preview .pe{display:flex;gap:4px}.preview .pe button{width:32px;height:32px;display:grid;place-items:center;border-radius:8px;background:var(--surface2);color:var(--muted)}.preview .pe .ic{width:15px;height:15px}
 .preview .why{display:block;color:var(--muted);font-size:12px;line-height:1.35;margin-top:2px}
 .whybox{background:var(--accent-soft);border-radius:10px;padding:8px 10px;font-size:13px;display:grid;gap:2px}
 .whybox .eyebrow{color:var(--accent)}
@@ -1534,6 +1535,8 @@ function startWizard(o){
   W={kind:o.kind,sport:o.sport||null,moves:o.moves?o.moves.slice():o.sport?(S.moves[o.sport]||[]).slice():[],from:o.from||null,minutes:null,equip:S.equip.slice(),zone:null,step:0,done:{}};
   // Coming from a logged workout: movements are already known, start at the time step
   if(o.moves&&o.moves.length&&STEPS[W.kind][0]==="moves"){W.done.moves=true;W.step=1}
+  // auto: your usual time and equipment, straight to the chosen exercises (every choice stays editable there)
+  if(o.auto&&W.done.moves){W.minutes=(S.lastMin||{})[W.kind]||10;W.done.time=W.done.equip=true;W.step=STEPS[W.kind].indexOf("summary")}
   go("wizard",{});
 }
 function wizHead(){
@@ -1583,7 +1586,8 @@ SCREENS.wizard=()=>{
     <div class="sumrows" id="sumrows">${rows.map(r=>`<button class="srow" ${r[3]?`data-act="wGoto" data-s="${r[3]}"`:"disabled"}><span class="bub">${ic(r[0])}</span><span><small>${r[1]}</small><span class="val">${esc(r[2])}</span></span><span class="ok">${ic("check")}</span></button>`).join("")}</div></div>
     <div class="stack" style="gap:6px"><div style="display:flex;justify-content:space-between;align-items:baseline"><span class="eyebrow">${W.plan.items.length} exercises · ${Math.round(W.plan.secs/60)} min</span><span style="display:flex;gap:14px"><button class="link" data-act="whySheet">Why these?</button><button class="link" data-act="reshuffle">Shuffle</button></span></div>
     ${W.plan.excluded?`<div class="note-warn" style="font-size:13px">Adjusted for your Rebuild program: ${esc(W.plan.excluded)}. Exercises it says to avoid are left out.</div>`:""}
-    <div class="preview">${W.plan.items.length?(()=>{let n=0;return(W.plan.blocks||[{name:"",items:W.plan.items}]).map(b=>`${b.name?`<p class="blk">${esc(b.name)} <span>${Math.round(b.items.reduce((t,it)=>t+itemSecs(it),0)/60)||"<1"} min</span></p>`:""}${b.items.map(it=>{const ex=LIBI[it.id];n++;return`<div><span>${n}</span><span>${esc(ex.n)}${it.why?`<small class="why">${esc(it.why)}</small>`:""}</span><span>${it.dose?esc(doseText(it).split(" · ")[0]):fmt(it.hold)+(ex.sides?" ×2":"")}</span></div>`}).join("")}`).join("")})():`<div><span></span><span class="muted">No stretches match this equipment and time. Add equipment or pick more time.</span><span></span></div>`}</div></div>`;
+    <div class="preview">${W.plan.items.length?(()=>{let n=0;return(W.plan.blocks||[{name:"",items:W.plan.items}]).map((b,bi)=>`${b.name?`<p class="blk">${esc(b.name)} <span>${Math.round(b.items.reduce((t,it)=>t+itemSecs(it),0)/60)||"<1"} min</span></p>`:""}${b.items.map((it,ii)=>{const ex=LIBI[it.id];n++;return`<div class="ed"><span>${n}</span><span>${esc(ex.n)}${it.why?`<small class="why">${esc(it.why)}</small>`:""}</span><span class="rt"><span>${it.dose?esc(doseText(it).split(" · ")[0]):fmt(it.hold)+(ex.sides?" ×2":"")}</span><span class="pe"><button data-act="wSwap" data-b="${bi}" data-i="${ii}" aria-label="Swap ${esc(ex.n)}">${ic("reset")}</button><button data-act="wRm" data-b="${bi}" data-i="${ii}" aria-label="Remove ${esc(ex.n)}">${ic("x")}</button></span></span></div>`}).join("")}`).join("")})():`<div><span></span><span class="muted">No stretches match this equipment and time. Add equipment or pick more time.</span><span></span></div>`}</div>
+    <button class="btn sec" data-act="wAdd">${ic("plus","")} Add exercise</button></div>`;
     cta=`<button class="btn" id="goBtn" data-act="letsGo" disabled>Processing</button>`;
   }
   return hdr(`<button data-act="info" aria-label="About this protocol">${ic("info")}</button>`)+`<div class="stack" style="padding-top:4px">${wizHead()}${body}</div><div class="bottomcta">${cta}</div>`;
@@ -1598,11 +1602,29 @@ function wRender(){render();window.scrollTo(0,0)}
 ACT.wNext=()=>{const s=STEPS[W.kind][W.step];W.done[s]=true;if(s==="moves"&&W.sport){S.moves[W.sport]=W.moves.slice();save()}if(s==="equip"){S.equip=W.equip.slice();save()}W.plan=null;
   W.step=W.returnTo!=null?W.returnTo:W.step+1;W.returnTo=null;wRender()};
 ACT.wGoto=d=>{W.returnTo=STEPS[W.kind].indexOf("summary");W.step=STEPS[W.kind].indexOf(d.s);wRender()};
-ACT.pickTime=d=>{W.minutes=+d.m;render();setTimeout(ACT.wNext,REDUCED?0:220)};
+ACT.pickTime=d=>{W.minutes=+d.m;S.lastMin={...(S.lastMin||{}),[W.kind]:W.minutes};save();render();setTimeout(ACT.wNext,REDUCED?0:220)};
 ACT.pickArea=d=>{W.zone=d.a;render();setTimeout(ACT.wNext,REDUCED?0:220)};
 ACT.togEq=d=>{const i=W.equip.indexOf(d.e);if(i>=0)W.equip.splice(i,1);else W.equip.push(d.e);render()};
 ACT.addMove=d=>{if(!W.moves.includes(d.m))W.moves.push(d.m);render()};
 ACT.rmMove=d=>{W.moves=W.moves.filter(m=>m!==d.m);render()};
+/* editing the chosen exercises on the summary */
+function wSync(){const p=W.plan;p.blocks=(p.blocks||[{name:"",items:p.items}]).filter(b=>b.items.length);p.items=p.blocks.flatMap(b=>b.items);p.secs=p.items.reduce((t,it)=>t+itemSecs(it),0);const y=scrollY;render();scrollTo(0,y);
+  document.querySelectorAll("#sumrows .srow").forEach(r=>r.classList.add("done"));const g=$("#goBtn");if(g){g.disabled=!p.items.length;g.textContent=p.items.length?"Let's go!":"Nothing to play"}}
+ACT.wRm=d=>{const b=W.plan.blocks?W.plan.blocks[+d.b]:{items:W.plan.items};b.items.splice(+d.i,1);wSync()};
+function wSwapOptions(it){const ex=LIBI[it.id],ov=e=>e.z.filter(z=>ex.z.includes(z)).length,have=new Set(W.plan.items.map(x=>x.id));
+  return LIB.filter(e=>e.id!==ex.id&&!!e.rehab===!!ex.rehab&&!e.custom&&(e.a===ex.a||ov(e)>=2)&&ov(e)>0&&e.eq.every(q=>W.equip.includes(q))&&!have.has(e.id))
+   .sort((a,b)=>ov(b)-ov(a)+((S.swapped||{})[a.id]||0)*.5-((S.swapped||{})[b.id]||0)*.5).slice(0,8)}
+ACT.wSwap=d=>{const b=W.plan.blocks?W.plan.blocks[+d.b]:{items:W.plan.items},it=b.items[+d.i],opts=wSwapOptions(it);W._sw={b:+d.b,i:+d.i};
+  sheet(`<h3>Swap ${esc(LIBI[it.id].n)}</h3><div class="scroll"><div class="rxlist">${opts.length?opts.map(e=>`<button class="rx" data-act="wSwapTo" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><span><b>${esc(e.n)}</b><small>${esc(e.stim||AN[e.a]||"")}</small></span></button>`).join(""):`<p class="muted" style="margin:0">No alternative with this equipment.</p>`}</div></div><button class="btn sec" data-act="closeSheet">Cancel</button>`)};
+ACT.wSwapTo=d=>{const{b,i}=W._sw||{},blk=W.plan.blocks?W.plan.blocks[b]:{items:W.plan.items},old=blk.items[i],e=LIBI[d.id];if(!old||!e)return;
+  S.swapped=S.swapped||{};S.swapped[old.id]=(S.swapped[old.id]||0)+1;save();
+  blk.items[i]=old.dose?{...old,id:e.id,why:"Your pick."}:{id:e.id,hold:W.kind==="recover"?Math.max(60,e.hold||60):old.hold||e.hold,why:"Your pick."};closeSheet();wSync()};
+ACT.wAdd=()=>{sheet(`<h3>Add an exercise</h3><label class="search" style="box-shadow:none">${ic("search")}<input id="wq" placeholder="Search the library" autocomplete="off" aria-label="Search exercises"></label><div class="scroll" id="wres"></div><button class="btn sec" data-act="closeSheet">Done</button>`);
+  const q=$("#wq");const draw=()=>{const ql=q.value.trim().toLowerCase(),have=new Set(W.plan.items.map(x=>x.id));
+    $("#wres").innerHTML=`<div class="rxlist">${LIB.filter(e=>!e.custom&&!have.has(e.id)&&e.eq.every(x=>W.equip.includes(x))&&(!ql||e.n.toLowerCase().includes(ql)||(ZONES[e.z[0]]||"").toLowerCase().includes(ql))).slice(0,30).map(e=>`<button class="rx" data-act="wAddPick" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><span><b>${esc(e.n)}</b><small>${e.rehab?RCAT[e.a]+" · Strength":AN[e.a]+" · Stretch"}</small></span></button>`).join("")}</div>`};
+  q.addEventListener("input",draw);draw();setTimeout(()=>q.focus(),50)};
+ACT.wAddPick=d=>{const e=LIBI[d.id];if(!e)return;const it=e.rehab?{id:e.id,dose:newDose(e.id),why:"Your pick."}:{id:e.id,hold:W.kind==="recover"?Math.max(60,e.hold||60):e.hold||30,why:"Your pick."};
+  if(W.plan.blocks&&W.plan.blocks.length)W.plan.blocks[W.plan.blocks.length-1].items.push(it);else W.plan.items.push(it);closeSheet();wSync()};
 ACT.reshuffle=()=>{W.plan=buildPlan(W);render();document.querySelectorAll("#sumrows .srow").forEach(r=>r.classList.add("done"));const b=$("#goBtn");if(b&&W.plan.items.length){b.disabled=false;b.textContent="Let's go!"}};
 ACT.letsGo=()=>{const kd=KINDS[W.kind];openPlayer(W.plan.items,{kind:W.kind,focus:focusOf(W),title:kd.n+(W.from?" · "+W.from:W.sport?" · "+SPI[W.sport].n:W.zone?" · "+AN[W.zone]:"")})};
 ACT.whySheet=()=>{
@@ -2868,8 +2890,8 @@ function wTitle(w){
   let p=w.title.split(/\s*[·|]\s*/).filter(Boolean);if(w.title.length>=78&&p.length>1)p.pop();
   p=p.map(x=>/[a-z]/.test(x)||x.length<5?x:x.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase()));
   return[...new Set(p)].join(" · ")||w.title}
-function prepFor(w){startWizard({kind:"activate",sport:S.sports[0]||"crossfit",moves:w.moves,from:wTitle(w)})}
-function recoverFrom(list){const moves=[...new Set(list.flatMap(w=>w.moves))];startWizard({kind:"recover",sport:S.sports[0]||"crossfit",moves,from:list.length===1?wTitle(list[0]):`${list.length} workouts · ${dayLabel(doneDay(list[0]))}`})}
+function prepFor(w){startWizard({kind:"activate",sport:S.sports[0]||"crossfit",moves:w.moves,from:wTitle(w),auto:true})}
+function recoverFrom(list){const moves=[...new Set(list.flatMap(w=>w.moves))];startWizard({kind:"recover",auto:true,sport:S.sports[0]||"crossfit",moves,from:list.length===1?wTitle(list[0]):`${list.length} workouts · ${dayLabel(doneDay(list[0]))}`})}
 ACT.prepNext=()=>{const n=nextSession();if(n)prepFor(n)};
 ACT.recoverRecent=()=>{const r=recentSessions();if(r.length)recoverFrom(r)};
 ACT.prepW=d=>{const w=S.training.find(x=>x.id===d.id);if(w)prepFor(w)};
