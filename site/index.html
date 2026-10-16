@@ -472,6 +472,8 @@ let S={scores:null,tests:[],sessions:[],sports:["crossfit"],equip:EQUIP.map(e=>e
 const S_FRESH=JSON.stringify(S); // a new person's starting state (account mode)
 // account mode: when the Range server hosts the app it sets window.RANGE_API (each person signs in and connects their own platforms)
 const API=typeof window.RANGE_API==="string"?window.RANGE_API:null;let ACCOUNT=null;
+// GitHub backup settings: kept on this device only, never inside your data (so the token never ends up in a backup)
+let BK=(()=>{try{return JSON.parse(localStorage.getItem("range-backup-cfg")||"null")}catch(e){return null}})(),bkTimer=null,bkDirty=false;
 try{const r=localStorage.getItem(KEY);if(r){const o=JSON.parse(r);S=Object.assign(S,o);S.settings=Object.assign({sound:true,voice:false,easy:false,ready:10},o.settings||{})}}catch(e){}
 /* ---- error capture: keep the last few errors so a crash on the phone can be diagnosed ---- */
 function noteError(err,where){
@@ -490,7 +492,7 @@ function errToast(){
 addEventListener("error",e=>{noteError(e.error||e.message,"page");errToast()});
 addEventListener("unhandledrejection",e=>{noteError(e.reason,"promise");errToast()});
 function applyFigStyle(){document.documentElement.dataset.fig=(S.settings&&S.settings.figStyle)||"gymkit"}
-function save(){S._upd=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(API&&ACCOUNT)acctSave()}
+function save(){S._upd=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(API&&ACCOUNT)acctSave();if(BK&&!API){bkDirty=true;clearTimeout(bkTimer);bkTimer=setTimeout(()=>backupNow().catch(bkFail),45e3)}}
 const scores=()=>S.scores||EXAMPLE;
 
 /* ================= helpers ================= */
@@ -3376,7 +3378,7 @@ SCREENS.profile=()=>{
   </div>
   ${API?acctPanel():""}
   ${notifPanel()}
-  ${API?"":`<div class="panel"><h3>Your data</h3><p class="muted" style="margin:0;font-size:14px">Range keeps everything on this device. To move it to the installed app or another phone, copy it here and paste it there.</p>
+  ${API?"":`<div class="panel"><h3>Your data</h3>${bkRow()}<p class="muted" style="margin:0;font-size:14px">Or move it by hand: copy it here and paste it in Range on another phone.</p>
     <div class="frow"><button class="btn sec" style="flex:1" data-act="copyData">Copy my data</button><button class="btn sec" style="flex:1" data-act="pasteData">Paste data</button></div>
     <p id="dataMsg" class="muted" style="margin:0;font-size:13px" aria-live="polite"></p><textarea id="dataBox" class="field" rows="3" hidden style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px"></textarea></div>`}
   <div class="panel"><h3>History</h3><div class="hist">${S.sessions.length?S.sessions.slice(-12).reverse().map(s=>`<div><span>${esc(s.title||KN[s.kind]||"Session")}<br><small>${new Date(s.at).toLocaleDateString()} · ${s.count} stretches${s.feel!=null?" · felt "+["stiff","tight","OK","loose","great"][s.feel]:""}</small></span><span style="font-variant-numeric:tabular-nums">${s.mins} min</span></div>`).join(""):`<p class="muted" style="margin:0">No sessions yet. Finish a protocol from Today and it appears here.</p>`}</div></div>
@@ -3471,6 +3473,80 @@ if(S.settings.fig3d!==false)FIG3D.start();
 setTimeout(()=>autoSync(false),400);
 if(/^#recover=/.test(location.hash)){const u=location.hash;history.replaceState(null,"",location.pathname+location.search);setTimeout(()=>openUrl(u),300)}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")autoSync(false)});
+
+/* ================= backup to your GitHub repository =================
+   After changes, Range saves your data (encrypted with your passphrase, the same RANGE_SYNC_KEY as the
+   SugarWOD sync) to backup/range-backup.enc in your Range repository. On a new phone, a new app address or
+   after anything wipes the browser's storage, connect once and restore. The token stays on this device. */
+const BK_PATH="backup/range-backup.enc";
+async function sealBox(obj,pass){
+  const enc=new TextEncoder(),salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
+  const base=await crypto.subtle.importKey("raw",enc.encode(pass),"PBKDF2",false,["deriveKey"]);
+  const key=await crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:250000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt"]);
+  const ct=new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM",iv},key,enc.encode(JSON.stringify(obj))));
+  const b=u=>{let s="";for(let i=0;i<u.length;i+=8192)s+=String.fromCharCode.apply(null,u.subarray(i,i+8192));return btoa(s)};
+  return{format:"range-sealed/1",iter:250000,salt:b(salt),iv:b(iv),ct:b(ct)};
+}
+async function ghFile(cfg,method,body){
+  const r=await fetch(`https://api.github.com/repos/${cfg.repo}/contents/${BK_PATH}`,{method,cache:"no-store",headers:{Authorization:"Bearer "+cfg.token,Accept:"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28",...(body?{"Content-Type":"application/json"}:{})},body:body?JSON.stringify(body):undefined});
+  if(method==="GET"&&r.status===404)return null;
+  if(r.status===401)throw new Error("GitHub didn't accept the token. Create a new one (see the steps) and paste it again.");
+  if(r.status===403||r.status===404)throw new Error("The token can't reach that repository. Check the name (username/repo) and that the token has Contents: Read and write for it.");
+  if(!r.ok)throw new Error("GitHub said "+r.status+". Try again in a minute.");
+  return r.json();
+}
+async function backupNow(){
+  if(!BK||API)return;
+  const data={...S};if(data.sync)data.sync={...data.sync,key:undefined}; // the passphrase itself isn't stored
+  const box=await sealBox({format:"range-backup/1",at:Date.now(),data},BK.pass);
+  const cur=await ghFile(BK,"GET");
+  await ghFile(BK,"PUT",{message:"Range backup",content:btoa(JSON.stringify(box)),...(cur&&cur.sha?{sha:cur.sha}:{})});
+  bkDirty=false;BK={...BK,last:Date.now(),err:""};try{localStorage.setItem("range-backup-cfg",JSON.stringify(BK))}catch(e){}
+}
+async function readBackup(cfg){
+  const f=await ghFile(cfg,"GET");if(!f)return null;
+  const box=JSON.parse(atob(String(f.content||"").replace(/\s/g,"")));
+  let o;try{o=await unsealBox(box,cfg.pass)}catch(e){throw new Error("The passphrase doesn't open this backup. Use the passphrase you backed up with.")}
+  return o;
+}
+function bkFail(e){if(!BK)return;BK={...BK,err:String(e&&e.message||e)};try{localStorage.setItem("range-backup-cfg",JSON.stringify(BK))}catch(_){}}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"&&BK&&bkDirty){clearTimeout(bkTimer);backupNow().catch(bkFail)}});
+// ask the browser not to clear Range's storage when space is low (home-screen apps usually get this)
+try{if(navigator.storage&&navigator.storage.persist&&!API)navigator.storage.persist()}catch(e){}
+function bkRow(){
+  if(!BK)return`<p class="muted" style="margin:0;font-size:14px">Range keeps your data on this phone. Back it up to your GitHub repository so updates, a new app address or a new phone never lose it.</p><button class="btn sec" data-act="bkSetup">Set up backup</button>`;
+  return`<div style="font-size:14px"><span class="${BK.err?"c-bad":"c-good"}">Backup ${BK.err?"needs attention":"on"}</span> · ${esc(BK.repo)}${BK.last?` · last saved ${agoText(BK.last)}`:""}</div>${BK.err?`<div class="c-bad" style="font-size:13px">${esc(BK.err)}</div>`:""}
+    <div class="frow"><button class="btn sec" style="flex:1" data-act="bkNow">Back up now</button><button class="btn sec" style="flex:1" data-act="bkSetup">Backup settings</button></div>`;
+}
+ACT.bkSetup=()=>sheet(`<h3>Back up to GitHub</h3><div class="scroll"><form id="bkF" class="stack" style="gap:10px" onsubmit="return false">
+  <p class="muted" style="margin:0;font-size:14px">Your data is encrypted with your passphrase before it leaves this phone. Without the passphrase the file is unreadable, even in a public repository.</p>
+  <label class="field"><span class="eyebrow">Repository (username/name)</span><input name="repo" placeholder="yourname/range" autocapitalize="none" spellcheck="false" value="${esc(BK?BK.repo:"")}"></label>
+  <label class="field"><span class="eyebrow">GitHub token</span><input name="token" type="password" autocomplete="off" placeholder="${BK?"(saved, leave empty to keep)":"github_pat_…"}"></label>
+  <details><summary class="muted" style="font-size:13px">How to create the token</summary><ol class="steps" style="font-size:13px">
+    <li>On github.com: your picture → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.</li>
+    <li>Repository access: Only select repositories → your Range repository.</li>
+    <li>Permissions → Repository permissions → Contents: Read and write. Expiration: up to a year.</li>
+    <li>Generate, copy it, and paste it here. It stays on this phone only.</li></ol></details>
+  <label class="field"><span class="eyebrow">Passphrase</span><input name="pass" type="password" autocomplete="off" placeholder="${BK?"(saved, leave empty to keep)":"the same as RANGE_SYNC_KEY"}"></label>
+  <p id="bkMsg" style="margin:0;font-size:14px" aria-live="polite"></p></form></div>
+  <div style="display:grid;gap:8px"><button class="btn" data-act="bkSave">Save and back up this phone</button><button class="btn sec" data-act="bkRestore">Restore my data from the backup</button>${BK?`<button class="link" style="color:var(--bad)" data-act="bkOff">Turn backup off on this phone</button>`:""}</div>`);
+function bkForm(){const f=$("#bkF");const repo=f.repo.value.trim().replace(/^https?:\/\/github\.com\//,"").replace(/\.git$/,"").replace(/\/$/,""),token=f.token.value.trim()||(BK&&BK.token)||"",pass=f.pass.value||(BK&&BK.pass)||(S.sync&&S.sync.key)||"";
+  if(!/^[\w.-]+\/[\w.-]+$/.test(repo))throw new Error("Enter the repository as username/name, e.g. yoav/range.");
+  if(!token)throw new Error("Paste your GitHub token.");if(pass.length<8)throw new Error("Use a passphrase of at least 8 characters.");return{repo,token,pass}}
+ACT.bkSave=async()=>{const m=$("#bkMsg");m.className="muted";
+  try{const cfg=bkForm();m.textContent="Checking GitHub…";const existing=await readBackup(cfg);
+    if(existing&&!(S.tests.length||S.sessions.length)&&!confirm("There's already a backup with your data, and this phone looks empty. Replace the backup with this phone's (empty) data? Tap Cancel and use Restore instead.")){m.textContent="";return}
+    BK={...cfg,last:BK&&BK.last||0};localStorage.setItem("range-backup-cfg",JSON.stringify(BK));m.textContent="Backing up…";await backupNow();closeSheet();render()}
+  catch(e){m.className="c-bad";m.textContent=e.message}};
+ACT.bkRestore=async()=>{const m=$("#bkMsg");m.className="muted";
+  try{const cfg=bkForm();m.textContent="Reading your backup…";const o=await readBackup(cfg);if(!o){m.className="c-bad";m.textContent="No backup in that repository yet.";return}
+    if(!confirm(`Replace the data on this phone with your backup from ${new Date(o.at).toLocaleString()}?`)){m.textContent="";return}
+    const keepKey=S.sync&&S.sync.key;S=Object.assign(JSON.parse(S_FRESH),o.data);if(keepKey)S.sync={...(S.sync||{}),key:keepKey};
+    BK={...cfg,last:o.at};localStorage.setItem("range-backup-cfg",JSON.stringify(BK));try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+    applyFigStyle();closeSheet();stack=[{name:"home",p:{}}];render();autoSync(true)}
+  catch(e){m.className="c-bad";m.textContent=e.message}};
+ACT.bkNow=async()=>{try{await backupNow()}catch(e){bkFail(e)}render()};
+ACT.bkOff=()=>{BK=null;localStorage.removeItem("range-backup-cfg");closeSheet();render()};
 
 /* ================= account mode (Range server) =================
    Sign in, data saved to the account (so it follows you to every device), connected training platforms

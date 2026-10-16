@@ -8,6 +8,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
+    paths-ignore: ["backup/**"]   # the app's data backups don't need a new deploy
 
 permissions:
   contents: read

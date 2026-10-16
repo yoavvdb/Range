@@ -10,15 +10,24 @@ Your mobility and rehab app, plus automatic SugarWOD sync.
 
 `server/` turns Range into a multi-user app. Each person signs up, connects their own SugarWOD (or a gym's SugarWOD API key), and the server syncs everyone every hour. The same app switches to account mode when the server hosts it. See `server/README.md` for running, deploying (Docker or Fly.io) and what to check before opening it to the public.
 
-## One-time setup
+## One-time setup (free)
+
+Free GitHub hosting needs a **public** repository. That's safe: the SugarWOD file and your data backup are both encrypted with your passphrase, and your SugarWOD login only lives in GitHub's encrypted secrets.
 
 1. **Secrets:** Settings → Secrets and variables → Actions → New repository secret. Add three:
-   - `SUGARWOD_EMAIL`: your SugarWOD login email
-   - `SUGARWOD_PASSWORD`: your SugarWOD password
-   - `RANGE_SYNC_KEY`: a long passphrase you make up (save it, you'll type it into the app once)
+   - `SUGARWOD_EMAIL`: your SugarWOD login email.
+   - `SUGARWOD_PASSWORD`: your SugarWOD password.
+   - `RANGE_SYNC_KEY`: a long passphrase you make up. Save it somewhere safe: it unlocks your workouts and your backup.
 2. **Pages:** Settings → Pages → Source: **GitHub Actions**.
-3. **First run:** Actions → SugarWOD sync → Run workflow. When it's green, the app is at `https://<your-username>.github.io/<repo-name>/`.
-4. **On your phone:** open that address in Safari → Share → **Add to Home Screen**. Open Range → Training → **Connect** → enter your `RANGE_SYNC_KEY`.
+3. **First run:** Actions → SugarWOD sync → Run workflow. When it's green, the app is at `https://<your-username>.github.io/<repo-name>/`. From then on it checks SugarWOD every hour for what you programmed and what you actually scored.
+4. **On your phone:**
+   1. Open that address in Safari, then Share → **Add to Home Screen**.
+   2. Open Range → Training → **Connect** → enter your `RANGE_SYNC_KEY`.
+5. **Backup, so updates or a new phone never lose your data:**
+   1. Create a fine-grained token on github.com: Settings → Developer settings → Personal access tokens → Fine-grained tokens. Give it only this repository, with Contents: Read and write.
+   2. In Range: Profile → Your data → **Set up backup**. Enter the repository (`username/repo`), the token and the same passphrase.
+   3. Range then saves your data, encrypted, to `backup/range-backup.enc` after changes.
+   4. On a new phone: set up backup the same way and tap **Restore**.
 
 ## Optional: "time to recover" notifications
 
