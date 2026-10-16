@@ -292,7 +292,9 @@ img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;o
 .hist div{display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
 .hist small{color:var(--muted)}
 /* test + done overlays */
-.full{position:fixed;inset:0;z-index:35;background:var(--bg);overflow:auto;padding-top:env(safe-area-inset-top,0px)}
+.full{position:fixed;inset:0;z-index:35;background:var(--bg);overflow:auto}
+/* full-screen views: the header itself covers the status-bar area, so nothing scrolls into view above it */
+.full .hdr{top:0;height:calc(56px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px)}.full .hdr::before{display:none}
 .full .inner{max-width:480px;margin:0 auto;padding:0 16px calc(env(safe-area-inset-bottom,0px) + 16px);min-height:100%;display:grid;grid-template-rows:auto 1fr auto;gap:16px}
 .tprog{display:flex;gap:4px}.tprog i{flex:1;height:3px;border-radius:2px;background:var(--line)}.tprog i.on{background:var(--accent)}
 .big{font-size:72px;font-weight:800;font-stretch:115%;line-height:.9;font-variant-numeric:tabular-nums}
@@ -1899,7 +1901,7 @@ function finishSession(complete){
     <div class="hdr" style="grid-template-columns:1fr"><div class="brand" style="text-align:center">Range<b>.</b></div></div>
     <div class="stack" style="align-content:start;padding-top:12px">
       <span class="eyebrow">${complete?"Session complete":"Session ended"}</span>
-      <h1>${esc(P.meta.title)}</h1>
+      <h1 class="clamp2" style="font-size:28px">${esc(P.meta.title)}</h1>
       <div class="tiles"><div class="tile"><span class="eyebrow">Minutes</span><b>${rec.mins}</b></div><div class="tile"><span class="eyebrow">Exercises</span><b>${doneCount}</b></div></div>
       ${isRehab&&doneCount>0?`<div class="panel"><span class="eyebrow">Highest pain during the session</span>${painGrid("rbSessionPain",null)}<p id="rbAfter" class="muted" style="margin:0;font-size:14px" aria-live="polite">Tomorrow morning, check your test movement again. If it's worse, Range will tell you to back off.</p></div>`:""}
       ${canRetest?`<div class="panel"><span class="eyebrow">Optional · did it help?</span>
