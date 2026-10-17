@@ -142,6 +142,7 @@ img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;o
 .opt{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:54px;padding:0 16px;border-radius:12px;background:var(--surface);font-weight:600;text-align:left;box-shadow:inset 0 0 0 1.5px transparent}
 .opt.on{box-shadow:inset 0 0 0 1.5px var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface))}
 .opt .radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--muted);flex:none}.opt.on .radio{border:6px solid var(--accent)}
+.opt .tick{margin-left:12px;width:22px;height:22px;border-radius:6px;border:2px solid var(--muted);flex:none;display:grid;place-items:center;color:transparent}.opt .tick svg{width:15px;height:15px}.opt.on .tick{background:var(--accent);border-color:var(--accent);color:var(--bg)}
 .opt .tag{color:var(--accent);font-size:12px;font-weight:700}
 .equip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 .eq{display:grid;justify-items:center;gap:8px;font-size:13px;font-weight:600}
@@ -480,15 +481,19 @@ const TEST=[
  {id:"posterior",k:"posterior",t:"Standing toe touch",fig:"p1",how:"Feet together, knees locked, fold forward slowly. Where do your fingertips reach?",o:["Above mid-shin","Mid-shin to ankles","Fingertips touch toes","Palms flat on the floor"]},
  {id:"slr",k:"posterior",t:"Straight leg raise",uni:1,fig:"p2",how:"Lie on your back, both legs straight. No strap and no hands this time: lift the {s} leg as high as you can with the knee locked and the {o} leg flat. What angle does the {s} leg reach?",o:["Under 50°","50–70°","70–80°","Over 80° (near vertical)"]},
  {id:"hips",k:"hips",w:{hips:.6,ankles:.35},t:"Deep squat",fig:"h7",how:"Feet shoulder-width, squat as low as you can and hold for 30 seconds without holding on.",o:["Can't get below parallel","Below parallel, heels lift","Heels down, chest drops","Heels down, chest tall, relaxed"]},
- {id:"hipir",k:"hips",t:"Hip internal rotation",uni:1,fig:"b_9090ir",how:"Sit on the floor in a 90/90: front knee bent to 90° in front of you, the {s} leg behind you, knee also bent to 90°, its shin pointing out to the side. Sit tall. Where does the {s} hip end up?",o:["Can't get the {s} leg into position","Only leaning far back on the hands","Upright with hand support, {s} butt cheek lifts","Tall, hands-free, both sit bones down"]},
- {id:"hiper",k:"hips",t:"Hip external rotation",uni:1,fig:"b_9090er",how:"Sit in a 90/90 with the {s} leg in front: shin across your body, knee bent to 90°. Sit tall, then hinge your chest forward over the {s} shin with a flat back.",o:["Can't get the {s} shin to 90°","Upright only with hands behind me","Tall hands-free, can't lean forward","Chest comes over the shin, back flat"]},
- {id:"hipflex",k:"hips",t:"Hip flexor length",uni:1,fig:"t_hug",how:"Lie on your back on the floor. Hug the {o} knee to your chest, and let the {s} leg relax straight. What does the {s} leg do?",o:["The {s} thigh lifts well off the floor","The thigh lifts a little","The thigh stays down, the knee bends up","Thigh and knee rest flat on the floor"]},
+ {id:"thomas",k:"hips",uni:1,fig:"t_thomas",props:[["bench"]],t:"Thomas test",how:"Sit on the very end of a bed or bench. Hug the {o} knee to your chest and roll back onto the bed, then let the {s} leg hang off the edge completely relaxed. Keep the {o} knee pulled in tight so your low back stays flat. Tick everything that's true for the {s} leg:",
+  multi:["The back of the {s} thigh rests flat on the bed","The {s} knee bends to about 90°, the shin hangs straight down","The {s} thigh stays straight, it doesn't drift out to the side"]},
+ {id:"sitir",k:"hips",t:"Seated internal rotation",uni:1,fig:"t_sitir",props:[["box",80,114,32]],how:"Sit tall on a chair, knees and hips at 90°. Keep the {s} knee still and swing the {s} foot out to the side as far as it goes, without leaning or lifting the hip. Estimate the shin's angle from vertical.",o:["Under 20°","20–30°","30–40°","Over 40°"]},
+ {id:"faber",k:"hips",t:"FABER (figure-four)",uni:1,fig:"r_fig4",how:"Lie on your back, both legs straight. Put the {s} ankle on top of the {o} knee and let the {s} knee fall out toward the floor. Don't push it. Where does it settle?",o:["Pinch or pain in the front of the {s} hip","Knee stays high, more than a hand's width above level","Knee within a hand's width of level","Knee drops level with the {o} leg, no pinch"]},
  {id:"straddle",k:"hips",w:{hips:.8,posterior:.3},t:"Straddle sit",fig:"p6",how:"Sit on the floor, legs straight and spread as wide as you can, knees and toes up. Sit tall without rounding. What angle is between your legs?",o:["Under 60°, or I can't sit tall","60–90°","90–120°","Over 120°"]},
  {id:"shoulders",k:"shoulders",t:"Back scratch",fig:"bscratch",uni:1,how:"The {s} hand reaches over the {s} shoulder and down the back, the {o} hand comes up from below. How big is the gap between your fingers?",o:["Gap over 10 cm","Gap 5–10 cm","Fingertips touch","Fingers overlap"]},
  {id:"overhead",k:"overhead",t:"Wall overhead reach",fig:"wallreach",props:[["wall",108]],how:"Heels, butt and lower back on a wall. Raise straight arms overhead toward the wall without arching.",o:["Hands far from the wall","Hands halfway to the wall","Thumbs touch, ribs flare","Thumbs touch, ribs stay down"]},
  {id:"thoracic",k:"thoracic",t:"Lumbar-locked rotation",fig:"t5",uni:1,how:"On all fours, sit the hips back toward the heels, {s} hand behind your head. Turn the {s} elbow up toward the ceiling without moving the hips, and estimate the angle.",o:["Under 30°","30–45°","45–60°","Over 60°"]},
 ];
 const OPT_SCORES=[22,48,72,94];
+// a single answer is the option's score; a checklist answer is a bitmask of what passed, scored by how many did
+const tScore=(q,v)=>v==null?null:q.multi?Math.round(22+72*popc(v)/q.multi.length):OPT_SCORES[v];
+const popc=v=>{let n=0;for(;v;v>>=1)n+=v&1;return n};
 
 /* ================= state ================= */
 const KEY="range-mobility-v2";
@@ -667,6 +672,8 @@ Object.assign(FIGS,{
  r_hipflexiso:mk({p:[110,134],t:180,h:180,L1:{a:[-90,0],s:[1,.98],f:-72},L2:{a:[-90,0],s:[1,.98],f:-72},A1:{a:[2,2]},A2:{a:[4,4]}},{L1:{a:[-32,-32],f:-80}},[["bandank"]],{cam:{yaw:22,pitch:24}}),
  r_gmedwall:mk({p:[120,86],t:-90,h:-90,L1:{plant:[121,138],f:0},L2:{a:[2,90],s:[.985,1],f:0},A1:{a:[100,69.8],s:[.75,.87],dz:[1,-1]},A2:{a:[93,90],s:[1,1]}},{p:[119,87],L2:{a:[0,90],s:[.955,1]}},[["swall",-19.5,120]],{cam:{yaw:40,pitch:8}}),
  r_bandwalk:mk({view:"front",p:[120,92.4],t:-90,h:-90,L1:{a:[80,92],s:[.85,.85],dz:[1,-1],f:10},L2:{a:[100,88],s:[.85,.85],dz:[1,-1],f:170},A1:{a:[60,130.7],s:[1,.89],dz:[1,-1]},A2:{a:[120,49.3],s:[1,.89],dz:[1,-1]}},{p:[125,92.7],L1:{a:[72,80],s:[.87,.87]},L2:{a:[104,98]}},[["bandknees"]],{mid:{p:[122.5,92.5],L1:{a:[74,86],s:[.75,.85]},L2:{a:[102,93]}}}),
+ t_thomas:mk({p:[158,104],t:0,h:0,L1:{a:[160,92],f:180},L2:{a:[-115,-20],s:[.95,.95],f:-90},A1:{plant:[150,80]},A2:{plant:[148,80]}},{L1:{a:[172,95],f:185},L2:{a:[-125,-30],s:[.95,.95],f:-100},A1:{plant:[146,76]},A2:{plant:[144,76]}},[["bench"]],{cam:{yaw:-30,pitch:16}}),
+ t_sitir:mk({p:[106,111],t:-90,h:-90,L1:{a:[0,90],f:0},L2:{a:[2,90],f:0},A1:{plant:[100,113]},A2:{plant:[98,113]}},{L1:{a:[0,90],s:[1,.72],dz:[1,1],f:0}},[["box",80,114,32]],{cam:{yaw:70,pitch:12}}),
  t_hug:mk({...SUPINE,L2:{a:[-120,-10],s:[.95,.95],f:-90},L1:{a:[0,0],f:-90},A1:{plant:[146,108]},A2:{plant:[144,108]}},{L2:{a:[-132,-20],s:[.95,.95],f:-100},L1:{a:[-4,-4],f:-88},A1:{plant:[138,103]},A2:{plant:[136,103]}}),
  r_fig4:mk({...SUPINE,L2:{a:[-75,0],f:-90},L1:{a:[-50,-170],s:[.75,.8],f:-90},A1:{a:[-20,-25]},A2:{a:[-18,-23]}},{L2:{a:[-102,-15],f:-100},L1:{a:[-72,-185],s:[.75,.8],f:-90},A1:{a:[-25,-35]},A2:{a:[-23,-33]}}),
  // knees
@@ -3605,8 +3612,8 @@ const tKey=st=>st.q.id+st.sd;
 // each check scores on its tighter side; an area is the weighted average of the checks that count toward it,
 // and its tighter side is whichever side lost more across its one-sided checks
 function testScores(ans){const sum={},wt={},lean={},side={},sc={};
-  TEST.forEach(q=>{const r=ans[q.id+"R"],l=ans[q.id+"L"],v=q.uni?OPT_SCORES[Math.min(r,l)]:OPT_SCORES[ans[q.id]];if(v==null)return;
-    Object.entries(q.w||{[q.k]:1}).forEach(([a,w])=>{sum[a]=(sum[a]||0)+v*w;wt[a]=(wt[a]||0)+w;if(q.uni)lean[a]=(lean[a]||0)+(l-r)*w})});
+  TEST.forEach(q=>{const r=ans[q.id+"R"],l=ans[q.id+"L"],v=q.uni?(r==null||l==null?null:Math.min(tScore(q,r),tScore(q,l))):tScore(q,ans[q.id]);if(v==null)return;
+    Object.entries(q.w||{[q.k]:1}).forEach(([a,w])=>{sum[a]=(sum[a]||0)+v*w;wt[a]=(wt[a]||0)+w;if(q.uni)lean[a]=(lean[a]||0)+(tScore(q,l)-tScore(q,r))*w})});
   AREAS.forEach(({k})=>{sc[k]=wt[k]?Math.round(sum[k]/wt[k]):50;side[k]=lean[k]>0?"R":lean[k]<0?"L":""});
   return{sc,side}}
 ACT.openTest=()=>{T={i:0,ans:{}};const last=S.tests[S.tests.length-1];
@@ -3622,11 +3629,11 @@ function drawTest(){
     <div class="stack" style="align-content:start"><span class="eyebrow">Your results</span><div class="score"><b>${ov}</b><span class="pill ${lv.c}">${lv.t}</span></div>
     <p class="muted" style="margin:0">Your routines will now spend the most time on your ${weakest}.</p>${radar(sc)}
     <ul class="bars">${AREAS.map(a=>{const v=sc[a.k],l=level(v);return`<li><span>${a.n}</span><span class="tr"><i style="width:${v}%;background:${l.v}"></i></span><b>${v}</b></li>`}).join("")}</ul>
-    <div class="panel"><span class="eyebrow">Hips, check by check</span>${TEST.filter(q=>(q.w||{[q.k]:1}).hips).map(q=>{const v=OPT_SCORES[q.uni?Math.min(T.ans[q.id+"R"],T.ans[q.id+"L"]):T.ans[q.id]],l=level(v);
+    <div class="panel"><span class="eyebrow">Hips, check by check</span>${TEST.filter(q=>(q.w||{[q.k]:1}).hips).map(q=>{const v=q.uni?Math.min(tScore(q,T.ans[q.id+"R"]),tScore(q,T.ans[q.id+"L"])):tScore(q,T.ans[q.id]),l=level(v);
       return`<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0"><span>${q.t}</span><b style="color:${l.v}">${v}</b></div>`}).join("")}
       <p class="muted" style="margin:6px 0 0;font-size:13px">The squat counts less here, because tight ankles can hold it back too.</p></div>
-    <div class="panel"><span class="eyebrow">Right vs left</span>${lr.map(q=>{const r=T.ans[q.id+"R"],l=T.ans[q.id+"L"],s=r<l?"R":l<r?"L":"";
-      return`<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0"><span>${q.t}</span><span class="muted">Right ${r+1} · Left ${l+1}${s?` · <b style="color:var(--ink)">${SIDE_N[s]} is tighter</b>`:" · even"}</span></div>`}).join("")}
+    <div class="panel"><span class="eyebrow">Right vs left</span>${lr.map(q=>{const r=tScore(q,T.ans[q.id+"R"]),l=tScore(q,T.ans[q.id+"L"]),s=r<l?"R":l<r?"L":"";
+      return`<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0"><span>${q.t}</span><span class="muted">Right ${r} · Left ${l}${s?` · <b style="color:var(--ink)">${SIDE_N[s]} is tighter</b>`:" · even"}</span></div>`}).join("")}
       <p class="muted" style="margin:6px 0 0;font-size:13px">Each check is scored on its tighter side, and areas with several checks average them. One-sided stretches give the tighter side 50% more time.</p></div></div>
     <div class="bottomcta"><button class="btn" data-act="testSave">Save my scores</button><button class="link muted" style="justify-self:center;padding:4px 12px" data-act="testExit">Discard results</button></div></div></div>`;
     return;
@@ -3640,16 +3647,17 @@ function drawTest(){
     <div class="detailstage tsstage${sd==="L"?" mir":""}">${fig(q.fig,null,{anim:true,zones:AREA_ZONES[q.k]})}${sd?`<span class="pill">${SIDE_N[sd]} side</span>`:""}</div>
     ${sd?`<div class="tsides">${["R","L"].map(k=>`<span class="${sd===k?"on":T.ans[q.id+k]!=null&&k==="R"?"done":""}">${SIDE_N[k]}</span>`).join("")}</div><p style="margin:0"><b>${sd==="R"?"Test your right side first.":"Now the left side, the same way."}</b></p>`:""}
     <p class="muted" style="margin:0">${how}</p>
-    <div class="stack" style="gap:8px">${q.o.map((o,k)=>`<button class="opt ${T.ans[key]===k?"on":""}" data-act="testPick" data-k="${k}"><span>${sub(o)}</span><span class="radio"></span></button>`).join("")}</div>
+    <div class="stack" style="gap:8px">${q.multi?q.multi.map((o,k)=>`<button class="opt ${(T.ans[key]??0)>>k&1?"on":""}" data-act="testTick" data-k="${k}" aria-pressed="${!!((T.ans[key]??0)>>k&1)}"><span>${sub(o)}</span><span class="tick">${ic("check")}</span></button>`).join("")+`<p class="muted" style="margin:0;font-size:13px">None of them? That's fine, just continue.</p>`:q.o.map((o,k)=>`<button class="opt ${T.ans[key]===k?"on":""}" data-act="testPick" data-k="${k}"><span>${sub(o)}</span><span class="radio"></span></button>`).join("")}</div>
     
    </div>
-   <div class="bottomcta"><button class="btn" data-act="testNext" ${T.ans[key]==null?"disabled":""}>${T.i===TSTEPS.length-1?"See my results":sd==="R"?"Now the left side":"Next test"}</button></div>
+   <div class="bottomcta"><button class="btn" data-act="testNext" ${T.ans[key]==null&&!q.multi?"disabled":""}>${T.i===TSTEPS.length-1?"See my results":sd==="R"?"Now the left side":"Next test"}</button></div>
   </div></div>`;
   $(".full").scrollTop=0;
 }
 
 ACT.testPick=d=>{T.ans[tKey(TSTEPS[T.i])]=+d.k;drawTest()};
-ACT.testNext=()=>{T.i++;drawTest()};
+ACT.testTick=d=>{const st=TSTEPS[T.i];T.ans[tKey(st)]=(T.ans[tKey(st)]??0)^(1<<+d.k);drawTest()};
+ACT.testNext=()=>{const st=TSTEPS[T.i];if(st.q.multi&&T.ans[tKey(st)]==null)T.ans[tKey(st)]=0;T.i++;drawTest()};
 ACT.testBack=()=>{if(T.i>0){T.i--;drawTest()}else ACT.testExit()};
 ACT.testExit=()=>{T=null;$("#layer").innerHTML="";document.body.style.overflow=""};
 ACT.testSave=()=>{const{sc,side}=testScores(T.ans);S.scores=sc;S.sideBias={...side};S.tests.push({at:Date.now(),scores:sc,ans:T.ans,side:{...side}});save();ACT.testExit();render()};
