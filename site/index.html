@@ -356,14 +356,17 @@ textarea{font:inherit}.edex{gap:10px}.edhead{display:grid;grid-template-columns:
 #splash svg{width:132px;height:132px;overflow:visible}
 #splash .trk{stroke:#28303A}#splash .arc{stroke:var(--accent);stroke-dasharray:214;stroke-dashoffset:214;animation:splArc 1.1s cubic-bezier(.22,1,.36,1) .15s forwards;filter:drop-shadow(0 0 8px rgba(63,208,201,.45))}
 #splash .dotg{transform-origin:100px 100px;transform:rotate(150deg);animation:splDot 1.1s cubic-bezier(.22,1,.36,1) .15s forwards}
-#splash .dot{fill:var(--ink);animation:splPulse 1.6s ease-in-out 1.3s infinite}
+#splash .dot{fill:var(--ink)}
 #splash .fig{stroke:var(--ink);fill:none;stroke-width:14;stroke-linecap:round;stroke-linejoin:round}
 #splash .arm{transform-origin:100px 76px;transform:rotate(-115deg);animation:splArm 1.1s cubic-bezier(.22,1,.36,1) .15s forwards}
 #splash .word,#splash .tag{will-change:opacity,transform;backface-visibility:hidden}#splash .word{font-weight:800;font-stretch:125%;font-size:26px;letter-spacing:.32em;text-transform:uppercase;color:var(--ink);opacity:0;animation:splWord .8s ease .55s forwards;margin-right:-.32em}#splash .word b{color:var(--accent)}
 #splash .tag{font-size:13px;color:var(--muted);letter-spacing:.06em;opacity:0;animation:splWord .8s ease .8s forwards;margin-top:-8px}
 @keyframes splArc{to{stroke-dashoffset:0}}@keyframes splDot{to{transform:rotate(330deg)}}@keyframes splArm{to{transform:rotate(0)}}
 @keyframes splWord{from{opacity:0;transform:translate3d(0,6px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
-@keyframes splPulse{50%{opacity:.55}}#splash .dot{transform-box:fill-box;transform-origin:center}
+#splash .bar{width:120px;height:3px;border-radius:2px;background:#222932;overflow:hidden;opacity:0;animation:splWord .6s ease 1.2s forwards;margin-top:6px}
+#splash .bar i{display:block;width:40%;height:100%;border-radius:2px;background:var(--accent);animation:splBar 1.1s ease-in-out infinite;will-change:transform}
+@keyframes splBar{from{transform:translate3d(-100%,0,0)}to{transform:translate3d(250%,0,0)}}
+#cover{position:fixed;inset:0;z-index:101;background:radial-gradient(120% 70% at 50% 42%,#14303A 0%,var(--bg) 62%);display:grid;place-items:center;transition:opacity .3s}#cover.out{opacity:0}#cover svg{width:132px;height:132px}
 @media (prefers-reduced-motion:reduce){#splash *{animation-duration:.01s!important;animation-delay:0s!important}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
@@ -373,7 +376,7 @@ textarea{font:inherit}.edex{gap:10px}.edhead{display:grid;grid-template-columns:
 <path class="arc" d="M41.1 134A68 68 0 1 1 158.9 66" fill="none" stroke-width="15" stroke-linecap="round"/>
 <g class="dotg"><circle class="dot" cx="168" cy="100" r="14"/></g>
 <g transform="translate(28 35.2) scale(.72)"><g class="fig"><path d="M100 70V118L130 120L132 158M100 118L76 140L52 152"/><g class="arm"><path d="M100 76L116 52L124 30"/></g></g><circle cx="96" cy="52" r="13" fill="var(--ink)"/></g></svg>
-<div class="word">Range<b>.</b></div><div class="tag">Move better. Every day.</div></div></div>
+<div class="word">Range<b>.</b></div><div class="tag">Move better. Every day.</div><div class="bar"><i></i></div></div></div>
 <div id="app"><div id="screen"></div></div>
 <nav id="tabbar" aria-label="Main">
   <button data-act="tab" data-t="home"></button>
@@ -983,7 +986,7 @@ let animPaused=false;
    draws every figure: thumbnails are rendered once and cached as images; the main demo animates live and
    can be dragged to turn the camera. If WebGL or the 3D library isn't available the 2D figure stays. */
 const FIG3D=(()=>{
-  let T=null,R=null,scene,cam,ground,ready=false,failed=false,loading=null;
+  let T=null,R=null,scene,cam,ground,ready=false,failed=false,loading=null,readyAt=0;
   const SRC=window.RANGE_THREE_URL||"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js";
   const thumbs=new Map(),queue=[];let pumping=false;
   const FLOOR=143,HIPW=7,SHW=14.5;
@@ -1396,8 +1399,9 @@ const FIG3D=(()=>{
     document.querySelectorAll("svg.fig[data-x3]").forEach(el=>el.removeAttribute("data-x3"));
   }
   function supported(){try{const c=document.createElement("canvas"),g=c.getContext("webgl2")||c.getContext("webgl");if(g&&g.getExtension("WEBGL_lose_context"))g.getExtension("WEBGL_lose_context").loseContext();return!!g}catch(e){return false}}
-  function start(){if(loading||!supported())return;loading=import(SRC).then(m=>{T=m;try{setup();ready=true;document.documentElement.classList.add("fig3d");requestAnimationFrame(tick)}catch(e){disable(e)}}).catch(e=>{failed=true;console.warn("3D figures unavailable, using 2D",e)})}
-  return{start,get ready(){return ready},renderTo,lift,clear(){thumbs.clear()}};
+  function start(){if(loading||!supported())return;loading=import(SRC).then(m=>{T=m;try{setup();ready=true;readyAt=performance.now();document.documentElement.classList.add("fig3d");requestAnimationFrame(tick)}catch(e){disable(e)}}).catch(e=>{failed=true;console.warn("3D figures unavailable, using 2D",e)})}
+  // settled: nothing more to draw for the current screen (or 3D is off), so the launch screen can lift without a jump
+  return{start,get ready(){return ready},get settled(){return failed||!loading||(ready&&performance.now()-readyAt>350&&!queue.length&&!pumping)},renderTo,lift,clear(){thumbs.clear()}};
 })();
 
 
@@ -3716,7 +3720,7 @@ const SEED={"syncedAt":"2026-10-14T19:47:12.415Z","workouts":[{"date":"2026-08-1
 /*SEED-END*/
 applyFigStyle();
 // the 3D engine starts once the launch screen is gone, so its setup work doesn't make the animation stutter
-const start3d=()=>{if(S.settings.fig3d!==false)FIG3D.start()};if(!document.getElementById("splash"))start3d();
+let started3d=false;const start3d=()=>{if(started3d)return;started3d=true;if(S.settings.fig3d!==false)FIG3D.start()};if(!document.getElementById("splash"))start3d();
 setTimeout(()=>autoSync(false),400);
 function checkRoutineHash(){if(!/^#r=/.test(location.hash))return;const r=parseRoutine(location.hash);history.replaceState(null,"",location.pathname+location.search);if(r)setTimeout(()=>offerRoutine(r),400)}
 checkRoutineHash();addEventListener("hashchange",checkRoutineHash);
@@ -3930,10 +3934,19 @@ ACT.applyPaste=()=>{
   catch(e){$("#pasteMsg").textContent="That isn't Range data. Copy it again with Profile → Copy my data.";$("#pasteMsg").style.color="var(--bad)"}
 };
 if(API)acctBoot();else render();
-// launch screen: let the sweep finish (about 1.4s), then fade into the app
-(()=>{const sp=document.getElementById("splash");if(!sp)return;const wait=Math.max(500,2000-performance.now());
-  const end=()=>{if(sp.classList.contains("out"))return;sp.classList.add("out");setTimeout(()=>{sp.remove();start3d()},480)};
-  setTimeout(end,wait);sp.addEventListener("click",end)})();
+// launch screen: the sweep plays with nothing else running; then the 3D figures load behind it, and it lifts
+// once they're drawn (at least 2s, at most 6s), so the home screen appears complete with no jump
+(()=>{const sp=document.getElementById("splash");if(!sp)return;
+  const end=()=>{if(sp.classList.contains("out"))return;clearInterval(iv);start3d();sp.classList.add("out");setTimeout(()=>sp.remove(),480)};
+  setTimeout(start3d,1300);
+  const iv=setInterval(()=>{const t=performance.now();if(t>6000||(t>2000&&started3d&&(S.settings.fig3d===false||FIG3D.settled)))end()},100);
+  sp.addEventListener("click",end)})();
+// iOS shows a snapshot of the app while it reopens: cover the screen when the app goes to the background so that
+// snapshot is the launch screen, not a stale home screen, and lift the cover right away when it comes back
+document.addEventListener("visibilitychange",()=>{let c=document.getElementById("cover");
+  if(document.hidden){if(c||document.getElementById("splash"))return;c=document.createElement("div");c.id="cover";c.setAttribute("aria-hidden","true");
+    c.innerHTML=`<svg viewBox="0 0 200 200"><path d="M41.1 134A68 68 0 1 1 158.9 134" fill="none" stroke="#28303A" stroke-width="15" stroke-linecap="round"/><path d="M41.1 134A68 68 0 1 1 158.9 66" fill="none" stroke="var(--accent)" stroke-width="15" stroke-linecap="round"/><circle cx="158.9" cy="66" r="14" fill="var(--ink)"/></svg>`;document.body.appendChild(c)}
+  else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
 <script>if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
