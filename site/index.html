@@ -351,19 +351,19 @@ textarea{font:inherit}.edex{gap:10px}.edhead{display:grid;grid-template-columns:
 #tabbar button{font-size:10px}
 /* launch screen: the icon's range arc sweeps open while the figure reaches overhead, then fades into the app */
 #splash{position:fixed;inset:0;z-index:100;background:radial-gradient(120% 70% at 50% 42%,#14303A 0%,var(--bg) 62%);display:grid;place-items:center;transition:opacity .45s ease,visibility .45s;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
-#splash.out{opacity:0;visibility:hidden}#splash.out .spl{transform:scale(1.06)}
-#splash .spl{display:grid;justify-items:center;gap:18px;transition:transform .45s ease}
+#splash.out{opacity:0;visibility:hidden}
+#splash .spl{display:grid;justify-items:center;gap:18px}
 #splash svg{width:132px;height:132px;overflow:visible}
 #splash .trk{stroke:#28303A}#splash .arc{stroke:var(--accent);stroke-dasharray:214;stroke-dashoffset:214;animation:splArc 1.1s cubic-bezier(.22,1,.36,1) .15s forwards;filter:drop-shadow(0 0 8px rgba(63,208,201,.45))}
 #splash .dotg{transform-origin:100px 100px;transform:rotate(150deg);animation:splDot 1.1s cubic-bezier(.22,1,.36,1) .15s forwards}
 #splash .dot{fill:var(--ink);animation:splPulse 1.6s ease-in-out 1.3s infinite}
 #splash .fig{stroke:var(--ink);fill:none;stroke-width:14;stroke-linecap:round;stroke-linejoin:round}
 #splash .arm{transform-origin:100px 76px;transform:rotate(-115deg);animation:splArm 1.1s cubic-bezier(.22,1,.36,1) .15s forwards}
-#splash .word{font-weight:800;font-stretch:125%;font-size:26px;letter-spacing:.32em;text-transform:uppercase;color:var(--ink);opacity:0;animation:splWord .8s ease .55s forwards;margin-right:-.32em}#splash .word b{color:var(--accent)}
+#splash .word,#splash .tag{will-change:opacity,transform;backface-visibility:hidden}#splash .word{font-weight:800;font-stretch:125%;font-size:26px;letter-spacing:.32em;text-transform:uppercase;color:var(--ink);opacity:0;animation:splWord .8s ease .55s forwards;margin-right:-.32em}#splash .word b{color:var(--accent)}
 #splash .tag{font-size:13px;color:var(--muted);letter-spacing:.06em;opacity:0;animation:splWord .8s ease .8s forwards;margin-top:-8px}
 @keyframes splArc{to{stroke-dashoffset:0}}@keyframes splDot{to{transform:rotate(330deg)}}@keyframes splArm{to{transform:rotate(0)}}
-@keyframes splWord{from{opacity:0;transform:translateY(8px);letter-spacing:.5em}to{opacity:1;transform:none}}
-@keyframes splPulse{50%{transform:scale(1.35)}}#splash .dot{transform-box:fill-box;transform-origin:center}
+@keyframes splWord{from{opacity:0;transform:translate3d(0,6px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+@keyframes splPulse{50%{opacity:.55}}#splash .dot{transform-box:fill-box;transform-origin:center}
 @media (prefers-reduced-motion:reduce){#splash *{animation-duration:.01s!important;animation-delay:0s!important}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
@@ -3715,7 +3715,8 @@ const SEED={"syncedAt":"2026-10-14T19:47:12.415Z","workouts":[{"date":"2026-08-1
 (function(){if(!SEED||S.seeded===SEED.syncedAt)return;S.training=S.training.filter(w=>!w.example);const r=mergeRows(SEED.workouts,"sugarwod-auto");S.seeded=SEED.syncedAt;setTimeout(()=>recoverNudge(r.fresh),1500);S.sync={...(S.sync||{}),preload:{syncedAt:SEED.syncedAt,count:SEED.workouts.length,added:r.added}};save()})();
 /*SEED-END*/
 applyFigStyle();
-if(S.settings.fig3d!==false)FIG3D.start();
+// the 3D engine starts once the launch screen is gone, so its setup work doesn't make the animation stutter
+const start3d=()=>{if(S.settings.fig3d!==false)FIG3D.start()};if(!document.getElementById("splash"))start3d();
 setTimeout(()=>autoSync(false),400);
 function checkRoutineHash(){if(!/^#r=/.test(location.hash))return;const r=parseRoutine(location.hash);history.replaceState(null,"",location.pathname+location.search);if(r)setTimeout(()=>offerRoutine(r),400)}
 checkRoutineHash();addEventListener("hashchange",checkRoutineHash);
@@ -3930,8 +3931,9 @@ ACT.applyPaste=()=>{
 };
 if(API)acctBoot();else render();
 // launch screen: let the sweep finish (about 1.4s), then fade into the app
-(()=>{const sp=document.getElementById("splash");if(!sp)return;const wait=Math.max(0,1500-performance.now());
-  setTimeout(()=>{sp.classList.add("out");setTimeout(()=>sp.remove(),500)},wait);sp.addEventListener("click",()=>sp.classList.add("out"))})();
+(()=>{const sp=document.getElementById("splash");if(!sp)return;const wait=Math.max(500,2000-performance.now());
+  const end=()=>{if(sp.classList.contains("out"))return;sp.classList.add("out");setTimeout(()=>{sp.remove();start3d()},480)};
+  setTimeout(end,wait);sp.addEventListener("click",end)})();
 </script>
 
 <script>if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
