@@ -42,6 +42,9 @@ def main():
     shutil.rmtree(DIST, ignore_errors=True); os.makedirs(DIST)
     page = open(SRC, encoding="utf8").read()
     title = re.search(r"<title>(.*?)</title>", page).group(1)
+    # iOS shows these while the app opens: the launch screen's first frame, one per iPhone size (made by launchgen.js)
+    LD = os.path.join(HERE, "launch")
+    launch = open(os.path.join(LD, "links.html")).read() if os.path.exists(os.path.join(LD, "links.html")) else ""
     head = f"""<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8">
@@ -54,8 +57,8 @@ def main():
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<script>window.RANGE_THREE_URL="./three.module.min.js"</script>
-<style>:root{{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}}body{{margin:0;font:14px system-ui,sans-serif}}img{{max-width:100%}}[hidden]{{display:none!important}}</style>
+{launch}<script>window.RANGE_THREE_URL="./three.module.min.js"</script>
+<style>html{{background:#0D1015}}:root{{color-scheme:dark;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}}body{{margin:0;font:14px system-ui,sans-serif}}img{{max-width:100%}}[hidden]{{display:none!important}}</style>
 </head><body>
 """
     sw = """<script>if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>"""
@@ -75,6 +78,9 @@ def main():
     icon(512).save(os.path.join(DIST, "icon-512.png"))
     icon(512, maskable=True).save(os.path.join(DIST, "icon-maskable-512.png"))
     icon(180).save(os.path.join(DIST, "apple-touch-icon.png"))
+    if launch:
+        for fn in os.listdir(LD):
+            if fn.endswith(".png"): shutil.copy(os.path.join(LD, fn), os.path.join(DIST, fn))
     # the 3D library ships with the app so the 3D demos work offline
     shutil.copy(os.path.join(HERE, "three.module.min.js"), os.path.join(DIST, "three.module.min.js"))
     version = str(abs(hash(page)) % 10**8)
