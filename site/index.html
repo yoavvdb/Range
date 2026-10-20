@@ -70,6 +70,8 @@ a.btn{text-decoration:none}.btn{display:flex;align-items:center;justify-content:
 .btn.sec{background:var(--surface2);color:var(--ink)}
 .btn:disabled{background:color-mix(in srgb,var(--accent) 22%,var(--surface2));color:color-mix(in srgb,var(--ink) 45%,transparent);cursor:not-allowed}
 .clamp2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.syncbtn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:14px;border:1px solid rgba(63,208,201,.35);transition:transform .12s}.syncbtn:active{transform:scale(.95)}.syncbtn .ic{width:16px;height:16px}.syncbtn.busy .ic{animation:spin .9s linear infinite}.syncbtn.ok{background:transparent}
+@keyframes spin{to{transform:rotate(360deg)}}
 .link{color:var(--accent);font-weight:700;font-size:14px;display:inline-flex;align-items:center;gap:4px;vertical-align:middle}.link .ic{width:18px;height:18px;flex:none}
 .pill{display:inline-flex;align-items:center;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:99px;background:var(--surface2)}
 .c-bad{color:var(--bad)}.c-warn{color:var(--warn)}.c-good{color:var(--good)}.c-top{color:var(--accent)}
@@ -590,6 +592,7 @@ const dayKey=d=>{const x=new Date(d);return`${x.getFullYear()}-${x.getMonth()}-$
 const REDUCED=matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const ICON={
+ sync:'<path d="M20 11a8 8 0 0 0-14.5-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.5 4.5L20 16M20 20v-4h-4"/>',
  ball:'<circle cx="12" cy="12" r="7.5"/><path d="M5.5 10c4 1.6 9 1.6 13 0M7 15.5c3.2-1.2 6.8-1.2 10 0"/>',
  back:'<path d="M15 5l-7 7 7 7"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',plus:'<path d="M12 5v14M5 12h14"/>',check:'<path d="M5 12.5l4.5 4.5L19 7"/>',
  search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
@@ -3159,7 +3162,7 @@ SCREENS.training=()=>{
     if(syncAvail===false&&!sy.key&&sy.preload)return`<div class="panel"><span class="eyebrow c-good">SugarWOD · connected</span><div style="font-size:14px">Last synced ${agoText(sy.preload.syncedAt)} · ${sy.preload.count} workouts (your results and the coming week).</div></div>`;
     if(syncAvail===false&&!sy.key)return`<div class="panel"><span class="eyebrow">SugarWOD auto-sync</span><div style="font-size:14px">Want your whiteboard to arrive here by itself every hour? It takes a one-time setup (see the README). Until then, use Import.</div></div>`;
     if(!sy.key)return`<div class="panel"><span class="eyebrow">SugarWOD auto-sync</span><div style="font-size:14px">${syncAvail?"Your sync file is ready. Enter your passphrase to unlock it.":"Checking for your sync file…"}</div><button class="btn" data-act="syncKey">Connect</button></div>`;
-    return`<div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span class="eyebrow ${sy.error?"c-bad":"c-good"}">SugarWOD auto-sync ${sy.error?"· needs attention":"· on"}</span><button class="link" data-act="syncNow">Sync now</button></div>
+    return`<div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span class="eyebrow ${sy.error?"c-bad":"c-good"}">SugarWOD auto-sync ${sy.error?"· needs attention":"· on"}</span>${syncBtn()}</div>
       <div style="font-size:14px">${sy.error?esc(sy.error):syncAvail===false?"No sync file found. Check the workflow runs on GitHub.":`Whiteboard updated ${agoText(sy.syncedAt)} · ${sy.count||0} workouts`}</div><button class="link" style="justify-self:start" data-act="syncKey">Change passphrase</button></div>`})()}
   ${breakPanel()}
   ${nx?`<div class="panel"><span class="eyebrow">Next session · ${dayLabel(nx.date)}</span><h3 class="clamp2">${esc(wTitle(nx))}</h3>
@@ -3238,8 +3241,9 @@ function importText(name,text){
   }
   const r=mergeRows(rows,"import");save();return r;
 }
+const wKey=w=>`${w.date}|${(w.title||"").toLowerCase().trim()}|${(w.text||"").toLowerCase().replace(/\s+/g," ").slice(0,60)}`;
 function mergeRows(rows,source){
-  const key=w=>`${w.date}|${(w.title||"").toLowerCase().trim()}|${(w.text||"").toLowerCase().replace(/\s+/g," ").slice(0,60)}`;
+  const key=wKey;
   const have=new Set(S.training.map(key));let added=0,skipped=0;const fresh=[],recent=addDays(todayIso(),-3);
   rows.forEach((w,i)=>{
     if(!w.date||!/^\d{4}-\d{2}-\d{2}$/.test(w.date)){skipped++;return}
@@ -3274,7 +3278,12 @@ async function autoSync(force){
   if(!syncAvail||!S.sync.key){if(stack[stack.length-1].name==="training")render();return}
   try{
     const data=await unsealBox(box,S.sync.key);
-    const r=mergeRows((data.workouts||[]).map(w=>({date:w.date,title:w.title,text:w.text,result:w.result,loggedAt:w.loggedAt})),"sugarwod-auto");
+    const rows=(data.workouts||[]).map(w=>({date:w.date,title:w.title,text:w.text,result:w.result,loggedAt:w.loggedAt}));
+    const r=mergeRows(rows,"sugarwod-auto");
+    // the file is the whiteboard as it is now: drop synced programming for today onward that the gym has since changed or removed
+    // (unless you scored it or ticked it), so the next session is never an outdated version
+    const inFile=new Set(rows.map(wKey)),last=rows.reduce((m,w)=>w.date>m?w.date:m,"");
+    if(rows.length)S.training=S.training.filter(w=>!(w.source==="sugarwod-auto"&&w.date>=todayIso()&&w.date<=last&&!w.result&&!w.marked&&!inFile.has(wKey(w))));
     S.sync={...S.sync,checked:Date.now(),syncedAt:data.syncedAt||null,count:(data.workouts||[]).length,lastAdded:r.added,error:""};
     if(r.fresh.length)recoverNudge(r.fresh);
   }catch(e){S.sync={...S.sync,checked:Date.now(),error:"The passphrase doesn't open the sync file. Use the RANGE_SYNC_KEY saved in GitHub. If you just changed it there, the file switches to the new one at the next sync (hourly, or run it now: GitHub → Actions → SugarWOD sync → Run workflow)."}}
@@ -3286,7 +3295,10 @@ ACT.syncKey=()=>sheet(`<h3>Connect SugarWOD auto-sync</h3><div class="scroll"><p
   <div style="display:grid;gap:8px"><button class="btn" data-act="syncSave">Save and sync now</button>${(S.sync||{}).key?`<button class="btn sec" data-act="syncForget">Disconnect</button>`:""}</div>`);
 ACT.syncSave=async()=>{const k=$("#skey").value.trim();if(!k){$("#skMsg").textContent="Enter the passphrase first.";return}S.sync={...(S.sync||{}),key:k,checked:0};save();$("#skMsg").textContent="Syncing…";await autoSync(true);$("#skMsg").textContent=S.sync.error||(syncAvail?`Synced. ${S.sync.count} workouts in the file, ${S.sync.lastAdded} new.`:"No sync file found next to this app yet. Run the workflow on GitHub once.");if(!S.sync.error&&syncAvail)setTimeout(closeSheet,900)};
 ACT.syncForget=()=>{S.sync={};save();closeSheet();render()};
-ACT.syncNow=()=>autoSync(true);
+// Sync button: spins while it works, then says what happened for a few seconds
+let SYNCING=false,syncDone=0;
+const syncBtn=()=>SYNCING?`<button class="syncbtn busy" disabled aria-live="polite">${ic("sync")}Syncing…</button>`:Date.now()-syncDone<4000?`<button class="syncbtn ok" data-act="syncNow">${ic("check")}${(S.sync||{}).error?"Check the message":"Up to date"}</button>`:`<button class="syncbtn" data-act="syncNow">${ic("sync")}Sync now</button>`;
+ACT.syncNow=async()=>{if(SYNCING)return;SYNCING=true;render();try{await autoSync(true)}finally{SYNCING=false;syncDone=Date.now();render();setTimeout(()=>{if(Date.now()-syncDone>=3900)render()},4000)}};
 ACT.importW=()=>{sheet(`<h3>Import from SugarWOD</h3><div class="scroll">
   <div class="stack" style="gap:8px"><b>Your logged history and results</b>
    <ol class="steps">
@@ -3949,7 +3961,7 @@ function connPanel(){
   if(!CONNS.length)return`<div class="panel"><span class="eyebrow">Connect your gym</span><div style="font-size:14px">Connect SugarWOD and your gym's programming and your scores arrive here every hour. Range then prepares you for what's coming and helps you recover from what you did.</div><button class="btn" data-act="connAdd">Connect a platform</button></div>`;
   return`<div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span class="eyebrow">Connected platforms</span><button class="link" data-act="conns">Manage</button></div>
     ${CONNS.map(c=>{const st=connStatus(c);return`<div style="display:flex;justify-content:space-between;gap:10px;font-size:14px"><span><b>${esc(c.name)}</b>${c.info&&c.info.track?` · ${esc(c.info.track)}`:""}</span><span class="${st.c}">${st.t}${c.lastSync?` · ${agoText(c.lastSync)}`:""}</span></div>${c.error&&c.status!=="ok"?`<div class="muted" style="font-size:13px">${esc(c.error)}</div>`:""}`}).join("")}
-    <button class="link" style="justify-self:start" data-act="syncNow">Refresh now</button></div>`;
+    <span style="justify-self:start">${syncBtn()}</span></div>`;
 }
 ACT.conns=()=>{
   sheet(`<h3>Connected platforms</h3><div class="scroll"><div class="stack" style="gap:10px">${(CONNS||[]).map(c=>{const st=connStatus(c);return`<div class="panel" style="gap:8px">
