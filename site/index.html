@@ -487,7 +487,7 @@ const MOVES={
  "Snatch":{overhead:3,shoulders:2,thoracic:2,hips:3,ankles:3},"Power Snatch":{overhead:3,shoulders:2,thoracic:2,hips:2,ankles:1},
  "Clean & Jerk":{overhead:2,shoulders:2,hips:3,ankles:3,thoracic:2},"Split Jerk":{overhead:3,hips:2,ankles:2},"Push Jerk":{overhead:3,thoracic:2,ankles:1},
  "Overhead Squat":{overhead:3,thoracic:3,hips:3,ankles:3,shoulders:2},"Front Squat":{ankles:3,hips:3,thoracic:2,shoulders:2},"Back Squat":{hips:3,ankles:2,posterior:1,shoulders:1},
- "Deadlift":{posterior:3,hips:2},"Romanian Deadlift":{posterior:3,hips:1},"Thruster":{ankles:3,hips:3,overhead:3,thoracic:2},"Wall Ball":{hips:3,ankles:2,overhead:2},
+ "Deadlift":{posterior:3,hips:3,thoracic:1},"Romanian Deadlift":{posterior:3,hips:1},"Thruster":{ankles:3,hips:3,overhead:3,thoracic:2},"Wall Ball":{hips:3,ankles:2,overhead:2},
  "Strict Press":{overhead:3,thoracic:2,shoulders:2},"Push Press":{overhead:3,thoracic:2,shoulders:1},"Bench Press":{shoulders:3,thoracic:1},
  "Pull-up":{overhead:3,shoulders:2},"Chest-to-bar Pull-up":{overhead:3,shoulders:2,thoracic:1},"Bar Muscle-up":{shoulders:3,overhead:3,thoracic:1},"Ring Muscle-up":{shoulders:3,overhead:2,thoracic:1},
  "Handstand Push-up":{overhead:3,shoulders:2,thoracic:2},"Handstand Walk":{overhead:3,shoulders:2},"Toes-to-bar":{overhead:2,posterior:3},"Rope Climb":{shoulders:2,overhead:2},
@@ -1480,7 +1480,21 @@ const KINDS={
  target:{n:"Target",sub:"Per body zone",g:"g-target",pose:"child"},
  rebuild:{n:"Rebuild",sub:"Pain-guided rehab",g:"g-rebuild",pose:"r_birddog"},
 };
-function demandOf(moves){const d={};moves.forEach(m=>{const x=MOVES[m]||{};for(const k in x)d[k]=(d[k]||0)+x[k]});return d}
+// how much a session loads each area: each movement counts by how hard it was done (mw: heavy lifts ~2x, warm-up/accessory ~0.5x),
+// and several movements on the same area add with diminishing returns, so five light presses don't outweigh one heavy deadlift
+function demandOf(moves,mw){const c={};moves.forEach(m=>{const x=MOVES[m]||{},w=mw&&mw[m]!=null?mw[m]:1;for(const k in x)(c[k]=c[k]||[]).push(x[k]*w)});
+  const d={};for(const k in c)d[k]=c[k].sort((a,b)=>b-a).reduce((t,v,i)=>t+v*[1,.6,.4,.3][Math.min(i,3)],0);return d}
+// intensity of each movement in a written workout: heavy strength work (percentages, RM, sets of 1-5, "heavy", "build to") counts ~2x,
+// warm-up / prep / accessory / skill parts ~0.5x, everything else 1x
+function moveWeights(w){
+  const lines=(w.text||"").split(/\n/),mw={};let sect=""; // the title only lists the parts, so it isn't weighed
+  const heavyRe=/\d\s*%|\b\d?\s*rm\b|heavy|build(ing)? to|max(imal)?\b|\b\d+\s*(sets?|x)\s*(of\s*)?[1-5]\b|\b[1-5]-[1-5]-[1-5]/i,lightRe=/warm[\s-]?up|\bprep\b|primer|activation|accessor|cool[\s-]?down|mobility|\bskill|technique|empty bar|drills?\b/i;
+  lines.forEach((ln,i)=>{const L=ln.trim();if(!L){sect="";return} // a blank line ends a section
+    if(/:$/.test(L)||(L.length<40&&lightRe.test(L)&&!/\d/.test(L)))sect=L;
+    const ms=parseMoves(L);if(!ms.length)return;
+    const ctx=lines.slice(i,i+3).join(" "),light=lightRe.test(sect)||lightRe.test(L),heavy=!light&&heavyRe.test(ctx);
+    const v=heavy?2:light?.5:1;ms.forEach(m=>{mw[m]=Math.max(mw[m]??0,v)})});
+  return mw}
 /* ---- How Range chooses stretches ----
    1. Each body area gets a NEED score from four signals, weighted by the protocol:
       weak   = how far your test score is from optimal
@@ -1513,7 +1527,7 @@ const WEIGHTS={
   daily:{weak:.55,demand:0,load:.2,next:.25,fresh:.2},
 };
 function normMap(o){const mx=Math.max(0,...Object.values(o));const r={};for(const k in o)r[k]=mx>0?o[k]/mx:0;return r}
-function zoneDemandOf(moves){const d={};moves.forEach(m=>(MOVE_ZONES[m]||[]).forEach((z,i)=>d[z]=(d[z]||0)+(i<2?1.2:1)));return d}
+function zoneDemandOf(moves,mw){const d={};moves.forEach(m=>{const w=mw&&mw[m]!=null?mw[m]:1;(MOVE_ZONES[m]||[]).forEach((z,i)=>d[z]=(d[z]||0)+(i<2?1.2:1)*w)});return d}
 function planMoves(o){return o.moves&&o.moves.length?o.moves:(o.sport?SPI[o.sport].m.slice(0,4):[])}
 function recentlyStretched(){const now=Date.now(),r={};S.sessions.forEach(s=>{if(!s.items||now-s.at>2*864e5)return;s.items.forEach(id=>{const e=LIBI[id];if(e)r[e.a]=(r[e.a]||0)+1})});const o={};for(const k in r)o[k]=Math.min(1,r[k]/3);return o}
 // Flexibility gains plateau at about 10 min of static stretching per area per week (Ingram et al. 2025).
@@ -1522,8 +1536,8 @@ function weekStretch(){const since=Date.now()-7*864e5,r={};S.sessions.forEach(s=
 function recentExercises(){const now=Date.now(),m=new Map();S.sessions.forEach(s=>{if(!s.items||now-s.at>4*864e5)return;s.items.forEach(id=>m.set(id,(m.get(id)||0)+1))});return m}
 function analyze(o){
   const sc=scores(),moves=planMoves(o),W=WEIGHTS[o.kind]||WEIGHTS.daily;
-  const demand=normMap(demandOf(moves)),load=normMap(recentLoad());
-  const nx=nextSession(),nextD=normMap(nx&&o.kind!=="activate"?demandOf(nx.moves):{}),str=recentlyStretched(),wk=weekStretch(),sw=sportWeight();
+  const demand=normMap(demandOf(moves,o.mw)),load=normMap(recentLoad());
+  const nx=nextSession(),nextD=normMap(nx&&o.kind!=="activate"?demandOf(nx.moves,moveWeights(nx)):{}),str=recentlyStretched(),wk=weekStretch(),sw=sportWeight();
   const need={},parts={};
   AREAS.forEach(({k})=>{
     if(o.kind==="target"){need[k]=k===o.zone?1:0;parts[k]={};return}
@@ -1630,7 +1644,7 @@ let W=null;
 const STEPS={activate:["moves","time","equip","summary"],recover:["moves","time","equip","summary"],daily:["time","equip","summary"],target:["zone","time","equip","summary"]};
 const STEPICON={moves:"move",time:"clock",equip:"equip",zone:"target"};
 function startWizard(o){
-  W={kind:o.kind,sport:o.sport||null,moves:o.moves?o.moves.slice():o.sport?(S.moves[o.sport]||[]).slice():[],from:o.from||null,minutes:null,equip:S.equip.slice(),zone:null,step:0,done:{}};
+  W={kind:o.kind,mw:o.mw||null,sport:o.sport||null,moves:o.moves?o.moves.slice():o.sport?(S.moves[o.sport]||[]).slice():[],from:o.from||null,minutes:null,equip:S.equip.slice(),zone:null,step:0,done:{}};
   // Coming from a logged workout: movements are already known, start at the time step
   if(o.moves&&o.moves.length&&STEPS[W.kind][0]==="moves"){W.done.moves=true;W.step=1}
   // auto: your usual time and equipment, straight to the chosen exercises (every choice stays editable there)
@@ -2944,7 +2958,7 @@ function pickMobility(o,ctx,budget,pool,state){
   return{items:out.map(ex=>({id:ex.id,hold:holdFor(ex),why:whyFor(ex,o,ctx.moves,ctx.ctx,ctx.parts,zd)})),used};
 }
 function buildPlan(o){
-  const{need,parts,ctx}=analyze(o),flash=o.minutes===3,budget=o.minutes*60,moves=planMoves(o),zd=normMap(zoneDemandOf(moves));
+  const{need,parts,ctx}=analyze(o),flash=o.minutes===3,budget=o.minutes*60,moves=planMoves(o),zd=normMap(zoneDemandOf(moves,o.mw));
   const hooks=rehabHooks(),state={used:new Set()},C={need,parts,ctx,flash,moves,zd};
   const okEq=id=>LIBI[id]&&LIBI[id].eq.every(q=>o.equip.includes(q))&&!hooks.x.has(id);
   let pool=LIB.filter(ex=>!ex.rehab&&!ex.manual&&need[ex.a]>.05&&ex.eq.every(q=>o.equip.includes(q))&&!hooks.x.has(ex.id));
@@ -3100,7 +3114,7 @@ const recLabel=rec=>`Recover · ${dayLabel(doneDay(rec[0]))}${rec.length>1?` · 
 // Load on each area from the last 3 days: today 1, yesterday .8, 2 days .5, 3 days .3
 function recentLoad(){
   const t=todayIso(),wt=[1,.8,.5,.3],load={};AREAS.forEach(a=>load[a.k]=0);
-  past().forEach(w=>{if(!didIt(w))return;const ago=daysFrom(doneDay(w),t);if(ago<0||ago>3)return;const d=demandOf(w.moves);for(const k in d)load[k]+=d[k]*wt[ago]});
+  past().forEach(w=>{if(!didIt(w))return;const ago=daysFrom(doneDay(w),t);if(ago<0||ago>3)return;const d=demandOf(w.moves,moveWeights(w));for(const k in d)load[k]+=d[k]*wt[ago]});
   return load;
 }
 function wShort(w){const t=wTitle(w).split(/\s*[·|•]\s*/).filter(Boolean).pop()||"Your next workout";return t.length>32?t.slice(0,30).trim()+"…":t}
@@ -3110,8 +3124,8 @@ function wTitle(w){
   let p=w.title.split(/\s*[·|]\s*/).filter(Boolean);if(w.title.length>=78&&p.length>1)p.pop();
   p=p.map(x=>/[a-z]/.test(x)||x.length<5?x:x.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase()));
   return[...new Set(p)].join(" · ")||w.title}
-function prepFor(w){startWizard({kind:"activate",sport:S.sports[0]||"crossfit",moves:w.moves,from:wTitle(w),auto:true})}
-function recoverFrom(list){const moves=[...new Set(list.flatMap(w=>w.moves))];startWizard({kind:"recover",auto:true,sport:S.sports[0]||"crossfit",moves,from:list.length===1?wTitle(list[0]):`${list.length} workouts · ${dayLabel(doneDay(list[0]))}`})}
+function prepFor(w){startWizard({kind:"activate",sport:S.sports[0]||"crossfit",moves:w.moves,mw:moveWeights(w),from:wTitle(w),auto:true})}
+function recoverFrom(list){const moves=[...new Set(list.flatMap(w=>w.moves))],mw={};list.forEach(w=>{const x=moveWeights(w);for(const m in x)mw[m]=Math.max(mw[m]??0,x[m])});startWizard({kind:"recover",auto:true,sport:S.sports[0]||"crossfit",moves,mw,from:list.length===1?wTitle(list[0]):`${list.length} workouts · ${dayLabel(doneDay(list[0]))}`})}
 ACT.prepNext=()=>{const n=nextSession();if(n)prepFor(n)};
 ACT.recoverRecent=()=>{const r=recentSessions();if(r.length)recoverFrom(r)};
 ACT.prepW=d=>{const w=S.training.find(x=>x.id===d.id);if(w)prepFor(w)};
