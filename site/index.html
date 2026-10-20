@@ -3177,7 +3177,7 @@ SCREENS.training=()=>{
     if(syncAvail===false&&!sy.key)return`<div class="panel"><span class="eyebrow">SugarWOD auto-sync</span><div style="font-size:14px">Want your whiteboard to arrive here by itself every hour? It takes a one-time setup (see the README). Until then, use Import.</div></div>`;
     if(!sy.key)return`<div class="panel"><span class="eyebrow">SugarWOD auto-sync</span><div style="font-size:14px">${syncAvail?"Your sync file is ready. Enter your passphrase to unlock it.":"Checking for your sync file…"}</div><button class="btn" data-act="syncKey">Connect</button></div>`;
     return`<div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span class="eyebrow ${sy.error?"c-bad":"c-good"}">SugarWOD auto-sync ${sy.error?"· needs attention":"· on"}</span>${syncBtn()}</div>
-      <div style="font-size:14px">${sy.error?esc(sy.error):syncAvail===false?"No sync file found. Check the workflow runs on GitHub.":`Whiteboard updated ${agoText(sy.syncedAt)} · ${sy.count||0} workouts`}</div><button class="link" style="justify-self:start" data-act="syncKey">Change passphrase</button></div>`})()}
+      <div style="font-size:14px">${sy.error?esc(sy.error):syncAvail===false?"No sync file found. Check the workflow runs on GitHub.":`Synced ${agoText(sy.checked)} · ${sy.count||0} workouts<br><span class="muted" style="font-size:13px">SugarWOD read ${agoText(sy.syncedAt)} (GitHub refreshes it every hour)</span>`}</div><button class="link" style="justify-self:start" data-act="syncKey">Change passphrase</button></div>`})()}
   ${breakPanel()}
   ${nx?`<div class="panel"><span class="eyebrow">Next session · ${dayLabel(nx.date)}</span><h3 class="clamp2">${esc(wTitle(nx))}</h3>
      <div class="chipset">${nx.moves.map(m=>`<span class="mchip">${esc(m)}</span>`).join("")}</div>
@@ -3311,8 +3311,16 @@ ACT.syncSave=async()=>{const k=$("#skey").value.trim();if(!k){$("#skMsg").textCo
 ACT.syncForget=()=>{S.sync={};save();closeSheet();render()};
 // Sync button: spins while it works, then says what happened for a few seconds
 let SYNCING=false,syncDone=0;
-const syncBtn=()=>SYNCING?`<button class="syncbtn busy" disabled aria-live="polite">${ic("sync")}Syncing…</button>`:Date.now()-syncDone<4000?`<button class="syncbtn ok" data-act="syncNow">${ic("check")}${(S.sync||{}).error?"Check the message":"Up to date"}</button>`:`<button class="syncbtn" data-act="syncNow">${ic("sync")}Sync now</button>`;
-ACT.syncNow=async()=>{if(SYNCING)return;SYNCING=true;render();try{await autoSync(true)}finally{SYNCING=false;syncDone=Date.now();render();setTimeout(()=>{if(Date.now()-syncDone>=3900)render()},4000)}};
+const syncBtn=()=>SYNCING?`<button class="syncbtn busy" disabled aria-live="polite">${ic("sync")}${SYNCING==="sugarwod"?"Reading SugarWOD…":"Syncing…"}</button>`:Date.now()-syncDone<4000?`<button class="syncbtn ok" data-act="syncNow">${ic("check")}${(S.sync||{}).error?"Check the message":"Up to date"}</button>`:`<button class="syncbtn" data-act="syncNow">${ic("sync")}Sync now</button>`;
+// with GitHub backup set up (its token on this device), Sync now also asks GitHub to read SugarWOD right away,
+// then waits up to ~3 min for the fresh file; otherwise it picks up the latest hourly file
+async function kickGithubSync(){if(API||!BK||!BK.token||!BK.repo)return false;
+  try{const r=await fetch(`https://api.github.com/repos/${BK.repo}/actions/workflows/sugarwod-sync.yml/dispatches`,{method:"POST",headers:{Authorization:"Bearer "+BK.token,Accept:"application/vnd.github+json"},body:JSON.stringify({ref:"main"})});return r.status===204}catch(e){return false}}
+ACT.syncNow=async()=>{if(SYNCING)return;SYNCING=true;render();
+  try{await autoSync(true);
+    if(await kickGithubSync()){SYNCING="sugarwod";render();const before=(S.sync||{}).syncedAt;
+      for(let i=0;i<12;i++){await new Promise(r=>setTimeout(r,15000));await autoSync(true);if((S.sync||{}).syncedAt!==before)break}}}
+  finally{SYNCING=false;syncDone=Date.now();render();setTimeout(()=>{if(Date.now()-syncDone>=3900)render()},4000)}};
 ACT.importW=()=>{sheet(`<h3>Import from SugarWOD</h3><div class="scroll">
   <div class="stack" style="gap:8px"><b>Your logged history and results</b>
    <ol class="steps">
