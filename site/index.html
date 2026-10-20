@@ -404,7 +404,7 @@ const AREAS=[{k:"shoulders",n:"Shoulders"},{k:"overhead",n:"Overhead"},{k:"thora
 const AN=Object.fromEntries(AREAS.map(a=>[a.k,a.n]));
 const FLOW=["ankles","posterior","hips","thoracic","shoulders","overhead"];
 const ZONES={neck:"Neck & traps",shoulders:"Shoulders",chest:"Chest",upperback:"Upper back",lats:"Lats",biceps:"Biceps",triceps:"Triceps",forearm:"Forearms & wrists",core:"Abs",obliques:"Obliques",lowback:"Lower back",hipflex:"Hip flexors",glutes:"Glutes",adductors:"Adductors",quads:"Quads",hamstrings:"Hamstrings",calves:"Calves",shins:"Shins",ankles:"Ankles",feet:"Feet"};
-const EQUIP=[{k:"band",n:"Band"},{k:"pipe",n:"PVC pipe"},{k:"plate",n:"Plate"},{k:"roller",n:"Foam roller"},{k:"wall",n:"Wall"},{k:"bench",n:"Bench / box"}];
+const EQUIP=[{k:"band",n:"Band"},{k:"pipe",n:"PVC pipe"},{k:"plate",n:"Plate"},{k:"roller",n:"Foam roller"},{k:"wall",n:"Wall"},{k:"bench",n:"Bench / box"},{k:"ball",n:"Massage ball"}];
 
 /* Stick-figure poses, side view, 240×160 frame, floor at y=142.
    Joint order: head, neck, mid-spine, pelvis, near elbow, near hand, far elbow, far hand, near knee, near foot, far knee, far foot. A↔B is the movement loop. */
@@ -558,6 +558,8 @@ const API=typeof window.RANGE_API==="string"?window.RANGE_API:null;let ACCOUNT=n
 // GitHub backup settings: kept on this device only, never inside your data (so the token never ends up in a backup)
 let BK=(()=>{try{return JSON.parse(localStorage.getItem("range-backup-cfg")||"null")}catch(e){return null}})(),bkTimer=null,bkDirty=false;
 try{const r=localStorage.getItem(KEY);if(r){const o=JSON.parse(r);S=Object.assign(S,o);S.settings=Object.assign({sound:true,voice:false,easy:false,ready:10},o.settings||{})}}catch(e){}
+// the massage ball arrived later: anyone who had all the other equipment gets it too
+if(!S._eqBall){if(Array.isArray(S.equip)&&["band","pipe","plate","roller","wall","bench"].every(k=>S.equip.includes(k))&&!S.equip.includes("ball"))S.equip.push("ball");S._eqBall=1}
 /* ---- error capture: keep the last few errors so a crash on the phone can be diagnosed ---- */
 function noteError(err,where){
   try{const e={at:new Date().toISOString(),where:where||"",msg:String(err&&err.message||err),stack:String(err&&err.stack||"").split("\n").slice(0,6).join("\n"),screen:(typeof stack!=="undefined"&&stack.length)?stack[stack.length-1].name:"",ua:navigator.userAgent.slice(0,140)};
@@ -588,6 +590,7 @@ const dayKey=d=>{const x=new Date(d);return`${x.getFullYear()}-${x.getMonth()}-$
 const REDUCED=matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const ICON={
+ ball:'<circle cx="12" cy="12" r="7.5"/><path d="M5.5 10c4 1.6 9 1.6 13 0M7 15.5c3.2-1.2 6.8-1.2 10 0"/>',
  back:'<path d="M15 5l-7 7 7 7"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',plus:'<path d="M12 5v14M5 12h14"/>',check:'<path d="M5 12.5l4.5 4.5L19 7"/>',
  search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
  gear:'<circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M2.5 12h3M18.5 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/>',
@@ -725,7 +728,7 @@ Object.assign(FIGS,{
  r_hipflexiso:mk({p:[110,134],t:180,h:180,L1:{a:[-90,0],s:[1,.98],f:-72},L2:{a:[-90,0],s:[1,.98],f:-72},A1:{a:[2,2]},A2:{a:[4,4]}},{L1:{a:[-32,-32],f:-80}},[["bandank"]],{cam:{yaw:22,pitch:24}}),
  r_gmedwall:mk({p:[120,86],t:-90,h:-90,L1:{plant:[121,138],f:0},L2:{a:[2,90],s:[.985,1],f:0},A1:{a:[100,69.8],s:[.75,.87],dz:[1,-1]},A2:{a:[93,90],s:[1,1]}},{p:[119,87],L2:{a:[0,90],s:[.955,1]}},[["swall",-19.5,120]],{cam:{yaw:40,pitch:8}}),
  r_bandwalk:mk({view:"front",p:[120,92.4],t:-90,h:-90,L1:{a:[80,92],s:[.85,.85],dz:[1,-1],f:10},L2:{a:[100,88],s:[.85,.85],dz:[1,-1],f:170},A1:{a:[60,130.7],s:[1,.89],dz:[1,-1]},A2:{a:[120,49.3],s:[1,.89],dz:[1,-1]}},{p:[125,92.7],L1:{a:[72,80],s:[.87,.87]},L2:{a:[104,98]}},[["bandknees"]],{mid:{p:[122.5,92.5],L1:{a:[74,86],s:[.75,.85]},L2:{a:[102,93]}}}),
- t_thomas:mk({p:[158,104],t:0,h:0,L1:{a:[160,92],f:180},L2:{a:[-115,-20],s:[.95,.95],f:-90},A1:{plant:[150,80]},A2:{plant:[148,80]}},{L1:{a:[172,95],f:185},L2:{a:[-125,-30],s:[.95,.95],f:-100},A1:{plant:[146,76]},A2:{plant:[144,76]}},[["bench"]],{cam:{yaw:-30,pitch:16}}),
+ t_thomas:mk({p:[208,99],t:180,h:180,L1:{a:[5,90],f:50},L2:{a:[-128,12],f:-70},A1:{plant:[198,80]},A2:{plant:[196,81]}},{L1:{a:[9,93],f:58},L2:{a:[-138,8],f:-75},A1:{plant:[193,76]},A2:{plant:[191,77]}},[["bench"]],{cam:{yaw:-30,pitch:16}}),
  t_sitir:mk({p:[106,111],t:-90,h:-90,L1:{a:[0,90],f:0},L2:{a:[2,90],f:0},A1:{plant:[100,113]},A2:{plant:[98,113]}},{L1:{a:[0,90],s:[1,.72],dz:[1,1],f:0}},[["box",80,114,32]],{cam:{yaw:70,pitch:12}}),
  t_hug:mk({...SUPINE,L2:{a:[-120,-10],s:[.95,.95],f:-90},L1:{a:[0,0],f:-90},A1:{plant:[146,108]},A2:{plant:[144,108]}},{L2:{a:[-132,-20],s:[.95,.95],f:-100},L1:{a:[-4,-4],f:-88},A1:{plant:[138,103]},A2:{plant:[136,103]}}),
  r_fig4:mk({...SUPINE,L2:{a:[-75,0],f:-90},L1:{a:[-50,-170],s:[.75,.8],f:-90},A1:{a:[-20,-25]},A2:{a:[-18,-23]}},{L2:{a:[-102,-15],f:-100},L1:{a:[-72,-185],s:[.75,.8],f:-90},A1:{a:[-25,-35]},A2:{a:[-23,-33]}}),
@@ -815,12 +818,15 @@ function figInner(key,t,_props,opt={}){
   props.forEach(([k,a,b,c])=>{
     if(k==="wall")s+=`<rect class="propfill" x="${a-3}" y="14" width="6" height="129" rx="2"/>`;
     if(k==="frame")s+=`<rect class="propfill" x="${a-2}" y="10" width="4" height="133" rx="1"/>`;
+    if(k==="ball"&&a!=null)s+=`<circle class="propfill" cx="${a}" cy="${b}" r="5"/>`; // massage ball at [a,b] (3D: c = sideways offset, + toward the L1 side)
     if(k==="roller"||k==="rollerf")s+=`<circle class="propfill" cx="${a}" cy="${b}" r="9"/><circle class="prop" cx="${a}" cy="${b}" r="4" style="stroke-width:2"/>`;
     if(k==="bench")s+=`<rect class="propfill" x="152" y="108" width="62" height="6" rx="2"/><rect class="propfill" x="158" y="114" width="4" height="29"/><rect class="propfill" x="204" y="114" width="4" height="29"/>`;
     if(k==="box")s+=`<rect class="propfill" x="${a}" y="${b}" width="${c}" height="${143-b}" rx="3"/>`;
     if(k==="stack")s+=`<rect class="propfill" x="${a}" y="${b}" width="${c}" height="${143-b}" rx="2"/><line class="prop" style="stroke:var(--bg);stroke-width:1.5" x1="${a}" y1="${(b+143)/2}" x2="${a+c}" y2="${(b+143)/2}"/>`;
     if(k==="highbench")s+=`<rect class="propfill" x="${a}" y="${b}" width="${c}" height="6" rx="2"/><rect class="propfill" x="${a+6}" y="${b+6}" width="4" height="${137-b}"/><rect class="propfill" x="${a+c-10}" y="${b+6}" width="4" height="${137-b}"/>`;
     if(k==="bar")s+=`<line class="pipe" x1="${a}" y1="${b}" x2="${c}" y2="${b}"/>`;
+    // anchor post / rack upright (a=x, b=top y, c=sideways offset); a front view shows it at its sideways offset
+    if(k==="post"&&!top){const x=front?solveFig(P.A).p[0]+(c||0):a,y=b??83;s+=`<rect class="propfill" x="${n1(x-2.25)}" y="${y}" width="4.5" height="${n1(143-y)}"/>`}
   });
   /* Illustrated person: flat shapes with skin, shirt, shorts, shoes and hair. Bones come from the solver
      above; this only dresses them. Far-side limbs use darker tones so left and right read clearly. */
@@ -912,8 +918,11 @@ function figInner(key,t,_props,opt={}){
   // one-sided stretches light the working leg; for kneeling hip stretches that's the back (far) leg
   const workFar=P.work==="2"&&!front,farLit=!opt.sides||front||workFar,nearLit=!opt.sides||front||!workFar;
   s+=far.legs+(J.arms["2"].back?"":far.arm)+(farLit&&!workFar?musclesFor("2",G*.7):"")+backArms+near.legs+tor+trunkMus(G)+head+(J.arms["1"].back?"":near.arm)+(nearLit?musclesFor("1",G):"")+(workFar?musclesFor("2",G):"");
-  props.forEach(([k,a,b,c])=>{
+  props.forEach(([k,a,b,c,d])=>{
     const W1=J.arms["1"].w,W2=J.arms["2"].w;
+    // band from a body point to an anchor at (b,c); a front view shows the anchor at its sideways offset d
+    if(k==="bandto"&&!top){const lg=J.legs,q={w1:W1,w2:W2,k1:lg["1"].k,k2:lg["2"].k,f1:lg["1"].f,f2:lg["2"].f,p:J.p,hip1:lg["1"].hip,hip2:lg["2"].hip}[a]||W1,
+      x=front?(d!=null?solveFig(P.A).p[0]+d:q[0]):b;s+=`<polyline class="band" points="${n1(q[0])},${n1(q[1])} ${n1(x)},${c}"/><circle class="propfill" cx="${n1(x)}" cy="${c}" r="3"/>`}
     if(k==="plate"){const q=a==="ft1"?J.legs["1"].ft:a==="w1"?W1:a==="k1"?vadd(J.legs["1"].k,[-4,-9]):J.legs["1"].f;s+=a==="ft1"?`<rect class="propfill" x="${n1(q[0]-12)}" y="139" width="16" height="4" rx="1"/>`:`<circle class="prop" style="stroke:var(--fig-prop-hi)" cx="${n1(q[0])}" cy="${n1(q[1])}" r="8"/>`}
     if(k==="band"){const q=a==="p"?J.p:a==="f1"?J.legs["1"].f:W1;s+=`<polyline class="band" points="${n1(q[0])},${n1(q[1])} ${b},${c}"/><circle class="propfill" cx="${b}" cy="${c}" r="3"/>`}
     if(k==="strap")s+=`<polyline class="band" points="${n1(W1[0])},${n1(W1[1])} ${n1(J.legs["1"].ft[0])},${n1(J.legs["1"].ft[1])}"/>`;
@@ -924,7 +933,7 @@ function figInner(key,t,_props,opt={}){
     if(k==="towelpad"){const e=J.arms["1"].e;s+=`<rect class="propfill" x="${n1(e[0]-6)}" y="${n1(e[1]-3)}" width="12" height="6" rx="3"/>`}
     if(k==="dumbbell")s+=`<rect class="pipeend" x="${n1(W1[0]+1)}" y="${n1(W1[1]-5)}" width="5" height="10" rx="1.5"/>`;
     if(k==="football"){const l=J.legs["1"],q=pt(l.f,l.ft,.4);s+=`<circle class="pipeend" cx="${n1(q[0])}" cy="133" r="5"/>`}
-    if(k==="ball"){const q=J.legs["1"].k;s+=`<circle class="pipeend" cx="${n1(q[0]+2)}" cy="${n1(q[1]+5)}" r="5"/>`}
+    if(k==="ball"&&a==null){const q=J.legs["1"].k;s+=`<circle class="pipeend" cx="${n1(q[0]+2)}" cy="${n1(q[1]+5)}" r="5"/>`}
     if(k==="bandknees")s+=`<line class="band" x1="${n1(J.legs["1"].k[0])}" y1="${n1(J.legs["1"].k[1])}" x2="${n1(J.legs["2"].k[0])}" y2="${n1(J.legs["2"].k[1])}"/>`;
     if(k==="bandk")s+=`<polyline class="band" points="${n1(J.legs["1"].k[0])},${n1(J.legs["1"].k[1])} ${a},${b}"/><circle class="propfill" cx="${a}" cy="${b}" r="3"/>`;
     if(k==="towel")s+=`<line class="band" style="stroke-dasharray:none;stroke-width:4" x1="${n1(W1[0])}" y1="${n1(W1[1])}" x2="${n1(W2[0])}" y2="${n1(W2[1])}"/>`;
@@ -944,6 +953,7 @@ function figBox(key){
     if(k==="box"||k==="stack"||k==="highbench")pts.push([a,b],[a+c,b]);
     if(k==="bench")pts.push([152,108],[214,108]);
     if(k==="roller"||k==="rollerf")pts.push([a-9,b-9]);
+    if(k==="ball"&&a!=null)pts.push([a-5,b-5]);
     if(k==="bar")pts.push([a,b],[c,b]);
     if(k==="band"&&typeof b==="number")pts.push([b,c]);
     if(k==="bandk")pts.push([a,b]);
@@ -1168,7 +1178,7 @@ const FIG3D=(()=>{
       const kneeFwd=perpTo(sub(lg.k,lg.f),norm(sub(lg.k,lg.hip)))||Fw;
       seg(P["thigh"+s],lg.hip,lg.k,7.4,7.8,Fw);seg(P["short"+s],lg.hip,lerp3(lg.hip,lg.k,.62),8.5,8.9,Fw);
       seg(P["shin"+s],lg.k,lg.f,5.6,6.2,Fw);blob(P["knee"+s],lg.k,5.5,5.5,5.5);blob(P["ankle"+s],lg.f,3.6,3.6,3.6);blob(P["hip"+s],lg.hip,8.6,8.6,8.6);
-      const fd=norm(sub(lg.ft,lg.f)),fc=lerp3(lg.f,lg.ft,.45),fx=norm(cross(fd,[0,1,0]))||[1,0,0];
+      const fd=norm(sub(lg.ft,lg.f)),fc=lerp3(lg.f,lg.ft,.45),fx0=cross(fd,[0,1,0]),fx=len(fx0)>1e-3?norm(fx0):(perpTo(Lt,fd)||[0,0,1]); // a foot pointing straight up or down has no "across" from the vertical: use the body's side axis
       const up=norm(cross(fx,fd));blob(P["foot"+s],add(fc,mul(up,-1.2)),4.3,3.2,8.2,[fx,up,fd]);
       seg(P["upper"+s],ar.sh,ar.e,4.6,4.9,Fw);seg(P["sleeve"+s],ar.sh,lerp3(ar.sh,ar.e,.5),5.6,5.9,Fw);seg(P["fore"+s],ar.e,ar.w,4.3,3.9,Fw);
       blob(P["elbow"+s],ar.e,3.9,3.9,3.9);if(ar.w[1]<7.5){// a hand on the floor lies flat, palm down, fingers pointing where the body faces (or where the pose says)
@@ -1247,6 +1257,7 @@ const FIG3D=(()=>{
       if(k==="highbench"){box(X(a+c/2),Y(b)-3,0,c,6,26,M.prop);box(X(a+8),(Y(b)-6)/2,0,4,Y(b)-6,20,M.propDark);box(X(a+c-8),(Y(b)-6)/2,0,4,Y(b)-6,20,M.propDark)}
       if(k==="bench"){box(X(183),Y(108)-3,0,62,6,26,M.prop);box(X(160),(Y(114))/2,0,4,Y(114),20,M.propDark);box(X(206),(Y(114))/2,0,4,Y(114),20,M.propDark)}
       if(k==="roller"){const o=part(geo.cyl,M.propDark);seg(o,[X(a),Y(b),-34],[X(a),Y(b),34],9,9,null);g.add(o)}
+      if(k==="ball"&&a!=null){const o=part(geo.sph,M.band);o.matrix.compose(new T.Vector3(X(a),Y(b)+0,c||0),new T.Quaternion(),new T.Vector3(5,5,5));g.add(o)}
       if(k==="rollerf"){const o=part(geo.cyl,M.propDark);seg(o,[-34,Y(b),X(a)],[34,Y(b),X(a)],9,9,null);g.add(o)} // front-view figures: roller across the body (along the depth axis)
       if(k==="bar"){const near=[W1,W2].filter(w=>Math.abs(w[1]-Y(b))<14),bx=near.length?near.reduce((t,w)=>t+w[0],0)/near.length:X((a+c)/2);rod([bx,Y(b),-46],[bx,Y(b),46],1.6,M.propDark)}
       if(k==="pipe"||k==="towel"){const d=norm(sub(W1,W2));rod(add(W2,mul(d,-14)),add(W1,mul(d,14)),k==="pipe"?1.5:2.2,k==="pipe"?M.propDark:M.band)}
@@ -1270,7 +1281,7 @@ const FIG3D=(()=>{
       if(k==="bandto"){const pt={w1:W1,w2:W2,k1:B.legs["1"].k,k2:B.legs["2"].k,f1:B.legs["1"].f,f2:B.legs["2"].f,p:B.p,hip1:B.legs["1"].hip,hip2:B.legs["2"].hip}[a]||W1;rod(pt,[X(b),Y(c),d??pt[2]],1,M.band)} // band from a body point to an anchor at (b,c[,z])
       if(k==="pad")box(X(a),1.5,0,b||14,3,c||16,M.prop);                       // mat / pad on the floor at x=a
       if(k==="ball2")ball([X(a),Y(b),c||0],5.5,M.propDark);                        // ball at a fixed spot (x,y[,z])
-      if(k==="ball")ball(lerp3(B.legs["1"].k,B.legs["2"].k,.5),5.5,M.propDark);
+      if(k==="ball"&&a==null)ball(lerp3(B.legs["1"].k,B.legs["2"].k,.5),5.5,M.propDark);
       if(k==="football"){const l=B.legs["1"];ball([(l.f[0]+l.ft[0])/2,5,l.f[2]],5,M.band)}
       if(k==="towelpad")box(B.arms["1"].e[0],B.arms["1"].e[1]-3,B.arms["1"].e[2],10,4,6,M.prop);
     });
@@ -1722,7 +1733,7 @@ ACT.whySheet=()=>{
    <p class="muted" style="margin:0;font-size:12px">The number on the right is how many exercises that area got.${AREAS.some(a=>(parts[a.k]||{}).pen>0)?" Areas you already stretched in the last 2 days get a little less time.":""}</p>`:""}
    <div class="stack" style="gap:6px"><span class="eyebrow">Session structure</span><p class="muted" style="margin:0;font-size:14px">${{
     activate:"Rehab warm-up if your Rebuild program has one, then Mobilise: dynamic drills for the positions your lifts need. A short static hold (30 s, one per area) only where your test shows you're tight and the session uses that muscle, so you keep your strength. Then Activate: brace the core, switch on the muscles your lifts rely on, and finish by rehearsing the main lift's position (for example a PVC overhead squat before snatches).",
-    recover:"Long passive holds for the muscles the session loaded, from standing down to the floor, then slow 90/90 breathing on your back to shift from training mode into recovery mode.",
+    recover:"Long passive holds for the muscles the session loaded, from standing down to the floor.",
     daily:"Mobility for your weakest areas, capped at about 10 minutes of static stretching per area per week, then Strength at end range. Loaded range work improves mobility as much as stretching and also lowers injury risk.",
     target:"Mobility for your chosen area, repeated in rounds if needed, then Lock it in with a strength drill in the new range."}[W.kind]}</p></div>
   </div><button class="btn sec" data-act="closeSheet">Close</button>`);
@@ -2451,7 +2462,7 @@ addStretches([
   c:["Half-kneel, back foot laces-down, toes pointed straight back","Sit the hips back toward the back heel","Slowly lift the back knee off the floor and hold"],
   easy:"Leave the knee down and just sit back."},
  
- {id:"e2_ballroll",n:"Plantar fascia ball roll",a:"ankles",z:["feet"],eq:[],pose:"calf",hold:60,sides:1,dyn:1,
+ {id:"e2_ballroll",n:"Plantar fascia ball roll",a:"ankles",z:["feet"],eq:["ball"],pose:"calf",hold:60,sides:1,dyn:1,
   stim:"Pressure along the sole of the foot from heel to toes",
   c:["Stand holding a rack, a lacrosse or tennis ball under one arch","Lean weight into the foot and roll slowly heel to toes","Pause 10 seconds on tender spots"],
   easy:"Sit on a bench and roll with less weight."},
@@ -2515,15 +2526,11 @@ const gk=(A,B,props=[],extra={})=>mk(g1fill(A,B,extra.mid),B,props,extra);
 Object.assign(FIGS,{
  g1_hinge:gk({p:[120,86],t:-88,h:-88,L1:{plant:[124,138],f:0},L2:{plant:[116,138],f:0},A1:{plant:[128,87],d:-1},A2:{plant:[126,88],d:-1}},{p:[102,90],t:-22,h:-14,A1:{plant:[131,111],d:-1},A2:{plant:[129,112],d:-1}},[],{cam:{yaw:28,pitch:8},mid:{p:[110,90],t:-50,h:-44,A1:{plant:[130,100],d:-1},A2:{plant:[128,101],d:-1}}}),
  g1_ankle:gk({p:[118,86],t:-90,h:-82,L2:{plant:[116,138],f:0},L1:{a:[12,96],f:-35},A1:{plant:[125,88],d:-1},A2:{plant:[123,89],d:-1}},{L1:{a:[12,96],f:62,fy:0}},[],{cam:{yaw:22,pitch:8},mid:{L1:{a:[12,96],f:15,fy:45}}}),
- g1_backlunge:gk({p:[120,86],t:-88,h:-88,...STAND_L,A1:{a:[96,92]},A2:{a:[98,94]}},{p:[110,111],t:-86,L1:{plant:[128,138],f:0},L2:{plant:[78,134],f:62}},[],{cam:{yaw:24,pitch:6},mid:{p:[118,90],L1:{plant:[126,138],f:0},L2:{plant:[100,124],f:40}}}),
  g1_calfwall:gk({p:[137,90],t:-76,h:-78,L1:{plant:[114,138],f:0},L2:{plant:[158,138],f:0},A1:{plant:[184.5,60],hand:-90},A2:{plant:[184.5,62],hand:-90}},{p:[141,93],t:-73},[["wall",190]],{cam:{yaw:12,pitch:8}}),
  g1_walkgm:gk({p:[120,86],t:-90,h:-90,...STAND_L,A1:{a:[-105.3,-23.2],s:[0.495,0.356],dz:[1,-1]},A2:{a:[-105.3,-23.2],s:[0.495,0.356],dz:[1,-1]}},{p:[113,95],t:-16,h:-10,L1:{plant:[146,138],f:-32},L2:{plant:[111,138],f:0}},[],{cam:{yaw:28,pitch:8},mid:{p:[122,87],t:-88,h:-88,L1:{plant:[138,128],f:-10},L2:{plant:[116,138],f:0}}}),
  g1_samson:gk({root:["k2",[96,137]],t:-90,h:-88,L2:{a:[95,180],f:180},L1:{plant:[142,138],f:0},A1:{a:[-96,-96]},A2:{a:[-98,-98]}},{t:-100,h:-112,L2:{a:[124,180]},A1:{a:[-112,-118]},A2:{a:[-114,-120]}},[],{cam:{yaw:22,pitch:8}}),
  g1_sqrot:gk({p:[124,121],t:-38,h:-20,hy:0,L1:{a:[-11.9,125.5],s:[.896,1],f:0},L2:{a:[-11.9,125.5],s:[.896,1],f:0},A1:{a:[98,87.7]},A2:{plant:[149,138]}},{t:-36,h:-60,hy:35,tw:40,A1:{a:[-92,-92]}},[],{cam:{yaw:45,pitch:12},mid:{t:-37,h:-40,tw:22,hy:15,A1:{a:[15,15]}}}),
- g1_bear:gk({p:[104,98],t:7,h:-5,L1:{plant:[80,131],f:72},L2:{plant:[82,131],f:72},A1:{plant:[143,139]},A2:{plant:[141,139]}},{p:[112,98],A1:{plant:[159,139]},L2:{plant:[98,131],f:72}},[],{cam:{yaw:30,pitch:4},mid:{p:[108,98],A1:{plant:[152,127]},L2:{plant:[92,123],f:60}}}),
- g1_quadT:gk({p:[104,110],t:-14,h:20,hy:0,L1:{a:[92,180],f:180},L2:{a:[90,180],f:180},A2:{plant:[140,139]},A1:{a:[104.1,67.7]}},{t:-12,h:-20,hy:40,tw:75,A1:{a:[90,90],s:[0.1,0.1],dz:[1,1]}},[],{cam:{yaw:70,pitch:16},mid:{tw:38,hy:15,h:5,A1:{a:[90,90],s:[0.625,0.625],dz:[1,1]}}}),
  g1_ddcobra:gk({p:[114.8,90.7],t:42,h:62,L1:{a:[112.2,127.9],f:0},L2:{a:[104.7,131.6],f:0},A1:{plant:[172,138]},A2:{plant:[170,138]}},{p:[130,130],t:-37,h:-60,L1:{a:[176,176],f:180},L2:{a:[175,175],f:180}},[],{cam:{yaw:22,pitch:10},mid:{p:[132,113],t:-21.6,h:-15,L1:{a:[158.4,158.4],f:70},L2:{a:[157.4,157.4],f:70}}}),
- g1_bridgeheel:gk({p:[110,134],t:180,h:180,L1:{plant:[148,135],f:-48},L2:{plant:[144,135],f:-48},A1:{a:[0,0]},A2:{a:[3,0]}},{p:[119,120],t:162,h:164},[],{cam:{yaw:25,pitch:14}}),
  g1_blackburn:gk({prone:1,p:[150,132],t:180,h:186,L1:{a:[1,1],f:8},L2:{a:[0,0],f:8},A1:{a:[-168.7,-168.7],s:[0.843,0.843],dz:[1,1]},A2:{a:[-168.7,-168.7],s:[0.843,0.843],dz:[1,1]}},
    {A1:{a:[-14,-14],s:[0.982,0.982],dz:[1,1]},A2:{a:[-14,-14],s:[0.982,0.982],dz:[1,1]}},[],{cam:{yaw:-30,pitch:22},mid:{A1:{a:[-90,-90],s:[0.243,0.243],dz:[1,1]},A2:{a:[-90,-90],s:[0.243,0.243],dz:[1,1]}}}),
  g1_tbench:gk({p:[104,132],t:-105,h:-100,L1:{plant:[142,138],f:0},L2:{plant:[140,138],f:0},A1:{a:[-59,165]},A2:{a:[-61,163]}},{t:-138,bend:5,h:-170,A1:{a:[-92,130]},A2:{a:[-94,128]}},[["box",56,108,34]],{cam:{yaw:30,pitch:12}}),
@@ -2548,15 +2555,11 @@ addStretches([
  {id:"g1_blackburn",n:"Prone Blackburns",a:"shoulders",z:["upperback","shoulders"],eq:[],pose:"sideLying",hold:40,sides:0,dyn:1,stim:"Work between and below the shoulder blades, with a stretch across the front of the shoulders",c:["Lie face down, forehead just off the floor, arms in a Y with thumbs up","Lift the arms and sweep them wide and down until the hands reach the hips","Sweep back up to the Y without letting the arms touch the floor"],easy:"Bend the elbows to shorten the lever, or rest the arms between sweeps."},
  {id:"g1_lungetw",n:"Lunge with a twist",a:"hips",z:["hipflex","upperback","obliques"],eq:[],pose:"kneel",hold:40,sides:0,dyn:1,stim:"Opening in the front of the back hip and a turn through the mid back",c:["Step forward into a lunge, arms reaching straight out in front","Turn the chest and arms toward the front leg, hips square","Turn back to centre, push off and lunge with the other leg"],easy:"Shorter step, and keep the back knee higher off the floor."},
  {id:"g1_sblunge",n:"Lunge with overhead side bend",a:"hips",z:["hipflex","obliques","lats"],eq:[],pose:"kneel",hold:40,sides:0,dyn:1,stim:"A long stretch from the front of the back hip up the side of the waist to the armpit",c:["Lunge forward, back knee low, both arms reaching overhead","Lean the arms and ribs over toward the front-leg side","Come back to upright, stand and repeat on the other leg"],easy:"Do it half-kneeling with the back knee on a pad."},
- {id:"g1_backlunge",n:"Backward lunges",a:"hips",z:["glutes","quads","hipflex"],eq:[],pose:"kneel",hold:40,sides:0,dyn:1,stim:"The front glute and thigh working, a stretch across the front of the back hip",c:["Stand tall, then step one foot far back","Lower the back knee toward the floor, front shin close to vertical","Drive through the front heel to step back up and switch legs"],easy:"Smaller step and only part of the way down, holding a wall if needed."},
- {id:"g1_bear",n:"Bear crawl",a:"shoulders",z:["shoulders","core","quads"],eq:[],pose:"allfours",hold:30,sides:0,dyn:1,stim:"Shoulders, abs and thighs all working to hold the body steady",c:["Hands under the shoulders, knees under the hips, then lift the knees just off the floor","Move one hand and the opposite foot forward a short step together","Keep the back flat and the hips low, crawl a few steps forward and back"],easy:"Hold the hover without crawling, or let the knees touch down between steps."},
  {id:"g1_bandtri",n:"Banded triceps stretch",a:"overhead",z:["triceps","lats"],eq:["band"],pose:"armsUp",hold:40,sides:1,dyn:0,stim:"Stretch along the back of the upper arm and into the armpit",c:["Band anchored low behind you, loop it around the wrist","Elbow points to the ceiling, hand drops behind the head","Lean forward until the band draws the hand down, ribs stay in"],easy:"Use a lighter band, or let the other hand guide the elbow instead."},
  {id:"g1_bandT",n:"Banded T hip opener",a:"hips",z:["glutes","adductors","hamstrings"],eq:["band"],pose:"fold",hold:40,sides:1,dyn:1,stim:"Deep in the hip of the standing leg as the pelvis turns open",c:["Band around the top of the standing leg, pulling back; other hand on a rack","Tip forward into a T, back leg reaching long behind you","Rotate the pelvis and chest open to the side, then turn back down"],easy:"Keep both hands on the rack and turn only a little."},
  {id:"g1_sqrot",n:"Deep squat rotation",a:"thoracic",z:["upperback","obliques","adductors"],eq:[],pose:"squat",hold:40,sides:1,dyn:1,stim:"A turn through the upper back while the hips open in the squat",c:["Sit in a deep squat, both hands on the floor in front","Keep one hand down, sweep the other arm up to the ceiling","Follow the hand with your eyes, then bring it back down"],easy:"Sit on a low plate or block, or keep the heels raised."},
  {id:"g1_calfwall",n:"Wall calf stretch",a:"ankles",z:["calves"],eq:["wall"],pose:"calf",hold:40,sides:1,dyn:0,stim:"Stretch high in the calf of the straight back leg",c:["Hands on the wall, one foot well behind you, toes forward","Back knee straight, press the heel into the floor","Lean the hips toward the wall until the calf pulls"],easy:"Shorten the stance so the stretch is milder."},
  {id:"g1_ddcobra",n:"Downward dog to cobra",a:"posterior",z:["hamstrings","calves","core","lowback"],eq:[],pose:"fold",hold:45,sides:0,dyn:1,stim:"The back of the legs in the dog, the front of the trunk in the cobra",c:["Start with hips high, heels reaching down, arms long","Shift forward through a plank and lower the hips toward the floor","Lift the chest on straight arms, then push back to the dog"],easy:"Bend the knees in the dog and lower the knees on the way through."},
- {id:"g1_quadT",n:"Quadruped T-spine opener",a:"thoracic",z:["upperback","chest","obliques"],eq:[],pose:"quadRot",hold:40,sides:1,dyn:1,stim:"Rotation through the upper back and a stretch across the chest",c:["On hands and knees, hips over knees","Lift one arm and open it straight up to the ceiling","Chest and eyes follow the hand, hips stay level, then return"],easy:"Sit the hips back toward the heels to make the turn smaller."},
- {id:"g1_bridgeheel",n:"Glute bridge on heels",a:"posterior",z:["hamstrings","glutes"],eq:[],pose:"lyingLeg",hold:40,sides:0,dyn:1,stim:"Hamstrings and glutes working together to lift the hips",c:["On your back, knees bent, only the heels on the floor, toes up","Dig the heels down and lift the hips into a straight line","Lower slowly, one vertebra at a time"],easy:"Feet flat and closer to the hips."},
  {id:"g1_halftwist",n:"Seated half spinal twist",a:"thoracic",z:["obliques","lowback","glutes"],eq:[],pose:"pike",hold:40,sides:1,dyn:0,stim:"A twist through the trunk and a stretch at the outside of the bent leg's hip",c:["Sit tall, one leg long, the other foot crossed over beside that knee","Hand behind you on the floor, opposite elbow outside the bent knee","Grow tall on each breath in, turn a little further on each breath out"],easy:"Hug the knee with the arm instead of hooking the elbow, and bend the long leg."},
  {id:"g1_hamroll",n:"Foam roll hamstrings",a:"posterior",z:["hamstrings"],eq:["roller"],pose:"roller",hold:60,sides:0,dyn:1,stim:"Pressure along the back of the thighs",c:["Sit with the roller under the thighs, hands on the floor behind","Lift the hips and roll from just below the seat to above the knees","Turn the toes in and out to reach the inner and outer hamstrings"],easy:"Keep more weight on the hands."},
  {id:"g1_itroll",n:"Foam roll outer thigh",a:"hips",z:["quads","glutes"],eq:["roller"],pose:"roller",hold:60,sides:1,dyn:1,stim:"Firm pressure down the outside of the bottom thigh",c:["Lie on your side, roller under the outer thigh, propped on the forearm","Top foot on the floor in front to control the pressure","Roll slowly between the hip and just above the knee"],easy:"Push more weight through the top foot and the hands."},
@@ -2574,13 +2577,110 @@ addStretches([
 ]);
 ["g1_hamroll","g1_itroll","g1_latroll"].forEach(id=>{if(LIBI[id])LIBI[id].roll=1});
 }
-["d_frquad","d_frcalf","d_frglute"].forEach(id=>{if(LIBI[id])LIBI[id].roll=1}); // foam rolling fits recovery too
+
+// Batch W: GOWOD library — shoulder band mobs, ball smashes, wall and box variants, hip openers
+// Batch W1: GOWOD additions (90/90, crab reach, wide-leg fold, wall straddle, lateral leg swings, banded shoulder mobs)
+{
+Object.assign(FIGS,{
+ // Seated 90/90 seen from above: front shin across the body, back shin out to the side; sit tall, then hinge forward over the front shin
+ w_9090:mk({view:"above",tl:.1,p:[110,78],t:0,h:0,L1:{a:[0,-90],s:[1,1],f:-90},L2:{a:[-90,-180],s:[1,1],f:180},A1:{a:[-20,-20],s:[.53,.53]},A2:{a:[-2,-2],s:[.48,.48]}},{tl:.62,A1:{a:[20,20],s:[.6,.6]},A2:{a:[-20,-20],s:[.6,.6]}},[],{mid:{tl:.45,A1:{a:[-17,-17],s:[.42,.42]},A2:{a:[10.6,10.6],s:[.41,.41]}},cam:{yaw:125,pitch:32}}),
+ // Crab reach: seated, far hand planted behind; hips lift to a reverse tabletop while the near arm sweeps overhead
+ w_crabreach:mk({p:[110,134],t:-125,h:-115,L1:{plant:[141,138],f:0},L2:{plant:[137,138],f:0},A2:{plant:[78,138]},A1:{a:[40,35]}},
+   {p:[112,111],t:-172,h:-165,tw:-30,A1:{a:[-140,-140]}},[],{mid:{p:[111,122],t:-150,h:-140,tw:-12,A1:{a:[-90,-90]}},cam:{yaw:20,pitch:20}}),
+ // Wide-leg forward fold: very wide straight legs, hinge at the hips, hands to the floor between the feet
+ w_widefold:mk({p:[120,92],t:-90,h:-90,L1:{a:[90,90],s:[.85,.85],f:0},L2:{a:[90,90],s:[.85,.85],f:0},A1:{a:[95,95],s:[1,1],dz:[1,-1]},A2:{a:[97,97],s:[1,1],dz:[1,-1]}},{p:[108,94],t:44,h:55,L1:{a:[74.7,74.7]},L2:{a:[74.7,74.7]},A1:{a:[133,131.9],s:[.686,.691]},A2:{a:[122,135.8],s:[.748,.756]}},[],{cam:{yaw:55,pitch:15}}),
+ // Wall straddle: lying on the back, legs straight up the wall, then let them fall apart into a wide V
+ w_wallstraddle:mk({...SUPINE,L1:{a:[-90,-90],s:[1,1],f:-90},L2:{a:[-92,-92],s:[1,1],f:-92},A1:{a:[0,0],s:[.3,.3]},A2:{a:[0,0],s:[.3,.3]}},{h:184,L1:{a:[-90,-90],s:[.6,.6],f:-90},L2:{a:[-92,-92],s:[.6,.6],f:-92}},[["wall",121]],{cam:{yaw:-35,pitch:30}}),
+ // Lateral leg swings (front view): hands on a wall in front, near leg swings out to the side and across the body
+ w_latswing:mk({view:"front",p:[120,85],t:-90,h:-90,L2:{plant:[112,138],f:170,d:-1},L1:{a:[40,40],s:[1,1],f:10},A1:{a:[75,75],s:[.45,.45]},A2:{a:[105,105],s:[.45,.45]}},{L1:{a:[130,130],s:[.92,.92]}},[["post",157,16,-44],["post",157,16,-42],["post",157,16,-40],["post",157,16,-38],["post",157,16,-36],["post",157,16,-34],["post",157,16,-32],["post",157,16,-30],["post",157,16,-28],["post",157,16,-26],["post",157,16,-24],["post",157,16,-22],["post",157,16,-20],["post",157,16,-18],["post",157,16,-16],["post",157,16,-14],["post",157,16,-12],["post",157,16,-10],["post",157,16,-8],["post",157,16,-6],["post",157,16,-4],["post",157,16,-2],["post",157,16,0],["post",157,16,2],["post",157,16,4],["post",157,16,6],["post",157,16,8],["post",157,16,10],["post",157,16,12],["post",157,16,14],["post",157,16,16],["post",157,16,18],["post",157,16,20],["post",157,16,22],["post",157,16,24],["post",157,16,26],["post",157,16,28],["post",157,16,30],["post",157,16,32],["post",157,16,34],["post",157,16,36],["post",157,16,38],["post",157,16,40],["post",157,16,42],["post",157,16,44]],{mid:{L1:{a:[88,88],s:[.94,.94]}},cam:{yaw:-110,pitch:14}}),
+ // Banded shoulder external rotation (front view): elbow at the side, band pulls the forearm out
+ w_bandshER:mk({view:"front",p:[120,84.4],t:-90,h:-90,...FRONT_L,A1:{a:[88,0],s:[1,.1]},A2:{a:[95,95]}},{p:[117,84.4],A1:{a:[88,0],s:[1,.97]}},[["post",140,30,75],["bandto","w1",140,70,75]],{cam:{yaw:95,pitch:22}}),
+ // Banded shoulder internal rotation (front view): hand behind the lower back, band draws it across and up
+ w_bandshIR:mk({view:"front",p:[120,86],t:-90,h:-90,...FRONT_L,A1:{a:[82,175],s:[1,.85],back:1},A2:{a:[95,95]}},{A1:{a:[96,200],s:[1,1],back:1}},[["post",100,30,-75],["bandto","w1",100,40,-75]],{cam:{yaw:-120,pitch:10}}),
+ // Banded shoulder extension: facing away from a hip-height anchor, straight arm drawn back and up as you step forward
+ w_bandshext:mk({p:[118,86],t:-90,h:-90,L1:{plant:[134,138],f:0},L2:{plant:[106,138],f:0},A1:{a:[120,120]},A2:{a:[95,95]}},
+   {p:[124,88],t:-76,h:-84,A1:{a:[160,160]}},[["post",40,94,14],["band","w1",40,98]],{cam:{yaw:25,pitch:8}}),
+});
+addStretches([
+ {id:"w_9090",n:"90/90 hip stretch",a:"hips",z:["glutes","hipflex"],eq:[],pose:"s9090",hold:45,sides:1,dyn:0,stim:"Deep stretch in the outer glute of the front leg",c:["Front shin across, back shin out to the side, both knees at 90°","Sit tall, then hinge forward over the front shin","Keep the back flat; lead with the chest"],easy:"Stay upright with your hands on the floor behind you."},
+ {id:"w_crabreach",n:"Crab reach",a:"thoracic",z:["upperback","hipflex","chest"],eq:[],pose:"pike",hold:40,sides:1,dyn:1,stim:"Opening across the chest and front of the hips, with rotation in the upper back",c:["Sit with knees bent, one hand on the floor behind you","Drive the hips up into a reverse tabletop","Sweep the free arm overhead and toward the far side, chest to the ceiling"],easy:"Keep the hips lower and reach only overhead."},
+ {id:"w_widefold",n:"Wide-leg forward fold",a:"posterior",z:["hamstrings","adductors","lowback"],eq:[],pose:"fold",hold:45,sides:0,dyn:0,stim:"Stretch in the hamstrings and inner thighs",c:["Feet very wide, toes forward, knees straight","Hinge at the hips with a long back","Lower the hands, then the head, toward the floor"],easy:"Rest the hands on blocks or bend the knees slightly."},
+ {id:"w_wallstraddle",n:"Wall straddle",a:"hips",z:["adductors","hamstrings"],eq:["wall"],pose:"lyingLeg",hold:60,sides:0,dyn:0,stim:"Gentle stretch in the inner thighs",c:["Lie with your hips against the wall, legs straight up it","Let the legs slide apart into a wide V","Relax and let gravity do the work"],easy:"Shuffle the hips a little away from the wall."},
+ {id:"w_latswing",n:"Lateral leg swings",a:"hips",z:["adductors","glutes"],eq:["wall"],pose:"armsUp",hold:30,sides:1,dyn:1,stim:"Inner thigh on the swing out, outer hip on the swing across",c:["Face a wall, both hands on it","Swing one straight leg out to the side and across the body","Grow the range each swing; keep the hips facing the wall"],easy:"Smaller swings."},
+ {id:"w_bandshER",n:"Banded shoulder external-rotation mob",a:"shoulders",z:["shoulders","chest"],eq:["band"],pose:"doorway",hold:40,sides:1,dyn:1,stim:"Stretch at the front of the shoulder",c:["Band at elbow height around the wrist, elbow bent 90° and tucked at your side","Step sideways away until the band pulls the forearm out","Keep the elbow pinned and pulse gently at the end"],easy:"Use a lighter band or stand closer to the anchor."},
+ {id:"w_bandshIR",n:"Banded shoulder internal-rotation mob",a:"shoulders",z:["shoulders","upperback"],eq:["band"],pose:"doorway",hold:40,sides:1,dyn:1,stim:"Stretch at the back of the shoulder",c:["Band around the wrist, hand behind the lower back","Step away so the band draws the hand across and up","Keep the shoulder down and pulse gently"],easy:"Use a lighter band or step back less."},
+ {id:"w_bandshext",n:"Banded shoulder extension stretch",a:"shoulders",z:["shoulders","biceps","chest"],eq:["band"],pose:"doorway",hold:45,sides:1,dyn:0,stim:"Stretch at the front of the shoulder and biceps",c:["Face away from a hip-height anchor, band in one hand","Step forward and let the straight arm drift back and up","Keep the chest tall and the shoulder down"],easy:"Use a lighter band or take a smaller step."},
+]);
+}
+// Batch GW2: GOWOD additions (shoulders, wrists, ball smashes, wall figure-four)
+{
+Object.assign(FIGS,{
+ // Supine PNF external rotation: upper arm out at shoulder height, pipe in the other hand levers the forearm back toward the floor
+ w_pnfer:mk({p:[110,134],t:180,h:180,L1:{plant:[146,138],f:0},L2:{plant:[142,138],f:0},A1:{a:[90,-90],s:[.12,1],dz:[1,1]},A2:{a:[-50,-197.4],s:[.978,.122],dz:[1,-1]}},{A1:{a:[90,-160]}},[["pipe"]],{cam:{yaw:30,pitch:45}}),
+ // Banded wrist mobilization: kneeling at a box, palm flat, band pulls the wrist back; rock the shoulder forward over the hand
+ w_bandwrist:mk({root:["k1",[96,137]],t:-60,h:-52,L1:{a:[70,180],f:180},L2:{a:[68,180],f:180},A1:{plant:[125,112]},A2:{a:[100,75]}},{root:["k1",[96,137]],t:-78,h:-72,L1:{a:[115,180]},L2:{a:[113,180]},A2:{a:[102,80]}},[["box",123.5,112,36],["bandto","w1",106,137,14]],{cam:{yaw:30,pitch:12}}),
+ // Wall figure-four: lying on the back, one foot flat on the wall at 90/90, other ankle crossed over that knee, knee pressed away
+ w_wallfig4:mk({p:[110,134],t:180,h:180,L2:{a:[-90,0],f:-90},L1:{a:[-102.2,-85.1],s:[.808,.287],dz:[1,-1],f:-100},A1:{a:[5,5]},A2:{a:[3,3]}},{L1:{a:[-70.6,-149.6],s:[.87,.505]}},[["wall",144]],{cam:{yaw:-110,pitch:40}}),
+ // Forearm ball smash: kneeling at a box, forearm palm-up on a ball; rock forward and back so the ball rolls elbow to wrist
+ w_forearmsmash:mk({root:["k1",[96,137]],t:-65,h:-60,L1:{a:[82,180],f:180},L2:{a:[80,180],f:180},A1:{a:[90,0]},A2:{plant:[128,111]}},{L1:{a:[100,180]},L2:{a:[98,180]},A2:{plant:[136,111]}},[["box",108,112,40],["ball",125,107,14.5]],{cam:{yaw:35,pitch:20}}),
+ // Prone pec stretch, seen from above: one arm straight out to the side, push with the other hand and roll away onto the opposite hip
+ w_pronepec:mk({top:true,roll:180,p:[124,78],t:180,h:180,L1:{a:[0,0],s:[1,1],dz:[1,1],f:0},L2:{a:[0,0],s:[1,1],dz:[1,1],f:0},A1:{plant:[87,129]},A2:{a:[-55.1,56],s:[.722,.313],dz:[-1,1]}},{roll:212,L1:{a:[20.3,-5.5],s:[1,.992],dz:[-1,1]},L2:{a:[6.8,102.9],s:[.894,1],dz:[-1,-1]},A2:{a:[-39.9,94.9],s:[.929,.575],dz:[1,1]}},[],{cam:{yaw:125,pitch:35}}),
+ // Upper trap ball smash: back to the wall, ball on the top of the shoulder by the neck; lean in and raise and lower the arm
+ w_uptrapsmash:mk({p:[118,88],t:-100,h:-95,L1:{plant:[128,138],f:0},L2:{plant:[124,138],f:0},A1:{a:[95,95]},A2:{a:[98,98]}},{hy:-35,A1:{a:[-80,-82]}},[["wall",87.5],["ball",95,47,7]],{cam:{yaw:40,pitch:10}}),
+ // Ball between the shoulder blades: lying on the back, hips lifted, ball between spine and one shoulder blade; hug the arm across then sweep it overhead
+ w_rhombsmash:mk({p:[120,117],t:165,h:155,L1:{plant:[148,138],f:0},L2:{plant:[144,138],f:0},A1:{a:[-80,-10],s:[.75,.3],dz:[-1,-1]},A2:{a:[15,12]}},{A1:{a:[-165,-170],s:[1,1],dz:[1,1]}},[["ball",91,138,5]],{cam:{yaw:30,pitch:30}}),
+ // Pec ball smash: facing a wall, ball pinned below the collarbone; lean in and slide the arm up and down the wall
+ w_pecsmash:mk({p:[128,86],t:-86,h:-88,L1:{plant:[122,138],f:0},L2:{plant:[116,138],f:0},A1:{a:[51,51],s:[.73,.73],dz:[1,1]},A2:{a:[95,95]}},{A1:{a:[-53,-53],s:[.76,.76]}},[["wall",154.5],["ball",147,55,8]],{mid:{A1:{a:[0,0],s:[.46,.46]}},cam:{yaw:-35,pitch:12}}),
+});
+addStretches([
+ {id:"w_pnfer",n:"PNF shoulder external rotation",a:"shoulders",z:["shoulders","chest"],eq:["pipe"],pose:"lyingLeg",hold:40,sides:1,dyn:0,stim:"Stretch across the front of the shoulder as the forearm drops back",c:["Lie on your back, upper arm out at shoulder height, elbow bent 90°","Hook a pipe in the other hand against the forearm and ease it back toward the floor","Press the forearm up into the pipe for 5 seconds without moving, relax, then ease it a little further back"],easy:"Put a folded towel under the elbow and use a smaller range."},
+ {id:"w_bandwrist",n:"Banded wrist mobilization",a:"shoulders",z:["forearm"],eq:["band","bench"],pose:"kneel",hold:40,sides:1,dyn:1,stim:"Stretch and pressure on the front of the wrist and forearm",c:["Loop a band around the forearm just above the wrist, anchored low behind you so it pulls the forearm back toward you","Palm flat on a box, fingers forward, arm straight","Rock the shoulder forward over the hand and back"],easy:"Lighter band and a smaller rock."},
+ {id:"w_wallfig4",n:"Wall figure-four",a:"hips",z:["glutes"],eq:["wall"],pose:"lyingLeg",hold:45,sides:1,dyn:0,stim:"Deep stretch in the outer hip and glute of the crossed leg",c:["Lie on your back, one foot flat on the wall with hip and knee at 90°","Cross the other ankle over that knee","Press the crossed knee away; scoot closer to the wall to go deeper"],easy:"Move further from the wall."},
+ {id:"w_forearmsmash",n:"Forearm ball smash",a:"shoulders",z:["forearm"],eq:["ball","bench"],pose:"kneel",hold:60,sides:1,dyn:1,stim:"Deep pressure along the back of the forearm",c:["Kneel at a box, forearm palm-down on a massage ball, the ball under the thick part just below the elbow","Lean your weight in and slowly open and close the fist","Roll from just below the elbow to the wrist"],easy:"Lean in less, or use a softer ball."},
+ {id:"w_pronepec",n:"Prone pec stretch",a:"shoulders",z:["chest","shoulders","biceps"],eq:[],pose:"sideLying",hold:40,sides:1,dyn:0,stim:"Stretch across the chest and the front of the shoulder",c:["Lie face down, one arm straight out at shoulder height, palm down","Put the other hand by your chest and push","Roll away onto the opposite hip until the chest stretches"],easy:"Bend the outstretched elbow to 90° and roll less."},
+ {id:"w_uptrapsmash",n:"Upper trap ball smash",a:"shoulders",z:["neck","shoulders"],eq:["ball","wall"],pose:"doorway",hold:60,sides:1,dyn:1,stim:"Pressure on the top of the shoulder by the neck",c:["Back to a wall, massage ball on the upper trap between the neck and the tip of the shoulder","Bend the knees and lean back into it; keep it off the spine and the side of the neck","Slowly turn the head away and raise and lower the arm"],easy:"Lean in less and keep the arm down."},
+ {id:"w_rhombsmash",n:"Ball smash between shoulder blades",a:"thoracic",z:["upperback","shoulders"],eq:["ball"],pose:"roller",hold:60,sides:1,dyn:1,stim:"Pressure between the spine and the shoulder blade",c:["Lie on your back, ball between the spine and one shoulder blade","Lift the hips to add weight","Hug the arm across the chest, then sweep it overhead and back"],easy:"Keep the hips on the floor."},
+ {id:"w_pecsmash",n:"Pec ball smash",a:"shoulders",z:["chest","shoulders"],eq:["ball","wall"],pose:"doorway",hold:60,sides:1,dyn:1,stim:"Pressure on the front of the chest below the collarbone",c:["Face a wall, ball pinned just below the collarbone near the shoulder","Lean in to load it","Slowly slide the arm up and down the wall","Keep the ball off the armpit and the front of the shoulder joint; stop if you feel tingling down the arm"],easy:"Lean in less, or use a softer ball."}
+]);
+}
+// Batch GW3: rotator cuff smash, wall OHS, bench pigeon, BTN press, self-hug, pike lifts, sumo dip, box adductor
+{
+Object.assign(FIGS,{
+ // Rotator cuff smash: on the back, ball under the near shoulder blade, arm out at 90°, forearm rotates up and down
+ w_cuffsmash:mk({p:[110,132],t:186,h:155,L1:{plant:[146,138],f:0},L2:{plant:[142,138],f:0},A1:{a:[90,-180],s:[.15,1],dz:[1,1]},A2:{a:[3,0]}},{p:[112,132],A1:{a:[90,-4]}},[["ball",79,137.5,11]],{cam:{yaw:110,pitch:50}}),
+ // Wall-facing overhead squat: toes near the wall, arms straight overhead, squat without touching it
+ w_wallohs:mk({p:[120,86],t:-90,h:-90,...STAND_L,A1:{a:[-92,-92],s:[.95,.95]},A2:{a:[-92,-92],s:[.95,.95]}},{p:[106,118],t:-74,h:-80,A1:{a:[-94,-94]},A2:{a:[-94,-94]}},[["wall",142]],{cam:{yaw:-40,pitch:8}}),
+ // Bench pigeon: front shin across the bench top, back leg straight, chest hinges over the shin
+ w_boxpigeon:mk({p:[106,97],t:-50,h:-50,L1:{a:[6,175],s:[.85,.35],dz:[1,-1],f:180},L2:{plant:[71,138],f:0},A1:{plant:[142,105]},A2:{plant:[140,105]}},{t:-20,h:-15,A1:{plant:[154,105]},A2:{plant:[152,105]}},[["box",118,106,40]],{cam:{yaw:-30,pitch:20}}),
+ // Behind-the-neck PVC press: snatch grip, from the traps to straight arms overhead
+ w_btnpress:mk({p:[120,86],t:-90,h:-84,...STAND_L,A1:{a:[95,-104],s:[.65,1]},A2:{a:[97,-102],s:[.65,1]}},{h:-90,A1:{a:[258,-105],s:[.78,.95]},A2:{a:[258,-105],s:[.78,.95]}},[["pipe"]],{mid:{A1:{a:[132.7,-112.4],s:[.172,1]},A2:{a:[132.7,-112.4],s:[.172,1]}},cam:{yaw:-35,pitch:8}}),
+ // Self-hug: arms wrap round to the shoulder blades, upper back rounds, chin tucks
+ w_selfhug:mk({p:[120,86],t:-90,h:-90,sho:3,...STAND_L,A1:{a:[20,190],s:[.92,.3],dz:[-1,-1]},A2:{a:[24,192],s:[.92,.3],dz:[-1,-1]}},{t:-84,bend:-12,h:-45,sho:-1,A1:{a:[43.2,193.4],s:[.544,.684]},A2:{a:[63.5,193.6],s:[.656,.565]}},[],{cam:{yaw:35,pitch:8}}),
+ // Seated pike leg lift: straight leg lifts a few inches off the floor
+ w_pikelift:mk({p:[96,134],t:-72,h:-70,L1:{a:[1,1],f:-60},L2:{a:[1.5,1.5],f:-60},A1:{plant:[116,138]},A2:{plant:[114,138]}},{L1:{a:[-16,-16],f:-50}},[],{cam:{yaw:20,pitch:8}}),
+ // Sumo shoulder dip (front view): hands on knees, one shoulder dips down and across
+ w_sumodip:mk({p:[110,107],t:-55,h:-40,tw:0,L1:{a:[15,90],s:[.5,1],dz:[1,1],f:0,fy:30},L2:{a:[15,90],s:[.5,1],dz:[1,1],f:0,fy:30},A1:{a:[103.6,103.6],s:[.9,.9],dz:[1,1]},A2:{a:[103.6,103.6],s:[.9,.9],dz:[1,1]}},{t:-46,h:-20,tw:30,A2:{a:[115.8,176.7],s:[.924,.861],dz:[1,1]},A1:{a:[94.3,93.9],s:[.962,1],dz:[1,-1]}},[],{cam:{yaw:75,pitch:12}}),
+ // Side box adductor stretch (front view): heel on a box out to the side, hips sink away
+ w_boxadductor:mk({view:"front",p:[120,86],t:-90,h:-90,L1:{plant:[172,107],f:-60,d:1},L2:{a:[95,95],s:[.97,.97],dz:[1,-1],f:150,fy:25},A1:{a:[60,130.7],s:[1,.89],dz:[1,-1]},A2:{a:[120,49.3],s:[1,.89],dz:[1,-1]}},{p:[114,92.5],t:-93,h:-92,L2:{a:[88,88],s:[.85,.85]}},[["post",108,111,42],["post",108,111,44.5],["post",108,111,47],["post",108,111,49.5],["post",108,111,52],["post",108,111,54.5],["post",108,111,57],["post",108,111,59.5],["post",108,111,62],["post",111,111,42],["post",111,111,44.5],["post",111,111,47],["post",111,111,49.5],["post",111,111,52],["post",111,111,54.5],["post",111,111,57],["post",111,111,59.5],["post",111,111,62],["post",114,111,42],["post",114,111,44.5],["post",114,111,47],["post",114,111,49.5],["post",114,111,52],["post",114,111,54.5],["post",114,111,57],["post",114,111,59.5],["post",114,111,62],["post",117,111,42],["post",117,111,44.5],["post",117,111,47],["post",117,111,49.5],["post",117,111,52],["post",117,111,54.5],["post",117,111,57],["post",117,111,59.5],["post",117,111,62],["post",120,111,42],["post",120,111,44.5],["post",120,111,47],["post",120,111,49.5],["post",120,111,52],["post",120,111,54.5],["post",120,111,57],["post",120,111,59.5],["post",120,111,62],["post",123,111,42],["post",123,111,44.5],["post",123,111,47],["post",123,111,49.5],["post",123,111,52],["post",123,111,54.5],["post",123,111,57],["post",123,111,59.5],["post",123,111,62],["post",126,111,42],["post",126,111,44.5],["post",126,111,47],["post",126,111,49.5],["post",126,111,52],["post",126,111,54.5],["post",126,111,57],["post",126,111,59.5],["post",126,111,62],["post",129,111,42],["post",129,111,44.5],["post",129,111,47],["post",129,111,49.5],["post",129,111,52],["post",129,111,54.5],["post",129,111,57],["post",129,111,59.5],["post",129,111,62],["post",132,111,42],["post",132,111,44.5],["post",132,111,47],["post",132,111,49.5],["post",132,111,52],["post",132,111,54.5],["post",132,111,57],["post",132,111,59.5],["post",132,111,62]],{cam:{yaw:68,pitch:10}}),
+});
+addStretches([
+ {id:"w_cuffsmash",n:"Rotator cuff ball smash",a:"shoulders",z:["shoulders","upperback"],eq:["ball"],pose:"roller",hold:60,sides:1,dyn:1,stim:"Pressure on the back of the shoulder blade, easing as you turn the arm",c:["Lie on your back, ball under the back of one shoulder blade","Arm out to the side, elbow bent 90°","Slowly turn the forearm down toward the floor both ways, pause on tender spots"],easy:"Use a softer ball, or stand and pin it against a wall."},
+ {id:"w_wallohs",n:"Wall-facing overhead squat",a:"overhead",z:["lats","upperback","ankles"],eq:["wall"],pose:"squat",hold:40,sides:0,dyn:1,stim:"Stretch through the lats and ankles, effort in the upper back to keep the arms up",c:["Toes a few inches from the wall, feet shoulder width","Arms straight overhead, chest up","Squat as low as you can without hands, face or knees touching the wall, then stand"],easy:"Stand further from the wall, or squat only part way."},
+ {id:"w_boxpigeon",n:"Bench pigeon",a:"hips",z:["glutes"],eq:["bench"],pose:"fold",hold:45,sides:1,dyn:0,stim:"A deep stretch in the buttock of the front leg",c:["Lay the front shin across a bench, knee bent","Step the back leg back, leg straight","Hinge your chest forward over the shin with a flat back","If the front knee complains, bring the foot closer to the hip"],easy:"Use a lower bench, or stay more upright."},
+ {id:"w_btnpress",n:"Snatch-grip behind-the-neck press (PVC)",a:"overhead",z:["shoulders","upperback","lats"],eq:["pipe"],pose:"armsUp",hold:40,sides:0,dyn:1,stim:"Work in the upper back and the backs of the shoulders as the PVC goes up",c:["PVC on your upper back, wide snatch grip","Press straight up behind your head, pause with straight arms","Lower slowly back to your traps, head stays neutral"],easy:"Only go as far as is pain-free; press from in front of the head instead if behind the neck pinches."},
+ {id:"w_selfhug",n:"Self-hug upper-back stretch",a:"thoracic",z:["upperback","shoulders"],eq:[],pose:"crossBody",hold:40,sides:0,dyn:0,stim:"A stretch between the shoulder blades",c:["Wrap your arms around you, hands reaching for the opposite shoulder blades","Round your upper back and push the shoulder blades apart","Tuck your chin and breathe into your back"],easy:"Hold the opposite shoulders instead of reaching around."},
+ {id:"w_pikelift",n:"Seated pike leg lifts",a:"hips",z:["hipflex","hamstrings","core"],eq:[],pose:"pike",hold:40,sides:1,dyn:1,stim:"Hard work in the front of the hip, stretch in the back of the legs",c:["Sit tall, legs straight together, hands beside the knees","Lift one straight leg a few inches, hold 1 second, lower","Don't lean back to lift higher"],easy:"Put your hands further back, or bend the other knee."},
+ {id:"w_sumodip",n:"Sumo shoulder dip",a:"hips",z:["adductors","upperback","obliques"],eq:[],pose:"squat",hold:40,sides:0,dyn:1,stim:"A stretch in the inner thighs and a twist through the upper back",c:["Wide sumo squat, hands on your knees","Press one knee out and dip that shoulder down toward the other knee","Come back to center and switch sides"],easy:"Squat less deep."},
+ {id:"w_boxadductor",n:"Side box adductor stretch",a:"hips",z:["adductors","hamstrings"],eq:["bench"],pose:"fold",hold:40,sides:1,dyn:0,stim:"A stretch along the inner thigh of the leg on the box",c:["Stand side-on to a box, heel on top, leg straight, toes up","Bend the standing knee slightly","Sink your hips down and away from the box"],easy:"Use a lower box."}
+]);
+}
+["d_frquad","d_frcalf","d_frglute","w_forearmsmash","w_uptrapsmash","w_rhombsmash","w_pecsmash","w_cuffsmash","e2_ballroll"].forEach(id=>{if(LIBI[id])LIBI[id].roll=1}); // foam rolling fits recovery too
 // loaded end-range work that tires the tissue you're about to lift with: not right before training
 ["c_jcurl","d_revnordic","c_boxham"].forEach(id=>{if(LIBI[id])LIBI[id].noPre=1});
 // muscles these exercises also stretch, for the By muscle library
-[["s7","triceps","forearm"],["o2","triceps"],["s5","triceps"],["a_bandrack","triceps"],["o4","triceps"],["a_german","biceps"],["s2","biceps"],["s3","biceps"],
- ["o5","obliques"],["t1","obliques"],["t5","obliques"],["wgs","obliques"],["t2","obliques"],["h5","obliques"],
- ["c_cobra","core"],["inch","core"],["d_shinstretch","shins"],["d_tibraise","shins"],["d_toestretch","feet"],["a2","feet"],["r_wristrock","forearm"]
+[["s7","triceps","forearm"],["o2","triceps"],["s5","triceps"],["a_bandrack","triceps"],["a_german","biceps"],
+ ["o5","obliques"],["t1","obliques"],["t5","obliques"],["wgs","obliques"],["t2","obliques"],
+ ["c_cobra","core"],["inch","core"],["d_shinstretch","shins"],["d_tibraise","shins"],["d_toestretch","feet"],["r_wristrock","forearm"]
 ].forEach(([id,...zs])=>{const e=LIBI[id];if(e)zs.forEach(z=>{if(!e.z.includes(z))e.z.push(z)})});
 // strength work done as one long hold: shown still, like a static stretch
 ["c_plank","c_hollow","c_superman","r_breath","r_bandsquat","r_spanish","r_wallsit","r_calfiso","r_wristiso","r_rackhold","b_horse"].forEach(id=>{if(LIBI[id])LIBI[id].still=1});
@@ -2879,15 +2979,13 @@ function buildPlan(o){
     const mob=pickMobility({...o,minutes:o.minutes*(left-actSecs)/(left*.55)},C,Math.max(60,left-actSecs),pool,state);
     add("Mobilise",mob.items);add("Activate",act);
   }else if(o.kind==="recover"){
-    const br=o.minutes>=10?(o.minutes>=15?150:90):0;left-=br;
     // with a foam roller: self-massage the muscles you just worked first, then the long holds
-    if(!flash&&o.equip.includes("roller")){
-      const rel=LIB.filter(ex=>ex.eq.includes("roller")&&!ex.rehab&&!hooks.x.has(ex.id)).map(ex=>({ex,s:ex.z.reduce((t,z)=>t+(zd[z]||0),0)+(need[ex.a]||0)})).filter(x=>x.s>.4).sort((a,b)=>b.s-a.s)
+    if(!flash&&(o.equip.includes("roller")||o.equip.includes("ball"))){
+      const rel=LIB.filter(ex=>(ex.roll||ex.eq.includes("roller"))&&ex.eq.every(q=>o.equip.includes(q))&&!ex.rehab&&!hooks.x.has(ex.id)).map(ex=>({ex,s:ex.z.reduce((t,z)=>t+(zd[z]||0),0)+(need[ex.a]||0)})).filter(x=>x.s>.4).sort((a,b)=>b.s-a.s)
         .slice(0,o.minutes>=15?3:2).map(({ex})=>({id:ex.id,hold:60,why:`Rolling first: slow pressure on the ${ex.z.map(z=>ZONES[z].toLowerCase()).join(" and ")} you just worked eases tension, so the long holds that follow go deeper.`}));
       add("Release",fit(rel,left*.3));
     }
     pool=pool.filter(ex=>!ex.dyn||ex.roll);add("Long holds",pickMobility(o,C,left,pool,state).items);
-    if(br)add("Wind down",[{id:"r_breath",dose:D_.time(br),why:"Slow breathing with long exhales shifts the nervous system from training mode into recovery mode. Ending here, lying down, is the best lead-in to rest and sleep."}]);
   }else if(o.kind==="daily"){
     const mob=pickMobility(o,C,left*(flash?1:.72),pool,state);add("Mobility",mob.items);
     if(!flash){
@@ -3477,7 +3575,7 @@ let P_LAST=null;
 RCAT.mine="From my physio";
 const LOOKS=["r_bwsquat","r_splitsq","r_touchdown","r_hinge","r_slrdl","r_bridge","r_slbridge","r_curlup","r_sideplank","r_birddog","r_pallof","r_calfraise","r_hops","r_bandwalk","r_abduction","r_copenhagen","r_wallsit","r_bandw","r_ser","r_proneY","r_row","r_scappull","r_kbpress","r_wristcurl","r_farmer","o3","t4","h2","h3","p1","a1","r_walk"];
 function regMyEx(e){const x={a:"mine",z:[],c:[],eq:[],stim:"",easy:"",...e,rehab:true,custom:true,pose:"kneel",hold:0,sides:0};if(!LIBI[x.id])LIB.push(x);else Object.assign(LIB.find(l=>l.id===x.id)||{},x);LIBI[x.id]=x;return x}
-S.myEx=S.myEx||[];S.myProtocols=S.myProtocols||[];S.myEx.forEach(regMyEx);
+S.myEx=S.myEx||[];S.myProtocols=S.myProtocols||[];S.myEx.forEach(regMyEx);S.myProtocols.forEach(p=>{p.items=(p.items||[]).filter(it=>LIBI[it.id])}); // drop exercises that left the library
 const DOSE_K={reps:"Reps",hold:"Hold",rephold:"Reps + holds"};
 let ED=null;
 // default dose: what the built-in programs use for this exercise, else a stretch hold or 3×10
