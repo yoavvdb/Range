@@ -463,8 +463,8 @@ const MOVES={
  "Deadlift":{posterior:3,hips:3,thoracic:1},"Romanian Deadlift":{posterior:3,hips:1},"Thruster":{ankles:3,hips:3,overhead:3,thoracic:2},"Wall Ball":{hips:3,ankles:2,overhead:2},
  "Strict Press":{overhead:3,thoracic:2,shoulders:2},"Push Press":{overhead:3,thoracic:2,shoulders:1},"Bench Press":{shoulders:3,thoracic:1},
  "Pull-up":{overhead:3,shoulders:2},"Chest-to-bar Pull-up":{overhead:3,shoulders:2,thoracic:1},"Bar Muscle-up":{shoulders:3,overhead:3,thoracic:1},"Ring Muscle-up":{shoulders:3,overhead:2,thoracic:1},
- "Handstand Push-up":{overhead:3,shoulders:2,thoracic:2},"Handstand Walk":{overhead:3,shoulders:2},"Toes-to-bar":{overhead:2,posterior:3},"Rope Climb":{shoulders:2,overhead:2},
- "Kettlebell Swing":{posterior:3,hips:2},"Box Jump":{ankles:2,hips:2},"Lunges":{hips:3,ankles:2},"Step-ups":{hips:2,ankles:2},"Bulgarian Split Squat":{hips:3,ankles:1,posterior:1},"Front Rack Hold":{shoulders:2,thoracic:2},"Lateral Raise":{shoulders:1},"DB Row":{thoracic:1,shoulders:1},"Pistol":{ankles:3,hips:3,posterior:2},"Burpee":{hips:1,shoulders:1,posterior:1},
+ "Handstand Push-up":{overhead:3,shoulders:2,thoracic:2},"Handstand Walk":{overhead:3,shoulders:2},"Toes-to-bar":{overhead:2,hips:2,posterior:1},"Rope Climb":{shoulders:2,overhead:2},
+ "Kettlebell Swing":{posterior:3,hips:2},"Box Jump":{ankles:2,hips:2},"Lunges":{hips:3,ankles:2},"Step-ups":{hips:2,ankles:2},"Bulgarian Split Squat":{hips:3,ankles:1,posterior:1},"Front Rack Hold":{shoulders:2,thoracic:2},"Lateral Raise":{shoulders:1},"DB Row":{thoracic:1,shoulders:1},"Pistol":{ankles:3,hips:3,posterior:2},"Ring Row":{thoracic:1,shoulders:1,overhead:1},"Air Squat":{ankles:2,hips:2,posterior:1},"Goblet Squat":{ankles:2,hips:3,thoracic:1},"Burpee":{hips:1,shoulders:1,posterior:1},
  "Double-unders":{ankles:3},"Rowing":{posterior:2,hips:2,ankles:2,thoracic:1},"Ski Erg":{overhead:2,posterior:2},"Assault Bike":{hips:3,thoracic:1},
  "Push-up":{shoulders:3},"Dips":{shoulders:3},"GHD Sit-up":{hips:2},"Running":{ankles:3,hips:3,posterior:2},"Sprints":{hips:3,posterior:3,ankles:2},"Hill Running":{ankles:3,hips:2,posterior:2},
  "Sled Push":{ankles:3,hips:2,posterior:1},"Sled Pull":{posterior:2,shoulders:1},"Burpee Broad Jump":{hips:2,ankles:2,posterior:1},"Farmers Carry":{shoulders:1,posterior:1,thoracic:1},"Sandbag Lunges":{hips:3,ankles:2,thoracic:1},
@@ -1465,7 +1465,10 @@ function moveWeights(w){
     if(/:$/.test(L)||(L.length<40&&lightRe.test(L)&&!/\d/.test(L)))sect=L;
     const ms=parseMoves(L);if(!ms.length)return;
     const ctx=lines.slice(i,i+3).join(" "),light=lightRe.test(sect)||lightRe.test(L),heavy=!light&&heavyRe.test(ctx);
-    const v=heavy?2:light?.5:1;ms.forEach(m=>{mw[m]=Math.max(mw[m]??0,v)})});
+    const v=heavy?2:light?.5:1;ms.forEach(m=>{let x=v;
+      // a run's weight follows its distance: an 8 km run loads the legs far more than 200 m between rounds
+      if(m==="Running"&&!light){const d=L.match(/(\d+(?:[.,]\d+)?)\s*(km|k|mi|m)\b/i);if(d){const n=parseFloat(d[1].replace(",","."))*({km:1000,k:1000,mi:1609,m:1}[d[2].toLowerCase()]);x=n>=5000?2:n<=400?.5:1}}
+      mw[m]=Math.max(mw[m]??0,x)})});
   return mw}
 /* ---- How Range chooses stretches ----
    1. Each body area gets a NEED score from four signals, weighted by the protocol:
@@ -1481,15 +1484,20 @@ function moveWeights(w){
    4. The list is ordered to avoid getting up and down: Activate starts on the floor and ends
       standing, ready to train; Recover and Daily wind down toward the floor. */
 const AREA_ZONES={shoulders:["shoulders","chest"],overhead:["lats","shoulders"],thoracic:["upperback"],hips:["hipflex","glutes","adductors","quads"],posterior:["hamstrings","lowback"],ankles:["ankles","calves"]};
+// By-area sessions: the muscles that count as that area (an exercise's MAIN target must be one of them, so a T-spine session
+// isn't filled with low-back extension and an ankle session with shin stretches), plus the neighbouring area that usually limits it
+const TARGET_ZONES={...AREA_ZONES,overhead:["lats","shoulders","triceps"],shoulders:["shoulders","chest","biceps"]};
+const TARGET_SUPPORT={thoracic:{overhead:["lats","triceps"]},overhead:{thoracic:["upperback"]},shoulders:{thoracic:["upperback"]},posterior:{hips:["glutes"]},hips:{posterior:["hamstrings"]},ankles:{}};
+const zoneArea=z=>AREAS.map(a=>a.k).find(k=>AREA_ZONES[k].includes(z));
 const MOVE_ZONES={
- "Squat Clean":["adductors","hamstrings","quads","ankles","lats","upperback"],"Power Clean":["hamstrings","glutes","lats","upperback","forearm"],"Snatch":["lats","upperback","shoulders","adductors","hamstrings","ankles"],"Power Snatch":["lats","upperback","shoulders","hamstrings"],
+ "Squat Clean":["adductors","hamstrings","quads","ankles","lats","upperback"],"Power Clean":["hamstrings","glutes","lats","upperback","forearm"],"Snatch":["lats","upperback","shoulders","adductors","hamstrings","ankles","forearm"],"Power Snatch":["lats","upperback","shoulders","hamstrings"],
  "Clean & Jerk":["ankles","adductors","lats","upperback","hipflex"],"Split Jerk":["lats","hipflex","quads","shoulders"],"Push Jerk":["lats","upperback","ankles"],"Overhead Squat":["lats","upperback","shoulders","ankles","adductors"],
- "Front Squat":["quads","lats","ankles","adductors","upperback","forearm"],"Back Squat":["quads","adductors","glutes","hipflex","hamstrings","ankles"],"Deadlift":["hamstrings","lowback","glutes","adductors"],"Romanian Deadlift":["hamstrings","lowback"],
- "Thruster":["quads","glutes","adductors","lats","upperback","ankles"],"Wall Ball":["adductors","glutes","upperback","lats","quads","ankles"],"Strict Press":["lats","upperback","shoulders"],"Push Press":["lats","upperback","ankles"],"Bench Press":["chest","shoulders","biceps"],
- "Pull-up":["lats","biceps","forearm","shoulders"],"Chest-to-bar Pull-up":["lats","biceps","forearm","upperback"],"Bar Muscle-up":["chest","shoulders","lats"],"Ring Muscle-up":["chest","shoulders"],"Handstand Push-up":["shoulders","lats","upperback"],"Handstand Walk":["shoulders","lats"],
- "Toes-to-bar":["lats","hamstrings"],"Rope Climb":["biceps","forearm","lats"],"Kettlebell Swing":["hamstrings","lowback","glutes"],"Box Jump":["calves","ankles"],"Lunges":["hipflex","quads"],"Step-ups":["quads","glutes","hipflex"],"Bulgarian Split Squat":["hipflex","quads","glutes"],"Front Rack Hold":["lats","upperback","forearm"],"Lateral Raise":["shoulders"],"DB Row":["lats","upperback","biceps"],"Pistol":["ankles","glutes","hamstrings"],
- "Burpee":["hipflex","chest"],"Double-unders":["calves","ankles"],"Rowing":["hamstrings","upperback","ankles"],"Ski Erg":["lats","hamstrings"],"Assault Bike":["hipflex","quads"],"Push-up":["chest","shoulders"],"Dips":["chest","shoulders"],
- "GHD Sit-up":["hipflex"],"Running":["calves","hipflex","hamstrings","glutes","quads"],"Sprints":["hamstrings","hipflex","calves"],"Hill Running":["calves","ankles","hipflex"],"Sled Push":["calves","hipflex","quads","glutes"],"Sled Pull":["hamstrings","lowback"],
+ "Front Squat":["quads","lats","ankles","adductors","upperback","forearm"],"Back Squat":["quads","adductors","glutes","hipflex","hamstrings","lowback","ankles"],"Deadlift":["hamstrings","lowback","glutes","adductors"],"Romanian Deadlift":["hamstrings","lowback"],
+ "Thruster":["quads","glutes","adductors","lats","upperback","ankles"],"Wall Ball":["adductors","glutes","upperback","lats","quads","ankles"],"Strict Press":["lats","upperback","shoulders"],"Push Press":["shoulders","lats","upperback","triceps"],"Bench Press":["chest","shoulders","biceps"],
+ "Pull-up":["lats","biceps","forearm","shoulders"],"Chest-to-bar Pull-up":["lats","biceps","forearm","upperback"],"Bar Muscle-up":["chest","shoulders","lats"],"Ring Muscle-up":["chest","shoulders","lats","triceps","forearm"],"Handstand Push-up":["shoulders","triceps","lats","upperback","forearm"],"Handstand Walk":["shoulders","lats"],
+ "Toes-to-bar":["lats","hipflex","forearm","core"],"Rope Climb":["biceps","forearm","lats"],"Kettlebell Swing":["hamstrings","lowback","glutes"],"Box Jump":["calves","ankles"],"Lunges":["hipflex","quads"],"Step-ups":["quads","glutes","hipflex"],"Bulgarian Split Squat":["hipflex","quads","glutes"],"Front Rack Hold":["lats","upperback","forearm"],"Lateral Raise":["shoulders"],"DB Row":["lats","upperback","biceps"],"Pistol":["ankles","glutes","hamstrings"],"Ring Row":["lats","upperback","biceps","forearm"],"Air Squat":["quads","glutes","adductors","ankles"],"Goblet Squat":["adductors","quads","glutes","ankles","upperback"],
+ "Burpee":["hipflex","chest"],"Double-unders":["calves","ankles"],"Rowing":["hamstrings","lats","upperback","hipflex","ankles"],"Ski Erg":["lats","hamstrings"],"Assault Bike":["hipflex","quads"],"Push-up":["chest","shoulders"],"Dips":["chest","shoulders"],
+ "GHD Sit-up":["hipflex"],"Running":["calves","hipflex","hamstrings","glutes","quads","feet"],"Sprints":["hamstrings","hipflex","calves"],"Hill Running":["calves","ankles","hipflex"],"Sled Push":["calves","hipflex","quads","glutes"],"Sled Pull":["hamstrings","lowback"],
  "Burpee Broad Jump":["hipflex","hamstrings"],"Farmers Carry":["upperback","forearm","lowback"],"Sandbag Lunges":["hipflex","quads","glutes","upperback"],"Cycling":["hipflex","quads","upperback"],"Swimming":["lats","chest","shoulders"],"Climbing":["shoulders","lats","hipflex"]};
 // 0 standing, 1 squat, 2 kneeling / all fours, 3 seated, 4 lying
 const POSITION={armsUp:0,fold:0,calf:0,doorway:0,crossBody:0,squat:1,kneel:2,couch:2,allfours:2,needle:2,quadRot:2,child:2,latBench:2,frog:2,s9090:3,pike:3,pigeon:3,lyingLeg:4,sideLying:4,roller:4};
@@ -1513,29 +1521,32 @@ function analyze(o){
   const nx=nextSession(),nextD=normMap(nx&&o.kind!=="activate"?demandOf(nx.moves,moveWeights(nx)):{}),str=recentlyStretched(),wk=weekStretch(),sw=sportWeight();
   const need={},parts={};
   AREAS.forEach(({k})=>{
-    if(o.kind==="target"){need[k]=k===o.zone?1:0;parts[k]={};return}
+    if(o.kind==="target"){need[k]=k===o.zone?1:TARGET_SUPPORT[o.zone]&&TARGET_SUPPORT[o.zone][k]?.35:0;parts[k]={};return}
     // areas that already hit the weekly stretching target get less static time (more stretching won't add range)
-    const p={weak:W.weak*Math.max(0,(95-sc[k])/95)*(.55+.45*sw[k]),demand:W.demand*(demand[k]||0),load:W.load*(load[k]||0),next:W.next*(nextD[k]||0),pen:W.fresh*(str[k]||0)+(o.kind==="daily"&&(wk[k]||0)>=WEEK_TARGET?.2:0)};
+    const p={weak:W.weak*Math.max(0,(95-sc[k])/95)*(.55+.45*sw[k]),demand:W.demand*(demand[k]||0)*(o.kind==="activate"&&sc[k]>=80?.6:1),load:W.load*(load[k]||0),next:W.next*(nextD[k]||0),pen:W.fresh*(str[k]||0)+(o.kind==="daily"&&(wk[k]||0)>=WEEK_TARGET?.2:0)};
     parts[k]=p;need[k]=Math.max(.03,p.weak+p.demand+p.load+p.next-p.pen);
   });
   return{need,parts,ctx:{sc,nx}};
 }
 function focusOf(o){const{need}=analyze(o);return AREAS.filter(a=>need[a.k]>.05).sort((x,y)=>need[y.k]-need[x.k]).slice(0,o.kind==="target"?1:2).map(a=>a.k)}
 function whyFor(ex,o,moves,ctx,parts,zd){
-  const a=ex.a,p=parts[a]||{},sc=ctx.sc[a],bits=[];
+  const a=ex.a,p=parts[a]||{},bits=[];
   const z=ex.z.slice().sort((x,y)=>(zd[y]||0)-(zd[x]||0)).find(x=>zd[x]>0);
   const mv=z&&moves.find(m=>(MOVE_ZONES[m]||[]).includes(z));
-  if(o.kind==="target")bits.push(`you picked ${AN[a]}`);
+  // the score quoted is the one for the muscle named, not the exercise's filing area (no "hamstrings … your Ankles score")
+  const sa=(z&&zoneArea(z))||a,sc=ctx.sc[sa]??ctx.sc[a];
+  if(o.kind==="target"){if(a===o.zone)bits.push(`you picked ${AN[a]}`);else{const zs=ex.z.filter(x=>(zd[x]||0)>0).map(x=>ZONES[x].toLowerCase()).slice(0,2);bits.push(`tight ${zs.join(" and ")||AN[a].toLowerCase()} ${zs.length===1&&!/s$/.test(zs[0])?"often limits":"often limit"} your ${AN[o.zone]}`)}}
   if(mv&&o.kind==="activate")bits.push(`${mv} needs range in your ${ZONES[z].toLowerCase()}`);
   if(mv&&o.kind==="recover")bits.push(`${mv} worked your ${ZONES[z].toLowerCase()}`);
-  if(sc<65)bits.push(`your ${AN[a]} score is ${sc}`);
-  if((p.load||0)>.1)bits.push(`your ${AN[a]} took heavy load in the last 3 days`);
+  if(sc<65)bits.push(`your ${AN[sa]} score is ${sc}`);
+  if((p.load||0)>.1&&o.kind!=="recover")bits.push(`your ${AN[a]} took heavy load in the last 3 days`);
   if((p.next||0)>.06&&ctx.nx)bits.push(`${wShort(ctx.nx)} is coming up`);
   if(!bits.length)bits.push(o.kind==="daily"?`keeps your ${AN[a]} moving`:`balances the session`);
   let s=bits.slice(0,2).join(", and ");s=s[0].toUpperCase()+s.slice(1)+".";
   if(o.kind==="activate"&&ex.dyn)s+=" A moving drill warms the joint before you load it.";
-  if(o.kind==="recover")s+=" A long passive hold helps you wind down.";
-  if(sc<40)s+=" Start in Easy Mode.";
+  if(o.kind==="recover")s+=ex.dyn?" Slow, easy movement helps you wind down.":" A long passive hold helps you wind down.";
+  // said once per area, not on every card
+  if(sc<40){const said=ctx.easySaid=ctx.easySaid||new Set();if(!said.has(sa)){said.add(sa);s+=" Start with Easy Mode on: the easier version on the card, with holds a quarter shorter."}}
   const b=(S.sideBias||{})[a];if(b&&ex.sides)s+=` Your ${b==="L"?"left":"right"} side is tighter, so it gets 50% longer.`;
   return s;
 }
@@ -1797,7 +1808,7 @@ function doseText(it){
   const d=it.dose;if(!d)return"";
   const side=d.sides?" each side":"";
   if(d.k==="time")return d.secs<120?`${d.secs} s`:d.secs%60?`${Math.floor(d.secs/60)} min ${d.secs%60} s`:`${d.secs/60} min`;
-  if(d.k==="hold")return`${d.sets} × ${d.secs} s hold${side}`;
+  if(d.k==="hold")return`${d.sets} × ${d.secs} s${LIBI[it.id]&&LIBI[it.id].dyn?"":" hold"}${side}`;
   if(d.k==="rephold")return`${d.sets>1?d.sets+" × ":""}${d.reps} reps · ${d.secs} s holds${side}`;
   if(d.k==="pyramid")return`${d.reps.join("-")} reps · 10 s holds${side}`;
   return`${d.sets} × ${it.reps||d.reps}${side}${d.tempo?` · tempo ${d.tempo.join("-")}`:""}${d.note?` · ${d.note}`:""}`;
@@ -2696,6 +2707,24 @@ addStretches([
 ["a_german","g1_itroll","w_hamact"].forEach(id=>{if(LIBI[id])LIBI[id].manual=1});
 // slow cyclic stretches that also suit recovery (GOWOD's post-run and post-race routines use them)
 ["c_cobra","d_ddcalf","g1_ddcobra","p4"].forEach(id=>{if(LIBI[id])LIBI[id].post=1});
+// lumbar extension and hip-flexor drills that were filed under T-spine: they barely move the upper back
+[["c_cobra","posterior"],["e2_updog","posterior"],["g1_scorpion","hips"]].forEach(([id,a])=>{if(LIBI[id])LIBI[id].a=a});
+// exercise families: near-duplicates (same position, same tissue). A session uses at most one from each family.
+const FAM={fold:["p1","p3","w_widefold","p6"],straddle:["p6","w_widefold","w_wallstraddle","e2_seatside","w_boxadductor"],frog:["h4","b_butterfly","b_addrock"],
+ hamstr:["p2","p5","c_boxham"],downdog:["p4","inch","g1_ddcobra","d_ddcalf"],hinge:["g1_hinge","g1_walkgm","c_goodmorn"],
+ gastroc:["a3","g1_calfwall"],soleus:["a5","a2"],dfmob:["a1","a6"],shin:["d_shinstretch","e2_tibkneel"],
+ hipflex:["h6","h1","d_rfequad","e2_kneelquad","e2_standquad","g1_samson"],pigeon:["h2","w_9090","w_boxpigeon","w_wallfig4","b_fig4"],
+ latside:["o5","o4","e2_sidebend","e2_seatside"],puppy:["o1","o2"],tri:["e1_ohtri","g1_bandtri"],lumbext:["c_cobra","e2_updog","g1_scorpion"],
+ twist:["e2_twist","g1_halftwist"],trot:["t1","t5"],troll:["t3","t6"],pec:["s2","e1_wallbicep","w_bandshext"],clasp:["e1_clasp","e1_floorbicep"],
+ postcap:["s1","s4"],wflex:["a_wristflex","e1_wristflex","e1_prayer"],bandsh:["w_bandshER","w_bandshIR"],squat:["h7","h9","a4"],dyn9090:["h3","b_9090ir","b_9090er"]};
+Object.entries(FAM).forEach(([f,ids])=>ids.forEach(id=>{const e=LIBI[id];if(e)(e.fam=e.fam||[]).push(f)}));
+// needs a decent score in that area before it's picked automatically (beginners can't reach the position yet)
+[["a_sots","overhead"],["w_btnpress","overhead"],["s1","shoulders"],["r_slrdl","posterior"],["r_copenhagen","hips"],["b_9090ir","hips"],["b_9090er","hips"],["g1_scorpion","thoracic"]].forEach(([id,a])=>{if(LIBI[id])LIBI[id].adv=a});
+// body position of strength drills (0 standing, 1 squat, 2 kneeling / all fours, 4 lying), for ordering warm-ups
+const DRILL_POS={r_bridge:4,r_slbridge:4,c_hollow:4,c_superman:4,c_deadbug:4,r_curlup:4,r_sideplank:4,r_proneY:4,w_hamact:4,r_ser:4,r_breath:4,
+ r_birddog:2,b_hydrant:2,r_wristrock:2,a_scappush:2,a_bandrack:2,c_plank:2,r_hipflexiso:1,
+ r_bwsquat:1,r_goblethold:1,d_heelsq:1,d_atgsplit:1,r_bandsquat:1,a_sots:1,r_spanish:1,r_wallsit:1};
+const posOf=ex=>ex.rehab?(DRILL_POS[ex.id]??0):(POSITION[ex.pose]??2);
 
 // Dose helpers. k: hold | rephold | pyramid | reps | time
 const HSR=[15,12,12,10,10,8,8,6,6];
@@ -2807,12 +2836,12 @@ const REGIONS={
    {q:"Elbows at your sides, bent to 90°. Can you hold your hands out while someone pushes them inward?",o:[["No, they collapse",{stability:3}],["Yes",{}]]},
   ],
   classes:{
-   mobility:{n:"Overhead mobility",why:"Stiffness in the upper back, lats or chest makes the shoulder work at a bad angle overhead.",habits:["Mobilise, then use the new range straight away","Retest the wall reach after each session"],avoid:["Forcing overhead positions by arching the low back"]},
+   mobility:{n:"Overhead mobility",why:"Stiffness in the upper back, lats or chest makes the shoulder work at a bad angle overhead.",habits:["Mobilise, then use the new range straight away","Retest the wall reach after each session","If it aches at night, sleep on your back or the other side with a pillow under the sore arm"],avoid:["Forcing overhead positions by arching the low back"]},
    stability:{n:"Shoulder stability",why:"The rotator cuff and shoulder-blade muscles can't keep the joint centred under load.",habits:["Quality reps with control beat heavy reps","Check your bar position in squats and presses"],avoid:["High-volume kipping and fast overhead work for now"]},
    coordination:{n:"Overhead coordination",why:"Range and strength are there, but the shoulder blade and arm aren't timing together.",habits:["Slow, controlled overhead work before training"],avoid:["Grinding through painful reps"]},
   },
   phasesBy:{
-   mobility:[{n:"Free it up",goal:"Upper back, lats and chest. Each stretch is followed by an exercise that uses the new range.",min:7,freq:"Daily",items:[["t3",{k:"hold",sets:1,secs:45}],["t2",{k:"hold",sets:1,secs:45,sides:true}],["o2",{k:"hold",sets:3,secs:30}],["s2",{k:"hold",sets:3,secs:30,sides:true}],["o3",D_.reps(2,10)],["r_proneY",D_.reps(2,8)]],exit:"Wall reach passes with palms up."},{n:"Build the cuff",goal:"Strength for the muscles that centre the joint.",min:14,freq:"3–4 times a week",items:[["r_ser",D_.reps(3,15,{sides:1,tempo:[1,0,3]})],["r_bandw",D_.reps(3,15)],["r_row",D_.reps(3,10,{note:"3-second hold at the top"})],["r_scappull",D_.reps(3,8)]],exit:"External rotation hold test strong on both sides."},{n:"Own overhead",goal:"Stable overhead strength.",min:14,freq:"3 times a week",items:[["r_kbpress",D_.reps(3,8,{sides:1})],["o3",D_.reps(2,15)],["r_proneY",D_.reps(2,10)]],exit:"Light overhead barbell work pain-free. Build back over 3–4 weeks.",last:true}],
+   mobility:[{n:"Free it up",goal:"Upper back, lats and chest. Each stretch is followed by an exercise that uses the new range.",min:7,freq:"Daily",items:[["t3",{k:"hold",sets:1,secs:45}],["t2",{k:"hold",sets:1,secs:45,sides:true}],["o2",{k:"hold",sets:3,secs:30}],["s2",{k:"hold",sets:2,secs:30,sides:true}],["o3",D_.reps(2,10,{note:"Only as high as stays pain-free"})],["r_proneY",D_.reps(2,8)]],exit:"Wall reach passes with palms up."},{n:"Build the cuff",goal:"Strength for the muscles that centre the joint.",min:14,freq:"3–4 times a week",items:[["r_ser",D_.reps(3,15,{sides:1,tempo:[1,0,3]})],["r_bandw",D_.reps(3,15)],["r_row",D_.reps(3,10,{note:"3-second hold at the top"})],["r_scappull",D_.reps(3,8)]],exit:"External rotation hold test strong on both sides."},{n:"Own overhead",goal:"Stable overhead strength.",min:14,freq:"3 times a week",items:[["r_kbpress",D_.reps(3,8,{sides:1})],["o3",D_.reps(2,15)],["r_proneY",D_.reps(2,10)]],exit:"Light overhead barbell work pain-free. Build back over 3–4 weeks.",last:true}],
    stability:[{n:"Wake up the cuff",goal:"Light, controlled cuff and shoulder-blade work.",min:7,freq:"Daily",items:[["r_ser",D_.reps(2,15,{sides:1,tempo:[1,0,3]})],["r_bandw",D_.reps(2,15)],["r_proneY",D_.reps(2,8)]],exit:"All exercises pain-free."},{n:"Build the cuff",goal:"Add load and pulling.",min:14,freq:"3–4 times a week",items:[["r_ser",D_.reps(3,15,{sides:1,tempo:[1,0,3]})],["r_row",D_.reps(3,10,{note:"3-second hold at the top"})],["r_scappull",D_.reps(3,8)]],exit:"External rotation hold test strong."},{n:"Own overhead",goal:"Stable overhead strength.",min:14,freq:"3 times a week",items:[["r_kbpress",D_.reps(3,8,{sides:1})],["o3",D_.reps(2,15)]],exit:"Overhead training pain-free.",last:true}],
    coordination:[{n:"Timing",goal:"Shoulder blade and arm moving together.",min:7,freq:"Daily",items:[["o3",D_.reps(3,12)],["r_proneY",D_.reps(2,10)],["r_scappull",D_.reps(2,8)]],exit:"Smooth, pain-free overhead reach."},{n:"Own overhead",goal:"Stable overhead strength.",min:14,freq:"3 times a week",items:[["r_kbpress",D_.reps(3,8,{sides:1})],["r_row",D_.reps(3,10)]],exit:"Overhead training pain-free.",last:true}],
   }},
@@ -2847,10 +2876,12 @@ const REGIONS={
    insertional:{n:"Heel insertion",why:"The tendon is being squeezed against the heel bone as well as overloaded.",habits:["Do all calf work on flat ground","A heel lift can take pressure off"],avoid:["Dropping the heel below a step","Calf stretching for now"]},
   },
   phasesBy:{
-   midportion:[{n:"Isometric holds",goal:"Calm the tendon with heavy holds.",min:7,freq:"Daily",items:[["r_calfiso",D_.hold(5,45,1)],["a6",{k:"hold",sets:2,secs:40,sides:true}]],exit:"Single-leg heel raises at 3/10 or lower."},{n:"Heavy slow calves",goal:"Rebuild tendon capacity.",min:21,freq:"Every other day. Holds on the days in between",items:[["r_calfraise",D_.reps(4,15,{tempo:[3,0,3],rest:90,sides:1,hsr:1})],["r_soleus",D_.reps(4,15,{tempo:[3,0,3],rest:90,hsr:1})]],exit:"Through the 4×6 stage with next-morning pain stable."},{n:"Spring back",goal:"Hops, skipping, then running and jumps.",min:14,freq:"3 times a week",items:[["r_hops",D_.reps(3,20)],["r_calfraise",D_.reps(3,8,{tempo:[3,0,1],sides:1})]],exit:"Running and jumping at normal volume with next-morning pain stable.",last:true}],
+   midportion:[{n:"Isometric holds",goal:"Calm the tendon with heavy holds.",min:7,freq:"Daily",items:[["r_calfiso",D_.hold(5,45,1)],["r_soleus",D_.hold(3,45),"Bent-knee isometric for the soleus: plate on the knees, heels held halfway up, no bouncing."]],exit:"Single-leg heel raises at 3/10 or lower."},{n:"Heavy slow calves",goal:"Rebuild tendon capacity.",min:21,freq:"Every other day. Holds on the days in between",items:[["r_calfraise",D_.reps(4,15,{tempo:[3,0,3],rest:90,sides:1,hsr:1})],["r_soleus",D_.reps(4,15,{tempo:[3,0,3],rest:90,hsr:1})]],exit:"Through the 4×6 stage with next-morning pain stable."},{n:"Spring back",goal:"Hops, skipping, then running and jumps.",min:14,freq:"3 times a week",items:[["r_hops",D_.reps(3,20)],["r_calfraise",D_.reps(3,8,{tempo:[3,0,1],sides:1})]],exit:"Running and jumping at normal volume with next-morning pain stable.",last:true}],
    insertional:[{n:"Isometric holds",goal:"Calm the tendon without squeezing it.",min:7,freq:"Daily",items:[["r_calfiso",D_.hold(5,45,1)]],exit:"Single-leg heel raises at 3/10 or lower."},{n:"Heavy slow calves (flat ground)",goal:"Rebuild capacity without dropping the heel.",min:21,freq:"Every other day",items:[["r_calfraise",D_.reps(4,15,{tempo:[3,0,3],rest:90,sides:1,hsr:1,note:"Flat ground only"})],["r_soleus",D_.reps(4,15,{tempo:[3,0,3],rest:90,hsr:1})]],exit:"Through the 4×6 stage with next-morning pain stable."},{n:"Spring back",goal:"Hops and running reintroduced.",min:14,freq:"3 times a week",items:[["r_hops",D_.reps(3,20)]],exit:"Running and jumping back to normal.",last:true}],
   }},
 };
+// flexion-sensitive backs groove the hip hinge from day one (it's how they should pick things up)
+REGIONS.back.extraBy={flexion:[["r_hinge",D_.reps(2,8,{note:"Dowel along your back, pain-free depth"})]]};
 // Back shares one set of phases across its classes
 REGIONS.back.phasesBy={flexion:REGIONS.back.phases,extension:REGIONS.back.phases,rotation:REGIONS.back.phases,load:REGIONS.back.phases};
 
@@ -2867,7 +2898,7 @@ REGIONS.back.phasesBy={flexion:REGIONS.back.phases,extension:REGIONS.back.phases
    TARGET: Mobility for one area, then Lock it in with a strength drill in the new range.
    Every block skips exercises your active Rebuild program says to avoid (e.g. no Achilles stretching). */
 const MOVE_PREP=[
- {moves:["Squat Clean","Front Squat","Back Squat","Overhead Squat","Thruster","Wall Ball","Pistol","Clean & Jerk","Snatch","Lunges","Sandbag Lunges","Box Jump","Step-ups","Bulgarian Split Squat"],
+ {moves:["Squat Clean","Front Squat","Back Squat","Overhead Squat","Thruster","Wall Ball","Pistol","Clean & Jerk","Snatch","Lunges","Sandbag Lunges","Box Jump","Step-ups","Bulgarian Split Squat","Air Squat","Goblet Squat"],
   drills:[["b_hydrant",D_.reps(1,10,{sides:1}),"switches on the glutes that turn the knee out at the bottom"],["r_bandsquat",D_.hold(1,30),"wakes up the sides of the hips so your knees track over your toes"],["d_atgsplit",D_.reps(1,6,{sides:1,tempo:[3,1,1]}),"takes the knee forward past the toes under control, the range a deep squat needs"],["d_heelsq",D_.reps(1,8,{tempo:[3,1,1]}),"lets you sit deep and upright with the heels raised, grooving the squat bottom"],["r_bwsquat",D_.reps(1,10,{tempo:[3,1,1]}),"rehearses the full squat unloaded, slow and deep, before the bar"],["r_goblethold",D_.rep(1,5,5),"rehearses a braced squat bottom before you load it"]]},
  {moves:["Deadlift","Romanian Deadlift","Power Clean","Squat Clean","Kettlebell Swing","Rowing","Sled Pull","Clean & Jerk"],
   drills:[["r_bridge",D_.rep(1,10,3),"switches the glutes on so the low back doesn't do their job"],["r_hinge",D_.reps(1,10),"grooves moving at the hips with a still spine before you pull"],["c_goodmorn",D_.reps(1,10,{tempo:[3,1,1]}),"rehearses the hinge with a load on your back, hamstrings long and back flat"]]},
@@ -2877,7 +2908,7 @@ const MOVE_PREP=[
   drills:[["a_pullapart",D_.reps(1,15),"wakes up the upper back that holds the bar overhead"],["r_proneY",D_.reps(1,8),"turns on the lower traps so the shoulder blade rotates up under the bar"],["r_scappull",D_.reps(1,6),"teaches the shoulder blades to set before you press or hang"],["a_sots",D_.reps(1,6),"presses from the bottom of a squat, the hardest overhead position"],["r_ohs",D_.reps(2,5,{tempo:[3,2,1],note:"Pause at the bottom"}),"rehearses the exact overhead position you'll need, slowly, before the bar is loaded"]]},
  {moves:["Front Squat","Squat Clean","Power Clean","Clean & Jerk","Thruster","Push Press","Handstand Push-up","Handstand Walk","Push-up","Burpee","Front Rack Hold"],
   drills:[["r_wristrock",D_.reps(1,10),"warms up the wrists for the front rack and pressing"],["a_bandrack",null,"lets the band pull the elbow up into a better rack position"]]},
- {moves:["Pull-up","Chest-to-bar Pull-up","Bar Muscle-up","Ring Muscle-up","Toes-to-bar","Rope Climb","Climbing"],
+ {moves:["Pull-up","Chest-to-bar Pull-up","Bar Muscle-up","Ring Muscle-up","Toes-to-bar","Rope Climb","Climbing","Ring Row","DB Row"],
   drills:[["r_bandw",D_.reps(1,12),"warms up the rotator cuff for high-rep pulling"],["a_extpull",D_.reps(1,12),"rehearses the lat pull-down of the kip with straight arms"],["r_scappull",D_.reps(1,6),"sets the shoulder blades before you hang and kip"]]},
  {moves:["Toes-to-bar","GHD Sit-up","Bar Muscle-up","Ring Muscle-up","Handstand Walk","Handstand Push-up","Pull-up","Chest-to-bar Pull-up"],
   drills:[["c_superman",D_.hold(1,20),"switches on the arch half of the kip"],["c_hollow",D_.hold(2,20),"locks in the hollow body every kip and handstand depends on"]]},
@@ -2888,11 +2919,11 @@ const MOVE_PREP=[
 ];
 const CORE_PREP=[["r_birddog",D_.rep(1,3,10,1),"Brace first, then move the limbs. Core stiffness before lifting protects the spine (McGill's Big Three)."],["r_sideplank",D_.rep(1,3,10,1),"Side-of-trunk stiffness for a stable spine under the bar (McGill's Big Three)."]];
 const END_RANGE={
- ankles:[["d_tibraise",D_.reps(2,15)],["d_heelsq",D_.reps(2,8,{tempo:[3,2,1]})],["r_goblethold",D_.rep(1,5,5)],["r_touchdown",D_.reps(2,8,{sides:1})],["r_bwsquat",D_.reps(2,10,{tempo:[3,2,1],note:"Heels down, pause at the bottom"})]],
+ ankles:[["r_goblethold",D_.rep(1,5,5)],["d_heelsq",D_.reps(2,8,{tempo:[3,2,1]})],["d_tibraise",D_.reps(2,15)],["r_touchdown",D_.reps(2,8,{sides:1})],["r_bwsquat",D_.reps(2,10,{tempo:[3,2,1],note:"Heels down, pause at the bottom"})]],
  hips:[["b_9090ir",D_.reps(2,8,{sides:1})],["d_atgsplit",D_.reps(2,8,{sides:1,tempo:[3,1,1]})],["r_goblethold",D_.rep(2,5,5)],["r_bwsquat",D_.reps(2,10,{tempo:[3,2,1],note:"Pause at the bottom"})],["r_copenhagen",D_.rep(1,6,5,1)],["r_slrdl",D_.reps(2,8,{sides:1,tempo:[3,1,1]})]],
- posterior:[["r_slrdl",D_.reps(2,8,{sides:1,tempo:[3,1,1]})],["c_backext",D_.reps(2,10)]],
+ posterior:[["r_slrdl",D_.reps(2,8,{sides:1,tempo:[3,1,1]})],["r_hinge",D_.reps(2,10,{tempo:[3,1,1]})],["c_backext",D_.reps(2,10)],["r_slbridge",D_.rep(2,8,5,1)]],
  thoracic:[["r_proneY",D_.reps(2,8)],["c_backext",D_.reps(2,10)],["r_row",D_.reps(2,10)]],
- shoulders:[["a_pullapart",D_.reps(2,15)],["r_ser",D_.reps(2,12,{sides:1,tempo:[1,0,3]})],["r_bandw",D_.reps(2,12)]],
+ shoulders:[["a_pullapart",D_.reps(2,15)],["r_ser",D_.reps(2,12,{sides:1,tempo:[1,0,3]})],["r_bandw",D_.reps(2,12)],["a_scappush",D_.reps(2,10)],["r_proneY",D_.reps(2,8)]],
  overhead:[["a_sots",D_.reps(2,6)],["a_wallserr",D_.reps(2,10)],["r_proneY",D_.reps(2,8)],["r_scappull",D_.reps(2,6)]],
 };
 // What an active Rebuild program changes in every protocol
@@ -2907,7 +2938,7 @@ const REHAB_HOOKS={
       shortpiri:{x:[],pre:[]},longpiri:{x:["h2","r_fig4"],pre:[["r_bandsquat",D_.hold(1,30)]]}},
  shoulder:{mobility:{x:[],pre:[]},stability:{x:["s3"],pre:[["r_bandw",D_.reps(1,12)]]},coordination:{x:[],pre:[["r_proneY",D_.reps(1,8)]]}},
  elbow:{lateral:{x:[],pre:[["r_wristiso",D_.hold(2,40)]]},medial:{x:[],pre:[["r_wristiso",D_.hold(2,40)]]}},
- achilles:{midportion:{x:["a1","a2","a3","a5","r_hops"],pre:[["r_calfiso",D_.hold(2,45,1)]]},insertional:{x:["a1","a2","a3","a5","r_hops"],pre:[["r_calfiso",D_.hold(2,45,1)]]}},
+ achilles:{midportion:{x:["a1","a2","a3","a4","a5","a6","d_ddcalf","g1_calfwall","r_hops"],pre:[["r_calfiso",D_.hold(2,45,1)]]},insertional:{x:["a1","a2","a3","a4","a5","a6","d_ddcalf","g1_calfwall","r_hops"],pre:[["r_calfiso",D_.hold(2,45,1)]]}},
 };
 function rehabHooks(){
   if(!S.rehab)return{x:new Set(),pre:[],name:""};
@@ -2922,21 +2953,32 @@ function itemSecs(it){
 }
 function pickMobility(o,ctx,budget,pool,state,relax){
   // timing like GOWOD: about a minute per exercise (a minute in total for alternating drills, ~30-45 s a side for one-sided holds)
-  const{need,flash}=ctx,holdFor=ex=>flash?(ex.sides?15:30):o.kind==="activate"?(ex.dyn?(ex.sides?30:60):30):o.kind==="recover"?(ex.sides?45:60):ex.hold;
-  const sc0=scores(),maxItems=o.kind==="activate"?Math.max(2,Math.round(o.minutes*.75)):99;
+  const{need,flash}=ctx,holdFor=ex=>flash?(ex.sides?15:30):o.kind==="activate"?(ex.dyn?(ex.sides?30:60):30):o.kind==="recover"?(o.minutes>=15?(ex.sides?60:75):(ex.sides?45:60)):ex.hold;
+  const sc0=scores(),maxItems=o.kind==="activate"?Math.max(2,Math.round(o.minutes*.75)):99,eqx=o.equip||[];
+  state.picks=state.picks||[];
   // sessions built around movements (before / after training) only use exercises whose MAIN target is a muscle those movements
   // actually load (no wrist mobs before squats, no toe stretch after pull-ups); daily and by-area sessions follow your profile
   const zd0=ctx.zd||{},byMove=(o.kind==="activate"||o.kind==="recover")&&Object.keys(zd0).length;
+  // positions you can't reach yet (Sots press at an overhead score of 42) are never picked automatically
+  pool=pool.filter(ex=>!ex.adv||(sc0[ex.adv]??70)>=60);
+  // by-area sessions: the main target has to be a muscle of that area (or of the area that usually limits it)
+  if(o.kind==="target")pool=pool.filter(ex=>(zd0[ex.z[0]]||0)>=.5);
   const full=pool;if(byMove&&!relax)pool=pool.filter(ex=>(zd0[ex.z[0]]||0)>=.35||(zd0[ex.z[1]]||0)>=.75);
-  // before training a static hold has to earn its place: only where your test shows you're tight
-  if(o.kind==="activate")pool=pool.filter(ex=>!ex.noPre).filter(ex=>ex.dyn||(sc0[ex.a]<60&&ex.z.some(z=>(ctx.zd[z]||0)>=.5)));
+  // before training a static hold has to earn its place: only where your test shows you're tight, and never lying or seated
+  if(o.kind==="activate")pool=pool.filter(ex=>!ex.noPre).filter(ex=>ex.dyn||(sc0[ex.a]<60&&posOf(ex)<=2&&ex.z.some(z=>(ctx.zd[z]||0)>=.5)));
   const cost=ex=>(ex.sides?2:1)*(holdFor(ex)+5)+1;
-  const zd=ctx.zd,recent=recentExercises(),zoneW=o.kind==="recover"?2.2:o.kind==="activate"?1.4:.3;
+  const zd=ctx.zd,recent=recentExercises(),zoneW=o.kind==="recover"?2.2:o.kind==="activate"?1.4:o.kind==="target"?1.2:.3;
   const zfit=ex=>(zd[ex.z[0]]||0)+.5*Math.max(0,...ex.z.slice(1).map(z=>zd[z]||0)); // main target counts most
   const score=new Map(pool.map(ex=>{let s=1+zoneW*zfit(ex);
-    if(o.kind==="activate")s+=ex.dyn?.9:-.3;
+    if(o.kind==="activate"){s+=ex.dyn?.9:-.3;const ps=posOf(ex);s+=ps<=1?.2:ps>=3?-.6:0}
     if(o.kind==="recover"&&ex.hold>=60)s+=.3;
+    // you told Range what you have: exercises that use it come first
+    if(ex.eq.length&&ex.eq.every(q=>eqx.includes(q)))s+=.35;
     s-=(recent.get(ex.id)||0)*.5;s+=.3*((S.helped||{})[ex.id]||0);s-=.35*Math.min(3,(S.swapped||{})[ex.id]||0);s+=Math.random()*.4;return[ex,s]}));
+  // variety: at most two exercises with the same main muscle per session, and one per family of near-identical stretches
+  // (a by-area session may use up to four for its own muscles; after / before training a muscle that was only lightly involved gets one)
+  const tz=o.kind==="target"?TARGET_ZONES[o.zone]||[]:[],zcapOf=z=>o.kind==="target"?(tz.includes(z)?4:2):byMove&&(zd0[z]||0)<.7?1:2;
+  const famHit=ex=>ex.fam&&state.picks.some(p=>p.fam&&p.fam.some(f=>ex.fam.includes(f))),zcount=z=>state.picks.filter(p=>p.z[0]===z).length;
   const areas=AREAS.filter(a=>need[a.k]>.05),total=areas.reduce((t,a)=>t+need[a.k],0)||1,alloc={},stat={},dead=new Set(),picked=[];let used=0;
   areas.forEach(a=>{alloc[a.k]=0;stat[a.k]=0});
   for(let g=0;g<80;g++){
@@ -2944,28 +2986,40 @@ function pickMobility(o,ctx,budget,pool,state,relax){
     const cand=areas.filter(a=>!dead.has(a.k)).sort((x,y)=>behind(x)-behind(y));
     if(!cand.length||picked.length>=maxItems)break;
     const area=cand[0].k;
-    const opts=pool.filter(ex=>ex.a===area&&!picked.includes(ex)&&!state.used.has(ex.id)&&used+cost(ex)<=budget+8
+    const opts=pool.filter(ex=>ex.a===area&&!picked.includes(ex)&&!state.used.has(ex.id)&&used+cost(ex)<=budget+8&&!famHit(ex)&&zcount(ex.z[0])<zcapOf(ex.z[0])
       // before training: at most 60 s of static stretching per area
       &&!(o.kind==="activate"&&!ex.dyn&&stat[area]>0)).sort((x,y)=>score.get(y)-score.get(x));
     if(!opts.length){dead.add(area);continue}
-    const cov=picked.map(p=>p.z[0]);opts.sort((x,y)=>(score.get(y)-.45*cov.filter(z=>z===y.z[0]).length)-(score.get(x)-.45*cov.filter(z=>z===x.z[0]).length));
-    const ex=opts[0];picked.push(ex);state.used.add(ex.id);used+=cost(ex);alloc[area]+=cost(ex);if(!ex.dyn)stat[area]+=holdFor(ex);
+    // a muscle already stretched (as main or second target) makes another stretch for it less attractive
+    const cov=state.picks.flatMap(p=>p.z.slice(0,2)),rcov=(state.rolled||[]).map(p=>p.z[0]),pen=ex=>.45*cov.filter(z=>z===ex.z[0]).length+.2*rcov.filter(z=>z===ex.z[0]).length;opts.sort((x,y)=>(score.get(y)-pen(y))-(score.get(x)-pen(x)));
+    const ex=opts[0];picked.push(ex);if(!ex.roll)state.picks.push(ex);state.used.add(ex.id);used+=cost(ex);alloc[area]+=cost(ex);if(!ex.dyn)stat[area]+=holdFor(ex);
   }
-  // area by area: static first, then an active drill in the new range; activate ends standing, others wind down
-  const rising=o.kind==="activate",byArea={};
-  picked.forEach(ex=>(byArea[ex.a]=byArea[ex.a]||[]).push(ex));
-  const pos=ex=>POSITION[ex.pose]??2,posOf=a=>byArea[a].reduce((t,ex)=>t+pos(ex),0)/byArea[a].length;
-  const order=Object.keys(byArea).sort((a,b)=>rising?posOf(b)-posOf(a):posOf(a)-posOf(b));
-  const out=[];order.forEach(a=>out.push(...byArea[a].sort((x,y)=>(x.dyn?1:0)-(y.dyn?1:0)||(rising?pos(y)-pos(x):pos(x)-pos(y)))));out.sort((x,y)=>(y.roll?1:0)-(x.roll?1:0));
+  // a muscle the session hit hard but nothing covers yet (grip after muscle-ups) gets one exercise, in place of a duplicate if needed
+  if(byMove&&!relax){const covered=z=>picked.some(p=>p.z.includes(z));
+    Object.keys(zd).filter(z=>zd[z]>=.7&&!covered(z)).sort((a,b)=>zd[b]-zd[a]).slice(0,2).forEach(z=>{
+      const c=pool.filter(ex=>ex.z[0]===z&&!ex.roll&&!picked.includes(ex)&&!state.used.has(ex.id)&&!famHit(ex)).sort((x,y)=>score.get(y)-score.get(x))[0];if(!c)return;
+      if(used+cost(c)>budget+8){const dz=picked.filter(p=>!p.roll&&(picked.filter(q=>q.z[0]===p.z[0]).length>1||(zd[p.z[0]]||0)<zd[z]-.2)).sort((a,b)=>(zd[a.z[0]]||0)-(zd[b.z[0]]||0)||score.get(a)-score.get(b))[0];if(!dz)return;
+        picked.splice(picked.indexOf(dz),1);const k=state.picks.indexOf(dz);if(k>=0)state.picks.splice(k,1);state.used.delete(dz.id);used-=cost(dz)}
+      if(used+cost(c)<=budget+8){picked.push(c);state.picks.push(c);state.used.add(c.id);used+=cost(c)}})}
+  // one direction only: before training floor first and finish standing, ready to lift; after, start standing and wind down to the floor
+  const rising=o.kind==="activate",ai=a=>AREAS.findIndex(x=>x.k===a);
+  const out=picked.map((ex,i)=>({ex,i})).sort((x,y)=>(y.ex.roll?1:0)-(x.ex.roll?1:0)||(rising?posOf(y.ex)-posOf(x.ex):posOf(x.ex)-posOf(y.ex))||ai(x.ex.a)-ai(y.ex.a)||(x.ex.dyn?1:0)-(y.ex.dyn?1:0)||x.i-y.i).map(x=>x.ex);
   const res={items:out.map(ex=>({id:ex.id,hold:holdFor(ex),why:whyFor(ex,o,ctx.moves,ctx.ctx,ctx.parts,zd)})),used};
   // movements that touch only a few muscles can leave a long session short: top it up from the wider pool
   if(byMove&&!relax&&used<budget*.8){const more=pickMobility(o,ctx,budget-used,full,state,true);res.items.push(...more.items);res.used+=more.used}
+  if(!relax&&res.items.length>1){const pz=it=>posOf(LIBI[it.id]),rl=it=>LIBI[it.id].roll?1:0;res.items=res.items.map((it,i)=>({it,i})).sort((x,y)=>rl(y.it)-rl(x.it)||(rising?pz(y.it)-pz(x.it):pz(x.it)-pz(y.it))||x.i-y.i).map(x=>x.it)}
+  // still short (few distinct exercises fit the rules): longer holds rather than more near-duplicates
+  if(!relax&&!flash&&res.items.length&&res.used<budget*.85){
+    const grow=res.items.filter(it=>o.kind!=="activate"||LIBI[it.id].dyn),gs=grow.reduce((t,it)=>t+(LIBI[it.id].sides?2:1)*it.hold,0);
+    if(gs>0){const f=Math.min(1.6,1+(budget*.95-res.used)/gs);grow.forEach(it=>{const nh=Math.round(it.hold*f/5)*5;res.used+=(LIBI[it.id].sides?2:1)*(nh-it.hold);it.hold=nh})}}
   return res;
 }
+function targetZd(zone){const m=Object.fromEntries((TARGET_ZONES[zone]||[]).map(z=>[z,1]));Object.values(TARGET_SUPPORT[zone]||{}).flat().forEach(z=>{if(!m[z])m[z]=.6});return m}
 function buildPlan(o){
-  const{need,parts,ctx}=analyze(o),flash=o.minutes===3,budget=o.minutes*60,moves=o.kind==="target"?[]:planMoves(o),zd=o.kind==="target"?Object.fromEntries((AREA_ZONES[o.zone]||[]).map(z=>[z,1])):normMap(zoneDemandOf(moves,o.mw));
+  const{need,parts,ctx}=analyze(o),flash=o.minutes===3,budget=o.minutes*60,moves=o.kind==="target"?[]:planMoves(o),zd=o.kind==="target"?targetZd(o.zone):normMap(zoneDemandOf(moves,o.mw));
   const hooks=rehabHooks(),state={used:new Set()},C={need,parts,ctx,flash,moves,zd};
-  const okEq=id=>LIBI[id]&&LIBI[id].eq.every(q=>o.equip.includes(q))&&!hooks.x.has(id);
+  const tooHard=id=>{const e=LIBI[id];return!!(e&&e.adv&&(ctx.sc[e.adv]??70)<60)};
+  const okEq=id=>LIBI[id]&&LIBI[id].eq.every(q=>o.equip.includes(q))&&!hooks.x.has(id)&&!tooHard(id);
   let pool=LIB.filter(ex=>!ex.rehab&&!ex.manual&&need[ex.a]>.05&&ex.eq.every(q=>o.equip.includes(q))&&!hooks.x.has(ex.id));
   const blocks=[];let left=budget;
   const add=(name,items)=>{if(!items.length)return;items.forEach(it=>{it.block=name;state.used.add(it.id)});blocks.push({name,items});left-=items.reduce((t,it)=>t+itemSecs(it),0)};
@@ -2973,41 +3027,52 @@ function buildPlan(o){
   const preRehab=()=>fit(hooks.pre.map(([id,dose])=>({id,dose,why:`Part of your ${hooks.name} program: isometric holds before training calm the area and let you lift with less pain.`})),flash?60:Math.min(left*.3,300));
   if(o.kind==="activate"){
     if(!flash)add("Rehab warm-up",preRehab());
+    let rollIt=[];
     if(!flash&&(o.equip.includes("roller")||o.equip.includes("ball"))){const rz=ex=>(zd[ex.z[0]]||0)+.5*Math.max(0,...ex.z.slice(1).map(z=>zd[z]||0));
-      add("Roll",fit(LIB.filter(ex=>ex.roll&&!ex.manual&&!ex.noPre&&okEq(ex.id)&&rz(ex)>.5).sort((a,b)=>rz(b)-rz(a)).map(ex=>({id:ex.id,hold:ex.sides?30:60,why:`A minute of rolling on the ${ZONES[ex.z[0]].toLowerCase()} first takes the edge off before you move them through range.`})).filter((it,i,a)=>a.findIndex(x=>LIBI[x.id].z[0]===LIBI[it.id].z[0])===i),left*.2).slice(0,o.minutes>=15?2:1))}
+      rollIt=(fit(LIB.filter(ex=>ex.roll&&!ex.manual&&!ex.noPre&&okEq(ex.id)&&rz(ex)>.5).sort((a,b)=>rz(b)-rz(a)).map(ex=>({id:ex.id,hold:ex.sides?30:60,why:`A minute of rolling on the ${ZONES[ex.z[0]].toLowerCase()} first takes the edge off before you move them through range.`})).filter((it,i,a)=>a.findIndex(x=>LIBI[x.id].z[0]===LIBI[it.id].z[0])===i),left*.2).slice(0,o.minutes>=15?2:1).sort((a,b)=>posOf(LIBI[b.id])-posOf(LIBI[a.id])));
+      rollIt.forEach(it=>{it.block="Roll";state.used.add(it.id);left-=itemSecs(it)})}
     // hinge-heavy days get the bird dog, everything else the side plank
     const hingeDay=moves.slice(0,3).some(m=>["Deadlift","Romanian Deadlift","Kettlebell Swing","Power Clean"].includes(m));
     const core=o.minutes>=15?[CORE_PREP[hingeDay?0:1]].map(([id,dose,why])=>({id,dose,why})):[];
     // groups ranked by how much of the session they cover, main lifts (listed first) counting most
     const rel=p=>moves.reduce((t,m,i)=>t+(p.moves.includes(m)?1/(1+i*.5):0),0);
     const groups=MOVE_PREP.filter(p=>rel(p)>0).sort((a,b)=>rel(b)-rel(a));
-    const cap=flash?2:o.minutes<=10?3:o.minutes<=15?4:6,prep=[];
-    // with more time, the second-ranked groups get their second drill too
-    if(o.minutes>=15)groups.forEach((g,gi)=>{if(gi>0)g._two=1});
-    groups.forEach((g,gi)=>{delete g._two});groups.forEach((g,gi)=>{if(o.minutes>=15&&gi>0)g._two=1});
+    const cap=flash?2:o.minutes<=10?3:o.minutes<=15?4:6;
+    // breadth first: the rehearsal of the main lift, then one drill for each other movement group, then second drills
+    // (a C&J warm-up gets an overhead drill before a second squat drill)
+    const passes=[[],[]];
     groups.forEach((g,gi)=>{const m=moves.find(x=>g.moves.includes(x));
-      // the top group's most specific drill (its last one) is the rehearsal of the main lift
       const ok=g.drills.filter(([id])=>okEq(id)),ds=gi===0&&ok.length>1?[ok[ok.length-1],ok[0]]:ok;
-      ds.slice(0,gi===0||g._two?2:1).forEach(([id,dose,why])=>prep.push({id,...(dose?{dose}:{hold:30}),why:`${m}: this ${why}.`,rank:gi}))});
-    const chosen=[...core,...prep].filter((it,i,a)=>a.findIndex(x=>x.id===it.id)===i).slice(0,cap+core.length);
-    // order: trunk first, then supporting drills, the rehearsal of the main lift last
-    chosen.sort((a,b)=>(a.rank??-1)===(b.rank??-1)?0:(b.rank??99)-(a.rank??99));
-    const main=chosen.filter(x=>x.rank===0),rest=chosen.filter(x=>x.rank!==0);
-    // drills first (they're the point of the session), then mobility fills the rest of the time
-    // fit by priority (the main-lift rehearsal is the last thing to drop), then show in session order
-    const prio=[...main.slice().reverse(),...rest.filter(x=>x.rank==null),...rest.filter(x=>x.rank!=null)];
-    const kept=new Set(fit(prio,Math.max(0,left*(flash?.4:.5))).map(x=>x.id));
-    const act=[...rest.filter(x=>x.rank==null),...rest.filter(x=>x.rank!=null),...main.reverse()].filter(x=>kept.has(x.id));
-    act.forEach(it=>state.used.add(it.id));
+      ds.slice(0,2).forEach(([id,dose,why],k)=>passes[k].push({id,...(dose?{dose}:{hold:30}),why:`${m}: this ${why}.`,rank:gi,main:gi===0&&k===0}))});
+    const prep=[...passes[0],...passes[1]].filter((it,i,a)=>a.findIndex(x=>x.id===it.id)===i);
+    const mainIt=prep.filter(x=>x.main),others=prep.filter(x=>!x.main);
+    // fit by priority: the main-lift rehearsal is the last thing to drop, then the trunk, then the other drills
+    const prio=[...mainIt,...core,...others].slice(0,cap+core.length);
+    const kept=fit(prio,Math.max(0,left*(flash?.4:.5)));
+    // shown floor first and standing last, with the rehearsal of the main lift at the very end
+    const act=kept.map((it,i)=>({it,i})).sort((a,b)=>(a.it.main?1:0)-(b.it.main?1:0)||posOf(LIBI[b.it.id])-posOf(LIBI[a.it.id])||a.i-b.i).map(x=>x.it);
+    act.forEach(it=>{state.used.add(it.id);delete it.main;delete it.rank;const e=LIBI[it.id];if(e&&!e.rehab)(state.picks=state.picks||[]).push(e)});
     const actSecs=act.reduce((t,it)=>t+itemSecs(it),0);
     const mob=pickMobility({...o,minutes:o.minutes*(left-actSecs)/(left*.55)},C,Math.max(60,left-actSecs),pool.filter(ex=>!ex.roll),state);
-    add("Mobilise",mob.items);add("Activate",act);
+    // one trip down and one trip up: floor mobility, floor activation, then standing mobility and standing activation
+    const low=it=>posOf(LIBI[it.id])>=2,mF=mob.items.filter(low),mS=mob.items.filter(it=>!low(it)),aF=act.filter(low),aS=act.filter(it=>!low(it));
+    // rolling you do against a wall goes with the standing part
+    const rF=rollIt.filter(low),rS=rollIt.filter(it=>!low(it)),addR=l=>{if(l.length)blocks.push({name:"Roll",items:l})};
+    if(aF.length&&mS.length){addR(rF);add("Floor: mobilise",mF);add("Floor: activate",aF);addR(rS);add("Standing: mobilise",mS);add("Standing: activate",aS)}
+    else if(rS.length&&rF.length===0&&mob.items.some(low)){add("Mobilise",mob.items.filter(low));addR(rS);add("Mobilise · standing",mob.items.filter(it=>!low(it)));add("Activate",act)}
+    else{addR(rollIt);add("Mobilise",mob.items);add("Activate",act)}
   }else if(o.kind==="recover"){
     // with a foam roller: self-massage the muscles you just worked first, then the long holds
     if(!flash&&(o.equip.includes("roller")||o.equip.includes("ball"))){
-      const rel=LIB.filter(ex=>(ex.roll||ex.eq.includes("roller"))&&ex.eq.every(q=>o.equip.includes(q))&&!ex.rehab&&!ex.manual&&!hooks.x.has(ex.id)).map(ex=>({ex,s:(zd[ex.z[0]]||0)+.5*Math.max(0,...ex.z.slice(1).map(z=>zd[z]||0))+.5*(need[ex.a]||0)})).filter(x=>x.s>.4).sort((a,b)=>b.s-a.s)
-        .map(({ex})=>({id:ex.id,hold:ex.sides?30:60,why:`Rolling first: slow pressure on the ${ex.z.map(z=>ZONES[z].toLowerCase()).join(" and ")} you just worked eases tension, so the long holds that follow go deeper.`}));
-      add("Release",fit(rel.filter((it,i,a)=>a.findIndex(x=>LIBI[x.id].z[0]===LIBI[it.id].z[0])===i),left*.3).slice(0,o.minutes>=15?3:2));
+      const rel=LIB.filter(ex=>(ex.roll||ex.eq.includes("roller"))&&ex.eq.every(q=>o.equip.includes(q))&&!ex.rehab&&!ex.manual&&!hooks.x.has(ex.id)&&ex.z[0]!=="lowback").map(ex=>({ex,s:(zd[ex.z[0]]||0)+.5*Math.max(0,...ex.z.slice(1).map(z=>zd[z]||0))+.5*(need[ex.a]||0)+(ex.eq.includes("ball")?.15:0)})).filter(x=>x.s>.4).sort((a,b)=>b.s-a.s)
+        .map(({ex,s})=>({id:ex.id,_s:s,hold:ex.sides?30:60,why:`Rolling first: slow pressure on the ${ex.z.map(z=>ZONES[z].toLowerCase()).join(" and ")} you just worked eases tension, so the long holds that follow go deeper.`}));
+      let rl=fit(rel.filter((it,i,a)=>a.findIndex(x=>LIBI[x.id].z[0]===LIBI[it.id].z[0])===i),left*.3).slice(0,o.minutes>=15?3:2);
+      // you said you have a massage ball: use it for one spot if it suits what you trained
+      if(o.equip.includes("ball")&&rl.length>1&&!rl.some(it=>LIBI[it.id].eq.includes("ball"))){const b=rel.find(it=>LIBI[it.id].eq.includes("ball")&&!rl.some(x=>LIBI[x.id].z[0]===LIBI[it.id].z[0])&&(zd[LIBI[it.id].z[0]]||0)>.2);
+        // only in place of a roll that matters about as little (never instead of the calves after a run)
+        const lo=rl.reduce((m,it,i)=>it._s<rl[m]._s?i:m,0);if(b&&b._s>=rl[lo]._s*.8)rl[lo]=b;else if(b&&o.minutes>=10&&rl.length<4)rl.push(b)}
+      rl.forEach(it=>delete it._s);
+      add("Release",rl);state.rolled=rl.map(it=>LIBI[it.id]);
     }
     pool=pool.filter(ex=>(!ex.dyn||ex.post)&&!ex.roll);add("Long holds",pickMobility(o,C,left,pool,state).items);
   }else if(o.kind==="daily"){
@@ -3018,15 +3083,19 @@ function buildPlan(o){
       add("Strength at end range",fit(str,left));
     }
   }else{
-    if(!flash&&(o.equip.includes("roller")||o.equip.includes("ball"))){const az=AREA_ZONES[o.zone]||[],w=z=>az.indexOf(z)<0?0:az.indexOf(z)?.75:1,rz=new Map(LIB.map(ex=>[ex,w(ex.z[0])+.5*Math.max(0,...ex.z.slice(1).map(w))+Math.random()*.1]));
+    if(!flash&&(o.equip.includes("roller")||o.equip.includes("ball"))){const az=TARGET_ZONES[o.zone]||[],w=z=>az.indexOf(z)<0?0:az.indexOf(z)?.75:1,rz=new Map(LIB.map(ex=>[ex,w(ex.z[0])+.5*Math.max(0,...ex.z.slice(1).map(w))+Math.random()*.1]));
       add("Roll",fit(LIB.filter(ex=>ex.roll&&!ex.manual&&okEq(ex.id)&&rz.get(ex)>=.75).sort((a,b)=>rz.get(b)-rz.get(a)).map(ex=>({id:ex.id,hold:ex.sides?30:60,why:`A minute of rolling on the ${ZONES[ex.z[0]].toLowerCase()} first takes the edge off before you stretch them.`})),left*.2).slice(0,1));
       pool=pool.filter(ex=>!ex.roll)}
-    const mob=pickMobility(o,C,left*(flash?1:.7),pool,state);
+    // the strength finisher is chosen first, so the stretching gets whatever time it leaves (all of it when nothing fits your kit)
+    const lock=flash?[]:fit((END_RANGE[o.zone]||[]).map(([id,dose])=>({id,dose,why:`Use the range you just opened under load, so it carries into your lifts.`})),left*.3).slice(0,2);
+    lock.forEach(it=>state.used.add(it.id));
+    const cap=left-lock.reduce((t,it)=>t+itemSecs(it),0),mob=pickMobility(o,C,cap,pool,state);
     // a zone with few stretches: repeat them as rounds instead of ending early
-    let items=mob.items.slice(),used=mob.used,round=2;const cap=left*(flash?1:.7);
-    while(items.length&&round<=4){const nx=mob.items.filter(it=>{const c=itemSecs(it);if(used+c>cap+8)return false;used+=c;return true});if(!nx.length)break;nx.forEach(it=>items.push({...it,why:`Round ${round}. Repeating builds more range than one long hold.`}));round++}
+    let items=mob.items.slice(),used=mob.used,round=2;
+    // only when the area has very few distinct exercises: otherwise longer holds already fill the time
+    while(items.length&&(items.length<4||used<cap*.8)&&round<=4){const nx=mob.items.filter(it=>{const c=itemSecs(it);if(used+c>cap+8)return false;used+=c;return true});if(!nx.length)break;nx.forEach(it=>items.push({...it,why:`Round ${round}. Repeating builds more range than one long hold.`}));round++}
     add("Mobility",items);
-    if(!flash)add("Lock it in",fit((END_RANGE[o.zone]||[]).map(([id,dose])=>({id,dose,why:`Use the range you just opened under load, so it carries into your lifts.`})),left));
+    add("Lock it in",lock);
     if(left>75){const more=pickMobility(o,C,left,pool,state).items;if(more.length)blocks.find(b=>b.name==="Mobility").items.push(...more.map(it=>(it.block="Mobility",state.used.add(it.id),it)));left-=more.reduce((t,it)=>t+itemSecs(it),0)}
   }
   const items=blocks.flatMap(b=>b.items);
@@ -3073,6 +3142,9 @@ const ALIASES=[
  ["DB Row",/\b(?:db|dumbbell|trap|kb|single[- ]arm|bent[ -]over|chest[ -]supported|seal)\b[^\n]{0,24}\brows?\b/],
  ["Sandbag Lunges",/sandbag lunges?/],
  ["Lunges",/lunges?/],
+ ["Goblet Squat",/goblet squats?/],
+ ["Air Squat",/air squats?|bodyweight squats?|\bair sq\b/],
+ ["Ring Row",/ring rows?|inverted rows?|\btrx rows?/],
  ["Burpee",/burpees?/],
  ["Double-unders",/double[- ]?unders?|\bdus\b/],
  ["Rowing",/(?<!(?:db|dumbbell|trap|barbell|bb|over|ring|upright|pendlay|kb|cable|seal|inverted|supported|single[- ]arm)\s)\brow(ing)?\b|rower/],
@@ -3459,11 +3531,63 @@ const PAIN_OK=3;             // pain during a session up to 3/10 is fine (Rebuil
 const PAIN_STOP=5;           // above 5/10 the session was too much (Silbernagel pain-monitoring model)
 const dayMs=864e5;
 function rbPhases(R,cls){return(R.phasesBy&&R.phasesBy[cls])||R.phases}
+// Never in front of that problem, whatever a phase lists: lying on (or leaning into) a painful shoulder;
+// end-range calf and ankle stretching on an irritated Achilles
+const RB_AVOID={shoulder:["t1","t2","s1","w_pronepec","w_cuffsmash","w_pnfer"],achilles:["a1","a2","a3","a4","a5","a6","d_ddcalf","g1_calfwall","e2_bigtoe"]};
+// Class-specific replacements: [new id, dose, what to tell the athlete]
+const RB_SWAP={back:{flexion:{t4:["c_cobra",D_.rep(1,8,3),"In place of cat-cow: your back is happier arching than rounding, so gentle press-ups replace full spinal rounding for now."]},
+  extension:{t4:["t4",D_.rep(1,6,3),"Small range only: stop well short of a full arch."]}}};
+// What a second screen finding adds in phase 1 (e.g. the arm collapsed on the external-rotation test but the main problem is mobility)
+const RB_ALSO={shoulder:{stability:[["r_bandw",D_.reps(2,15)],["r_ser",D_.reps(2,12,{sides:1,tempo:[1,0,3]})]]}};
+const rbMinutes=()=>(S.rehab&&S.rehab.minutes)||20;
+function rbShrink(d,ex){
+  if(d.k==="time")return d.secs>300?{...d,secs:Math.max(300,d.secs-180)}:null;
+  if(d.k==="pyramid"){const L=["6,4,2","5,3,1","4,2,1","3,2,1"],i=L.indexOf(d.reps.join());return i>=0&&i<L.length-1?{...d,reps:L[i+1].split(",").map(Number)}:null}
+  if(d.k==="hold")return d.sets>(ex&&ex.rehab?3:1)?{...d,sets:d.sets-1}:null; // isometrics keep 3 sets, stretches can go to 1
+  if(d.k==="rephold")return d.sets>1?{...d,sets:d.sets-1}:d.reps>6?{...d,reps:Math.max(6,d.reps-4)}:null;
+  if(d.k==="reps")return d.sets>2?{...d,sets:d.sets-1}:null;
+  return null;
+}
+function rbAlt(id,items,avoid){const ex=LIBI[id];if(!ex)return null;
+  return LIB.filter(e=>e.id!==id&&!e.custom&&!e.manual&&!e.roll&&e.z[0]===ex.z[0]&&(e.a===ex.a||(!!e.rehab&&!!ex.rehab))&&e.eq.every(q=>S.equip.includes(q))&&!avoid.has(e.id)&&!items.some(it=>it.id===e.id))
+    .sort((a,b)=>(b.eq.length?1:0)-(a.eq.length?1:0)||(!!b.dyn===!!ex.dyn)-(!!a.dyn===!!ex.dyn))[0]||null}
 function rbItems(){
   const st=S.rehab,R=REGIONS[st.region],ph=rbPhases(R,st.cls)[st.phase];
   const weeks=Math.floor((Date.now()-st.phaseStart)/(7*dayMs));
-  let items=ph.items.map(([id,dose])=>({id,dose,reps:dose.hsr?HSR[Math.min(weeks,HSR.length-1)]:undefined}));
-  if(st.phase===0&&R.extraBy&&R.extraBy[st.cls])items=items.concat(R.extraBy[st.cls].map(([id,dose])=>({id,dose})));
+  let items=ph.items.map(([id,dose,note])=>({id,dose,note,reps:dose.hsr?HSR[Math.min(weeks,HSR.length-1)]:undefined}));
+  if(st.phase===0&&R.extraBy&&R.extraBy[st.cls])items=items.concat(R.extraBy[st.cls].map(([id,dose])=>({id,dose,extra:1})));
+  // a second finding from the screen
+  const also=(RB_ALSO[st.region]||{});if(st.phase===0)for(const k in also)if(k!==st.cls&&((st.votes||{})[k]||0)>=2){const a=also[k].find(([id])=>LIBI[id]&&LIBI[id].eq.every(q=>S.equip.includes(q)));
+    if(a&&!items.some(it=>it.id===a[0]))items.push({id:a[0],dose:a[1],key:1,note:`Your screen also showed ${R.classes[k].n.toLowerCase()} weakness, so this starts now rather than in a later phase.`})}
+  const avoid=new Set([...(RB_AVOID[st.region]||[]),...(((REHAB_HOOKS[st.region]||{})[st.cls]||{}).x||[])]);
+  const sw=(RB_SWAP[st.region]||{})[st.cls]||{},out=[];
+  items.forEach(it=>{
+    if(sw[it.id]){const[id,dose,note]=sw[it.id];it={...it,id,dose,note}}
+    const e=LIBI[it.id];if(!e)return;
+    // equipment you don't have, or a position this problem shouldn't be in: the closest exercise that fits, else leave it out
+    if(avoid.has(it.id)||!e.eq.every(q=>S.equip.includes(q))){const alt=rbAlt(it.id,items.concat(out),avoid);if(!alt)return;
+      it={...it,id:alt.id,dose:{...it.dose,sides:!!alt.sides||(alt.rehab&&it.dose.sides)},note:`In place of ${e.n.toLowerCase()} (${avoid.has(e.id)?"not a good position for this problem":"needs "+e.eq.filter(q=>!S.equip.includes(q)).map(q=>EQUIP.find(x=>x.k===q).n.toLowerCase()).join(" and ")}).`}}
+    if(!out.some(x=>x.id===it.id))out.push(it)});
+  items=out;
+  // fit the session length you picked: trim the biggest dose a step at a time (McGill's 6-4-2 becomes 5-3-1, then 3-2-1;
+  // isometrics keep at least 3 sets), and only then move the walk out of the session
+  const budget=rbMinutes()*60,tot=()=>items.reduce((t,it)=>t+itemSecs(it),0),later=[];
+  for(let g=0;g<80&&tot()>budget+30;g++){
+    const c=items.map(it=>({it,s:itemSecs(it),n:rbShrink(it.dose,LIBI[it.id])})).filter(x=>x.n).sort((a,b)=>b.s-a.s)[0];
+    if(c){c.it.dose=c.n;continue}
+    if(items.length<=2)break;
+    // what goes first: the walk, then stretches beyond the first two, then extras, and the strength work last
+    const st2=items.map((it,i)=>({it,i})).filter(x=>!LIBI[x.it.id].rehab),drop=items.findIndex(it=>it.dose.k==="time");
+    const j=drop>=0?drop:st2.length>2?st2[st2.length-1].i:items.findIndex(it=>it.extra)>=0?items.findIndex(it=>it.extra):(()=>{for(let k=items.length-1;k>=0;k--)if(!items[k].key)return k;return items.length-1})();
+    later.push(items.splice(j,1)[0]);
+  }
+  const sideN=st.side==="left"||st.side==="right"?st.side:null;
+  items.forEach((it,i)=>{const e=LIBI[it.id];let w=it.note?it.note+" ":"";
+    w+=doseText(it)+".";
+    if(sideN&&it.dose.sides)w+=` Start with your ${sideN} side, the sore one, then match it on the other side.`;
+    if(i===0)w+=` ${sideN&&!it.dose.sides?`Your ${sideN} side is the sore one. `:""}Pain up to ${PAIN_OK}/10 is fine if it settles by the next morning.`;
+    it.why=w});
+  if(later.length&&items.length)items[items.length-1].why+=` Also today, outside this ${rbMinutes()}-minute session: ${later.map(it=>`${LIBI[it.id].n.toLowerCase()} (${doseText(it)})`).join(", ")}.`;
   return items;
 }
 function painGrid(act,sel){return`<div class="painrow">${Array.from({length:11},(_,i)=>`<button class="pain${sel===i?" on":""} p${i<=PAIN_OK?"lo":i<=PAIN_STOP?"mid":"hi"}" data-act="${act}" data-v="${i}" aria-label="${i} out of 10">${i}</button>`).join("")}</div><div class="painlbl"><span>No pain</span><span>Worst imaginable</span></div>`}
@@ -3531,6 +3655,7 @@ SCREENS.rebuild=()=>{
       <p class="muted" style="margin:0;font-size:14px"><b>And:</b> ${esc(ph.exit)}</p>
       ${g.timeOk&&g.painOk?"":`<p style="margin:0;font-size:14px">Earliest: <b>${g.earliest.toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short"})}</b>, if every session stays at ${PAIN_OK}/10 or lower. A session above that restarts the count.</p><button class="link muted" style="justify-self:start" data-act="rbForce">My physio cleared me to move on</button>`}</div>`})()}
    <div class="panel"><span class="eyebrow">Phase ${st.phase+1} · ${esc(ph.freq)}</span><h3>${esc(ph.goal)}</h3>
+    <div class="chipset" role="group" aria-label="Session length">${[10,15,20,30].map(m=>`<button class="chip ${rbMinutes()===m?"on":""}" data-act="rbMin" data-m="${m}" aria-pressed="${rbMinutes()===m}">${m} min</button>`).join("")}</div>
     <div class="rxlist">${items.map(it=>{const e=LIBI[it.id];return`<button class="rx" data-act="openEx" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><span><b>${esc(e.n)}</b><small>${esc(doseText(it))}</small></span></button>`}).join("")}</div>
     <button class="btn" data-act="rbStart">${icf("play")}Start today's session</button>
     </div>
@@ -3597,7 +3722,8 @@ SCREENS.rbresult=()=>{
    <div class="panel"><h3>For now, do</h3><ul class="tick">${C.habits.map(h=>`<li>${esc(h)}</li>`).join("")}</ul><h3>For now, avoid</h3><ul class="cross">${C.avoid.map(h=>`<li>${esc(h)}</li>`).join("")}</ul></div>
   </div><div class="bottomcta"><button class="btn" data-act="rbBegin">Start this program</button></div>`;
 };
-ACT.rbBegin=()=>{const now=Date.now();S.rehab={region:RB.r,cls:RB.result.cls,side:RB.result.side||null,phase:0,started:now,phaseStart:now,logs:[],notes:RB.result.notes};save();stack=[{name:"rebuild",p:{}}];render();scrollTo(0,0)};
+ACT.rbMin=d=>{if(!S.rehab)return;S.rehab.minutes=+d.m;save();render()};
+ACT.rbBegin=()=>{const now=Date.now();S.rehab={region:RB.r,cls:RB.result.cls,side:RB.result.side||null,votes:RB.result.votes||{},minutes:(S.rehab&&S.rehab.minutes)||20,phase:0,started:now,phaseStart:now,logs:[],notes:RB.result.notes};save();stack=[{name:"rebuild",p:{}}];render();scrollTo(0,0)};
 ACT.rbNext=()=>{S.rehab.phase++;S.rehab.phaseStart=Date.now();save();render()};
 ACT.rbEnd=()=>sheet(`<h3>End this program?</h3><div class="scroll"><p class="muted" style="margin:0">Your pain log for this program will be deleted.</p></div><div style="display:grid;gap:8px"><button class="btn" style="background:var(--bad)" data-act="rbEndYes">End program</button><button class="btn sec" data-act="closeSheet">Keep going</button></div>`);
 ACT.rbEndYes=()=>{S.rehab=null;save();closeSheet();render()};
