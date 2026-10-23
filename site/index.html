@@ -2925,14 +2925,20 @@ function itemSecs(it){
   const d=it.dose,repSecs=d.tempo?d.tempo[0]+d.tempo[1]+d.tempo[2]:3;
   return segsFor(it,1).reduce((t,s)=>t+(s.type==="set"?s.reps*repSecs:s.type==="ready"?s.secs:s.hold),0);
 }
-function pickMobility(o,ctx,budget,pool,state){
-  const{need,flash}=ctx,holdFor=ex=>flash?30:o.kind==="activate"?(ex.dyn?(o.minutes>=10?60:45):30):o.kind==="recover"?Math.max(ex.hold,60):ex.hold;
-  const sc0=scores(),maxItems=o.kind==="activate"?Math.max(2,Math.round(o.minutes*.4)):99;
+function pickMobility(o,ctx,budget,pool,state,relax){
+  // timing like GOWOD: about a minute per exercise (a minute in total for alternating drills, ~30-45 s a side for one-sided holds)
+  const{need,flash}=ctx,holdFor=ex=>flash?30:o.kind==="activate"?(ex.dyn?(ex.sides?30:60):30):o.kind==="recover"?(ex.sides?45:60):ex.hold;
+  const sc0=scores(),maxItems=o.kind==="activate"?Math.max(2,Math.round(o.minutes*.75)):99;
+  // sessions built around movements (before / after training) only use exercises whose MAIN target is a muscle those movements
+  // actually load (no wrist mobs before squats, no toe stretch after pull-ups); daily and by-area sessions follow your profile
+  const zd0=ctx.zd||{},byMove=(o.kind==="activate"||o.kind==="recover")&&Object.keys(zd0).length;
+  const full=pool;if(byMove&&!relax)pool=pool.filter(ex=>(zd0[ex.z[0]]||0)>=.35||Math.max(0,...ex.z.map(z=>zd0[z]||0))>=.75);
   // before training a static hold has to earn its place: only where your test shows you're tight
   if(o.kind==="activate")pool=pool.filter(ex=>!ex.noPre).filter(ex=>ex.dyn||(sc0[ex.a]<60&&ex.z.some(z=>(ctx.zd[z]||0)>=.5)));
   const cost=ex=>(ex.sides?2:1)*(holdFor(ex)+5)+1;
   const zd=ctx.zd,recent=recentExercises(),zoneW=o.kind==="recover"?2.2:o.kind==="activate"?1.4:.3;
-  const score=new Map(pool.map(ex=>{let s=1+zoneW*ex.z.reduce((t,z)=>Math.max(t,zd[z]||0),0);
+  const zfit=ex=>(zd[ex.z[0]]||0)+.5*Math.max(0,...ex.z.slice(1).map(z=>zd[z]||0)); // main target counts most
+  const score=new Map(pool.map(ex=>{let s=1+zoneW*zfit(ex);
     if(o.kind==="activate")s+=ex.dyn?.9:-.3;
     if(o.kind==="recover"&&ex.hold>=60)s+=.3;
     s-=(recent.get(ex.id)||0)*.5;s+=.3*((S.helped||{})[ex.id]||0);s-=.35*Math.min(3,(S.swapped||{})[ex.id]||0);s+=Math.random()*.4;return[ex,s]}));
@@ -2955,7 +2961,10 @@ function pickMobility(o,ctx,budget,pool,state){
   const pos=ex=>POSITION[ex.pose]??2,posOf=a=>byArea[a].reduce((t,ex)=>t+pos(ex),0)/byArea[a].length;
   const order=Object.keys(byArea).sort((a,b)=>rising?posOf(b)-posOf(a):posOf(a)-posOf(b));
   const out=[];order.forEach(a=>out.push(...byArea[a].sort((x,y)=>(x.dyn?1:0)-(y.dyn?1:0)||(rising?pos(y)-pos(x):pos(x)-pos(y)))));
-  return{items:out.map(ex=>({id:ex.id,hold:holdFor(ex),why:whyFor(ex,o,ctx.moves,ctx.ctx,ctx.parts,zd)})),used};
+  const res={items:out.map(ex=>({id:ex.id,hold:holdFor(ex),why:whyFor(ex,o,ctx.moves,ctx.ctx,ctx.parts,zd)})),used};
+  // movements that touch only a few muscles can leave a long session short: top it up from the wider pool
+  if(byMove&&!relax&&used<budget*.8){const more=pickMobility(o,ctx,budget-used,full,state,true);res.items.push(...more.items);res.used+=more.used}
+  return res;
 }
 function buildPlan(o){
   const{need,parts,ctx}=analyze(o),flash=o.minutes===3,budget=o.minutes*60,moves=planMoves(o),zd=normMap(zoneDemandOf(moves,o.mw));
@@ -2999,7 +3008,7 @@ function buildPlan(o){
     // with a foam roller: self-massage the muscles you just worked first, then the long holds
     if(!flash&&(o.equip.includes("roller")||o.equip.includes("ball"))){
       const rel=LIB.filter(ex=>(ex.roll||ex.eq.includes("roller"))&&ex.eq.every(q=>o.equip.includes(q))&&!ex.rehab&&!hooks.x.has(ex.id)).map(ex=>({ex,s:ex.z.reduce((t,z)=>t+(zd[z]||0),0)+(need[ex.a]||0)})).filter(x=>x.s>.4).sort((a,b)=>b.s-a.s)
-        .slice(0,o.minutes>=15?3:2).map(({ex})=>({id:ex.id,hold:60,why:`Rolling first: slow pressure on the ${ex.z.map(z=>ZONES[z].toLowerCase()).join(" and ")} you just worked eases tension, so the long holds that follow go deeper.`}));
+        .slice(0,o.minutes>=15?3:2).map(({ex})=>({id:ex.id,hold:ex.sides?45:60,why:`Rolling first: slow pressure on the ${ex.z.map(z=>ZONES[z].toLowerCase()).join(" and ")} you just worked eases tension, so the long holds that follow go deeper.`}));
       add("Release",fit(rel,left*.3));
     }
     pool=pool.filter(ex=>!ex.dyn||ex.roll);add("Long holds",pickMobility(o,C,left,pool,state).items);
