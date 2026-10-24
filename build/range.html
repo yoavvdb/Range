@@ -530,6 +530,7 @@ let S={scores:null,tests:[],sessions:[],sports:["crossfit"],equip:EQUIP.map(e=>e
 const S_FRESH=JSON.stringify(S); // a new person's starting state (account mode)
 // account mode: when the Range server hosts the app it sets window.RANGE_API (each person signs in and connects their own platforms)
 const API=typeof window.RANGE_API==="string"?window.RANGE_API:null;let ACCOUNT=null;
+let SB=null,SBU=null,sbTimer=null,sbErr=""; // Range accounts (Supabase), see "Range accounts" below
 // GitHub backup settings: kept on this device only, never inside your data (so the token never ends up in a backup)
 let BK=(()=>{try{return JSON.parse(localStorage.getItem("range-backup-cfg")||"null")}catch(e){return null}})(),bkTimer=null,bkDirty=false;
 try{const r=localStorage.getItem(KEY);if(r){const o=JSON.parse(r);S=Object.assign(S,o);S.settings=Object.assign({sound:true,voice:false,easy:false,ready:10},o.settings||{})}}catch(e){}
@@ -554,7 +555,7 @@ function errToast(){
 addEventListener("error",e=>{noteError(e.error||e.message,"page");errToast()});
 addEventListener("unhandledrejection",e=>{noteError(e.reason,"promise");errToast()});
 function applyFigStyle(){document.documentElement.dataset.fig=(S.settings&&S.settings.figStyle)||"gymkit"}
-function save(){S._upd=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(API&&ACCOUNT)acctSave();if(BK&&!API){bkDirty=true;clearTimeout(bkTimer);bkTimer=setTimeout(()=>backupNow().catch(bkFail),45e3)}}
+function save(){S._upd=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(API&&ACCOUNT)acctSave();if(SBU)sbSave();if(BK&&!API){bkDirty=true;clearTimeout(bkTimer);bkTimer=setTimeout(()=>backupNow().catch(bkFail),45e3)}}
 const scores=()=>S.scores||EXAMPLE;
 
 /* ================= helpers ================= */
@@ -3972,7 +3973,7 @@ SCREENS.profile=()=>{
     <button class="toggle" data-act="set3d"><span>3D demos <small class="muted">(drag to turn)</small></span><span class="sw ${S.settings.fig3d!==false?"on":""}"></span></button>
     <div class="toggle" style="border:0"><span>Get-ready countdown</span><span class="chipset">${[5,10,15].map(v=>`<button class="chip ${S.settings.ready===v?"on":""}" data-act="setReady" data-v="${v}">${v}s</button>`).join("")}</span></div>
   </div>
-  ${API?acctPanel():""}
+  ${API?acctPanel():sbPanel()}
   ${notifPanel()}
   ${API?"":`<div class="panel"><h3>Your data</h3>${bkRow()}<p class="muted" style="margin:0;font-size:14px">Or move it by hand: copy it here and paste it in Range on another phone.</p>
     <div class="frow"><button class="btn sec" style="flex:1" data-act="copyData">Copy my data</button><button class="btn sec" style="flex:1" data-act="pasteData">Paste data</button></div>
@@ -4290,7 +4291,65 @@ ACT.applyPaste=()=>{
     S=Object.assign(S,j.data);save();closeSheet();render()}
   catch(e){$("#pasteMsg").textContent="That isn't Range data. Copy it again with Profile → Copy my data.";$("#pasteMsg").style.color="var(--bad)"}
 };
-if(API)acctBoot();else render();
+
+/* ================= Range accounts (Supabase) =================
+   Optional: sign up / sign in from Profile and your Range data (tests, sessions, routines, settings) is saved to your
+   account and follows you to any device. The SugarWOD passphrase and backup token never leave this phone.
+   Table + row-level security: supabase/schema.sql in the repo. */
+const SB_URL="https://xssgqlosuwsquesqdqif.supabase.co",SB_KEY="sb_publishable_ptwUPG47NEU23AMIeT7LdA_FMDclNt8";
+const SB_JS="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js";
+const sbHasSession=()=>{try{return Object.keys(localStorage).some(k=>k.startsWith("range-sb"))}catch(e){return false}};
+function sbLoad(){if(SB)return Promise.resolve(SB);return new Promise((res,rej)=>{
+  const mk=()=>{SB=window.supabase.createClient(SB_URL,SB_KEY,{auth:{storageKey:"range-sb",persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+    SB.auth.onAuthStateChange((ev,ses)=>{SBU=ses&&ses.user||null;if(ev==="PASSWORD_RECOVERY")setTimeout(()=>ACT.sbNewPw(),300)});res(SB)};
+  if(window.supabase)return mk();const sc=document.createElement("script");sc.src=SB_JS;sc.onload=mk;sc.onerror=()=>rej(new Error("Couldn't reach the account service. Check your connection."));document.head.appendChild(sc)})}
+const sbData=()=>{const d={...S};delete d.sync;return d}; // the SugarWOD passphrase stays on this phone
+const hasData=o=>!!o&&((o.tests||[]).length||(o.sessions||[]).length||(o.training||[]).length||(o.myProtocols||[]).length);
+async function sbPush(){if(!SBU)return;const{error}=await SB.from("user_data").upsert({user_id:SBU.id,data:sbData(),updated_at:new Date().toISOString()});if(error)throw error;sbErr=""}
+function sbSave(){clearTimeout(sbTimer);sbTimer=setTimeout(()=>sbPush().catch(e=>{sbErr="Couldn't save to your account. It will retry on the next change."}),2000)}
+function sbAdopt(remote){const keep=S.settings,sync=S.sync;S=Object.assign(JSON.parse(S_FRESH),remote);S.settings=Object.assign({},keep,remote.settings||{});S.sync=sync;S._owner=SBU.id;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+// bring this phone and the account together after signing in
+async function sbPull(){
+  const{data,error}=await SB.from("user_data").select("data").eq("user_id",SBU.id).maybeSingle();if(error)throw error;const remote=data&&data.data;
+  if(S._owner&&S._owner!==SBU.id){const keep=S.settings,sync=S.sync;S=JSON.parse(S_FRESH);S.settings=keep;S.sync=sync} // someone else's data was on this phone
+  if(remote&&hasData(remote)){
+    if(!S._owner&&hasData(S)&&!confirm("This phone and your account both have Range data. OK keeps the data from your account; Cancel keeps this phone's data and saves it to your account."))
+      {S._owner=SBU.id;save();await sbPush();return}
+    if(!S._owner||(remote._upd||0)>=(S._upd||0)){sbAdopt(remote);return}}
+  S._owner=SBU.id;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}await sbPush();
+}
+async function sbBoot(){try{await sbLoad();const{data}=await SB.auth.getSession();SBU=data.session&&data.session.user||null;if(SBU){await sbPull();render()}}catch(e){sbErr=e.message||"Account sync failed."}}
+function sbPanel(){
+  if(SBU)return`<div class="panel"><h3>Account</h3><div style="font-size:14px">Signed in as <b>${esc(SBU.email||"")}</b>. Your Range data is saved to your account and follows you to any device.</div>${sbErr?`<div class="c-bad" style="font-size:13px">${esc(sbErr)}</div>`:""}
+    <div class="frow"><button class="btn sec" style="flex:1" data-act="sbSyncNow">Save now</button><button class="btn sec" style="flex:1" data-act="sbOut">Sign out</button></div>
+    <button class="link" style="justify-self:start;color:var(--bad)" data-act="sbDel">Delete my account</button></div>`;
+  return`<div class="panel"><h3>Account</h3><div class="muted" style="font-size:14px">Create a free account to keep your tests, sessions and routines safe and use Range on any device.</div>
+    <div class="frow"><button class="btn" style="flex:1" data-act="sbAuth" data-m="up">Create account</button><button class="btn sec" style="flex:1" data-act="sbAuth" data-m="in">Sign in</button></div></div>`}
+ACT.sbAuth=d=>sheet(`<h3>${d.m==="up"?"Create your account":"Sign in"}</h3><div class="scroll"><form id="sbF" class="stack" style="gap:10px" onsubmit="return false">
+  <label class="field"><span class="eyebrow">Email</span><input name="email" type="email" autocomplete="email" autocapitalize="none" spellcheck="false" required></label>
+  <label class="field"><span class="eyebrow">Password${d.m==="up"?" (at least 8 characters)":""}</span><input name="password" type="password" autocomplete="${d.m==="up"?"new-password":"current-password"}" required></label>
+  <p id="sbMsg" style="margin:0;font-size:14px" aria-live="polite"></p>${d.m==="in"?`<button class="link" style="justify-self:start" data-act="sbForgot">Forgot your password?</button>`:""}</form></div>
+  <div style="display:grid;gap:8px"><button class="btn" data-act="sbGo" data-m="${d.m}">${d.m==="up"?"Create account":"Sign in"}</button><button class="btn sec" data-act="sbAuth" data-m="${d.m==="up"?"in":"up"}">${d.m==="up"?"I already have an account":"Create an account"}</button></div>`);
+ACT.sbGo=async d=>{const f=$("#sbF"),email=f.email.value.trim(),password=f.password.value,msg=$("#sbMsg"),btn=$("[data-act=sbGo]");
+  if(!email||!password){msg.className="c-bad";msg.textContent="Enter your email and password.";return}
+  if(d.m==="up"&&password.length<8){msg.className="c-bad";msg.textContent="Use at least 8 characters.";return}
+  btn.disabled=true;msg.className="muted";msg.textContent=d.m==="up"?"Creating your account…":"Signing in…";
+  try{await sbLoad();const back=location.origin+location.pathname;
+    const r=d.m==="up"?await SB.auth.signUp({email,password,options:{emailRedirectTo:back}}):await SB.auth.signInWithPassword({email,password});
+    if(r.error)throw r.error;
+    if(d.m==="up"&&!r.data.session){msg.className="";msg.innerHTML="Almost there: open the email we sent to <b>"+esc(email)+"</b> and tap the link to confirm. Then sign in here.";btn.disabled=false;return}
+    SBU=r.data.user;msg.textContent="Bringing your data together…";await sbPull();closeSheet();render()}
+  catch(e){msg.className="c-bad";msg.textContent=/invalid login/i.test(e.message||"")?"Wrong email or password.":/confirm/i.test(e.message||"")?"Confirm your email first: open the link we sent you.":(e.message||"Something went wrong.");btn.disabled=false}};
+ACT.sbForgot=async()=>{const email=$("#sbF").email.value.trim(),msg=$("#sbMsg");if(!email){msg.className="c-bad";msg.textContent="Type your email above first.";return}
+  try{await sbLoad();const{error}=await SB.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});if(error)throw error;msg.className="";msg.textContent="Check your email for a link to set a new password."}catch(e){msg.className="c-bad";msg.textContent=e.message}};
+ACT.sbNewPw=()=>sheet(`<h3>Set a new password</h3><div class="scroll"><label class="field"><span class="eyebrow">New password (at least 8 characters)</span><input id="sbPw" type="password" autocomplete="new-password"></label><p id="sbMsg" style="margin:0;font-size:14px"></p></div><button class="btn" data-act="sbSetPw">Save password</button>`);
+ACT.sbSetPw=async()=>{const pw=$("#sbPw").value,msg=$("#sbMsg");if(pw.length<8){msg.className="c-bad";msg.textContent="Use at least 8 characters.";return}
+  const{error}=await SB.auth.updateUser({password:pw});if(error){msg.className="c-bad";msg.textContent=error.message;return}closeSheet();await sbBoot();render()};
+ACT.sbSyncNow=async()=>{try{await sbPush();sbErr=""}catch(e){sbErr=e.message}render()};
+ACT.sbOut=async()=>{try{await sbPush()}catch(e){}try{await SB.auth.signOut()}catch(e){}SBU=null;render()};
+ACT.sbDel=()=>sheet(`<h3>Delete your account</h3><div class="scroll"><p style="margin:0">This permanently deletes your Range account and the data saved to it. The copy on this phone stays until you clear it.</p><p id="sbMsg" class="c-bad" style="margin:0;font-size:14px"></p></div><button class="btn" style="background:var(--bad)" data-act="sbDelGo">Delete my account</button>`);
+ACT.sbDelGo=async()=>{const{error}=await SB.rpc("delete_my_account");if(error){$("#sbMsg").textContent=error.message;return}try{await SB.auth.signOut()}catch(e){}SBU=null;delete S._owner;save();closeSheet();render()};
+if(API)acctBoot();else{render();if(sbHasSession()||/access_token|type=recovery/.test(location.hash)||/[?&]code=/.test(location.search))sbBoot()}
 // launch screen: the sweep plays with nothing else running; then the 3D figures load behind it, and it lifts
 // once they're drawn (at least 2s, at most 6s), so the home screen appears complete with no jump
 (()=>{const sp=document.getElementById("splash");if(!sp)return;
