@@ -318,7 +318,7 @@ img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;o
 .feel button{padding:12px 2px;border-radius:10px;background:var(--surface2);border:1px solid var(--line);font-size:13px;font-weight:700;min-height:44px}
 .feel button.on{background:var(--accent);color:var(--accent-ink)}
 /* rebuild */
-.tsfig{position:relative;background:var(--stage);border-radius:14px;display:grid;place-items:center;padding:6px}.tsfig svg{width:100%;max-width:300px;height:auto}.tsfig.mir .fig,.tsstage.mir .fig{transform:scaleX(-1)}.tsstage{position:relative}.rtgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}.rtpos{display:grid;gap:2px;background:var(--surface2);border-radius:12px;padding:8px}.rtfig{background:var(--stage);border-radius:10px;overflow:hidden}.rtfig .fig{width:100%;height:auto;max-height:120px;display:block}.tsstage>.pill{position:absolute;top:10px;left:10px;z-index:2}.tsfig .pill{position:absolute;top:8px;left:8px}
+.tsfig{position:relative;background:var(--stage);border-radius:14px;display:grid;place-items:center;padding:6px}.tsfig svg{width:100%;max-width:300px;height:auto}.tsfig.mir .fig,.tsstage.mir .fig{transform:scaleX(-1)}.tsstage{position:relative}.tsis{margin:-4px 0 0;font-size:13px;line-height:1.3;padding:6px 10px;border-radius:10px;background:var(--surface2);color:var(--ink);justify-self:start}.rtgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}.rtpos{display:grid;gap:2px;background:var(--surface2);border-radius:12px;padding:8px}.rtfig{background:var(--stage);border-radius:10px;overflow:hidden}.rtfig .fig{width:100%;height:auto;max-height:120px;display:block}.tsstage>.pill{position:absolute;top:10px;left:10px;z-index:2}.tsfig .pill{position:absolute;top:8px;left:8px}
 .tsides{display:grid;grid-template-columns:1fr 1fr;gap:6px}.tsides span{text-align:center;padding:8px;border-radius:10px;background:var(--surface2);font-size:14px;font-weight:600;color:var(--muted)}.tsides span.on{background:var(--accent);color:var(--bg)}.tsides span.done{color:var(--ink)}
 textarea{font:inherit}.edex{gap:10px}.edhead{display:grid;grid-template-columns:72px 1fr auto;gap:10px;align-items:center}.edhead .th{width:72px;height:auto;background:var(--stage);border-radius:10px;display:block}.edhead .th svg{width:72px;height:auto;display:block}.edbtns{display:flex;gap:12px}
 .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--surface2);border-radius:10px;padding:3px}.seg button{padding:8px 4px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted)}.seg button.on{background:var(--accent-soft);color:var(--accent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 45%,transparent)}
@@ -536,7 +536,7 @@ const TEST=[
  {id:"slr",k:"posterior",t:"Straight leg raise",uni:1,fig:"p2",how:"Lie on your back, both legs straight. No strap and no hands this time: lift the {s} leg as high as you can with the knee locked and the {o} leg flat. What angle does the {s} leg reach?",o:["Under 50°","50–70°","70–80°","Over 80° (near vertical)"]},
  {id:"hips",k:"hips",w:{hips:.6,ankles:.35},t:"Deep squat",fig:"h7",how:"Feet shoulder-width, squat as low as you can and hold for 30 seconds without holding on.",o:["Can't get below parallel","Below parallel, heels lift","Heels down, chest drops","Heels down, chest tall, relaxed"]},
  {id:"thomas",k:"hips",uni:1,fig:"t_thomas",props:[["bench"]],t:"Thomas test",how:"Sit on the very end of a bed or bench. Hug the {o} knee to your chest and roll back onto the bed, then let the {s} leg hang off the edge completely relaxed. Keep the {o} knee pulled in tight so your low back stays flat. Tick everything that's true for the {s} leg:",
-  multi:["The back of the {s} thigh rests flat on the bed","The {s} knee bends to about 90°, the shin hangs straight down","The {s} thigh stays straight, it doesn't drift out to the side"]},
+  multi:["The back of the {s} thigh rests flat on the bed","The {s} knee bends to about 90°, the shin hangs straight down","The {s} thigh stays straight, it doesn't drift out to the side"],mshort:[["thigh raised","thigh flat"],["knee under 90°","knee at 90°"],["drifts out","no drift"]]},
  {id:"sitir",k:"hips",t:"Seated internal rotation",uni:1,fig:"t_sitir",props:[["box",80,114,32]],how:"Sit tall on a chair, knees and hips at 90°. Keep the {s} knee still and swing the {s} foot out to the side as far as it goes, without leaning or lifting the hip. Estimate the shin's angle from vertical.",o:["Under 20°","20–30°","30–40°","Over 40°"]},
  {id:"faber",k:"hips",t:"FABER (figure-four)",uni:1,fig:"r_fig4",how:"Lie on your back, both legs straight. Put the {s} ankle on top of the {o} knee and let the {s} knee fall out toward the floor. Don't push it. Where does it settle?",o:["Pinch or pain in the front of the {s} hip","Knee stays high, more than a hand's width above level","Knee within a hand's width of level","Knee drops level with the {o} leg, no pinch"]},
  {id:"straddle",k:"hips",w:{hips:.8,posterior:.3},t:"Straddle sit",fig:"p6",how:"Sit on the floor, legs straight and spread as wide as you can, knees and toes up. Sit tall without rounding. What angle is between your legs?",o:["Under 60°, or I can't sit tall","60–90°","90–120°","Over 120°"]},
@@ -733,7 +733,7 @@ Object.assign(FIGS,{
  r_gmedwall:mk({p:[120,86],t:-90,h:-90,L1:{plant:[121,138],f:0},L2:{a:[2,90],s:[.985,1],f:0},A1:{a:[100,69.8],s:[.75,.87],dz:[1,-1]},A2:{a:[93,90],s:[1,1]}},{p:[119,87],L2:{a:[0,90],s:[.955,1]}},[["swall",-19.5,120]],{cam:{yaw:40,pitch:8}}),
  r_bandwalk:mk({view:"front",p:[120,92.4],t:-90,h:-90,L1:{a:[80,92],s:[.85,.85],dz:[1,-1],f:10},L2:{a:[100,88],s:[.85,.85],dz:[1,-1],f:170},A1:{a:[60,130.7],s:[1,.89],dz:[1,-1]},A2:{a:[120,49.3],s:[1,.89],dz:[1,-1]}},{p:[125,92.7],L1:{a:[72,80],s:[.87,.87]},L2:{a:[104,98]}},[["bandknees"]],{mid:{p:[122.5,92.5],L1:{a:[74,86],s:[.75,.85]},L2:{a:[102,93]}}}),
  t_thomas:mk({p:[208,99],t:180,h:180,L1:{a:[5,90],f:50},L2:{a:[-128,12],f:-70},A1:{plant:[198,80]},A2:{plant:[196,81]}},{L1:{a:[9,93],f:58},L2:{a:[-138,8],f:-75},A1:{plant:[193,76]},A2:{plant:[191,77]}},[["bench"]],{cam:{yaw:-30,pitch:16}}),
- t_sitir:mk({p:[106,111],t:-90,h:-90,L1:{a:[0,90],f:0},L2:{a:[2,90],f:0},A1:{plant:[100,113]},A2:{plant:[98,113]}},{L1:{a:[0,90],s:[1,.72],dz:[1,1],f:0}},[["box",80,114,32]],{cam:{yaw:70,pitch:12}}),
+ t_sitir:mk({p:[106,111],t:-90,h:-90,L1:{a:[0,90],s:[1,1],dz:[1,-1],f:0},L2:{a:[2,90],f:0},A1:{plant:[100,113]},A2:{plant:[98,113]}},{L1:{a:[0,90],s:[1,.72],dz:[1,-1],f:0}},[["box",80,114,32]],{cam:{yaw:70,pitch:12}}),
  t_hug:mk({...SUPINE,L2:{a:[-120,-10],s:[.95,.95],f:-90},L1:{a:[0,0],f:-90},A1:{plant:[146,108]},A2:{plant:[144,108]}},{L2:{a:[-132,-20],s:[.95,.95],f:-100},L1:{a:[-4,-4],f:-88},A1:{plant:[138,103]},A2:{plant:[136,103]}}),
  r_fig4:mk({...SUPINE,L2:{a:[-75,0],f:-90},L1:{a:[-50,-170],s:[.75,.8],f:-90},A1:{a:[-20,-25]},A2:{a:[-18,-23]}},{L2:{a:[-102,-15],f:-100},L1:{a:[-72,-185],s:[.75,.8],f:-90},A1:{a:[-25,-35]},A2:{a:[-23,-33]}}),
  // knees
@@ -766,6 +766,88 @@ Object.assign(FIGS,{
 ["h1","h6","h8"].forEach(k=>FIGS[k].work="2"); // the stretched hip is the kneeling (back) leg
 const FIG_ALIAS={squat:"h7",armsUp:"o3",kneel:"h6",calf:"a1",fold:"p1",pike:"p3",pigeon:"h2",s9090:"h3",child:"o1",latBench:"o2",crossBody:"s4",quadRot:"t5"};
 const TEST_FIG={ankles:"a1",posterior:"p1",hips:"h7",shoulders:"bscratch",overhead:"wallreach",thoracic:"t5"};
+/* ================= test answer poses =================
+   Picking an answer in the mobility test swaps the animated demo for the figure held at THAT range,
+   so you can compare yourself with it. Each test builds one pose per option from the joint value that
+   the option names (shin angle, toe-to-wall gap, fingertip height...); the Thomas test, a checklist,
+   gets one pose per combination of ticks. Scale: 1 figure unit is about 1.5 cm (a 25 cm foot is 16 units).
+   Poses are registered as FIGS "<test id>_o<option>" (Thomas: "thomas_m<tick mask>"); every option of a
+   test is framed the same way (ext), so switching answers doesn't zoom. */
+const TEST_POSE=(()=>{
+  const R=Math.PI/180,ang2=(a,b)=>Math.atan2(b[1]-a[1],b[0]-a[0])/R,cp=o=>JSON.parse(JSON.stringify(o));
+  const v3={sub:(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],add:(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]],mul:(a,k)=>[a[0]*k,a[1]*k,a[2]*k],
+    dot:(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],len:a=>Math.hypot(a[0],a[1],a[2])};
+  v3.norm=a=>v3.mul(a,1/(v3.len(a)||1));
+  // 3D points here are [x (as drawn), height above the floor, sideways (+ = near/right side)]
+  // the point la from a and lb from b (a knee or elbow) that leans furthest toward pref
+  function joint3(a,b,la,lb,pref){const d=v3.sub(b,a),L=Math.min(v3.len(d),la+lb-.01),u=v3.norm(d),x=(la*la-lb*lb+L*L)/(2*L),r=Math.sqrt(Math.max(0,la*la-x*x));
+    let p=v3.sub(pref,v3.mul(u,v3.dot(pref,u)));p=v3.norm(p);return v3.add(v3.add(a,v3.mul(u,x)),v3.mul(p,r))}
+  // a bone from a to b in 3D as the drawing's {angle, scale, depth direction}; sg: +1 near-side limb, -1 far-side
+  function bone2(a,b,len,sg){const dx=b[0]-a[0],dy=-(b[1]-a[1]),pr=Math.hypot(dx,dy);return{a:Math.atan2(dy,dx)/R,s:Math.min(1,pr/len),dz:Math.sign((b[2]-a[2])*sg)||1}}
+  // leg from the hip to an ankle in the drawing, knee forward (thigh drawn shorter when the knees point out)
+  function legTo(hip,f,sth=1,dir=1){const[k]=ik2(hip,f,BONE.th*sth,BONE.sh,dir);return{a:[ang2(hip,k),ang2(k,f)],s:[sth,1]}}
+  const P={};
+  // knee-to-wall: knee touching the wall, heel down; the toe-to-wall gap sets the shin angle
+  P.ankles=()=>{const B=FIGS.a1.B,wall=190-2.5,kx=wall-5.5;
+    return[2,4.3,6.7,9.3].map(gap=>{const fx=wall-12.25-gap,dx=kx-fx,ky=138-Math.sqrt(27*27-dx*dx),dy=ky-113.8;
+      return merge(B,{root:["k1",[kx,ky]],L1:{a:[40,ang2([kx,ky],[fx,138])],f:0},A1:{plant:[184.5,60+dy],hand:-90},A2:{plant:[184.5,62+dy],hand:-90},opt:{gap:+(gap*1.5).toFixed(1)}})})};
+  // toe touch: straight legs, the fold deepens until the fingertips reach the named height
+  P.posterior=()=>{const tg=[[117,[127,119]],[115,[130,132]],[113,[133,138.5]],[110,[131,139.2],1]];
+    return tg.map(([px,tp,flat],i)=>{const fx=123,p=[px,138-Math.sqrt(53.8*53.8-(fx-px)**2)],reach=flat?40:47.6;
+      let t=-30,sh;for(;t<100;t+=.25){const n=vadd(p,D(t),40);sh=vadd(n,D(t+180),3);if(Math.hypot(tp[0]-sh[0],tp[1]-sh[1])<=reach)break}
+      const aa=ang2(sh,tp);
+      return{p,t:+t.toFixed(2),bend:[0,-1,-2,-3][i],h:t+[35,40,45,45][i],L1:{plant:[fx,138],f:0},L2:{plant:[fx-1,138],f:0},A1:{a:[aa,aa]},A2:{a:[aa+1,aa+1]},opt:{tip:tp}}})};
+  // straight leg raise: lying flat, the raised leg straight at the named angle, the other leg flat
+  P.slr=()=>{const A=FIGS.p2.A;return[42,60,75,88].map(th=>merge(A,{L1:{a:[-th,-th],f:-th-88},L2:{plant:[164,136],f:-80},A1:{a:[2,2]},A2:{a:[4,4]},opt:{deg:th}}))};
+  // deep squat: depth, heel lift and chest angle
+  P.hips=()=>{const mkS=(p,f,fa,sth,t,h,arms)=>{const L=legTo(p,f,sth);return{p,t,h,L1:{...L,f:fa},L2:{...cp(L),f:fa},...arms}};
+    return[
+      mkS([112,104],[131,138],0,.94,-40,-25,{A1:{a:[-4,-4]},A2:{a:[-2,-2]}}),        // stuck above parallel, leaning on the toes' side
+      mkS([122,121],[129,132],38,.9,-55,-45,{A1:{a:[-2,-2]},A2:{a:[0,0]}}),           // below parallel, heels up
+      mkS([121,123],[132,138],0,.896,-32,-15,{A1:{a:[82,68]},A2:{a:[84,70]}}),                                     // heels down, chest dropped
+      merge(FIGS.h7.B,{})];};
+  // Thomas test: the hanging leg; bit 0 thigh flat, bit 1 knee at 90°, bit 2 no drift out to the side
+  P.thomas=()=>{const B=FIGS.t_thomas.B;return[0,1,2,3,4,5,6,7].map(m=>{const th=m&1?9:-20,sh=th+(m&2?87:52),ab=m&4?0:22;
+      return merge(B,{L1:{a:[th,sh],s:[Math.cos(ab*R),1],dz:[1,1],f:sh-38},opt:{th,knee:sh-th,ab}})})};
+  // seated internal rotation: knee still, the shin swings out to the named angle from vertical
+  P.sitir=()=>{const A=FIGS.t_sitir.A;return[13,25,35,47].map(d=>merge(A,{L1:{a:[0,90],s:[1,Math.cos(d*R)],dz:[1,1],f:0},opt:{deg:d}}))};
+  // FABER: other leg straight, ankle on the other knee; the knee settles at a height above level
+  P.faber=()=>{const hip=[110,9,7],ank=[136.5,16,-6.5],lf=[110,134];
+    return[17,11,4.5,0].map(hh=>{const kh=9+hh;
+      // the knee: on the circle of points a thigh from the hip and a shin from the ankle, at height kh, out to the side
+      const d=v3.sub(ank,hip),L=v3.len(d),u=v3.norm(d),x=L/2,r=Math.sqrt(27*27-x*x),c=v3.add(hip,v3.mul(u,x));
+      const e1=v3.norm(v3.sub([0,1,0],v3.mul(u,u[1]))),e2=[u[1]*e1[2]-u[2]*e1[1],u[2]*e1[0]-u[0]*e1[2],u[0]*e1[1]-u[1]*e1[0]];
+      let k=null,bd=1e9;for(let a=0;a<360;a+=.1){const q=v3.add(c,v3.add(v3.mul(e1,r*Math.cos(a*R)),v3.mul(e2,r*Math.sin(a*R))));if(q[2]<hip[2])continue;const dd=Math.abs(q[1]-kh);if(dd<bd){bd=dd;k=q}}
+      const th=bone2(hip,k,27,1),sn=bone2(k,ank,27,1);
+      return{...SUPINE,L2:{a:[2,2],f:-82},L1:{a:[th.a,sn.a],s:[th.s,sn.s],dz:[th.dz,sn.dz],f:-60},A1:{a:[3,3]},A2:{a:[5,5]},opt:{kneeAbove:+(k[1]-9).toFixed(1),k}}})};
+  // straddle: sitting, the angle between the legs; the first option can't sit tall
+  P.straddle=()=>[50,75,105,135].map((g,i)=>{const s=Math.cos(g/2*R);return{p:[96,134],t:i?-84:-64,bend:i?0:-4,h:i?-86:-55,L1:{a:[1,1],s:[s,s],f:-75},L2:{a:[1,1],s:[s,s],f:-75},A1:i?{a:[93,93]}:{plant:[84,138]},A2:i?{a:[95,95]}:{plant:[82,138]},opt:{deg:g}}});
+  // back scratch: the gap between the fingers behind the back (top hand fixed, the lower hand reaches up)
+  P.shoulders=()=>{const B=FIGS.bscratch.B,sh2=[110,50],e2=vadd(sh2,D(97),21*.92);return[66.6,62.8,59.1,56].map(wy=>{const w=[119,wy];
+      return merge(B,{A2:{a:[97,ang2(e2,w)],s:[.92,Math.min(.99,Math.hypot(w[0]-e2[0],w[1]-e2[1])/19)],dz:[1,-1],back:1}})})};
+  // wall reach: how far the straight arms come back toward the wall; flared ribs arch the back off it
+  P.overhead=()=>{const B=FIGS.wallreach.B,wall=111+2.5+2.5,far=-40,tipX=a=>121+47.6*Math.cos(a*R),toX=(x,shx)=>-Math.acos(Math.max(-1,Math.min(1,(x-shx)/47.6)))/R;
+    const half=toX((tipX(far)+wall)/2,121),flare={p:[123,86],t:-97,bend:3.5,h:-95},fsh=vadd(vadd(flare.p,D(flare.t),40),D(flare.t+180),3);
+    const arms=a=>({A1:{a:[a,a]},A2:{a:[a-1,a-1]}});
+    return[merge(B,arms(far)),merge(B,arms(half)),merge(B,{...flare,...arms(toX(wall,fsh[0]))}),merge(B,arms(toX(wall,121)))]};
+  // lumbar-locked rotation: hips back on the heels, {s} hand behind the head, the chest turns open
+  P.thoracic=()=>{const p=[90,120],t=-15.5,n=vadd(p,D(t),40),sh=vadd(n,D(t+180),3),h=t+22,hd=vadd(n,D(h),BONE.neck);
+    const kx=p[0]+Math.sqrt(27*27-17*17),base={p,t,h,hy:0,L1:{a:[ang2(p,[kx,137]),180],f:180},L2:{a:[ang2(p,[kx,137])+1,180],f:180},A2:{plant:[150,139]}};
+    // hand on the back of the head, elbow out to the side
+    const s3=[sh[0],143-sh[1],14.5],w3=[hd[0]-3,143-hd[1]+7,5],e3=joint3(s3,w3,BONE.ua,BONE.fa,[.35,.1,1]);
+    const ua=bone2(s3,e3,BONE.ua,1),fa=bone2(e3,w3,BONE.fa,1);
+    base.A1={a:[ua.a,fa.a],s:[ua.s,fa.s],dz:[ua.dz,fa.dz]};
+    const tilt=-t*R;return[20,38,52,67].map(g=>({...cp(base),tw:+(Math.asin(Math.min(1,Math.sin(g*R)/Math.cos(tilt)))/R).toFixed(1),hy:0,opt:{deg:g}}))};
+  const CAM={ankles:{yaw:8,pitch:8},posterior:{yaw:12,pitch:10},slr:{yaw:4,pitch:6},hips:{yaw:40,pitch:10},thomas:{yaw:55,pitch:20},sitir:{yaw:90,pitch:8},faber:{yaw:60,pitch:16},straddle:{yaw:90,pitch:50},shoulders:{yaw:-95,pitch:6},overhead:{yaw:15,pitch:8},thoracic:{yaw:105,pitch:10}};
+  const out={};
+  TEST.forEach(q=>{if(!P[q.id])return;const poses=P[q.id](),props=q.id==="slr"?[]:(FIGS[q.fig].props||[]),keys=[];
+    poses.forEach(F=>{delete F.opt});
+    poses.forEach((F,k)=>{const key=q.id+(q.multi?"_m":"_o")+k;FIGS[key]={A:F,B:F,props,cam:CAM[q.id],ext:poses,work:FIGS[q.fig].work};keys.push(key)});
+    out[q.id]=keys});
+  return out;
+})();
+// the figure for a test step: the animated demo, or the held pose for the answer picked (Thomas: for the ticks)
+function testPoseKey(q,v){const ks=TEST_POSE[q.id];if(!ks||v==null)return null;return ks[v]||null}
 
 function solveFig(F){
   let p=F.p;
@@ -951,7 +1033,7 @@ const FIGBOX={};
 function figBox(key){
   if(FIGBOX[key])return FIGBOX[key];
   const P=FIGS[key]||FIGS[FIG_ALIAS[key]]||FIGS.h7,pts=[];
-  [P.A,P.B].forEach(F=>{const J=solveFig(F);pts.push(J.p,J.n,[J.h[0]-9,J.h[1]-9],[J.h[0]+9,J.h[1]+9]);["1","2"].forEach(s=>{const l=J.legs[s],a=J.arms[s];pts.push(l.k,l.f,l.ft,a.e,a.w)})});
+  [P.A,P.B,...(P.ext||[])].forEach(F=>{const J=solveFig(F);pts.push(J.p,J.n,[J.h[0]-9,J.h[1]-9],[J.h[0]+9,J.h[1]+9]);["1","2"].forEach(s=>{const l=J.legs[s],a=J.arms[s];pts.push(l.k,l.f,l.ft,a.e,a.w)})});
   (P.props||[]).forEach(([k,a,b,c])=>{
     if(k==="wall"||k==="frame")pts.push([a,100]);
     if(k==="box"||k==="stack"||k==="highbench")pts.push([a,b],[a+c,b]);
@@ -1313,7 +1395,7 @@ const FIG3D=(()=>{
     const P=FIGS[key]||FIGS[FIG_ALIAS[key]]||FIGS.h7;
     const JA=solveFig(P.A),JB=solveFig(P.B),BA=lift(JA,P.A,JA.p[0]),BB=lift(JB,P.B,JA.p[0]),FM=poseAt(P,.5),BM=lift(solveFig(FM),FM,JA.p[0]);
     // camera: side view seen from the near side, a little from the front; front view from the front
-    const pts=[];[BA,BB,BM].forEach(B=>{pts.push(B.p,B.n,B.h,add(B.h,[0,10,0]));["1","2"].forEach(s=>{pts.push(B.legs[s].k,B.legs[s].f,B.legs[s].ft,B.arms[s].e,B.arms[s].w)})});
+    const pts=[];[BA,BB,BM,...(P.ext||[]).map(F=>lift(solveFig(F),F,JA.p[0]))].forEach(B=>{pts.push(B.p,B.n,B.h,add(B.h,[0,10,0]));["1","2"].forEach(s=>{pts.push(B.legs[s].k,B.legs[s].f,B.legs[s].ft,B.arms[s].e,B.arms[s].w)})});
     const mn=[0,1,2].map(i=>Math.min(...pts.map(p=>p[i]))),mx=[0,1,2].map(i=>Math.max(...pts.map(p=>p[i])));
     (P.props||[]).forEach(([k,a,b,c])=>{if(k==="box"||k==="stack"||k==="highbench"){mn[0]=Math.min(mn[0],a-JA.p[0]);mx[0]=Math.max(mx[0],a+c-JA.p[0])}if(k==="wall"||k==="frame"){mn[0]=Math.min(mn[0],a-JA.p[0]);mx[0]=Math.max(mx[0],a-JA.p[0])}});
     mn[1]=0;
@@ -2722,6 +2804,39 @@ addStretches([
 ]);
 ["w_addroll","w_lbroll","w_bicepsmash"].forEach(id=>{if(LIBI[id])LIBI[id].roll=1});
 }
+// Batch RB: Rebuild self-screen figures (each screen shows the test it asks about)
+{
+Object.assign(FIGS,{
+ // back: sit tall, then slump, then over-arch (hands on the seat)
+ rb_sitslump:mk({p:[106,111],t:-90,h:-90,L1:{a:[0,90],f:0},L2:{a:[2,90],f:0},A1:{plant:[100,113]},A2:{plant:[98,113]}},{t:-96,h:-94,bend:4},[["box",80,114,32]],{mid:{t:-76,h:-66,bend:-5},cam:{yaw:15,pitch:10}}),
+ // back: lying face down, relaxed
+ rb_prone:mk({prone:1,p:[150,132],t:180,h:184,L1:{a:[1,1],f:8},L2:{a:[0,0],f:8},A1:{a:[2,2],s:[.9,.9]},A2:{a:[1,1],s:[.9,.9]}},{t:181},[],{cam:{yaw:-25,pitch:10}}),
+ // back: face down, lift one straight leg
+ rb_proneleg:mk({prone:1,p:[150,132],t:180,h:184,L1:{a:[1,1],f:8},L2:{a:[0,0],f:8},A1:{a:[2,2],s:[.9,.9]},A2:{a:[1,1],s:[.9,.9]}},{L1:{a:[-17,-17],f:22}},[],{cam:{yaw:-25,pitch:10}}),
+ // back: hold a plate out in front with straight arms
+ rb_fronthold:mk({p:[121,84.5],t:-90,h:-90,L1:{plant:[124,138],f:0},L2:{plant:[118,138],f:0},A1:{a:[80,80]},A2:{a:[82,82]}},{A1:{a:[0,0]},A2:{a:[2,2]}},[["plate","w1"]],{cam:{yaw:30,pitch:10}}),
+ // knee: on your back, hip and knee at 90°, the shin swings in, then out (hip rotation)
+ rb_supir:mk({...SUPINE,L1:{a:[-90,0],s:[1,1],dz:[1,1],f:-90},L2:{a:[0,0],f:-80},A1:{a:[2,2]},A2:{a:[4,4]}},{L1:{a:[-90,0],s:[1,.72],dz:[1,1],f:-90}},[],{mid:{L1:{a:[-90,0],s:[1,.72],dz:[1,-1],f:-90}},cam:{yaw:40,pitch:30}}),
+ // hip: seated on a bench, lift one knee a few centimetres
+ rb_sitflex:mk({p:[106,111],t:-90,h:-90,L1:{a:[0,90],f:0},L2:{a:[2,90],f:0},A1:{plant:[100,113]},A2:{plant:[98,113]}},{L1:{a:[-18,74],f:8}},[["box",80,114,32]],{cam:{yaw:20,pitch:10}}),
+ // hip: lying on the side, top leg bent in front, the straight bottom leg lifts
+ rb_sidely:mk({p:[150,134],t:180,h:180,roll:90,L1:{a:[-50,60],f:0},L2:{a:[0,0],s:[1,1],dz:[-1,-1],f:0},A2:{a:[180,180]},A1:{a:[5,5]}},{L2:{a:[0,0],s:[.96,.96],dz:[-1,-1]}},[],{cam:{yaw:220,pitch:22}}),
+ // hip: stand on one leg, hands on the hips
+ rb_slstand:mk({p:[121,84.5],t:-90,h:-90,L1:{plant:[123,138],f:0},L2:{a:[90,90],f:0},A1:{a:[120,60]},A2:{a:[118,58]}},{L2:{a:[100,165],f:75}},[],{cam:{yaw:35,pitch:10}}),
+ // hip: single-leg bridge with the heel on a bench
+ rb_benchbridge:mk({...SUPINE,L2:{plant:[150,116],f:-60},L1:{a:[-40,-40],f:-50},A1:{a:[0,0]},A2:{a:[3,0]}},{p:[114,119],t:161,h:168,L1:{a:[-25,-25],f:-40}},[["box",136,121,32]],{cam:{yaw:25,pitch:20}}),
+ // shoulder: raise one straight arm overhead
+ rb_armraise:mk({p:[121,84.5],t:-90,h:-90,L1:{plant:[124,138],f:0},L2:{plant:[118,138],f:0},A1:{a:[90,90]},A2:{a:[92,92]}},{A1:{a:[-95,-95]}},[],{cam:{yaw:30,pitch:10}}),
+ // shoulder: sitting with the back on a wall, straight arms up to the wall
+ rb_wallsitreach:mk({p:[121,133],t:-90,h:-90,L1:{a:[0,0],f:-80},L2:{a:[1,1],f:-80},A1:{a:[0,0]},A2:{a:[2,2]}},{A1:{a:[-100,-100]},A2:{a:[-98,-98]}},[["wall",111]],{cam:{yaw:60,pitch:10}}),
+ // shoulder: on your back, hands behind the head, elbows open toward the floor
+ rb_suphands:mk({...SUPINE,L1:{plant:[146,138],f:0},L2:{plant:[142,138],f:0},A1:{a:[-114,100],s:[.94,.77],dz:[1,-1]},A2:{a:[-112,102],s:[.94,.77],dz:[-1,1]}},{A1:{a:[-180,243],s:[.48,.24]},A2:{a:[-178,245],s:[.48,.24]}},[],{cam:{yaw:25,pitch:30}}),
+ // achilles: single-leg heel raise
+ rb_slcalf:mk({p:[124,84],t:-90,L1:{plant:[124,138],f:0},L2:{a:[95,140],f:60},A1:{plant:[154,66]},A2:{plant:[152,68]}},{p:[124,74],L1:{plant:[123,128],f:66},A1:{plant:[154,60]},A2:{plant:[152,62]}},[["wall",168]]),
+ // achilles: heel raises off a step, heels dropping below the edge
+ rb_stepcalf:mk({p:[120,81.5],t:-90,L1:{plant:[120,134.5],f:-30},L2:{plant:[115,134.5],f:-30},A1:{plant:[154,62]},A2:{plant:[152,64]}},{p:[124,67.5],L1:{plant:[124,121],f:66},L2:{plant:[119,121],f:66},A1:{plant:[154,52]},A2:{plant:[152,54]}},[["box",125,130,36],["wall",168]]),
+});
+}
 // Batch W3: outer-hip (TFL) stretch and sciatic nerve glide
 // Batch GW5: standing outer-hip (TFL) stretch at a wall, seated sciatic nerve slider
 {
@@ -3596,12 +3711,12 @@ const notifPanel=()=>`<div class="panel"><h3>Notifications</h3>
    Each self-screen and test gets a demo figure. One-sided tests run Right, then Left, never together,
    unless the movement itself uses both sides (squat, hinge, both-arm reach). seq: compare-both questions. */
 const RB_TESTFX={
- back:{test:{fig:"r_hinge"},screens:[{},{fig:"r_proneY"},{fig:"r_hinge"},{fig:"r_proneY",side:1},{fig:"r_calfraise"},{fig:"r_pallof"}]},
- knee:{test:{fig:"r_touchdown",side:1},screens:[{},{fig:"r_hops",side:1},{fig:"r_touchdown",side:1},{fig:"a1",side:1},{fig:"h3",seq:1}]},
- hip:{test:{fig:"r_bwsquat",side:1,choose:1},screens:[{},{fig:"r_hipflexiso",side:1},{fig:"r_hipflexiso",side:1},{fig:"r_copenhagen",side:1},{fig:"r_abduction",side:1},{fig:"r_slbridge",side:1},{fig:"h3",seq:1},{}]},
- shoulder:{test:{fig:"o3",side:1},screens:[{fig:"o3"},{fig:"o3"},{},{fig:"t5",side:1},{fig:"r_bandw",side:1}]},
- elbow:{test:{fig:"r_wristiso",side:1},screens:[{},{},{fig:"r_bandw",side:1}]},
- achilles:{test:{fig:"r_calfraise",side:1},screens:[{},{fig:"r_calfraise",side:1},{fig:"r_calfraise",side:1}]},
+ back:{test:{fig:"r_hinge"},screens:[{fig:"rb_sitslump"},{fig:"rb_prone"},{fig:"r_hinge"},{fig:"rb_proneleg",side:1},{fig:"r_calfraise"},{fig:"rb_fronthold"}]},
+ knee:{test:{fig:"r_touchdown",side:1},screens:[{},{fig:"r_hops",side:1},{fig:"r_touchdown",side:1},{fig:"a1",side:1},{fig:"rb_supir",seq:1}]},
+ hip:{test:{fig:"r_bwsquat",side:1,choose:1},screens:[{},{fig:"t_hug",side:1},{fig:"rb_sitflex",side:1},{fig:"rb_sidely",side:1},{fig:"rb_slstand",side:1},{fig:"rb_benchbridge",side:1},{fig:"t_sitir",seq:1},{}]},
+ shoulder:{test:{fig:"rb_armraise",side:1},screens:[{fig:"rb_wallsitreach"},{fig:"rb_wallsitreach"},{fig:"rb_suphands"},{fig:"g1_halftwist",side:1},{fig:"r_bandw",side:1}]},
+ elbow:{test:{fig:"r_wristiso",side:1},screens:[{},{fig:"e1_prayer"},{fig:"r_bandw",side:1}]},
+ achilles:{test:{fig:"rb_slcalf",side:1},screens:[{},{fig:"r_calfraise",side:1},{fig:"rb_stepcalf",side:1}]},
 };
 for(const[k,fx]of Object.entries(RB_TESTFX)){const R=REGIONS[k];if(!R)continue;Object.assign(R.test,fx.test);R.screens.forEach((q,i)=>Object.assign(q,fx.screens[i]||{}))}
 const SIDE_N={R:"Right",L:"Left"};
@@ -4065,13 +4180,13 @@ function drawTest(){
     <div class="bottomcta"><button class="btn" data-act="testSave">Save my scores</button><button class="link muted" style="justify-self:center;padding:4px 12px" data-act="testExit">Discard results</button></div></div></div>`;
     return;
   }
-  const st=TSTEPS[T.i],q=st.q,sd=st.sd,key=tKey(st),sub=x=>x.replace(/\{s\}/g,sd==="L"?"left":"right").replace(/\{o\}/g,sd==="L"?"right":"left"),how=sub(q.how);
+  const st=TSTEPS[T.i],q=st.q,sd=st.sd,key=tKey(st),pk=testPoseKey(q,T.ans[key]),sub=x=>x.replace(/\{s\}/g,sd==="L"?"left":"right").replace(/\{o\}/g,sd==="L"?"right":"left"),how=sub(q.how);
   $("#layer").innerHTML=`<div class="full"><div class="inner">
    <div><div class="hdr"><button data-act="testBack" aria-label="Back">${ic("back")}</button><div class="brand">Range<b>.</b></div><button data-act="testExit" aria-label="Close test">${ic("x")}</button></div>
    <div class="tprog">${TSTEPS.map((_,k)=>`<i class="${k<=T.i?"on":""}"></i>`).join("")}</div></div>
    <div class="stack" style="align-content:start">
     <span class="eyebrow">Check ${T.i+1} of ${TSTEPS.length} · ${AN[q.k]}</span><h1>${q.t}${sd?` · ${SIDE_N[sd]}`:""}</h1>
-    <div class="detailstage tsstage${sd==="L"?" mir":""}">${fig(q.fig,null,{anim:true,zones:AREA_ZONES[q.k]})}${sd?`<span class="pill">${SIDE_N[sd]} side</span>`:""}</div>
+    <div class="detailstage tsstage${sd==="L"?" mir":""}">${pk?fig(pk,null,{anim:true,mode:"static",zones:AREA_ZONES[q.k]}):fig(q.fig,null,{anim:true,zones:AREA_ZONES[q.k]})}${sd?`<span class="pill">${SIDE_N[sd]} side</span>`:""}</div>${pk?`<p class="tsis" aria-live="polite">This is: <b>${esc(q.multi?q.mshort.map((m,k)=>m[(T.ans[key]>>k)&1]).join(" · "):sub(q.o[T.ans[key]]))}</b></p>`:""}
     ${sd?`<div class="tsides">${["R","L"].map(k=>`<span class="${sd===k?"on":T.ans[q.id+k]!=null&&k==="R"?"done":""}">${SIDE_N[k]}</span>`).join("")}</div><p style="margin:0"><b>${sd==="R"?"Test your right side first.":"Now the left side, the same way."}</b></p>`:""}
     <p class="muted" style="margin:0">${how}</p>
     <div class="stack" style="gap:8px">${q.multi?q.multi.map((o,k)=>`<button class="opt ${(T.ans[key]??0)>>k&1?"on":""}" data-act="testTick" data-k="${k}" aria-pressed="${!!((T.ans[key]??0)>>k&1)}"><span>${sub(o)}</span><span class="tick">${ic("check")}</span></button>`).join("")+`<p class="muted" style="margin:0;font-size:13px">None of them? That's fine, just continue.</p>`:q.o.map((o,k)=>`<button class="opt ${T.ans[key]===k?"on":""}" data-act="testPick" data-k="${k}"><span>${sub(o)}</span><span class="radio"></span></button>`).join("")}</div>
