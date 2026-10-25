@@ -41,6 +41,9 @@ def icon(size, maskable=False):
 def main():
     shutil.rmtree(DIST, ignore_errors=True); os.makedirs(DIST)
     page = open(SRC, encoding="utf8").read()
+    # the private copy carries the owner's SugarWOD data between the SEED markers: never ship it to the public site
+    page = re.sub(r"/\*SEED-START.*?/\*SEED-END\*/", "const SEED=null;", page, flags=re.S)
+    assert "SEED-START" not in page
     title = re.search(r"<title>(.*?)</title>", page).group(1)
     # iOS shows these while the app opens: the launch screen's first frame, one per iPhone size (made by launchgen.js)
     LD = os.path.join(HERE, "launch")
