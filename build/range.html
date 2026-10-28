@@ -341,6 +341,26 @@ textarea{font:inherit}.edex{gap:10px}.edhead{display:grid;grid-template-columns:
 .status .c-bad,.status .c-good,.status .c-top{letter-spacing:.12em}
 #tabbar button{font-size:10px}
 /* launch screen: the icon's range arc sweeps open while the figure reaches overhead, then fades into the app */
+/* front page (sign in), first run and the app tour */
+#gate{z-index:50;background:radial-gradient(120% 55% at 50% 0%,#14303A 0%,var(--bg) 62%) var(--bg)}
+#gate .inner{padding-top:env(safe-area-inset-top,0px)}
+.gate .ghero{display:grid;justify-items:center;text-align:center;gap:10px;padding:clamp(20px,6vh,56px) 0 4px}
+.gate .ghero.sm{padding-top:clamp(16px,4vh,40px)}.gate .ghero.sm .gmark{width:64px;height:64px}
+.gmark{width:clamp(72px,13vh,104px);height:auto}
+.gword{font-weight:800;font-stretch:125%;font-size:24px;letter-spacing:.32em;text-transform:uppercase;margin-right:-.32em}.gword b{color:var(--accent)}
+.gtag{margin:0;color:var(--muted);font-size:15px;max-width:30ch;text-wrap:balance}
+.gnote{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted);background:var(--surface);border-radius:10px;padding:8px 12px}.gnote .ic{width:16px;height:16px;flex:none}.gnote span{flex:1}
+.obgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.obgrid .opt{min-height:50px;padding:0 12px}
+.obeq .chip{padding:10px 14px;font-size:14px}
+.obtest{background:var(--stage);border-radius:14px;display:grid;place-items:center;overflow:hidden;padding:8px}.obtest svg{height:clamp(100px,20vh,180px);width:auto;max-width:100%;display:block}
+.obl{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:14px}.obl li{display:flex;gap:8px;align-items:center}.obl .ic{width:18px;height:18px;color:var(--accent)}
+#tour{position:fixed;inset:0;z-index:70;touch-action:none}
+#tour .tdim{position:absolute;inset:0;width:100%;height:100%}#tour .tdim path{fill:rgba(4,7,11,.76)}
+#tour .tring{position:fixed;border-radius:14px;box-shadow:0 0 0 2px var(--accent),0 0 22px rgba(63,208,201,.35);pointer-events:none;transition:all .25s ease}
+#tour .ttip{position:fixed;left:50%;transform:translateX(-50%);width:min(calc(100% - 32px),448px);background:var(--surface2);border-radius:14px;padding:14px 16px;display:grid;gap:6px;box-shadow:0 12px 32px rgba(0,0,0,.55);transition:top .25s ease}
+#tour .ttip p{margin:0;font-size:14px;color:var(--ink);opacity:.86}
+#tour .tth{display:flex;justify-content:space-between;align-items:center;gap:10px}#tour .tth .link{font-size:13px;padding:4px 0}
+#tour .frow{display:flex;gap:8px;margin-top:6px}#tour .frow .btn{min-height:44px;flex:1}
 #splash{position:fixed;inset:0;z-index:100;background:radial-gradient(120% 70% at 50% 42%,#14303A 0%,var(--bg) 62%);display:grid;place-items:center;transition:opacity .45s ease,visibility .45s;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
 #splash.out{opacity:0;visibility:hidden}
 #splash .spl{display:grid;justify-items:center;gap:18px}
@@ -1455,6 +1475,7 @@ const FIG3D=(()=>{
   }
   function tick(ts){
     if(!ready)return;
+    if(document.getElementById("gate")){requestAnimationFrame(tick);return} // nothing to draw behind the front page
     try{
       document.querySelectorAll("canvas.fig.f3.anim").forEach(cv=>{
         // a static stretch is drawn once in its held position (and again only when you turn it)
@@ -1666,6 +1687,7 @@ function render(){
   const tabs={library:["grid","Library"],home:["home","Today"],rebuild:["heart","Rebuild"],training:["cal","Training"],profile:["user","Profile"]};
   document.querySelectorAll("#tabbar button").forEach(b=>{const[icn,l]=tabs[b.dataset.t];b.innerHTML=ic(icn)+l;b.toggleAttribute("aria-current",false);if(b.dataset.t===stack[0].name)b.setAttribute("aria-current","page")});
   (AFTER[top.name]||(()=>{}))(top.p);
+  if(TOUR)requestAnimationFrame(()=>tourPlace());
 }
 const SCREENS={},AFTER={};
 
@@ -1675,8 +1697,8 @@ function streak(){const days=new Set(S.sessions.map(s=>dayKey(s.at)));let n=0,d=
 SCREENS.home=()=>{
   const sc=scores(),ov=overall(sc),lv=level(ov);
   return `<div class="hdr" style="grid-template-columns:1fr"><div class="brand">Range<b>.</b></div></div>
-  <div class="greet"><h1>${greeting()}</h1></div>
-  <div class="carousel" id="car">${Object.entries(KINDS).map(([k,v])=>`
+  <div class="greet"><h1>${greeting()}</h1></div>${offNote()}
+  <div class="carousel" id="car" data-tour="cards">${Object.entries(KINDS).map(([k,v])=>`
     <button class="pcard ${v.g}" data-act="startKind" data-kind="${k}" aria-label="${v.n}, ${v.sub}">
       <div class="art">${fig(v.pose,null,{anim:true})}</div>
       <h2>${v.n}</h2><p>${k==="activate"&&nextWorkout()?`For ${(w=>{const d=dayLabel(w.date);return d==="Today"?"today's":d==="Tomorrow"?"tomorrow's":fromIso(w.date).toLocaleDateString(undefined,{weekday:"long"})+"'s"})(nextWorkout())} workout`:k==="recover"&&loggedToday().length?`From today's ${loggedToday().length===1?"workout":loggedToday().length+" workouts"}`:v.sub}</p><span class="go">Start ▶</span></button>`).join("")}</div>
@@ -1684,9 +1706,9 @@ SCREENS.home=()=>{
   <div class="stack">
     ${S.rehab?(()=>{const R=REGIONS[S.rehab.region],ph=rbPhases(R,S.rehab.cls)[S.rehab.phase],st=rbStatus();return`<button class="ntile" data-act="tab" data-t="rebuild"><span class="eyebrow">Rebuild · ${R.n} · Phase ${S.rehab.phase+1}</span><b>${esc(ph.n)}</b><span class="go ${st.k==="back"||st.k==="stuck"?"c-bad":""}">${st.k==="back"?"Back off":st.k==="ready"?"Progress":"Open"}</span></button>`})():""}
     ${flowsRow()}
-    ${S.scores?"":`<div class="banner"><div><h3>Find your weak spots</h3><div class="muted" style="font-size:14px;margin-top:4px">Take the 10-minute mobility test: ${TSTEPS.length} quick checks across 6 areas. Until then, routines use an example profile.</div></div><button class="btn" data-act="openTest">${testDraft()?"Resume my test":"Test my mobility"}</button></div>`}
+    ${S.scores?"":`<div class="banner" data-tour="test"><div><h3>Find your weak spots</h3><div class="muted" style="font-size:14px;margin-top:4px">Take the 10-minute mobility test: ${TSTEPS.length} quick checks across 6 areas. Until then, routines use an example profile.</div></div><button class="btn" data-act="openTest">${testDraft()?"Resume my test":"Test my mobility"}</button></div>`}
     <div class="tiles">
-      <button class="tile" data-act="tab" data-t="profile"><span class="eyebrow">Mobility score</span><b>${ov}</b><span class="pill ${lv.c}" style="justify-self:start">${S.scores?lv.t:"Example"}</span></button>
+      <button class="tile" data-act="tab" data-t="profile" data-tour="score"><span class="eyebrow">Mobility score</span><b>${ov}</b><span class="pill ${lv.c}" style="justify-self:start">${S.scores?lv.t:"Example"}</span></button>
       <button class="tile" data-act="tab" data-t="profile"><span class="eyebrow">Streak</span><b>${streak()}</b><span class="muted" style="font-size:13px">day${streak()===1?"":"s"} in a row</span></button>
     </div>
   </div>`;
@@ -2107,7 +2129,7 @@ const flowItems=f=>{const taken=new Set(f.items.map(([id])=>id)),out=[];
     out.push(e.rehab?{id,dose:D_.time(t),why:"Slow breathing with long exhales to finish."}:{id,hold:t,why:`Part of the ${f.n} flow.`})});
   return out};
 ACT.flowStart=d=>{const f=FLOWS.find(x=>x.k===d.k);if(f)openPlayer(flowItems(f),{kind:"daily",focus:[],title:f.n})};
-const flowsRow=()=>`<div class="stack" style="gap:8px"><span class="eyebrow">Anytime flows</span><div class="hscroll">${FLOWS.map(f=>{const m=Math.max(1,Math.round(flowItems(f).reduce((t,it)=>t+itemSecs(it),0)/60));
+const flowsRow=()=>`<div class="stack" style="gap:8px" data-tour="flows"><span class="eyebrow">Anytime flows</span><div class="hscroll">${FLOWS.map(f=>{const m=Math.max(1,Math.round(flowItems(f).reduce((t,it)=>t+itemSecs(it),0)/60));
   return`<button class="fcard ${KINDS.daily.g}" data-act="flowStart" data-k="${f.k}"><b>${f.n}</b><small>${f.sub} · ${m} min</small></button>`}).join("")}</div></div>`;
 /* ---- My routines: your own exercise lists, shared as a link that carries the whole routine ---- */
 const myRoutines=()=>S.myProtocols.filter(p=>p.kind==="routine");
@@ -2151,7 +2173,7 @@ ACT.routinePaste=async()=>{let t="";try{t=await navigator.clipboard.readText()}c
   sheet(`<h3>Add a shared routine</h3><div class="scroll"><p class="muted" style="margin:0;font-size:14px">Paste the link someone sent you.</p><textarea id="rtLink" class="field" rows="4" style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px;font-size:13px"></textarea><p id="rtMsg" class="c-bad" style="margin:0;font-size:14px"></p></div>
    <div style="display:grid;gap:8px"><button class="btn" data-act="routinePasteGo">Continue</button><button class="btn sec" data-act="closeSheet">Cancel</button></div>`)};
 ACT.routinePasteGo=()=>{const r=parseRoutine($("#rtLink").value);if(r){closeSheet();offerRoutine(r)}else $("#rtMsg").textContent="That doesn't look like a Range routine link."};
-const routinesPanel=()=>{const rs=myRoutines();return`<div class="stack" style="gap:8px"><div style="display:flex;justify-content:space-between;align-items:center"><span class="eyebrow">My routines</span><span style="display:flex;gap:14px;align-items:center"><button class="link" data-act="routinePaste">Paste a link</button><button class="link" data-act="routineNew">${ic("plus","")} New</button></span></div>
+const routinesPanel=()=>{const rs=myRoutines();return`<div class="stack" style="gap:8px" data-tour="routines"><div style="display:flex;justify-content:space-between;align-items:center"><span class="eyebrow">My routines</span><span style="display:flex;gap:14px;align-items:center"><button class="link" data-act="routinePaste">Paste a link</button><button class="link" data-act="routineNew">${ic("plus","")} New</button></span></div>
   ${rs.length?rs.map(p=>{const m=Math.max(1,Math.round(rtItems(p).reduce((t,it)=>t+itemSecs(it),0)/60));return`<div class="panel rtcard">
    <div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><h3>${esc(p.name)}</h3><button class="link" data-act="myEdit" data-id="${p.id}">Edit</button></div>
    <p class="muted" style="margin:0;font-size:13px">${p.items.length} exercise${p.items.length===1?"":"s"} · about ${m} min${p.from?` · ${esc(p.from)}`:""}</p>
@@ -3530,7 +3552,7 @@ SCREENS.training=()=>{
   const sc=scores();
   return `<div class="hdr" style="grid-template-columns:1fr"><div class="brand">Range<b>.</b></div></div>
   <div class="stack" style="padding-top:8px">
-  <div style="display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap"><h1>Training</h1><span style="display:flex;gap:16px;align-items:center;padding-bottom:4px">${S.training.length?`<button class="link" data-act="importW">Import</button><button class="link" data-act="addW">${ic("plus","")} Add workout</button>`:""}</span></div>
+  <div style="display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap" data-tour="train-top"><h1>Training</h1><span style="display:flex;gap:16px;align-items:center;padding-bottom:4px">${S.training.length?`<button class="link" data-act="importW">Import</button><button class="link" data-act="addW">${ic("plus","")} Add workout</button>`:""}</span></div>
   ${S.training.length?"":`<div class="banner"><div><h3>Bring in your SugarWOD workouts</h3><p class="muted" style="font-size:14px;margin:6px 0 0">Copy a workout from the SugarWOD whiteboard and paste it here. Range finds the movements, then prepares you for upcoming sessions and helps you recover from past ones.</p></div><button class="btn" data-act="importW">Import from SugarWOD</button><button class="btn sec" data-act="addW">Paste a workout</button><button class="btn sec" data-act="exampleWeek">Try with an example week</button></div>`}
   ${(()=>{const sy=S.sync||{};
     if(API)return connPanel();
@@ -3921,7 +3943,7 @@ SCREENS.rebuild=()=>{
   if(!S.rehab)return head+`<div class="stack" style="padding-top:8px">
    <h1>Rebuild</h1>
    <p class="muted" style="margin:0">Pain-guided programs for lifters. You screen the area yourself, Range works out what kind of problem it is, then takes you through staged phases. Your pain rating each session decides when to hold back and when to move on.</p>
-   <div class="sports">${Object.entries(REGIONS).map(([k,R])=>`<button class="scard g-${["a","b","c","d"][Object.keys(REGIONS).indexOf(k)%4]}" data-act="rbPick" data-r="${k}"><div class="art">${fig(R.fig,null,{t:.8})}</div><b>${R.n}</b></button>`).join("")}</div>
+   <div class="sports" data-tour="rebuild">${Object.entries(REGIONS).map(([k,R])=>`<button class="scard g-${["a","b","c","d"][Object.keys(REGIONS).indexOf(k)%4]}" data-act="rbPick" data-r="${k}"><div class="art">${fig(R.fig,null,{t:.8})}</div><b>${R.n}</b></button>`).join("")}</div>
    ${myProtosPanel()}
    <p class="muted" style="margin:0;font-size:12px">Based on the screening and rebuilding method in <i>Rebuilding Milo</i> (Horschig & Sonthana), checked against current physiotherapy research. Range doesn't diagnose. See a physiotherapist if pain is severe, getting worse, or not improving after 3 weeks.</p></div>`;
   const st=S.rehab,R=REGIONS[st.region],C=R.classes[st.cls],phs=rbPhases(R,st.cls),ph=phs[st.phase],stt=rbStatus(),items=rbItems();
@@ -4171,9 +4193,10 @@ SCREENS.profile=()=>{
     <ul class="bars">${(()=>{const wk=weekStretch();return AREAS.map(a=>{const m=(wk[a.k]||0)/60,v=Math.min(100,m/10*100);return`<li><span>${a.n}</span><span class="tr"><i style="width:${v}%;background:${m>=10?"var(--good)":"var(--accent)"}"></i></span><b>${m>=10||m===0?Math.round(m):m.toFixed(1)} min</b></li>`}).join("")})()}</ul>
     <p class="muted" style="margin:0;font-size:12px">Static stretching gains level off at about 10 minutes per area per week. Past that, Daily sessions move on to other areas.</p></div>
   <button class="panel navrow" data-act="howItWorks"><span><b>How Range works</b><small class="muted">The science and sources behind each session</small></span><span class="chev">${ic("back")}</span></button>
-  <div class="panel"><div style="display:flex;justify-content:space-between;align-items:center"><h3>My sports</h3><button class="link" data-act="sportsSheet">Edit</button></div>
+  <button class="panel navrow" data-act="tourStart" data-tour="tour-btn"><span><b>Show the app tour</b><small class="muted">A one-minute walk through every tab</small></span><span class="chev">${ic("back")}</span></button>
+  <div class="panel" data-tour="sports"><div style="display:flex;justify-content:space-between;align-items:center"><h3>My sports</h3><button class="link" data-act="sportsSheet">Edit</button></div>
     <div class="chipset">${S.sports.map(k=>`<span class="chip">${SPI[k].n}</span>`).join("")}</div></div>
-  <div class="panel"><h3>My equipment</h3><div class="chipset">${EQUIP.map(e=>`<button class="chip ${S.equip.includes(e.k)?"on":""}" data-act="profEq" data-e="${e.k}">${ic(e.k)}${e.n}</button>`).join("")}</div></div>
+  <div class="panel" data-tour="equip"><h3>My equipment</h3><div class="chipset">${EQUIP.map(e=>`<button class="chip ${S.equip.includes(e.k)?"on":""}" data-act="profEq" data-e="${e.k}">${ic(e.k)}${e.n}</button>`).join("")}</div></div>
   <div class="panel"><h3>Player</h3>
     <button class="toggle" data-act="setTog" data-k="sound"><span>Sound cues</span><span class="sw ${S.settings.sound?"on":""}"></span></button>
     <button class="toggle" data-act="setTog" data-k="voice"><span>Voice coach</span><span class="sw ${S.settings.voice?"on":""}"></span></button>
@@ -4450,7 +4473,7 @@ ACT.connSave=async d=>{
 };
 ACT.connSync=async d=>{const m=$("#cMsg");if(m)m.textContent="Syncing…";try{const r=await api("POST",`/connections/${d.id}/sync`);if(m)m.textContent=r.result.ok?`Synced ${r.result.count} days.`:r.result.error;await refreshConns();acctPull(true)}catch(e){if(m)m.textContent=e.message}};
 ACT.connDel=async d=>{if(!confirm("Remove this connection? Its stored login and synced workouts are deleted from Range."))return;try{await api("DELETE","/connections/"+d.id);S.training=S.training.filter(w=>w.source!=="sugarwod-auto");save();await refreshConns();acctPull(true);closeSheet();render()}catch(e){const m=$("#cMsg");if(m)m.textContent=e.message}};
-function acctPanel(){return`<div class="panel"><h3>Account</h3><div style="font-size:14px">Signed in as <b>${esc(ACCOUNT?ACCOUNT.email:"")}</b>. Your data is saved to your account and follows you to every device.</div>
+function acctPanel(){return`<div class="panel" data-tour="account"><h3>Account</h3><div style="font-size:14px">Signed in as <b>${esc(ACCOUNT?ACCOUNT.email:"")}</b>. Your data is saved to your account and follows you to every device.</div>
   <div class="frow"><button class="btn sec" style="flex:1" data-act="conns">Connected platforms</button><button class="btn sec" style="flex:1" data-act="signOut">Sign out</button></div>
   <button class="link" style="justify-self:start;color:var(--bad)" data-act="delAcct">Delete my account</button></div>`}
 ACT.signOut=async()=>{try{await api("POST","/auth/logout")}catch(e){}ACCOUNT=null;CONNS=null;const keep=S.settings;S=JSON.parse(S_FRESH);S.settings=keep;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}authScreen("in")};
@@ -4533,28 +4556,17 @@ async function sbPull(){
     if(!S._owner||(remote._upd||0)>=(S._upd||0)){sbAdopt(remote);return}}
   S._owner=SBU.id;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}await sbPush();
 }
-async function sbBoot(){try{await sbLoad();const{data}=await SB.auth.getSession();SBU=data.session&&data.session.user||null;if(SBU){await sbPull();render()}}catch(e){sbErr=sbNice(e)||"Account sync failed."}}
+// a saved session: refresh it quietly; offline, keep going on this phone's data and catch up when back online
+async function sbBoot(){try{await sbLoad()}catch(e){SB_OFFLINE=true;return}
+  try{const{data,error}=await SB.auth.getSession();if(error&&sbNet(error)){SB_OFFLINE=true;return}
+    SBU=data.session&&data.session.user||null;if(SBU){SB_OFFLINE=false;await sbPull();render()}}
+  catch(e){if(sbNet(e))SB_OFFLINE=true;sbErr=sbNice(e)||"Account sync failed."}}
 function sbPanel(){
-  if(SBU)return`<div class="panel"><h3>Account</h3><div style="font-size:14px">Signed in as <b>${esc(SBU.email||"")}</b>. Your Range data is saved to your account and follows you to any device.</div>${sbErr?`<div class="c-bad" style="font-size:13px">${esc(sbErr)}</div>`:""}
+  if(SBU)return`<div class="panel" data-tour="account"><h3>Account</h3><div style="font-size:14px">Signed in as <b>${esc(SBU.email||"")}</b>. Your Range data is saved to your account and follows you to any device.</div>${sbErr?`<div class="c-bad" style="font-size:13px">${esc(sbErr)}</div>`:""}
     <div class="frow"><button class="btn sec" style="flex:1" data-act="sbSyncNow">Save now</button><button class="btn sec" style="flex:1" data-act="sbOut">Sign out</button></div>
     <button class="link" style="justify-self:start;color:var(--bad)" data-act="sbDel">Delete my account</button></div>`;
-  return`<div class="panel"><h3>Account</h3><div class="muted" style="font-size:14px">Create a free account to keep your tests, sessions and routines safe and use Range on any device.</div>
+  return`<div class="panel" data-tour="account"><h3>Account</h3><div class="muted" style="font-size:14px">Create a free account to keep your tests, sessions and routines safe and use Range on any device.</div>
     <div class="frow"><button class="btn" style="flex:1" data-act="sbAuth" data-m="up">Create account</button><button class="btn sec" style="flex:1" data-act="sbAuth" data-m="in">Sign in</button></div></div>`}
-ACT.sbAuth=d=>sheet(`<h3>${d.m==="up"?"Create your account":"Sign in"}</h3><div class="scroll"><form id="sbF" class="stack" style="gap:10px" onsubmit="return false">
-  <label class="field"><span class="eyebrow">Email</span><input name="email" type="email" autocomplete="email" autocapitalize="none" spellcheck="false" required></label>
-  <label class="field"><span class="eyebrow">Password${d.m==="up"?" (at least 8 characters)":""}</span><input name="password" type="password" autocomplete="${d.m==="up"?"new-password":"current-password"}" required></label>
-  <p id="sbMsg" style="margin:0;font-size:14px" aria-live="polite"></p>${d.m==="in"?`<button class="link" style="justify-self:start" data-act="sbForgot">Forgot your password?</button>`:""}</form></div>
-  <div style="display:grid;gap:8px"><button class="btn" data-act="sbGo" data-m="${d.m}">${d.m==="up"?"Create account":"Sign in"}</button><button class="btn sec" data-act="sbAuth" data-m="${d.m==="up"?"in":"up"}">${d.m==="up"?"I already have an account":"Create an account"}</button></div>`);
-ACT.sbGo=async d=>{const f=$("#sbF"),email=f.email.value.trim(),password=f.password.value,msg=$("#sbMsg"),btn=$("[data-act=sbGo]");
-  if(!email||!password){msg.className="c-bad";msg.textContent="Enter your email and password.";return}
-  if(d.m==="up"&&password.length<8){msg.className="c-bad";msg.textContent="Use at least 8 characters.";return}
-  btn.disabled=true;msg.className="muted";msg.textContent=d.m==="up"?"Creating your account…":"Signing in…";
-  try{await sbLoad();const back=location.origin+location.pathname;
-    const r=d.m==="up"?await SB.auth.signUp({email,password,options:{emailRedirectTo:back}}):await SB.auth.signInWithPassword({email,password});
-    if(r.error)throw r.error;
-    if(d.m==="up"&&!r.data.session){msg.className="";msg.innerHTML="Almost there: open the email we sent to <b>"+esc(email)+"</b> and tap the link to confirm. Then sign in here.";btn.disabled=false;return}
-    SBU=r.data.user;msg.textContent="Bringing your data together…";await sbPull();closeSheet();render()}
-  catch(e){msg.className="c-bad";msg.textContent=sbNice(e);btn.disabled=false}};
 // account errors in plain words, never the raw server text
 function sbNice(e){const m=String(e&&(e.message||e.error_description||e.msg)||e||""),st=e&&e.status;
   if(/user_data|schema cache/i.test(m))return"You're signed in, but the account storage isn't set up yet. Try again in a minute.";
@@ -4569,22 +4581,205 @@ function sbNice(e){const m=String(e&&(e.message||e.error_description||e.msg)||e|
   if(/failed to fetch|network|load failed|timeout|offline/i.test(m))return"Couldn't reach the server. Check your connection and try again.";
   if(/signups? not allowed|disabled/i.test(m))return"New accounts are paused right now. Please try again later.";
   return"Something went wrong. Please try again in a minute."}
-ACT.sbForgot=async()=>{const email=$("#sbF").email.value.trim(),msg=$("#sbMsg");if(!email){msg.className="c-bad";msg.textContent="Type your email above first.";return}
-  try{await sbLoad();const{error}=await SB.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});if(error)throw error;msg.className="";msg.textContent="Check your email for a link to set a new password."}catch(e){msg.className="c-bad";msg.textContent=sbNice(e)}};
 ACT.sbNewPw=()=>sheet(`<h3>Set a new password</h3><div class="scroll"><label class="field"><span class="eyebrow">New password (at least 8 characters)</span><input id="sbPw" type="password" autocomplete="new-password"></label><p id="sbMsg" style="margin:0;font-size:14px"></p></div><button class="btn" data-act="sbSetPw">Save password</button>`);
 ACT.sbSetPw=async()=>{const pw=$("#sbPw").value,msg=$("#sbMsg");if(pw.length<8){msg.className="c-bad";msg.textContent="Use at least 8 characters.";return}
   const{error}=await SB.auth.updateUser({password:pw});if(error){msg.className="c-bad";msg.textContent=sbNice(error);return}closeSheet();await sbBoot();render()};
 ACT.sbSyncNow=async()=>{try{await sbPush();sbErr=""}catch(e){sbErr="Couldn't save to your account. "+sbNice(e)}render()};
-ACT.sbOut=async()=>{try{await sbPush()}catch(e){}try{await SB.auth.signOut()}catch(e){}SBU=null;render()};
 ACT.sbDel=()=>sheet(`<h3>Delete your account</h3><div class="scroll"><p style="margin:0">This permanently deletes your Range account and the data saved to it. The copy on this phone stays until you clear it.</p><p id="sbMsg" class="c-bad" style="margin:0;font-size:14px"></p></div><button class="btn" style="background:var(--bad)" data-act="sbDelGo">Delete my account</button>`);
-ACT.sbDelGo=async()=>{const{error}=await SB.rpc("delete_my_account");if(error){$("#sbMsg").textContent=sbNice(error);return}try{await SB.auth.signOut()}catch(e){}SBU=null;delete S._owner;save();closeSheet();render()};
-if(API)acctBoot();else{render();if(testDraft())try{ACT.openTest()}catch(e){}if(sbHasSession()||/access_token|type=recovery/.test(location.hash)||/[?&]code=/.test(location.search))sbBoot()}
+ACT.sbDelGo=async()=>{const{error}=await SB.rpc("delete_my_account");if(error){$("#sbMsg").textContent=sbNice(error);return}try{await SB.auth.signOut()}catch(e){}SBU=null;delete S._owner;save();closeSheet();stack=[{name:"home",p:{}}];render();gateShow("up")};
+/* ================= front page, first-run setup and the app tour =================
+   Signing in is the front page. A saved Supabase session goes straight in and is refreshed quietly behind the
+   launch screen; nobody is asked again until they sign out. Offline, the app opens on this phone's data.
+   ?nogate (QA scripts only) opens the app on this phone's data without the front page. */
+const NOGATE=/[?&#]nogate\b/.test(location.search+location.hash);
+let GATE=null,SB_OFFLINE=false,GATE_SKIPPED=false,gateReady=false,TOUR=null,TOUR_PENDING=false;
+const sbNet=e=>!!e&&(e.name==="AuthRetryableFetchError"||/failed to fetch|network|load failed|timeout|offline|reach the account service|fetch/i.test(String(e.message||e)));
+// real Range use on this phone (not the preloaded SugarWOD rows): set up before, so no first-run questions
+const usedRange=o=>!!o&&(!!o.scores||(o.tests||[]).length>0||(o.sessions||[]).length>0||(o.myProtocols||[]).length>0||!!o.rehab);
+const lastEmail=()=>{try{return localStorage.getItem("range-last-email")||""}catch(e){return""}};
+const RANGE_MARK=`<svg viewBox="0 0 200 200" class="gmark" aria-hidden="true"><path d="M41.1 134A68 68 0 1 1 158.9 134" fill="none" stroke="#28303A" stroke-width="15" stroke-linecap="round"/><path d="M41.1 134A68 68 0 1 1 158.9 66" fill="none" stroke="var(--accent)" stroke-width="15" stroke-linecap="round"/><circle cx="158.9" cy="66" r="14" fill="var(--ink)"/><g transform="translate(28 35.2) scale(.72)"><path d="M100 70V118L130 120L132 158M100 118L76 140L52 152M100 76L116 52L124 30" fill="none" stroke="var(--ink)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/><circle cx="96" cy="52" r="13" fill="var(--ink)"/></g></svg>`;
+function gateHost(){let g=document.getElementById("gate");if(!g){g=document.createElement("div");g.id="gate";g.className="full";g.setAttribute("role","dialog");g.setAttribute("aria-modal","true");g.setAttribute("aria-label","Range");document.body.appendChild(g)}document.body.style.overflow="hidden";return g}
+function gateClose(){const g=document.getElementById("gate");if(g)g.remove();GATE=null;if(!$("#layer").innerHTML)document.body.style.overflow=""}
+function gateShow(m){closeSheet();GATE={m:m||(lastEmail()||usedRange(S)?"in":"up"),step:"form",email:(GATE&&GATE.email)||lastEmail()};gateDraw();
+  // fetch the account library while the person types
+  sbLoad().catch(()=>{if(GATE&&GATE.step==="form"){GATE.net=true;gateDraw(true)}})}
+function gateDraw(keep){const g=gateHost(),G=GATE;
+  const f=$("#sbF"),typed=f&&{email:f.email.value,password:f.password.value};
+  if(G.step==="check"){g.innerHTML=`<div class="inner gate"><div class="ghero sm">${RANGE_MARK}<div class="gword">Range<b>.</b></div></div>
+    <div class="stack" style="align-content:start;gap:12px"><span class="eyebrow">One more step</span><h1>Check your email</h1>
+     <p style="margin:0">We sent a link to <b>${esc(G.email)}</b>. Tap it to confirm your account, then come back here.</p>
+     <p class="muted" style="margin:0;font-size:14px">Not there after a minute? Look in spam or promotions.</p><p id="sbMsg" style="margin:0;font-size:14px" aria-live="polite"></p></div>
+    <div class="bottomcta"><button class="btn" data-act="gateConfirmed">I've confirmed, sign me in</button><button class="btn sec" data-act="gateResend">Send the email again</button>
+     <button class="link muted" style="justify-self:center;padding:4px 12px" data-act="gateMode" data-m="up">Use a different email</button></div></div>`;return}
+  const up=G.m==="up",off=G.net||navigator.onLine===false;
+  g.innerHTML=`<div class="inner gate"><div class="ghero">${RANGE_MARK}<div class="gword">Range<b>.</b></div><p class="gtag">Warm-ups and recovery built from the workout you're actually doing.</p></div>
+   <form id="sbF" class="stack" style="align-content:start;gap:12px" onsubmit="return false" novalidate>
+    <div class="seg" style="grid-template-columns:1fr 1fr" role="tablist" aria-label="Account"><button type="button" role="tab" aria-selected="${up}" class="${up?"on":""}" data-act="gateMode" data-m="up">Create account</button><button type="button" role="tab" aria-selected="${!up}" class="${up?"":"on"}" data-act="gateMode" data-m="in">Sign in</button></div>
+    <label class="field"><span class="eyebrow">Email</span><input name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" value="${esc(G.email||"")}"></label>
+    <label class="field"><span class="eyebrow">Password${up?" · at least 8 characters":""}</span><input name="password" type="password" autocomplete="${up?"new-password":"current-password"}" enterkeyhint="go"></label>
+    <p id="sbMsg" style="margin:0;font-size:14px;min-height:1.45em" aria-live="polite"></p>
+    ${up?"":`<button type="button" class="link" style="justify-self:start;margin-top:-6px" data-act="sbForgot">Forgot your password?</button>`}
+   </form>
+   <div class="bottomcta">${off?`<div class="gnote">${ic("sync")}<span>You're offline. Use Range with this phone's data and sign in later.</span></div><button class="btn sec" data-act="gateOffline">Continue offline</button>`:""}
+    <button class="btn" data-act="sbGo">${up?"Create account":"Sign in"}</button>
+    <p class="muted" style="margin:0;font-size:12px;text-align:center">Free. Your tests, sessions and routines follow you to any device.</p></div></div>`;
+  const nf=$("#sbF");if(keep&&typed){nf.email.value=typed.email;nf.password.value=typed.password}
+  nf.password.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();ACT.sbGo()}});
+  nf.email.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();nf.password.focus()}});
+}
+ACT.gateMode=d=>{const f=$("#sbF");if(f)GATE.email=f.email.value.trim();GATE.m=d.m;GATE.step="form";gateDraw()};
+ACT.gateOffline=()=>{GATE_SKIPPED=true;gateClose();stack=[{name:"home",p:{}}];render()};
+addEventListener("online",()=>{if(GATE&&GATE.step==="form"&&GATE.net){GATE.net=false;gateDraw(true)}if(SB_OFFLINE&&!GATE)sbBoot().then(()=>{if(SBU){SB_OFFLINE=false;render()}})});
+addEventListener("offline",()=>{if(GATE&&GATE.step==="form")gateDraw(true)});
+// the old sheet buttons (Profile, when you continued offline) open the front page
+ACT.sbAuth=d=>gateShow(d.m);
+ACT.sbGo=async()=>{const f=$("#sbF");if(!f||!GATE)return;const m=GATE.m,email=f.email.value.trim(),password=f.password.value,msg=$("#sbMsg"),btn=$("[data-act=sbGo]");
+  const bad=t=>{msg.className="c-bad";msg.textContent=t;btn.disabled=false};
+  if(!email||!password)return bad("Enter your email and password.");
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return bad("Please use a real email address.");
+  if(m==="up"&&password.length<8)return bad("Use at least 8 characters.");
+  GATE.email=email;btn.disabled=true;msg.className="muted";msg.textContent=m==="up"?"Creating your account…":"Signing in…";
+  try{await sbLoad();const back=location.origin+location.pathname;
+    const r=m==="up"?await SB.auth.signUp({email,password,options:{emailRedirectTo:back}}):await SB.auth.signInWithPassword({email,password});
+    if(r.error)throw r.error;
+    // with email confirmation on, an address that already has an account comes back with no identities
+    if(m==="up"&&r.data.user&&Array.isArray(r.data.user.identities)&&!r.data.user.identities.length){GATE.m="in";gateDraw(true);const mm=$("#sbMsg");mm.className="c-bad";mm.textContent="There's already an account with this email. Sign in, or use Forgot your password.";return}
+    if(m==="up"&&!r.data.session){GATE.pw=password;GATE.step="check";gateDraw();return}
+    await gateIn(r.data.user||(r.data.session&&r.data.session.user))}
+  catch(e){if(sbNet(e)){GATE.net=true;gateDraw(true);const mm=$("#sbMsg");mm.className="c-bad";mm.textContent="Couldn't reach the server. Check your connection, or continue offline.";return}bad(sbNice(e))}};
+ACT.gateConfirmed=async()=>{const msg=$("#sbMsg"),btn=$("[data-act=gateConfirmed]");btn.disabled=true;msg.className="muted";msg.textContent="Signing in…";
+  try{await sbLoad();const r=await SB.auth.signInWithPassword({email:GATE.email,password:GATE.pw||""});if(r.error)throw r.error;await gateIn(r.data.user)}
+  catch(e){msg.className="c-bad";msg.textContent=/not confirmed|confirm/i.test(String(e.message))?"Not confirmed yet. Open the email we sent and tap the link, then try again.":GATE.pw?sbNice(e):"Sign in with your email and password.";btn.disabled=false;if(!GATE.pw){GATE.m="in";GATE.step="form";gateDraw()}}};
+ACT.gateResend=async()=>{const msg=$("#sbMsg");try{await sbLoad();const{error}=await SB.auth.resend({type:"signup",email:GATE.email,options:{emailRedirectTo:location.origin+location.pathname}});if(error)throw error;msg.className="";msg.textContent="Sent again. It can take a minute to arrive."}catch(e){msg.className="c-bad";msg.textContent=sbNice(e)}};
+ACT.sbForgot=async()=>{const f=$("#sbF"),email=f.email.value.trim(),msg=$("#sbMsg");if(!email){msg.className="c-bad";msg.textContent="Type your email above first.";return}
+  msg.className="muted";msg.textContent="Sending…";
+  try{await sbLoad();const{error}=await SB.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});if(error)throw error;msg.className="";msg.textContent="Check your email for a link to set a new password."}catch(e){msg.className="c-bad";msg.textContent=sbNice(e)}};
+// signed in: bring this phone and the account together, then set up a new person or go straight in
+async function gateIn(user){SBU=user;SB_OFFLINE=false;GATE_SKIPPED=false;try{localStorage.setItem("range-last-email",user.email||"")}catch(e){}
+  const msg=$("#sbMsg");if(msg){msg.className="muted";msg.textContent="Bringing your data together…"}
+  try{await sbPull()}catch(e){sbErr=sbNice(e)}
+  afterIn()}
+function afterIn(){
+  if(!S.onboarded&&usedRange(S)){S.onboarded=true;save()} // used Range before accounts, or on another device
+  if(!S.onboarded){obStart();return}
+  gateClose();stack=[{name:"home",p:{}}];render();window.scrollTo(0,0)}
+ACT.sbOut=async()=>{try{await sbPush()}catch(e){}try{await SB.auth.signOut()}catch(e){}SBU=null;sbErr="";TOUR&&tourEnd(true);stack=[{name:"home",p:{}}];render();gateShow("in")};
+
+/* ---- first run: sports, equipment, then the test or an example profile ---- */
+function obStart(){GATE=GATE||{};GATE.step="ob";GATE.ob={i:0,sports:[],equip:[],setS:false,setE:false};obDraw()}
+function obDraw(){const g=gateHost(),o=GATE.ob,i=o.i;
+  const head=`<div><div class="hdr" style="grid-template-columns:64px 1fr 64px"><button data-act="obBack" aria-label="Back" ${i?"":`style="visibility:hidden"`}>${ic("back")}</button><div class="brand">Range<b>.</b></div><button class="link muted" style="justify-self:end;padding:8px 0" data-act="obSkip">Skip</button></div>
+    <div class="tprog">${[0,1,2].map(k=>`<i class="${k<=i?"on":""}"></i>`).join("")}</div></div>`;
+  let body,cta;
+  if(i===0){body=`<div class="stack" style="align-content:start;gap:12px"><span class="eyebrow">Step 1 of 3 · Your sports</span><h1>What do you train?</h1>
+     <p class="muted" style="margin:0">Pick all that apply. Warm-ups and daily sessions lean toward what your sports need.</p>
+     <div class="obgrid">${SPORTS.map(s=>`<button class="opt ${o.sports.includes(s.k)?"on":""}" data-act="obSport" data-s="${s.k}" aria-pressed="${o.sports.includes(s.k)}"><span>${s.n}</span><span class="tick">${ic("check")}</span></button>`).join("")}</div></div>`;
+    cta=`<button class="btn" data-act="obNext" ${o.sports.length?"":"disabled"}>Continue</button>`}
+  else if(i===1){body=`<div class="stack" style="align-content:start;gap:12px"><span class="eyebrow">Step 2 of 3 · Equipment</span><h1>What can you use?</h1>
+     <p class="muted" style="margin:0">Tap what you have at home or at your gym. Sessions only use these, and the floor is always included.</p>
+     <div class="chipset obeq">${EQUIP.map(e=>`<button class="chip ${o.equip.includes(e.k)?"on":""}" data-act="obEq" data-e="${e.k}" aria-pressed="${o.equip.includes(e.k)}">${ic(e.k)}${e.n}</button>`).join("")}</div></div>`;
+    cta=`<button class="btn" data-act="obNext">${o.equip.length?"Continue":"Continue with no equipment"}</button>`}
+  else{body=`<div class="stack" style="align-content:start;gap:12px"><span class="eyebrow">Step 3 of 3 · Your starting point</span><h1>Find your weak spots</h1>
+     <p class="muted" style="margin:0">The mobility test is ${TSTEPS.length} quick checks across 6 areas. Every session then spends the most time where you need it.</p>
+     <div class="obtest">${fig("squat")}</div>
+     <ul class="obl"><li>${ic("check")}About 10 minutes</li><li>${ic("check")}A wall and a bench or bed</li><li>${ic("check")}Retest monthly to see your progress</li></ul></div>`;
+    cta=`<button class="btn" data-act="obDone" data-t="1">Take the 10-min mobility test now</button><button class="btn sec" data-act="obDone" data-t="0">Later — start with an example profile</button>`}
+  g.innerHTML=`<div class="inner">${head}${body}<div class="bottomcta">${cta}</div></div>`;g.scrollTop=0}
+ACT.obSport=(d,el)=>{const o=GATE.ob,k=o.sports.indexOf(d.s);if(k>=0)o.sports.splice(k,1);else o.sports.push(d.s);const on=o.sports.includes(d.s);el.classList.toggle("on",on);el.setAttribute("aria-pressed",on);$("[data-act=obNext]").disabled=!o.sports.length};
+ACT.obEq=(d,el)=>{const o=GATE.ob,k=o.equip.indexOf(d.e);if(k>=0)o.equip.splice(k,1);else o.equip.push(d.e);const on=o.equip.includes(d.e);el.classList.toggle("on",on);el.setAttribute("aria-pressed",on);$("[data-act=obNext]").textContent=o.equip.length?"Continue":"Continue with no equipment"};
+ACT.obNext=()=>{const o=GATE.ob;if(o.i===0)o.setS=true;if(o.i===1)o.setE=true;o.i++;obDraw()};
+ACT.obBack=()=>{const o=GATE.ob;if(o.i>0){o.i--;obDraw()}};
+// skipping a step keeps what's there now (CrossFit and every piece of equipment); you can change both in Profile
+ACT.obSkip=()=>{const o=GATE.ob;if(o.i<2){o.i++;obDraw()}else ACT.obDone({t:"0"})};
+ACT.obDone=d=>{const o=GATE.ob;
+  if(o.setS&&o.sports.length)S.sports=SPORTS.map(s=>s.k).filter(k=>o.sports.includes(k));
+  if(o.setE)S.equip=EQUIP.map(e=>e.k).filter(k=>o.equip.includes(k));
+  S._eqBall=1;S._eqBar=1;S.onboarded=true;save();if(SBU)sbPush().catch(()=>{});
+  gateClose();stack=[{name:"home",p:{}}];render();window.scrollTo(0,0);
+  if(d.t==="1"){TOUR_PENDING=true;ACT.openTest()}else setTimeout(tourStart,350)};
+// the tour follows the test when the person took it during setup
+{const exit=ACT.testExit;ACT.testExit=()=>{exit();if(TOUR_PENDING){TOUR_PENDING=false;setTimeout(tourStart,450)}}}
+
+/* ---- the app tour: a dimmed screen with a cut-out around the real element and a short note ---- */
+const tq=s=>document.querySelector(s),tpanel=s=>{const e=tq(s);return e&&e.closest(".panel")};
+const TOUR_STEPS=[
+ {tab:"home",el:()=>[tq("[data-tour=cards]")],t:"Before and after training",d:"Activate warms up what today's workout needs. Recover winds down what it loaded. Swipe for Daily and Rebuild."},
+ {tab:"home",el:()=>[tq("[data-tour=flows]")],t:"Anytime flows",d:"Short routines for a desk break, the morning or bedtime. Tap one and press play."},
+ {tab:"home",el:()=>[tq("[data-tour=test]")||tq("[data-tour=score]")],t:"Your mobility score",d:()=>S.scores?"Your score across 6 areas. Retest every month and watch it climb.":"Take the 10-minute test so every session targets your weak spots. Until then Range uses an example profile."},
+ {tab:"training",el:()=>{const t=tq("[data-tour=train-top]"),n=t&&t.nextElementSibling;return[t,n&&/SugarWOD/.test(n.textContent)?n:null]},t:"Your training",d:"Workouts from SugarWOD arrive here, or add one by hand. Range reads the movements in each one."},
+ {tab:"training",el:()=>{const a=[tpanel("[data-act=prepNext]"),tpanel("[data-act=recoverRecent]")].filter(Boolean);if(a.length)return a;const w=tq("#screen .wlist");return[w&&w.parentElement]},t:"Prepare and recover",d:"Every workout gets a warm-up built for its movements before, and a recovery for what it loaded after."},
+ {tab:"library",el:()=>[tq("[data-tour=routines]"),tq("#screen .search")],t:"Library",d:"Every stretch and drill, by muscle or by area. Build your own routines and share them as a link."},
+ {tab:"rebuild",el:()=>[tq("[data-tour=rebuild]")],t:"Rebuild",d:"Pain-guided programs for lifters: screen the sore area, then rebuild it in phases with clear pain rules."},
+ {tab:"profile",el:()=>[tq("[data-tour=sports]"),tq("[data-tour=equip]")],t:"Your sports and equipment",d:"Change them any time. Sessions only use equipment you have."},
+ {tab:"profile",el:()=>[tq("[data-tour=account]")],t:"Your account",d:"Your tests, sessions and routines save to your account and follow you to any device."},
+ {tab:"profile",el:()=>[tq("[data-tour=tour-btn]")],t:"That's the tour",d:"Replay it any time from Profile. Now go and move."},
+];
+let tourSafe=null;
+function tourInsets(){if(!tourSafe){const p=document.createElement("div");p.style.cssText="position:fixed;visibility:hidden;pointer-events:none;top:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)";document.body.appendChild(p);const cs=getComputedStyle(p);tourSafe={t:parseFloat(cs.paddingTop)||0,b:parseFloat(cs.paddingBottom)||0};p.remove()}return tourSafe}
+function tourStart(){if(TOUR)return;closeSheet();if(document.getElementById("gate"))return;
+  const root=document.createElement("div");root.id="tour";root.setAttribute("role","dialog");root.setAttribute("aria-modal","true");root.setAttribute("aria-label","App tour");
+  root.innerHTML=`<svg class="tdim" aria-hidden="true"><path fill-rule="evenodd"/></svg><div class="tring" aria-hidden="true"></div><div class="ttip" aria-live="polite"></div>`;
+  root.addEventListener("touchmove",e=>e.preventDefault(),{passive:false});root.addEventListener("wheel",e=>e.preventDefault(),{passive:false});
+  document.body.appendChild(root);TOUR={i:-1,root,dir:1};
+  TOUR.onR=()=>tourPlace();TOUR.onK=e=>{if(e.key==="Escape")tourEnd();else if(e.key==="ArrowRight")ACT.tourNext();else if(e.key==="ArrowLeft")ACT.tourBack()};
+  addEventListener("resize",TOUR.onR);addEventListener("orientationchange",TOUR.onR);document.addEventListener("keydown",TOUR.onK);
+  tourGo(0,1)}
+function tourEls(st){return(st.el()||[]).filter(e=>e&&e.getClientRects().length)}
+function tourGo(i,dir){
+  for(;i>=0&&i<TOUR_STEPS.length;i+=dir){const st=TOUR_STEPS[i];
+    if(stack.length>1||stack[0].name!==st.tab){stack=[{name:st.tab,p:{}}];render();window.scrollTo(0,0)}
+    if(tourEls(st).length)break}
+  if(i<0)i=TOUR.i;if(i>=TOUR_STEPS.length)return tourEnd();
+  TOUR.i=i;TOUR.dir=dir;TOUR.scrolled=false;tourPlace();const nb=TOUR.root.querySelector("[data-act=tourNext]");nb&&nb.focus({preventScroll:true})}
+function tourRect(els){let t=1e9,l=1e9,b=-1e9,r=-1e9;els.forEach(e=>{const q=e.getBoundingClientRect();t=Math.min(t,q.top);l=Math.min(l,q.left);b=Math.max(b,q.bottom);r=Math.max(r,q.right)});return{t,l,b,r}}
+function tourPlace(){if(!TOUR||TOUR.i<0)return;const st=TOUR_STEPS[TOUR.i],els=tourEls(st);if(!els.length)return;
+  const root=TOUR.root,tip=root.querySelector(".ttip"),vw=innerWidth,vh=innerHeight,ins=tourInsets(),n=TOUR_STEPS.length,last=TOUR.i===n-1;
+  const tb=$("#tabbar"),tbr=!tb.hidden&&tb.getBoundingClientRect(),hdr=tq("#screen .hdr"),hb=hdr?hdr.getBoundingClientRect().bottom:ins.t;
+  if(tip.dataset.i!==String(TOUR.i)){tip.dataset.i=TOUR.i;tip.innerHTML=`<div class="tth"><span class="eyebrow">${TOUR.i+1} of ${n}</span>${last?"":`<button class="link muted" data-act="tourSkip">Skip tour</button>`}</div>
+    <h3>${st.t}</h3><p>${typeof st.d==="function"?st.d():st.d}</p>
+    <div class="frow"><button class="btn sec" data-act="tourBack" ${TOUR.i?"":"disabled"}>Back</button><button class="btn" data-act="tourNext">${last?"Done":"Next"}</button></div>`}
+  const top0=Math.max(hb,ins.t)+8,bot0=(tbr?tbr.top:vh-ins.b)-8,th=tip.offsetHeight,gap=12;
+  // bring the element into view once per step: whole if it fits with the note, else its top below the header
+  let R=tourRect(els);
+  if(!TOUR.scrolled){TOUR.scrolled=true;const fits=R.t>=top0&&R.b+gap+th<=bot0||R.t-gap-th>=top0&&R.b<=bot0;
+    if(!fits){window.scrollTo({top:Math.max(0,scrollY+R.t-top0-6),behavior:"instant"});R=tourRect(els)}}
+  const pad=6,x=Math.max(8,R.l-pad),w=Math.min(vw-8,R.r+pad)-x,y=Math.max(top0-pad,R.t-pad);
+  // a tall element is shown from its top, leaving room for the note
+  let h=Math.min(R.b+pad,bot0+pad)-y,ty;
+  if(bot0-(y+h)-gap>=th)ty=y+h+gap;else if(y-(top0-pad)-gap>=th)ty=y-gap-th;
+  else{h=Math.max(60,bot0-th-gap-y);ty=Math.min(y+h+gap,bot0-th)}
+  const holes=[[x,y,w,h]];
+  const tab=tbr&&st.tab!=="home"&&tb.querySelector(`[data-t=${st.tab}]`);if(tab){const q=tab.getBoundingClientRect();holes.push([q.left+2,q.top+2,q.width-4,q.height-4])}
+  const rr=(X,Y,W,H,c=14)=>{c=Math.min(c,W/2,H/2);return`M${X+c} ${Y}H${X+W-c}A${c} ${c} 0 0 1 ${X+W} ${Y+c}V${Y+H-c}A${c} ${c} 0 0 1 ${X+W-c} ${Y+H}H${X+c}A${c} ${c} 0 0 1 ${X} ${Y+H-c}V${Y+c}A${c} ${c} 0 0 1 ${X+c} ${Y}Z`};
+  const svg=root.querySelector(".tdim");svg.setAttribute("viewBox",`0 0 ${vw} ${vh}`);svg.querySelector("path").setAttribute("d",`M0 0H${vw}V${vh}H0Z`+holes.map(o=>rr(...o)).join(""));
+  const ring=root.querySelector(".tring");Object.assign(ring.style,{left:x+"px",top:y+"px",width:w+"px",height:h+"px"});
+  tip.style.top=Math.max(top0-pad,Math.min(ty,bot0-th))+"px";tip.classList.toggle("up",ty<y)}
+ACT.tourNext=()=>{if(!TOUR)return;if(TOUR.i>=TOUR_STEPS.length-1)return tourEnd();tourGo(TOUR.i+1,1)};
+ACT.tourBack=()=>{if(TOUR&&TOUR.i>0)tourGo(TOUR.i-1,-1)};
+ACT.tourSkip=()=>tourEnd();
+ACT.tourStart=()=>{tourStart()};
+function tourEnd(quiet){if(!TOUR)return;removeEventListener("resize",TOUR.onR);removeEventListener("orientationchange",TOUR.onR);document.removeEventListener("keydown",TOUR.onK);
+  TOUR.root.remove();TOUR=null;S.tourDone=true;save();if(quiet)return;stack=[{name:"home",p:{}}];render();window.scrollTo(0,0)}
+// a small line on Today while the account can't be reached
+const offNote=()=>API||!(SB_OFFLINE||(!SBU&&GATE_SKIPPED))?"":SBU||sbHasSession()?`<div class="gnote">${ic("sync")}<span>Offline. Your changes save to your account when you're back online.</span></div>`
+  :`<div class="gnote">${ic("sync")}<span>Offline — sign in later.</span><button class="link" data-act="sbAuth" data-m="in">Sign in</button></div>`;
+
+function gateBoot(){
+  if(NOGATE){gateReady=true;if(sbHasSession())sbBoot();return}
+  const back=/access_token|type=recovery/.test(location.hash)||/[?&]code=/.test(location.search),rec=/type=recovery/.test(location.hash);
+  if(!sbHasSession()&&!back){gateShow();gateReady=true;return}
+  // a saved session goes straight in; the launch screen stays up while it's checked (at most 4 s)
+  const t=setTimeout(()=>{gateReady=true},4000);
+  sbBoot().then(()=>{clearTimeout(t);gateReady=true;
+    if(SBU){if(!S.onboarded&&!usedRange(S)&&!TOUR&&!rec)obStart();else if(!S.onboarded){S.onboarded=true;save()}}
+    else if(!SB_OFFLINE)gateShow("in");else render()})}
+if(API)acctBoot();else{render();if(testDraft())try{ACT.openTest()}catch(e){}gateBoot()}
 // launch screen: the sweep plays with nothing else running; then the 3D figures load behind it, and it lifts
 // once they're drawn (at least 2s, at most 6s), so the home screen appears complete with no jump
 (()=>{const sp=document.getElementById("splash");if(!sp)return;
   const end=()=>{if(sp.classList.contains("out"))return;clearInterval(iv);start3d();sp.classList.add("out");setTimeout(()=>sp.remove(),480)};
   setTimeout(start3d,1300);
-  const iv=setInterval(()=>{const t=performance.now();if(t>6000||(t>2000&&started3d&&(S.settings.fig3d===false||FIG3D.settled)))end()},100);
+  const iv=setInterval(()=>{const t=performance.now();if(t>6000||(t>2000&&(API||gateReady)&&started3d&&(S.settings.fig3d===false||FIG3D.settled||document.getElementById("gate"))))end()},100);
   sp.addEventListener("click",end)})();
 // iOS shows a snapshot of the app while it reopens: cover the screen when the app goes to the background so that
 // snapshot is the launch screen, not a stale home screen, and lift the cover right away when it comes back
