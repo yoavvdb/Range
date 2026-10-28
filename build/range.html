@@ -576,8 +576,20 @@ function errToast(){
   d.querySelector("#errClose").onclick=()=>d.remove();
   d.querySelector("#errCopy").onclick=async()=>{const t=localStorage.getItem("range-errors")||"";try{await navigator.clipboard.writeText(t);d.querySelector("#errCopy").textContent="Copied"}catch(_){prompt("Copy this:",t)}};
 }
-addEventListener("error",e=>{noteError(e.error||e.message,"page");errToast()});
-addEventListener("unhandledrejection",e=>{noteError(e.reason,"promise");errToast()});
+// the banner is for Range's own bugs: a dropped connection, a cross-origin "Script error." or an error inside the
+// account or 3D libraries (loaded from a CDN) is noted for diagnosis but never shown to the person
+const PAGE_URL=location.origin+location.pathname;
+function ownError(err,file){
+  const msg=String(err&&err.message||err||""),name=String(err&&err.name||""),st=String(err&&err.stack||"");
+  if(/^script error\.?$/i.test(msg.trim())&&!st)return false;
+  if(/AuthRetryableFetchError|AuthSessionMissingError|NavigatorLock|AbortError|NotAllowedError/.test(name)||/failed to fetch|load failed|networkerror|network connection|the network|timed? ?out|lock:|lock broken|navigator ?lock|aborted|cancelled|not allowed by the user agent/i.test(msg))return false;
+  if(file&&!String(file).startsWith(PAGE_URL))return false;
+  if(st&&/(https?|file):\/\//.test(st)&&!st.includes(PAGE_URL))return false;
+  return true}
+addEventListener("error",e=>{const err=e.error||e.message;noteError(err,"page");if(ownError(err,e.filename))errToast()});
+addEventListener("unhandledrejection",e=>{noteError(e.reason,"promise");if(ownError(e.reason))errToast()});
+// one part of a screen that fails to draw is left out (and noted), instead of taking the whole screen down
+function drawPart(name,f){try{return f()}catch(err){noteError(err,"draw "+name);return""}}
 function applyFigStyle(){document.documentElement.dataset.fig=(S.settings&&S.settings.figStyle)||"gymkit"}
 function save(){S._upd=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(API&&ACCOUNT)acctSave();if(SBU)sbSave();if(BK&&!API){bkDirty=true;clearTimeout(bkTimer);bkTimer=setTimeout(()=>backupNow().catch(bkFail),45e3)}}
 const scores=()=>S.scores||EXAMPLE;
@@ -1438,9 +1450,9 @@ const FIG3D=(()=>{
   /* ---------- DOM: upgrade 2D figures ---------- */
   function opts(el){return{zones:el.dataset.zones?el.dataset.zones.split(","):[],sides:!!el.dataset.sides,guide:el.dataset.mode!=="static"}}
   const near=el=>{const r=el.getBoundingClientRect();return r.bottom>-innerHeight&&r.top<innerHeight*2};
-  function upgrade(){
+  function upgrade(scope){
     if(!ready)return;
-    document.querySelectorAll("svg.fig:not([data-x3])").forEach(el=>{
+    (scope||document).querySelectorAll("svg.fig:not([data-x3])").forEach(el=>{
       const key=el.dataset.pose;if(!key){el.dataset.x3=1;return}
       const o=opts(el),anim=el.classList.contains("anim");
       if(anim){el.dataset.x3=1;const cv=document.createElement("canvas");cv.className=el.getAttribute("class")+" f3";Object.assign(cv.dataset,el.dataset);cv.dataset.yaw="0";el.replaceWith(cv);hookDrag(cv);return}
@@ -1458,10 +1470,10 @@ const FIG3D=(()=>{
       if(!ready){pumping=false;return}
       const q=queue.shift();
       if(!q||!q.el.isConnected){if(queue.length)requestAnimationFrame(step);else pumping=false;return}
-      const done=url=>{q.img.src=url;if(q.el.isConnected)q.el.replaceWith(q.img);if(queue.length)requestAnimationFrame(step);else pumping=false};
+      const done=url=>{try{q.img.src=url;if(q.el.isConnected)q.el.replaceWith(q.img)}catch(e){noteError(e,"3D")}if(queue.length)requestAnimationFrame(step);else pumping=false};
       if(thumbs.has(q.ck))return done(thumbs.get(q.ck));
       try{const c=renderTo(q.key,q.t,q.o,480,300);
-        c.toBlob(b=>{if(!b){pumping=false;return}const u=URL.createObjectURL(b);thumbs.set(q.ck,u);done(u)},"image/png")}
+        c.toBlob(b=>{if(!b){pumping=false;return}let u;try{u=URL.createObjectURL(b)}catch(e){pumping=false;return}thumbs.set(q.ck,u);done(u)},"image/png")}
       catch(e){disable(e)}
     };
     requestAnimationFrame(step);
@@ -1475,9 +1487,11 @@ const FIG3D=(()=>{
   }
   function tick(ts){
     if(!ready)return;
-    if(document.getElementById("gate")){requestAnimationFrame(tick);return} // nothing to draw behind the front page
+    // while the front page or first-run setup is up, only its own figures are drawn (setup step 3 shows one),
+    // never the screen hidden behind it
+    const scope=document.getElementById("gate")||document;
     try{
-      document.querySelectorAll("canvas.fig.f3.anim").forEach(cv=>{
+      scope.querySelectorAll("canvas.fig.f3.anim").forEach(cv=>{
         // a static stretch is drawn once in its held position (and again only when you turn it)
         const paused=(cv.closest(".player")&&animPaused)||cv.dataset.mode==="static";if(paused&&cv.dataset.drawn)return;
         // size from the container, never from the canvas itself: on iPhone a canvas can take its pixel size as its
@@ -1495,7 +1509,7 @@ const FIG3D=(()=>{
         const src=draw(R,cv.dataset.pose,t,opts(cv),w,h,+cv.dataset.yaw||0,res);
         const g=cv.getContext("2d");g.clearRect(0,0,w,h);g.drawImage(src,0,0,w,h);cv.dataset.drawn=paused?"1":"";
       });
-      upgrade();
+      upgrade(scope);
     }catch(e){disable(e);return}
     requestAnimationFrame(tick);
   }
@@ -1698,19 +1712,19 @@ SCREENS.home=()=>{
   const sc=scores(),ov=overall(sc),lv=level(ov);
   return `<div class="hdr" style="grid-template-columns:1fr"><div class="brand">Range<b>.</b></div></div>
   <div class="greet"><h1>${greeting()}</h1></div>${offNote()}
-  <div class="carousel" id="car" data-tour="cards">${Object.entries(KINDS).map(([k,v])=>`
+  <div class="carousel" id="car" data-tour="cards">${Object.entries(KINDS).map(([k,v])=>drawPart("card "+k,()=>`
     <button class="pcard ${v.g}" data-act="startKind" data-kind="${k}" aria-label="${v.n}, ${v.sub}">
       <div class="art">${fig(v.pose,null,{anim:true})}</div>
-      <h2>${v.n}</h2><p>${k==="activate"&&nextWorkout()?`For ${(w=>{const d=dayLabel(w.date);return d==="Today"?"today's":d==="Tomorrow"?"tomorrow's":fromIso(w.date).toLocaleDateString(undefined,{weekday:"long"})+"'s"})(nextWorkout())} workout`:k==="recover"&&loggedToday().length?`From today's ${loggedToday().length===1?"workout":loggedToday().length+" workouts"}`:v.sub}</p><span class="go">Start ▶</span></button>`).join("")}</div>
+      <h2>${v.n}</h2><p>${k==="activate"&&nextWorkout()?`For ${(w=>{const d=dayLabel(w.date);return d==="Today"?"today's":d==="Tomorrow"?"tomorrow's":fromIso(w.date).toLocaleDateString(undefined,{weekday:"long"})+"'s"})(nextWorkout())} workout`:k==="recover"&&loggedToday().length?`From today's ${loggedToday().length===1?"workout":loggedToday().length+" workouts"}`:v.sub}</p><span class="go">Start ▶</span></button>`)).join("")}</div>
   <div class="dots" id="cardots">${Object.keys(KINDS).map((_,i)=>`<i class="${i?"":"on"}"></i>`).join("")}</div>
   <div class="stack">
-    ${S.rehab?(()=>{const R=REGIONS[S.rehab.region],ph=rbPhases(R,S.rehab.cls)[S.rehab.phase],st=rbStatus();return`<button class="ntile" data-act="tab" data-t="rebuild"><span class="eyebrow">Rebuild · ${R.n} · Phase ${S.rehab.phase+1}</span><b>${esc(ph.n)}</b><span class="go ${st.k==="back"||st.k==="stuck"?"c-bad":""}">${st.k==="back"?"Back off":st.k==="ready"?"Progress":"Open"}</span></button>`})():""}
-    ${flowsRow()}
+    ${S.rehab?drawPart("rebuild",()=>{const R=REGIONS[S.rehab.region],ph=rbPhases(R,S.rehab.cls)[S.rehab.phase],st=rbStatus();return`<button class="ntile" data-act="tab" data-t="rebuild"><span class="eyebrow">Rebuild · ${R.n} · Phase ${S.rehab.phase+1}</span><b>${esc(ph.n)}</b><span class="go ${st.k==="back"||st.k==="stuck"?"c-bad":""}">${st.k==="back"?"Back off":st.k==="ready"?"Progress":"Open"}</span></button>`}):""}
+    ${drawPart("flows",flowsRow)}
     ${S.scores?"":`<div class="banner" data-tour="test"><div><h3>Find your weak spots</h3><div class="muted" style="font-size:14px;margin-top:4px">Take the 10-minute mobility test: ${TSTEPS.length} quick checks across 6 areas. Until then, routines use an example profile.</div></div><button class="btn" data-act="openTest">${testDraft()?"Resume my test":"Test my mobility"}</button></div>`}
-    <div class="tiles">
+    ${drawPart("tiles",()=>`<div class="tiles">
       <button class="tile" data-act="tab" data-t="profile" data-tour="score"><span class="eyebrow">Mobility score</span><b>${ov}</b><span class="pill ${lv.c}" style="justify-self:start">${S.scores?lv.t:"Example"}</span></button>
       <button class="tile" data-act="tab" data-t="profile"><span class="eyebrow">Streak</span><b>${streak()}</b><span class="muted" style="font-size:13px">day${streak()===1?"":"s"} in a row</span></button>
-    </div>
+    </div>`)}
   </div>`;
 };
 AFTER.home=()=>{
@@ -2011,7 +2025,9 @@ function loopP(){
 }
 async function setRunning(on){
   if(on){
-    try{audio=audio||new(window.AudioContext||window.webkitAudioContext)();audio.resume&&audio.resume()}catch(e){}
+    // resume() is a promise that iPhone rejects when it can't start audio (silent mode, a call, no tap behind it):
+    // the session simply runs without beeps
+    try{audio=audio||new(window.AudioContext||window.webkitAudioContext)();const r=audio.resume&&audio.resume();if(r&&r.catch)r.catch(()=>{})}catch(e){}
     try{if(navigator.wakeLock&&!wake)wake=await navigator.wakeLock.request("screen")}catch(e){wake=null}
     if(!P)return;
     P.running=true;P.started=true;P.endAt=performance.now()+P.remaining*1000;P.lastTs=performance.now();
@@ -2992,6 +3008,7 @@ const REGIONS={
     {n:"Control under load",goal:"Keep that control with weight and speed.",min:14,freq:"3 times a week",items:[["r_splitsq",D_.reps(3,10,{tempo:[3,1,1],sides:1})],["r_boxsquat",D_.reps(3,10,{tempo:[3,1,1]})],["r_hops",D_.reps(3,15)]],exit:"Normal training with the knee tracking well.",last:true},
    ],
   },
+  phasesAlias:{mobility:"control"}, // a stiff ankle or hip: knee control, with the ankle and hip holds below added to phase 1
   extraBy:{mobility:[["a1",{k:"hold",sets:2,secs:40,sides:true}],["a6",{k:"hold",sets:2,secs:40,sides:true}],["h8",{k:"hold",sets:1,secs:45,sides:true}]]}},
  hip:{n:"Hip & groin",fig:"r_slrdl",
   urgent:["New bladder or bowel problems with the pain"],
@@ -3833,7 +3850,7 @@ ACT.tsSkip=()=>{const go=TS.go;closeSheet();go({testPain:null})};
 const PAIN_OK=3;             // pain during a session up to 3/10 is fine (Rebuilding Milo, HSR guidance)
 const PAIN_STOP=5;           // above 5/10 the session was too much (Silbernagel pain-monitoring model)
 const dayMs=864e5;
-function rbPhases(R,cls){return(R.phasesBy&&R.phasesBy[cls])||R.phases}
+function rbPhases(R,cls){const P=R.phasesBy||{};return P[cls]||P[(R.phasesAlias||{})[cls]]||R.phases||Object.values(P)[0]}
 // Never in front of that problem, whatever a phase lists: lying on (or leaning into) a painful shoulder;
 // end-range calf and ankle stretching on an irritated Achilles
 const RB_AVOID={shoulder:["t1","t2","s1","w_pronepec","w_cuffsmash","w_pnfer"],achilles:["a1","a2","a3","a4","a5","a6","d_ddcalf","g1_calfwall","e2_bigtoe"]};
