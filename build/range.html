@@ -108,7 +108,7 @@ img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;o
 .ntile{background:var(--surface);border-radius:14px;padding:14px;display:grid;gap:6px;text-align:left}
 .ntile b{font-size:16px;font-weight:800;font-stretch:112%;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .ntile .go{justify-self:start;margin-top:4px;padding:6px 14px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:13px}
-#tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(100%,480px);background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:8px 16px calc(env(safe-area-inset-bottom,0px) + 8px);z-index:10}
+#tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(100%,480px);background:var(--bg);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:8px 16px calc(env(safe-area-inset-bottom,0px) + 8px);z-index:10}
 #tabbar button{display:grid;justify-items:center;gap:2px;font-size:11px;font-weight:700;color:var(--muted);padding:4px}
 #tabbar button[aria-current="page"]{color:var(--accent)}
 #tabbar .ic{width:26px;height:26px}
@@ -128,8 +128,9 @@ img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;o
 .whead .hero{min-height:120px;height:auto;padding-right:40%}.whead .hero .art{left:auto;width:40%;padding:6px 8px 0 0}.whead .hero b{overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .adapt{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px;font-size:13px}
 .adapt .chips{display:flex;gap:6px}
-.adapt .chips span{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--surface2);color:var(--muted)}
-.adapt .chips span.on{background:var(--accent);color:var(--accent-ink)}
+.adapt .chips{gap:10px}.adapt .ach{display:grid;justify-items:center;gap:3px}.adapt .ach small{font-size:10px;font-weight:700;color:var(--muted)}.adapt .ach.on small{color:var(--ink)}
+.adapt .ach>span{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--surface2);color:var(--muted)}
+.adapt .ach.on>span{background:var(--accent);color:var(--accent-ink)}
 .adapt .chips .ic{width:17px;height:17px}
 .stephead{display:grid;grid-template-columns:36px 1fr;gap:10px;align-items:start}
 .stephead .bub{width:36px;height:36px;border-radius:50%;background:var(--surface2);display:grid;place-items:center;color:var(--muted)}
@@ -178,6 +179,8 @@ img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;o
 .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
 .needbars{list-style:none;margin:0;padding:0;display:grid;gap:9px}
 .needbars li{display:grid;grid-template-columns:90px 1fr 34px;gap:10px;align-items:center;font-size:13px}
+.mvcredit{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:13px}
+.mvcredit li{display:grid;gap:2px}
 .needbars .nb{display:flex;height:10px;border-radius:5px;background:var(--line);overflow:hidden}
 .needbars b{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);font-size:12px}
 .evid p{margin:0;font-size:14px;line-height:1.5}
@@ -220,8 +223,10 @@ img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;o
 .stage .ov button{display:grid;justify-items:center;gap:4px;font-size:13px;font-weight:700}
 .stage .ov .ic{width:40px;height:40px}
 .stage.tall,.detailstage.tall{aspect-ratio:4/5;max-height:56vh}
+/* exercise pages: every figure spans the full column width; a standing pose only gets more height */
+.detailstage{width:100%}.detailstage.tall{aspect-ratio:auto;height:min(56vh,calc((min(100vw,480px) - 32px) * 1.25));max-height:none}
 /* the player stage only takes what is left after the title, controls and at least ~140px of instructions (dvh follows the iOS toolbar) */
-.stage.tall{max-height:min(56vh,calc(100vh - 420px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)));max-height:min(56dvh,calc(100dvh - 420px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)));min-height:170px}.tall canvas.fig.f3{aspect-ratio:auto}.tall svg.fig{width:100%;height:100%}.stage #pfig{height:100%;display:grid;place-items:center}.detailstage{position:relative}
+.stage.tall{max-height:min(56vh,calc(100vh - 420px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)));max-height:min(56dvh,calc(100dvh - 420px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)));min-height:170px}.tall canvas.fig.f3{aspect-ratio:auto}.tall svg.fig{width:100%;height:100%}.stage #pfig{position:absolute;inset:0;display:grid;place-items:center;overflow:hidden}.detailstage{position:relative}
 .dov{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:flex-end;gap:8px;padding:10px;pointer-events:none}
 .dinfo{display:grid;gap:2px;background:rgba(13,16,21,.86);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#fff;border-radius:10px;padding:5px 9px;max-width:66%}
 .dinfo .dk{display:none}.dinfo b{font-size:12px;line-height:1.2}
@@ -235,6 +240,9 @@ img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;o
 .pcards::-webkit-scrollbar{display:none}
 .icard{scroll-snap-align:start;background:var(--surface);border-radius:16px;padding:14px 16px 22px;overflow:auto;min-height:0;display:grid;gap:10px;align-content:start;-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(to bottom,#000 calc(100% - 22px),transparent)}
 .icard ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:14px}
+.icard .morecue{position:sticky;bottom:-22px;display:none;justify-content:center;align-items:end;margin:-10px -16px -22px;padding:26px 0 8px;background:linear-gradient(to bottom,transparent,var(--surface) 55%);color:var(--accent);font-size:12px;font-weight:700;pointer-events:none}
+.icard.more{-webkit-mask-image:none;mask-image:none}.icard.more .morecue{display:inline-flex}
+@media (max-height:700px){.stage.tall{max-height:calc(100vh - 450px);max-height:calc(100dvh - 450px)}}
 .icard ul li::marker{color:var(--accent)}
 .icard .easy{background:var(--accent-soft);color:var(--ink);border-radius:10px;padding:8px 10px;font-size:13px}
 .bm{display:block;width:100%;max-width:230px;margin:0 auto}
@@ -353,8 +361,11 @@ textarea{font:inherit}.edex{gap:10px}.edhead{display:grid;grid-template-columns:
 .obgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.obgrid .opt{min-height:50px;padding:0 12px}
 .obeq .chip{padding:10px 14px;font-size:14px}
 .obtest{background:var(--stage);border-radius:14px;display:grid;place-items:center;overflow:hidden;padding:8px}.obtest svg{height:clamp(100px,20vh,180px);width:auto;max-width:100%;display:block}
+.obtest img.f3,.obtest canvas.f3{height:clamp(100px,22vh,190px);width:auto;max-width:100%}
+@media (max-height:760px){.obtest{padding:4px}.obtest img.f3,.obtest canvas.f3,.obtest svg{height:clamp(90px,17vh,150px)}}
 .obl{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:14px}.obl li{display:flex;gap:8px;align-items:center}.obl .ic{width:18px;height:18px;color:var(--accent)}
 #tour{position:fixed;inset:0;z-index:70;touch-action:none}
+body.touring #screen{padding-bottom:70vh}
 #tour .tdim{position:absolute;inset:0;width:100%;height:100%}#tour .tdim path{fill:rgba(4,7,11,.76)}
 #tour .tring{position:fixed;border-radius:12px;box-shadow:0 0 0 2px var(--accent),0 0 18px rgba(63,208,201,.3);pointer-events:none}
 #tour .ttip{position:fixed;left:16px;width:calc(100% - 32px);max-width:448px;background:var(--surface2);border-radius:14px;padding:14px 16px;display:grid;gap:6px;box-shadow:0 12px 32px rgba(0,0,0,.55);transition:top .25s ease}
@@ -524,7 +535,11 @@ function sportLevel(k,sc){const N=SPORT_NEEDS[k];if(!N)return null;let t=0,w=0,l
 function sportWeight(){const ks=(S.sports||[]).filter(k=>SPORT_NEEDS[k]),o={};
   AREAS.forEach(a=>{o[a.k]=ks.length?Math.min(1,ks.reduce((t,k)=>t+(SPORT_NEEDS[k].d[a.k]||0)+(SPORT_NEEDS[k].inj.includes(a.k)?.15:0),0)/ks.length):.6});return o}
 // the area whose improvement helps your sports most (what Daily leans toward), next to your plain weakest area
-function sportPriority(sc){const sw=sportWeight();return AREAS.slice().sort((a,b)=>(95-sc[b.k])*(.55+.45*sw[b.k])-(95-sc[a.k])*(.55+.45*sw[a.k]))[0].k}
+function sportPriority(sc){return mobilityFocus(sc)[0]}
+// "Your mobility focus": the two areas sessions spend the most time on, from your scores weighted by what your sports need.
+// The one answer used everywhere (test results, Daily, Target, Prepare, Recover, Profile); ties go to the area listed first.
+function mobilityFocus(sc,n){sc=sc||scores();const sw=sportWeight(),g=a=>(95-sc[a.k])*(.55+.45*sw[a.k]);
+  return AREAS.map((a,i)=>({a,i,g:Math.round(g(a)*1000)/1000})).sort((x,y)=>y.g-x.g||x.i-y.i).slice(0,n||2).map(x=>x.a.k)}
 
 // id is the stored answer key (the first check of each area keeps the area's name so older results still load);
 // w says how much the check counts toward each area's score
@@ -703,7 +718,7 @@ const FIGS={
  s2:mk({p:[122,86],t:-90,L1:{plant:[128,138],f:0},L2:{plant:[114,138],f:0},A1:{a:[180,-90],s:[.14,1]},A2:{a:[95,95]}},{p:[127,86],t:-84,L1:{plant:[146,138],f:0},L2:{plant:[115,138],f:0},A1:{a:[180,-90],s:[.57,1]}},[["post",115,20,33.5]],{cam:{yaw:45,pitch:10}}),
  s3:mk({p:[112,86],t:-84,h:-84,L1:{plant:[118,138],f:0},L2:{plant:[110,138],f:0},A1:{a:[-12,-12]},A2:{a:[95,95]}},{p:[100,90],t:-20,h:-25,A1:{a:[-35,-35]},A2:{a:[95,95]}},[["frame",207],["bandto","w1",205,30,0]],{cam:{yaw:30,pitch:8}}),
  s4:mk({view:"front",p:[120,84.1],t:-90,h:-90,hy:0,L1:{a:[86.7,86.7],f:10},L2:{a:[93.3,93.3],f:170},A1:{a:[170.5,170.5],s:[.558,.984],dz:[1,-1]},A2:{a:[80,-56.9],s:[.852,.799],dz:[1,1]}},{hy:40,A1:{a:[176.6,176.6],s:[.782,.928]},A2:{a:[87.1,-69.8],s:[.919,.856]}}),
- bscratch:mk({view:"front",p:[120,86],t:-90,...FRONT_L,A1:{a:[-95,92],s:[.95,1],dz:[1,1],back:1},A2:{a:[100,-55],s:[1,.8],back:1}},{A1:{a:[-96,90]},A2:{a:[97,-50]}},[],{cam:{yaw:-105,pitch:10}}),
+ bscratch:mk({view:"front",p:[120,86],t:-90,...FRONT_L,A1:{a:[-95,92],s:[.95,1],dz:[1,1],back:1},A2:{a:[95,-80],s:[1,.95],back:1}},{A1:{a:[-96,90]},A2:{a:[94,-82]}},[],{cam:{yaw:-105,pitch:10}}),
  
  s6:mk({p:[120,86],t:-90,h:-90,...STAND_L,A1:{a:[72,72],s:[.86,.86]},A2:{a:[74,74],s:[.86,.86]}},{A1:{a:[-243,-243]},A2:{a:[-241,-241]}},[["pipe"]],{cam:{yaw:40,pitch:10}}),
  // overhead
@@ -1549,7 +1564,6 @@ function bodyMap(zones){
       s+=S_("ellipse",`cx="${40+d}" cy="70" rx="3.5" ry="11"`,"obliques")+S_("ellipse",`cx="${60+d}" cy="70" rx="3.5" ry="11"`,"obliques");
       s+=S_("ellipse",`cx="${30+d}" cy="55" rx="3.5" ry="9"`,"biceps")+S_("ellipse",`cx="${70+d}" cy="55" rx="3.5" ry="9"`,"biceps");
       s+=S_("ellipse",`cx="${43+d}" cy="160" rx="2.5" ry="13"`,"shins")+S_("ellipse",`cx="${57+d}" cy="160" rx="2.5" ry="13"`,"shins");
-      s+=S_("ellipse",`cx="${43+d}" cy="195" rx="5" ry="3"`,"feet")+S_("ellipse",`cx="${57+d}" cy="195" rx="5" ry="3"`,"feet");
     }else{
       s+=S_("ellipse",`cx="${42+d}" cy="126" rx="7" ry="18"`,"hamstrings")+S_("ellipse",`cx="${58+d}" cy="126" rx="7" ry="18"`,"hamstrings");
       s+=S_("ellipse",`cx="${43+d}" cy="164" rx="6" ry="16"`,"calves")+S_("ellipse",`cx="${57+d}" cy="164" rx="6" ry="16"`,"calves");
@@ -1560,10 +1574,12 @@ function bodyMap(zones){
       s+=S_("ellipse",`cx="${30+d}" cy="57" rx="3.5" ry="9"`,"triceps")+S_("ellipse",`cx="${70+d}" cy="57" rx="3.5" ry="9"`,"triceps");
       s+=S_("ellipse",`cx="${33+d}" cy="38" rx="7" ry="6"`,"shoulders")+S_("ellipse",`cx="${67+d}" cy="38" rx="7" ry="6"`,"shoulders");
     }
-    s+=S_("ellipse",`cx="${43+d}" cy="187" rx="5" ry="4"`,"ankles")+S_("ellipse",`cx="${57+d}" cy="187" rx="5" ry="4"`,"ankles");
+    s+=S_("ellipse",`cx="${43+d}" cy="185" rx="4.5" ry="3.5"`,"ankles")+S_("ellipse",`cx="${57+d}" cy="185" rx="4.5" ry="3.5"`,"ankles");
+    // feet below the ankles, drawn last so the ankle never covers them (front: the top of the foot, back: the sole)
+    s+=S_("ellipse",`cx="${(back?43:41)+d}" cy="194" rx="6" ry="3.5"`,"feet")+S_("ellipse",`cx="${(back?57:59)+d}" cy="194" rx="6" ry="3.5"`,"feet");
     s+=S_("rect",`x="${cx-4}" y="25" width="8" height="8" rx="2"`,"neck");
     s+=S_("ellipse",`cx="${26+d}" cy="85" rx="3" ry="9"`,"forearm")+S_("ellipse",`cx="${74+d}" cy="85" rx="3" ry="9"`,"forearm");
-    s+=`<text x="${cx}" y="205" text-anchor="middle">${back?"Back":"Front"}</text>`;
+    s+=`<text x="${cx}" y="207" text-anchor="middle">${back?"Back":"Front"}</text>`;
     return s;
   };
   return `<svg class="bm" viewBox="0 0 200 210" role="img" aria-label="Targeted areas: ${zones.map(z=>ZONES[z]).join(", ")}">${fig1(50,false)}${fig1(150,true)}</svg>`;
@@ -1658,12 +1674,16 @@ function focusOf(o){const{need,parts}=analyze(o);let f=AREAS.filter(a=>need[a.k]
   // even when two low scores elsewhere would otherwise fill the list
   if((o.kind==="activate"||o.kind==="recover")&&f.length===2){const d=AREAS.map(a=>a.k).sort((x,y)=>(parts[y].demand||0)-(parts[x].demand||0))[0];if((parts[d].demand||0)>0&&!f.includes(d))f=[f[0],d]}
   return f}
+const EX_FOR={a_bandrack:["Front Squat","Squat Clean","Power Clean","Clean & Jerk","Thruster","Push Press","Front Rack Hold","Wall Ball"],w_bandwrist:["Front Squat","Squat Clean","Power Clean","Clean & Jerk","Thruster","Front Rack Hold","Handstand Push-up","Handstand Walk"],
+  w_wallohs:["Overhead Squat","Snatch","Thruster","Wall Ball"],w_btnpress:["Snatch","Power Snatch","Overhead Squat","Push Jerk","Split Jerk"]};
 function whyFor(ex,o,moves,ctx,parts,zd){
   const a=ex.a,p=parts[a]||{},bits=[];
   const z=(zd[ex.z[0]]||0)>=.2?ex.z[0]:ex.z.slice().sort((x,y)=>(zd[y]||0)-(zd[x]||0)).find(x=>zd[x]>0);
   // the movement that loaded this muscle most (its rank in the movement's muscle list, weighted by how much of the session it was)
   const mwt=(m,zz)=>{const i=(MOVE_ZONES[m]||[]).indexOf(zz);return i<0?0:[1.3,1.15,1,.85,.7,.6][Math.min(i,5)]*((o.mw&&o.mw[m]!=null)?o.mw[m]:1)};
-  const mvs=z?moves.filter(m=>mwt(m,z)>0).sort((x,y)=>mwt(y,z)-mwt(x,z)):[];
+  let mvs=z?moves.filter(m=>mwt(m,z)>0).sort((x,y)=>mwt(y,z)-mwt(x,z)):[];
+  // an exercise made for one position credits a movement that uses it (the front-rack opener: the thruster, not the pull-up)
+  const forM=EX_FOR[ex.id];if(forM){const f=mvs.filter(m=>forM.includes(m));if(f.length)mvs=f;else{const f2=moves.filter(m=>forM.includes(m));if(f2.length)mvs=f2}}
   // two movements that loaded it about equally are both named ("Snatch and Back Squat worked your quads")
   const mv=mvs.length?(mvs[1]&&mwt(mvs[1],z)>=.85*mwt(mvs[0],z)?`${mvs[0]} and ${mvs[1]}`:mvs[0]):null;
   // the score quoted is the one for the muscle named, not the exercise's filing area (no "hamstrings … your Ankles score")
@@ -1701,8 +1721,18 @@ function render(){
   const tabs={library:["grid","Library"],home:["home","Today"],rebuild:["heart","Rebuild"],training:["cal","Training"],profile:["user","Profile"]};
   document.querySelectorAll("#tabbar button").forEach(b=>{const[icn,l]=tabs[b.dataset.t];b.innerHTML=ic(icn)+l;b.toggleAttribute("aria-current",false);if(b.dataset.t===stack[0].name)b.setAttribute("aria-current","page")});
   (AFTER[top.name]||(()=>{}))(top.p);
+  rbKeepDraft(top.name);
   if(TOUR)requestAnimationFrame(()=>tourPlace());
 }
+// the Rebuild safety check and self-screen are kept as you go, so a reload or a closed tab comes back to the same question
+const RB_SCREENS=/^rb(flags|screen|result)$/;
+function rbKeepDraft(name){if(TOUR)return;
+  if(RB_SCREENS.test(name)&&RB){S.rbDraft={r:RB.r,flags:[...RB.flags],step:RB.step,ans:RB.ans,first:RB.first||null,sub:RB.sub||null,screen:name,at:Date.now()};save()}
+  else if(S.rbDraft&&rbRestored&&!RB_SCREENS.test(name)){delete S.rbDraft;save()}}
+let rbRestored=false;
+function rbRestore(){const d=S.rbDraft;rbRestored=true;if(!d||!REGIONS[d.r]||Date.now()-(d.at||0)>7*864e5||S.rehab&&S.rehab.region===d.r&&S.rehab.started>d.at)return false;
+  RB={r:d.r,flags:new Set(d.flags||[]),step:Math.min(d.step||0,REGIONS[d.r].screens.length-1),ans:d.ans||[],first:d.first||undefined,sub:d.sub||undefined};
+  stack=[{name:"rebuild",p:{}},{name:"rbflags",p:{}}];if(d.screen!=="rbflags")stack.push({name:d.screen,p:{}});return true}
 const SCREENS={},AFTER={};
 
 /* ================= home ================= */
@@ -1760,7 +1790,7 @@ ACT.pickZone=()=>startWizard({kind:"target"});
 /* ================= wizard ================= */
 let W=null;
 const STEPS={activate:["moves","time","equip","summary"],recover:["moves","time","equip","summary"],daily:["time","equip","summary"],target:["zone","time","equip","summary"]};
-const STEPICON={moves:"move",time:"clock",equip:"equip",zone:"target"};
+const STEPICON={moves:"move",time:"clock",equip:"equip",zone:"target"},STEPCAP={moves:"Workout",time:"Time",equip:"Kit",zone:"Zone"};
 function startWizard(o){
   W={kind:o.kind,mw:o.mw||null,sport:o.sport||null,moves:o.moves?o.moves.slice():o.sport?(S.moves[o.sport]||[]).slice():[],from:o.from||null,minutes:null,equip:S.equip.slice(),zone:null,step:0,done:{}};
   // Coming from a logged workout: movements are already known, start at the time step
@@ -1774,7 +1804,7 @@ function wizHead(){
   const title=W.from?W.from:sp?sp.n:W.kind==="target"&&W.zone?AN[W.zone]:kd.sub;
   const steps=STEPS[W.kind].filter(s=>s!=="summary");
   return `<div class="whead"><div class="hero ${sp?sp.g:kd.g}"><div class="art">${fig(sp?sp.pose:kd.pose)}</div><span style="font-size:13px;font-weight:600">${kd.n}</span><b>${esc(title)}</b></div>
-  <div class="adapt"><span>Protocol adapted to:</span><span class="chips">${steps.map(s=>`<span class="${W.done[s]?"on":""}">${ic(STEPICON[s])}</span>`).join("")}</span></div></div>`;
+  <div class="adapt"><span class="eyebrow">Adapted to your</span><span class="chips">${steps.map(s=>`<span class="ach${W.done[s]?" on":""}"><span>${ic(STEPICON[s])}</span><small>${STEPCAP[s]}</small></span>`).join("")}</span></div></div>`;
 }
 SCREENS.wizard=()=>{
   const step=STEPS[W.kind][W.step];
@@ -1810,11 +1840,11 @@ SCREENS.wizard=()=>{
     rows.push(["clock","Your available time",W.minutes+" min","time"]);
     const eqn=EQUIP.filter(e=>W.equip.includes(e.k)).map(e=>e.n);
     rows.push(["equip","Your equipment",eqn.length?eqn.join(", "):"None","equip"]);
-    rows.push(["target","Your mobility focus",focusOf(W).map(k=>AN[k]).join(", "),null]);
+    rows.push(["target","Your mobility focus",mobilityFocus().map(k=>AN[k]).join(", "),null]);
     if(!W.plan)W.plan=buildPlan(W);
     body=`<div class="stack" style="gap:6px"><span class="eyebrow">Your choices</span>
     <div class="sumrows" id="sumrows">${rows.map(r=>`<button class="srow" ${r[3]?`data-act="wGoto" data-s="${r[3]}"`:"disabled"}><span class="bub">${ic(r[0])}</span><span><small>${r[1]}</small><span class="val">${esc(r[2])}</span></span><span class="ok">${ic("check")}</span></button>`).join("")}</div></div>
-    <div class="stack" style="gap:6px"><div style="display:flex;justify-content:space-between;align-items:baseline"><span class="eyebrow">${W.plan.items.length} exercises · ${Math.round(W.plan.secs/60)} min</span><span style="display:flex;gap:14px"><button class="link" data-act="whySheet">Why these?</button><button class="link" data-act="reshuffle">Shuffle</button></span></div>
+    <div class="stack" style="gap:6px"><div style="display:flex;justify-content:space-between;align-items:baseline"><span class="eyebrow">${W.plan.items.length} exercise${W.plan.items.length===1?"":"s"} · ${Math.max(1,Math.round(W.plan.secs/60))} min</span><span style="display:flex;gap:14px"><button class="link" data-act="whySheet">Why these?</button><button class="link" data-act="reshuffle">Shuffle</button></span></div>
     ${W.plan.warn?`<div class="note-warn" style="font-size:13px"><b>${esc(W.plan.warn)}</b></div>`:""}
     ${W.plan.excluded?`<div class="note-warn" style="font-size:13px">Adjusted for your Rebuild program: ${esc(W.plan.excluded)}. Exercises it says to avoid are left out.</div>`:""}
     <div class="preview">${W.plan.items.length?(()=>{let n=0;return(W.plan.blocks||[{name:"",items:W.plan.items}]).map((b,bi)=>`${b.name?`<p class="blk">${esc(b.name)} <span>${Math.round(b.items.reduce((t,it)=>t+itemSecs(it),0)/60)||"<1"} min</span></p>`:""}${b.items.map((it,ii)=>{const ex=LIBI[it.id];n++;return`<div class="ed"><span>${n}</span><span>${esc(ex.n)}${it.why?`<small class="why">${esc(it.why)}</small>`:""}</span><span class="rt"><span>${it.dose?esc(doseText(it).split(" · ")[0]):fmt(it.hold)+(ex.sides?" ×2":"")}</span><span class="pe"><button data-act="wSwap" data-b="${bi}" data-i="${ii}" aria-label="Swap ${esc(ex.n)}">${ic("reset")}</button><button data-act="wRm" data-b="${bi}" data-i="${ii}" aria-label="Remove ${esc(ex.n)}">${ic("x")}</button></span></span></div>`}).join("")}`).join("")})():`<div><span></span><span class="muted">No stretches match this equipment and time. Add equipment or pick more time.</span><span></span></div>`}</div>
@@ -1852,7 +1882,7 @@ ACT.wSwapTo=d=>{const{b,i}=W._sw||{},blk=W.plan.blocks?W.plan.blocks[b]:{items:W
   blk.items[i]=old.dose?{...old,id:e.id,why:"Your pick."}:{id:e.id,hold:W.kind==="recover"?Math.max(60,e.hold||60):old.hold||e.hold,why:"Your pick."};closeSheet();wSync()};
 ACT.wAdd=()=>{sheet(`<h3>Add an exercise</h3><label class="search" style="box-shadow:none">${ic("search")}<input id="wq" placeholder="Search the library" autocomplete="off" aria-label="Search exercises"></label><div class="scroll" id="wres"></div><button class="btn sec" data-act="closeSheet">Done</button>`);
   const q=$("#wq");const draw=()=>{const ql=q.value.trim().toLowerCase(),have=new Set(W.plan.items.map(x=>x.id));
-    $("#wres").innerHTML=`<div class="rxlist">${LIB.filter(e=>!e.custom&&!have.has(e.id)&&e.eq.every(x=>W.equip.includes(x))&&(!ql||e.n.toLowerCase().includes(ql)||(ZONES[e.z[0]]||"").toLowerCase().includes(ql))).slice(0,30).map(e=>`<button class="rx" data-act="wAddPick" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><span><b>${esc(e.n)}</b><small>${e.rehab?RCAT[e.a]+" · Strength":AN[e.a]+" · Stretch"}</small></span></button>`).join("")}</div>`};
+    $("#wres").innerHTML=`<div class="rxlist">${LIB.filter(e=>!e.custom&&!have.has(e.id)&&!rbAvoids(e.id)&&e.eq.every(x=>W.equip.includes(x))&&(!ql||e.n.toLowerCase().includes(ql)||(ZONES[e.z[0]]||"").toLowerCase().includes(ql))).slice(0,30).map(e=>`<button class="rx" data-act="wAddPick" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><span><b>${esc(e.n)}</b><small>${e.rehab?RCAT[e.a]+" · Strength":AN[e.a]+" · Stretch"}</small></span></button>`).join("")}</div>`};
   q.addEventListener("input",draw);draw();setTimeout(()=>q.focus(),50)};
 ACT.wAddPick=d=>{const e=LIBI[d.id];if(!e)return;const it=e.rehab?{id:e.id,dose:newDose(e.id),why:"Your pick."}:{id:e.id,hold:W.kind==="recover"?Math.max(60,e.hold||60):e.hold||30,why:"Your pick."};
   if(W.plan.blocks&&W.plan.blocks.length)W.plan.blocks[W.plan.blocks.length-1].items.push(it);else W.plan.items.push(it);closeSheet();wSync()};
@@ -1867,6 +1897,8 @@ ACT.whySheet=()=>{
    ${keys.length?`<div class="legend">${keys.map(k=>`<span><i style="background:${C[k][1]}"></i>${C[k][0]}</span>`).join("")}</div>
    <ul class="needbars">${AREAS.slice().sort((a,b)=>need[b.k]-need[a.k]).map(a=>{const p=parts[a.k]||{};const minutes=W.plan.items.filter(it=>LIBI[it.id].a===a.k).length;return`<li><span>${a.n}</span><span class="nb">${keys.map(k=>p[k]>0?`<i style="width:${(p[k]/mx*100).toFixed(1)}%;background:${C[k][1]}"></i>`:"").join("")}</span><b>${minutes?minutes+" ×":"–"}</b></li>`}).join("")}</ul>
    <p class="muted" style="margin:0;font-size:12px">The number on the right is how many exercises that area got.${AREAS.some(a=>(parts[a.k]||{}).pen>0)?" Areas you already stretched in the last 2 days get a little less time.":""}</p>`:""}
+   ${(W.plan.credit=planCredit(W.plan.items,W.kind==="target"||W.kind==="daily"?[]:W.moves))&&Object.keys(W.plan.credit).length?`<div class="stack" style="gap:6px"><span class="eyebrow">${W.kind==="recover"?"What each movement worked":"What each movement needs"}</span>
+    <ul class="mvcredit">${Object.entries(W.plan.credit).map(([m,ids])=>`<li><b>${esc(m)}</b><span class="muted">${(MOVE_ZONES[m]||[]).slice(0,3).map(z=>ZONES[z].toLowerCase()).join(", ")}</span><span>${ids.length?ids.map(id=>esc(LIBI[id].n)).join(", "):`<i class="muted">Lightly loaded. No exercise of its own at this length</i>`}</span></li>`).join("")}</ul></div>`:""}
    <div class="stack" style="gap:6px"><span class="eyebrow">Session structure</span><p class="muted" style="margin:0;font-size:14px">${{
     activate:"Rehab warm-up if your Rebuild program has one, then Mobilise: dynamic drills for the positions your lifts need. A short static hold (30 s, one per area) only where your test shows you're tight and the session uses that muscle, so you keep your strength. Then Activate: brace the core, switch on the muscles your lifts rely on, and finish by rehearsing the main lift's position (for example a PVC overhead squat before snatches).",
     recover:"Long passive holds for the muscles the session loaded, from standing down to the floor.",
@@ -1983,7 +2015,7 @@ function enterSeg(){
     $("#pinfo").innerHTML=demoInfo(ex,it);frameStage($("#stage"),ex.fig||ex.id);
     renderCards(ex);
   }
-  $("#pmeta").textContent=it.dose?`${s.i+1}/${P.items.length} · ${doseText(it)}`:`${s.i+1}/${P.items.length} · ${fmt(it.hold)}${ex.sides?" each side":""} · ${ex.dyn?"Active":"Passive"} stretch`;
+  $("#pmeta").textContent=it.dose?`${s.i+1}/${P.items.length} · ${doseText(it)}`:`${s.i+1}/${P.items.length} · ${fmt(it.hold)}${ex.sides?" each side":""} · ${exKind(ex)}`;
   const tag=$("#pside");const txt=s.type==="ready"?(s.label+(s.side?" · "+s.side:"")):(s.label||s.side||"");tag.hidden=!txt;tag.textContent=txt;
   if(P.running&&!s.quiet){if(s.type==="hold"||s.type==="set"){beep(1046,s.short?.12:.25);if(!s.short)say(s.type==="set"?`${s.reps} reps`:(s.side||"Go"))}else if(s.label==="Next up"){say("Next: "+ex.n)}else if(s.label==="Switch sides")say("Switch sides");else if(s.label==="Rest")say("Rest")}
   drawP();
@@ -1992,9 +2024,14 @@ function renderCards(ex){
   const it=P.items[P.segs[P.si].i];
   $("#pcards").innerHTML=`<div class="icard">${it&&it.why?`<div class="whybox"><span class="eyebrow">Why this exercise</span><div>${esc(it.why)}</div></div>`:""}<div><span class="eyebrow">What you should feel</span><div style="margin-top:4px">${esc(ex.stim)}</div></div>
     <div><span class="eyebrow">Instructions</span><ul style="margin-top:6px">${ex.c.map(c=>`<li>${esc(c)}</li>`).join("")}</ul></div>
-    ${P.easy?`<div class="easy"><b>Easy Mode:</b> ${esc(ex.easy)} Holds are 25% shorter.</div>`:""}</div>
+    ${P.easy?`<div class="easy"><b>Easy Mode:</b> ${esc(ex.easy)} Holds are 25% shorter.</div>`:""}<span class="morecue" aria-hidden="true">Scroll for more ↓</span></div>
    <div class="icard"><span class="eyebrow">Targeted areas</span><div class="ztags">${ex.z.map(z=>`<span>${ZONES[z]}</span>`).join("")}</div>${bodyMap(ex.z)}</div>`;
+  requestAnimationFrame(moreCue);
 }
+// a card with more text than fits says so, until you've scrolled to its end
+// what kind of exercise it is, in the player and the library ("Foam rolling", not "Active stretch")
+const exKind=e=>e.rehab?"Strength":e.roll?"Foam rolling":e.dyn?"Active stretch":"Passive stretch";
+function moreCue(){document.querySelectorAll("#pcards .icard").forEach(c=>{const f=()=>c.classList.toggle("more",c.scrollHeight-c.clientHeight-c.scrollTop>16);f();if(!c._mc){c._mc=1;c.addEventListener("scroll",f,{passive:true})}})}
 function drawP(){
   const s=P.segs[P.si];
   const arc=$("#parc");arc.classList.toggle("ready",s.type==="ready");
@@ -2094,9 +2131,9 @@ function finishSession(complete){
   const rec={at:Date.now(),items:P.items.slice(0,doneCount).map(it=>it.id),kind:P.meta.kind,title:P.meta.title,mins:Math.max(mins,P.activeMs>20000?1:0),count:doneCount,feel:null,stretch:{}};
   // seconds of static stretching per body area, for the weekly 10-minute target
   P.segs.slice(0,complete?P.segs.length:P.si).forEach(sg=>{const e=LIBI[P.items[sg.i].id];if(sg.type==="hold"&&!e.rehab&&!e.dyn&&AN[e.a])rec.stretch[e.a]=(rec.stretch[e.a]||0)+segSecs(sg)});
-  const isRehab=P.meta.kind==="rehab",canRetest=!isRehab&&P.meta.focus&&P.meta.focus.length&&doneCount>0;
+  const isRehab=P.meta.kind==="rehab",rchk=isRehab?[]:retestChecks(P.meta.focus),canRetest=rchk.length&&doneCount>0;
   if(isRehab)P_LAST={testPain:P.meta.testPain,testR:P.meta.testR,testL:P.meta.testL,proto:P.meta.proto||null,logged:0};
-  RETEST={focus:P.meta.focus||[],items:rec.items};
+  RETEST={focus:isRehab?[]:retestChecks(P.meta.focus).map(c=>c.k),items:rec.items};
   const meaningful=P.activeMs>20000&&doneCount>0;
   if(meaningful){S.sessions.push(rec);save()}
   if(complete)beep(1318,.4);
@@ -2110,7 +2147,7 @@ function finishSession(complete){
       ${isRehab&&doneCount>0?`<div class="panel"><span class="eyebrow">Highest pain during the session</span>${painGrid("rbSessionPain",null)}<p id="rbAfter" class="muted" style="margin:0;font-size:14px" aria-live="polite">Tomorrow morning, check your test movement again. If it's worse, Range will tell you to back off.</p></div>`:""}
       ${canRetest?`<div class="panel"><span class="eyebrow">Optional · did it help?</span>
         <div style="font-size:14px">Quick check, like in your mobility test (not a workout). Do each position for a few seconds:</div>
-        <div class="rtgrid">${P.meta.focus.filter(k=>RETEST_HOW[k]).map(k=>`<div class="rtpos"><div class="rtfig">${fig(TEST_FIG[k],null,{t:1,mode:"static",zones:AREA_ZONES[k]})}</div><b>${esc(RETEST_HOW[k][0])}</b><small class="muted">${esc(RETEST_HOW[k][1])}</small></div>`).join("")}</div>
+        <div class="rtgrid">${rchk.map(c=>`<div class="rtpos"><div class="rtfig">${fig(c.fig,null,{t:1,mode:"static",zones:AREA_ZONES[c.k]})}</div><b>${esc(c.n)}</b><small class="muted">${esc(c.how)}</small></div>`).join("")}</div>
         <div style="font-size:14px">Compared with before the session, it feels:</div><div class="feel" style="grid-template-columns:repeat(3,1fr)">${["Worse","Same","Better"].map((f,i)=>`<button data-act="retest" data-v="${i-1}">${f}</button>`).join("")}</div><p class="muted" style="margin:0;font-size:12px">Range uses your answer to pick the stretches that work best for you. Skip it if you like.</p></div>`:""}
       <div class="panel"><span class="eyebrow">Areas you worked</span><div class="ztags">${zones.map(z=>`<span>${ZONES[z]}</span>`).join("")}</div>${bodyMap(zones)}</div>
       ${meaningful&&!isRehab?`<div class="stack" style="gap:8px"><span class="eyebrow">How do you feel now?</span><div class="feel">${["Stiff","Tight","OK","Loose","Great"].map((f,i)=>`<button data-act="feel" data-f="${i}">${f}</button>`).join("")}</div></div>`:`<p class="muted" style="margin:0">Sessions under 20 seconds aren't saved to your log.</p>`}
@@ -2121,6 +2158,13 @@ function finishSession(complete){
 let RETEST=null;
 // the quick before/after check for each area, in plain words
 const RETEST_HOW={hips:["Deep squat","Sit as low as you can, heels down, for a few breaths"],posterior:["Toe touch","Feet together, knees straight, fold forward"],ankles:["Knee to wall","Front foot near a wall, drive the knee to it, heel down"],shoulders:["Back scratch","One hand down your back, the other up from below"],overhead:["Overhead reach","Back on a wall, raise straight arms toward the wall"],thoracic:["Rotation","On all fours, hand behind your head, turn the elbow up"]};
+// each check's position, so a Rebuild program that avoids it (no deep squat or knee-to-wall for an Achilles, no toe touch
+// for a flexion-sensitive back) gets a safe check for the same area instead, or none
+const RETEST_POS={hips:"h7",posterior:"p1",ankles:"a1"};
+const RETEST_SAFE={hips:["Figure four","On your back, one ankle on the other knee: how far does the knee fall out?","r_fig4"],posterior:["Leg raise","On your back, lift one straight leg as high as it goes","p2"]};
+function retestChecks(focus){return(focus||[]).map(k=>{if(!RETEST_HOW[k])return null;
+  if(RETEST_POS[k]&&rbAvoids(RETEST_POS[k])){const s=RETEST_SAFE[k];return s&&!rbAvoids(s[2])?{k,n:s[0],how:s[1],fig:s[2]}:null}
+  return{k,n:RETEST_HOW[k][0],how:RETEST_HOW[k][1],fig:TEST_FIG[k]}}).filter(Boolean)}
 ACT.retest=(d,el)=>{
   if(!RETEST)return;S.helped=S.helped||{};const v=+d.v;
   RETEST.items.forEach(id=>{const e=LIBI[id];if(e&&RETEST.focus.includes(e.a))S.helped[id]=Math.max(-3,Math.min(4,(S.helped[id]||0)+v))});
@@ -2141,7 +2185,7 @@ const FLOWS=[
 const flowItems=f=>{const taken=new Set(f.items.map(([id])=>id)),out=[];
   f.items.forEach(([id,t])=>{const e=LIBI[id];if(!e||!e.eq.every(q=>S.equip.includes(q)))return;
     if(rbAvoids(id)){const a=rbFlowAlt(id,taken);if(!a)return;taken.add(a.id);const w=`In place of ${e.n.toLowerCase()}, which your Rebuild program says to avoid for now.`;
-      out.push(a.rehab?{id:a.id,dose:(((REHAB_HOOKS[S.rehab.region]||{})[S.rehab.cls]||{}).pre||[]).find(([i])=>i===a.id)?.[1]||D_.hold(1,30,a.sides?1:0),why:`${w} An easy isometric hold calms the tendon instead of stretching it.`}:{id:a.id,hold:a.sides?Math.min(t,45):t,why:w});return}
+      out.push(a.rehab?{id:a.id,dose:(((REHAB_HOOKS[S.rehab.region]||{})[S.rehab.cls]||{}).pre||[]).find(([i])=>i===a.id)?.[1]||fitDose(a,D_.hold(1,30,a.sides?1:0)),why:`${w} An easy isometric hold calms the tendon instead of stretching it.`}:{id:a.id,hold:a.sides?Math.min(t,45):t,why:w});return}
     out.push(e.rehab?{id,dose:D_.time(t),why:"Slow breathing with long exhales to finish."}:{id,hold:t,why:`Part of the ${f.n} flow.`})});
   return out};
 ACT.flowStart=d=>{const f=FLOWS.find(x=>x.k===d.k);if(f)openPlayer(flowItems(f),{kind:"daily",focus:[],title:f.n})};
@@ -2204,7 +2248,7 @@ SCREENS.library=()=>`<div class="hdr" style="grid-template-columns:1fr"><div cla
   ${libMode==="area"?`<div class="hscroll">${[["","All"],...AREAS.map(a=>[a.k,a.n]),["rehab","Strength & rehab"]].map(([k,n])=>`<button class="chip ${libA===k?"on":""}" data-act="libArea" data-a="${k}">${n}</button>`).join("")}</div>`:
    libM?`<div style="display:flex;align-items:center;gap:10px"><button class="link" data-act="libMuscle" data-m="">${ic("back")} All muscles</button></div>`:""}
   <div id="lib"></div></div>`;
-const libCard=e=>`<button class="lcard" data-act="openEx" data-id="${e.id}"><div class="art">${fig(e.fig||e.id,null,{zones:e.z,sides:!!e.sides,mode:exMode(e)})}</div><div class="t"><b>${esc(e.n)}</b>${rbAvoids(e.id)?`<small class="c-warn">Avoid for now (Rebuild)</small>`:""}<small>${e.rehab?`${RCAT[e.a]} · Strength`:`${AN[e.a]} · ${fmt(e.hold)}${e.sides?" each side":""} · ${e.dyn?"Active":"Passive"}`}</small></div></button>`;
+const libCard=e=>`<button class="lcard" data-act="openEx" data-id="${e.id}"><div class="art">${fig(e.fig||e.id,null,{zones:e.z,sides:!!e.sides,mode:exMode(e)})}</div><div class="t"><b>${esc(e.n)}</b>${rbAvoids(e.id)?`<small class="c-warn">Avoid for now (Rebuild)</small>`:""}<small>${e.rehab?`${RCAT[e.a]} · Strength`:`${AN[e.a]} · ${fmt(e.hold)}${e.sides?" each side":""} · ${e.roll?"Rolling":e.dyn?"Active":"Passive"}`}</small></div></button>`;
 function drawLib(){
   const q=libQ.toLowerCase().trim(),el=$("#lib"),lib=LIB.filter(e=>!e.custom||libMode==="area");
   // by muscle, nothing chosen: one tile per muscle, head to toe, with how many stretches it has
@@ -2235,7 +2279,7 @@ ACT.libMuscle=d=>{libM=d.m;libQ="";render();scrollTo(0,0)};
 ACT.openEx=d=>go("exercise",{id:d.id});
 SCREENS.exercise=p=>{const e=LIBI[p.id];return hdr()+`<div class="stack" style="padding-top:4px">
   <div class="detailstage${innerWidth<700&&tallPose(e.fig||e.id)?" tall":""}">${fig(e.fig||e.id,null,{anim:true,zones:e.z,sides:!!e.sides,mode:exMode(e)})}<div class="dov">${demoInfo(e,null)}</div></div>
-  <div><h1>${esc(e.n)}</h1><div class="muted" style="margin-top:4px">${e.rehab?`${RCAT[e.a]} · Strength & rehab`:`${AN[e.a]} · ${fmt(e.hold)}${e.sides?" each side":""} · ${e.dyn?"Active":"Passive"} stretch`}</div></div>
+  <div><h1>${esc(e.n)}</h1><div class="muted" style="margin-top:4px">${e.rehab?`${RCAT[e.a]} · Strength & rehab`:`${AN[e.a]} · ${fmt(e.hold)}${e.sides?" each side":""} · ${exKind(e)}`}</div></div>
   ${rbAvoids(e.id)?`<div class="note-warn" style="font-size:14px">Your Rebuild program for ${esc(rehabHooks().name)} says to avoid this for now. Range leaves it out of your sessions and flows until the program ends.</div>`:""}
   <div class="panel"><div><span class="eyebrow">What you should feel</span><div style="margin-top:4px">${esc(e.stim)}</div></div>
    <div><span class="eyebrow">Instructions</span><ul style="margin:6px 0 0;padding-left:18px;display:grid;gap:6px">${e.c.map(c=>`<li>${esc(c)}</li>`).join("")}</ul></div>
@@ -2488,7 +2532,8 @@ Object.assign(FIGS,{
    {p:[102,104],t:-45,h:-20,L1:{a:[39.6,-82.4],s:[.955,.58],dz:[1,-1],f:-10},A1:{a:[98.6,98.6],s:[.9,.9],dz:[-1,-1]},A2:{a:[100,100],s:[.9,.9],dz:[-1,-1]}},[],{cam:{yaw:35,pitch:10}}),
  // on your back, knee hugged in, shin swings out (hip internal rotation)
  
- b_butterfly:mk({p:[100,131],t:-40,h:-48,L1:{a:[-17.9,85.4],s:[.723,.464],dz:[1,-1],f:0},L2:{a:[-17.9,85.4],s:[.723,.464],dz:[1,-1],f:0},A1:{a:[119.7,85.8],s:[.895,.71],dz:[1,-1]},A2:{a:[119.7,85.8],s:[.895,.71],dz:[1,-1]}},{},[],{cam:{yaw:75,pitch:14}}),
+ // soles together, leaning forward from the hips with a long back (not rounding over), seen from the side so the back shows
+ b_butterfly:mk({p:[100,131],t:-48,h:-40,L1:{a:[-17.9,85.4],s:[.723,.464],dz:[1,-1],f:0},L2:{a:[-17.9,85.4],s:[.723,.464],dz:[1,-1],f:0},A1:{a:[100,80],s:[.9,.7],dz:[1,-1]},A2:{a:[100,80],s:[.9,.7],dz:[1,-1]}},{},[],{cam:{yaw:35,pitch:12}}),
  
  b_gate:mk({p:[118,86],t:-90,L2:{plant:[116,138],f:0},L1:{a:[0,90],s:[1,1],f:60},A1:{a:[110,45]},A2:{a:[112,47]}},{L1:{a:[0,90],s:[.3,1],f:60}},[],{cam:{yaw:60,pitch:12}}),
  b_sqstand:mk({p:[118.4,84.7],t:50,h:62,L1:{a:[72,100],s:[1,1],f:0},L2:{a:[72,100],s:[1,1],f:0},A1:{a:[94.6,115.2],s:[.717,.494],dz:[1,-1],hand:180},A2:{a:[94.6,115.2],s:[.717,.494],dz:[1,-1],hand:180}},{p:[118.7,126],t:-55,h:-30,L1:{a:[-25.1,130],s:[.85,1]},L2:{a:[-25.1,130],s:[.85,1]},A1:{a:[98.1,99.2],s:[.976,.986],dz:[-1,-1],hand:100},A2:{a:[98.1,99.2],s:[.976,.986],dz:[-1,-1],hand:100}},[],{cam:{yaw:30,pitch:10}}),
@@ -2877,7 +2922,7 @@ Object.assign(FIGS,{
 Object.assign(FIGS,{
  // Standing TFL stretch, front view: wall on the far (left) side, far hand on the wall; the far leg crosses BEHIND the near leg (drawn short so it goes back in 3D);
  // push the hip toward the wall while the upper body leans away, near hand on the hip
- w_tfl:mk({view:"front",p:[120,89],t:-90,h:-90,L1:{a:[94.7,94.7],s:[.91,.91],dz:[1,-1],f:10},L2:{a:[68.6,68.6],s:[.965,.965],dz:[-1,-1],f:170},A1:{plant:[135,90],d:1},A2:{plant:[81,58]}},
+ w_tfl:mk({view:"front",p:[120,89],t:-90,h:-90,L1:{a:[94.7,94.7],s:[.91,.91],dz:[1,-1],f:10},L2:{a:[68.6,68.6],s:[.965,.965],dz:[-1,-1],f:170},A1:{plant:[135,90],d:1},A2:{plant:[80,58]}},
   {p:[114,90],t:-66,bend:-5,h:-62,L1:{a:[87.6,87.6],s:[.89,.89]},L2:{a:[62.2,62.2],s:[.994,.994]},A1:{plant:[130,92]}},[["wallf",78]],{cam:{yaw:75,pitch:10}}),
  // Sciatic nerve slider: sitting tall on a box edge, hands on the box; knee straightens (toes up) as the head looks up, knee bends as the head looks down
  w_sciatic:mk({p:[106,111],t:-90,h:-58,L1:{a:[0,95],f:0},L2:{a:[2,90],f:0},A1:{plant:[100,113]},A2:{plant:[98,113]}},
@@ -3117,13 +3162,13 @@ REGIONS.back.phasesBy={flexion:REGIONS.back.phases,extension:REGIONS.back.phases
    Every block skips exercises your active Rebuild program says to avoid (e.g. no Achilles stretching). */
 const MOVE_PREP=[
  {moves:["Squat Clean","Front Squat","Back Squat","Overhead Squat","Thruster","Wall Ball","Pistol","Clean & Jerk","Snatch","Lunges","Sandbag Lunges","Box Jump","Step-ups","Bulgarian Split Squat","Air Squat","Goblet Squat"],
-  drills:[["b_hydrant",D_.reps(1,10,{sides:1}),"switches on the glutes that turn the knee out at the bottom"],["r_bandsquat",D_.hold(1,30),"wakes up the sides of the hips so your knees track over your toes"],["d_atgsplit",D_.reps(1,6,{sides:1,tempo:[3,1,1]}),"takes the knee forward past the toes under control, the range a deep squat needs"],["d_heelsq",D_.reps(1,8,{tempo:[3,1,1]}),"lets you sit deep and upright with the heels raised, grooving the squat bottom"],["r_bwsquat",D_.reps(1,10,{tempo:[3,1,1]}),"rehearses the full squat unloaded, slow and deep, before the bar"],["r_goblethold",D_.rep(1,5,5),"rehearses a braced squat bottom before you load it"]]},
+  drills:[["b_hydrant",D_.reps(1,10,{sides:1}),"switches on the glutes that turn the knee out at the bottom"],["r_bandsquat",D_.hold(1,30),"wakes up the sides of the hips so your knees track over your toes"],["d_atgsplit",D_.reps(1,6,{sides:1,tempo:[3,1,1]}),"takes the knee forward past the toes under control, the range a deep squat needs"],["d_heelsq",D_.reps(1,8,{tempo:[3,1,1]}),"lets you sit deep and upright with the heels raised, grooving the squat bottom"],["r_bwsquat",D_.reps(1,10,{tempo:[3,1,1]}),m=>/Wall Ball|Air Squat|Pistol|Box Jump|Lunges|Step-ups/.test(m)?"rehearses the full squat unloaded, slow and deep, before the reps count":"rehearses the full squat unloaded, slow and deep, before the bar"],["r_goblethold",D_.rep(1,5,5),"rehearses a braced squat bottom before you load it"]]},
  {moves:["Deadlift","Romanian Deadlift","Power Clean","Squat Clean","Kettlebell Swing","Rowing","Sled Pull","Clean & Jerk","Snatch Pull","Clean Pull","Back Extension"],
   drills:[["r_bridge",D_.rep(1,10,3),"switches the glutes on so the low back doesn't do their job"],["r_hinge",D_.reps(1,10),"grooves moving at the hips with a still spine before you pull"],["c_goodmorn",D_.reps(1,10,{tempo:[3,1,1]}),"rehearses the hinge with a load on your back, hamstrings long and back flat"]]},
  {moves:["Deadlift","Romanian Deadlift"],
   drills:[["w_hamact",D_.reps(1,10,{sides:1}),"wakes up the hamstrings so they share the pull with the glutes and low back"]]},
  {moves:["Snatch","Power Snatch","Overhead Squat","Split Jerk","Push Jerk","Clean & Jerk","Strict Press","Push Press","Handstand Push-up","Handstand Walk","Wall Ball","Thruster"],
-  drills:[["a_pullapart",D_.reps(1,15),"wakes up the upper back that holds the bar overhead"],["s6",D_.reps(2,10,{rest:15}),"takes the shoulders through the whole overhead arc with the pipe, narrowing the grip as they loosen"],["r_proneY",D_.reps(1,8),"turns on the lower traps so the shoulder blade rotates up under the bar"],["r_scappull",D_.reps(1,6),"teaches the shoulder blades to set before you press or hang"],["a_sots",D_.reps(1,6),"presses from the bottom of a squat, the hardest overhead position"],["r_ohs",D_.reps(2,5,{tempo:[3,2,1],note:"Pause at the bottom"}),"rehearses the exact overhead position you'll need, slowly, before the bar is loaded"]]},
+  drills:[["a_pullapart",D_.reps(1,15),m=>m==="Wall Ball"?"wakes up the upper back that steadies the ball overhead":"wakes up the upper back that holds the bar overhead"],["s6",D_.reps(2,10,{rest:15}),"takes the shoulders through the whole overhead arc with the pipe, narrowing the grip as they loosen"],["r_proneY",D_.reps(1,8),m=>m==="Wall Ball"||m==="Handstand Push-up"||m==="Handstand Walk"?"turns on the lower traps so the shoulder blade rotates up as the arms go overhead":"turns on the lower traps so the shoulder blade rotates up under the bar"],["r_scappull",D_.reps(1,6),"teaches the shoulder blades to set before you press or hang"],["a_sots",D_.reps(1,6),"presses from the bottom of a squat, the hardest overhead position"],["r_ohs",D_.reps(2,5,{tempo:[3,2,1],note:"Pause at the bottom"}),m=>m==="Wall Ball"?"rehearses the squat and the arms-overhead finish of the throw, slowly, before the ball":"rehearses the exact overhead position you'll need, slowly, before the bar is loaded"]]},
  {moves:["Front Squat","Squat Clean","Power Clean","Clean & Jerk","Thruster","Push Press","Handstand Push-up","Handstand Walk","Push-up","Burpee","Front Rack Hold"],
   drills:[["r_wristrock",D_.reps(1,10),"warms up the wrists for the front rack and pressing"],["a_bandrack",null,"lets the band pull the elbow up into a better rack position"]]},
  {moves:["Pull-up","Chest-to-bar Pull-up","Bar Muscle-up","Ring Muscle-up","Toes-to-bar","Rope Climb","Climbing","Ring Row","DB Row"],
@@ -3162,13 +3207,17 @@ const REHAB_HOOKS={
 };
 // Positions each Rebuild problem keeps you out of everywhere else in the app too (flows, Daily, Prepare, Recover, the library),
 // on top of the program-wide list (RB_AVOID) and the protocol hooks above
+// (flexion-sensitive back: nothing that folds the spine forward, sitting deep or sinking into a rounded squat;
+//  knee: no deep squat holds; Achilles: no deep loaded ankle bend, which stretches the tendon under load)
+const RB_DEEP_ANKLE=["p4","g1_ddcobra","d_frcalf","h7","h9","r_goblethold","r_bwsquat","g1_sqrot","b_sqstand","d_atgsplit","h5","w_wallohs","w_sumodip","r_ohs","a_sots","g1_kneecirc"];
+const RB_DEEP_KNEE=["r_goblethold","h7","h9","a4","d_atgsplit","g1_sqrot","b_sqstand","w_sumodip"];
 const RB_AVOID_CLS={
- back:{flexion:["t4","inch","e2_twist","w_sciatic","w_widefold","o5","p5"]},
- knee:{tendon:["r_goblethold","h7","h9","a4","d_atgsplit","g1_sqrot","b_sqstand"],control:["r_goblethold","h7","h9","a4","d_atgsplit","g1_sqrot","b_sqstand"]},
- achilles:{midportion:["d_frcalf","h7","h9","r_goblethold","r_bwsquat","g1_sqrot","b_sqstand"],insertional:["d_frcalf","h7","h9","r_goblethold","r_bwsquat","g1_sqrot","b_sqstand"]},
+ back:{flexion:["t4","inch","e2_twist","w_sciatic","w_widefold","o5","p5","h2","w_boxpigeon","b_butterfly","h7","h9","b_sqstand","g1_sqrot","w_sumodip"]},
+ knee:{tendon:RB_DEEP_KNEE,control:RB_DEEP_KNEE,mobility:["r_goblethold","h7","h9"]},
+ achilles:{midportion:RB_DEEP_ANKLE,insertional:RB_DEEP_ANKLE},
 };
 // what goes in place of an avoided exercise in a fixed flow (else the closest exercise for the same muscle)
-const RB_FLOW_SWAP={back:{t4:"c_cobra",p1:"p2",inch:"p2",e2_twist:"t1",o5:"e1_ohtri"},achilles:{a2:"r_calfiso",a1:"r_calfiso",h7:"b_butterfly"},knee:{h7:"b_butterfly"}};
+const RB_FLOW_SWAP={back:{t4:"c_cobra",p1:"p2",inch:"p2",e2_twist:"t1",o5:"e1_ohtri",h2:"w_wallfig4",w_boxpigeon:"w_wallfig4",b_butterfly:"w_wallstraddle",h7:"w_latswing",h9:"w_latswing",b_sqstand:"g1_walkgm"},achilles:{a2:"r_calfiso",a1:"r_calfiso",h7:"b_butterfly"},knee:{h7:"b_butterfly"}};
 function rbAvoidIds(region,cls){return[...(RB_AVOID[region]||[]),...(((REHAB_HOOKS[region]||{})[cls]||{}).x||[]),...(((RB_AVOID_CLS[region]||{})[cls])||[])]}
 function rehabHooks(){
   if(!S.rehab)return{x:new Set(),pre:[],name:""};
@@ -3214,7 +3263,7 @@ function pickMobility(o,ctx,budget,pool,state,relax){
     // an area your test says is already mobile (80+) only gets prep for a muscle the lift leans on hard
     .filter(ex=>!((sc0[ex.a]??70)>=80&&(zd0[ex.z[0]]||0)<.8))
     // a run or jump session: everything on your feet
-    .filter(ex=>!(RUN_JUMP.has((ctx.moves||[])[0])&&posOf(ex)>=2));
+    .filter(ex=>!((RUN_JUMP.has((ctx.moves||[])[0])||(ctx.moves||[]).some(m=>RB_RUNS.has(m)))&&posOf(ex)>=2&&state.zbonus!==3));
   // the top-up for a short session still has to relate to what you trained (no shin stretch after squats)
   if(byMove&&state.zbonus)pool=pool.filter(ex=>state.zbonus===1?(zd0[ex.z[0]]||0)>=.25||ex.z.slice(1).some(z=>(zd0[z]||0)>=.5):state.zbonus===2?ex.z.some(z=>(zd0[z]||0)>=.15):true);
   const hov=new Map(),hold0=holdFor,cost=ex=>(ex.sides?2:1)*(holdFor(ex)+5)+1;holdFor=ex=>hov.get(ex)||hold0(ex);
@@ -3232,13 +3281,14 @@ function pickMobility(o,ctx,budget,pool,state,relax){
     if(o.kind==="recover"&&ex.hold>=60)s+=.3;
     // you told Range what you have: exercises that use it come first
     if(ex.eq.length&&ex.eq.every(q=>eqx.includes(q)))s+=ex.eq.some(q=>q!=="wall")?.45:.1; // a wall is everywhere; a pipe or plate you picked on purpose
-    s-=(recent.get(ex.id)||0)*.5;s+=.3*((S.helped||{})[ex.id]||0);s-=.35*Math.min(3,(S.swapped||{})[ex.id]||0);s+=Math.random()*.15;return[ex,s]})); // small tiebreak: day-to-day variety comes from the recent-use penalty
+    s-=(recent.get(ex.id)||0)*(ex.roll?.9:.5);s+=.3*((S.helped||{})[ex.id]||0);s-=.35*Math.min(3,(S.swapped||{})[ex.id]||0);s+=Math.random()*.15;return[ex,s]})); // small tiebreak: day-to-day variety comes from the recent-use penalty
   // variety: at most two exercises with the same main muscle per session, and one per family of near-identical stretches
   // (a by-area session may use up to four for its own muscles; after / before training a muscle that was only lightly involved gets one)
   const tz=o.kind==="target"?TARGET_ZONES[o.zone]||[]:[],// before/after training: 2 for muscles the session hammered (0.8+), 1 for well-used ones, none for barely-touched ones
   // (they only come in if the session would otherwise be short)
   zcapOf=z=>o.kind==="target"?(tz.includes(z)?4:2):!byMove?2:state.zbonus?((zd0[z]||0)<.6?1:2):((zd0[z]||0)>=.8?2:(zd0[z]||0)>=(nMoves>=4?.4:.6)?1:0);
-  const famHit=ex=>{const f=famsOf(ex);return f.length&&state.picks.some(p=>famsOf(p).some(x=>f.includes(x)))},zcount=z=>state.picks.filter(p=>p.z[0]===z&&!isOuterHip(p)).length;
+  // (the outer-hip stretch is its own slot after training; before training it counts toward the glutes like any other)
+  const famHit=ex=>{const f=famsOf(ex);return f.length&&state.picks.some(p=>famsOf(p).some(x=>f.includes(x)))},zcount=z=>state.picks.filter(p=>p.z[0]===z&&!(isOuterHip(p)&&o.kind!=="activate")).length;
   const areas=AREAS.filter(a=>need[a.k]>.05),total=areas.reduce((t,a)=>t+need[a.k],0)||1,alloc={},stat={},dead=new Set(),picked=[];let used=0;
   areas.forEach(a=>{alloc[a.k]=0;stat[a.k]=0});
   for(let g=0;g<80;g++){
@@ -3246,7 +3296,7 @@ function pickMobility(o,ctx,budget,pool,state,relax){
     const cand=areas.filter(a=>!dead.has(a.k)).sort((x,y)=>behind(x)-behind(y));
     if(!cand.length||picked.length>=maxItems)break;
     const area=cand[0].k;
-    const opts=pool.filter(ex=>ex.a===area&&!picked.includes(ex)&&!state.used.has(ex.id)&&used+cost(ex)<=budget+8&&!famHit(ex)&&(zcount(ex.z[0])<zcapOf(ex.z[0])||(outerHipDay&&isOuterHip(ex)&&!state.picks.some(isOuterHip))||(hot(area)&&!picked.some(p=>p.a===area)&&zcount(ex.z[0])<1))
+    const opts=pool.filter(ex=>ex.a===area&&!picked.includes(ex)&&!state.used.has(ex.id)&&used+cost(ex)<=budget+8&&!famHit(ex)&&(zcount(ex.z[0])<zcapOf(ex.z[0])||(outerHipDay&&o.kind!=="activate"&&isOuterHip(ex)&&!state.picks.some(isOuterHip))||(hot(area)&&!picked.some(p=>p.a===area)&&zcount(ex.z[0])<1))
       // before training: at most 60 s of static stretching per area
       &&!(o.kind==="activate"&&!ex.dyn&&stat[area]>0)).sort((x,y)=>score.get(y)-score.get(x));
     if(!opts.length){dead.add(area);continue}
@@ -3268,7 +3318,7 @@ function pickMobility(o,ctx,budget,pool,state,relax){
     const hard0=Object.keys(zd).filter(z=>zd[z]>=(SMALL_Z.has(z)?.4:.7)&&!covered(z)).sort((a,b)=>zd[b]-zd[a]).slice(0,2);
     // a movement's main muscle comes before a small one (wrists, traps) that only rode along
     const hard=hard0.filter((z,i)=>o.minutes>=15||!SMALL_Z.has(z)||!hard0.slice(0,i).some(q=>SMALL_Z.has(q)));
-    [...[...byMv].filter(z=>!hard.includes(z)).slice(0,o.minutes>=15?3:2),...hard,...(outerHipDay&&!picked.some(isOuterHip)?[OH]:[])].forEach(z=>{if(z!==OH&&covered(z))return;
+    [...[...byMv].filter(z=>!hard.includes(z)).slice(0,o.minutes>=15?3:2),...hard,...(outerHipDay&&!picked.some(isOuterHip)&&(o.kind!=="activate"||zcount("glutes")<2)?[OH]:[])].forEach(z=>{if(z!==OH&&covered(z))return;
       const c=(byMv.has(z)?full:pool).filter(ex=>(z===OH?isOuterHip(ex):SMALL_Z.has(z)?ex.z.slice(0,3).includes(z):ex.z[0]===z)&&!ex.roll&&!picked.includes(ex)&&!state.used.has(ex.id)&&!famHit(ex)&&(z===OH||zcount(ex.z[0])<Math.max(1,zcapOf(ex.z[0])))).sort((x,y)=>score.get(y)-score.get(x))[0];if(!c)return;
       if(used+cost(c)>budget+8){const over=used+cost(c)-(budget+8),dz=z===OH?picked.filter(p=>!p.roll&&!kept.has(p)&&picked.some(q=>q!==p&&q.z.slice(0,2).includes(p.z[0]))).sort((a,b)=>(cost(b)>=over)-(cost(a)>=over)||score.get(a)-score.get(b))[0]:picked.filter(p=>!p.roll&&!kept.has(p)&&!(outerHipDay&&isOuterHip(p))&&(picked.filter(q=>q.z[0]===p.z[0]).length>1||((zd[p.z[0]]||0)<zv(z)-.2&&!sole(p)))).sort((a,b)=>(cost(b)>=over)-(cost(a)>=over)||(zd[a.z[0]]||0)-(zd[b.z[0]]||0)||score.get(a)-score.get(b))[0];if(!dz)return;
         // a movement's main muscle that would only just not fit gets a slightly shorter hold rather than nothing
@@ -3296,9 +3346,38 @@ function pickMobility(o,ctx,budget,pool,state,relax){
 }
 // a tendon program and a workout full of impact: say so before the warm-up, not after the session
 const RB_JUMPS=new Set(["Box Jump","Burpee Broad Jump","Double-unders","Burpee","Pistol"]),RB_RUNS=new Set(["Running","Sprints","Hill Running"]);
+// the movements a tendon program cuts today (the ones the banner tells you to swap)
+function rbCutMoves(moves){if(!S.rehab)return new Set();const r=S.rehab.region,tendon=r==="achilles"||(r==="knee"&&S.rehab.cls==="tendon");if(!tendon)return new Set();
+  return new Set(moves.filter(m=>RB_JUMPS.has(m)||(r==="achilles"&&RB_RUNS.has(m)&&m!=="Running")))}
 function rbLoadWarn(moves){if(!S.rehab)return"";const r=S.rehab.region,c=S.rehab.cls,tendon=r==="achilles"||(r==="knee"&&c==="tendon");if(!tendon)return"";
   const j=moves.filter(m=>RB_JUMPS.has(m)),run=r==="achilles"?moves.filter(m=>RB_RUNS.has(m)):[];if(!j.length&&!run.length)return"";
   return`Your Rebuild program says to cut jumping${r==="achilles"?" and keep running easy and flat":""} for now. ${[...j,...run].join(", ")}: swap or scale ${j.length+run.length>1?"them":"it"}${j.length?` (step-ups or a bike instead of jumps${run.length?", ":""}`:run.length?" (":""}${run.length?"bike or row instead of hard running":""}), and stop if pain goes above ${PAIN_OK}/10.`}
+// a Rebuild program in an early phase and a workout whose main lift that phase isn't ready for yet (a back in phase 1 and
+// deadlifts at 85%): the phase that brings the lift back, and what to do today instead. heavy = the phase a heavy lift
+// (percentages, singles to fives, "build to") needs, light = the phase any loaded version needs
+const RB_PHASE_GATE={
+ back:{heavy:2,light:1,moves:["Deadlift","Romanian Deadlift","Back Squat","Front Squat","Squat Clean","Power Clean","Clean & Jerk","Snatch","Power Snatch","Snatch Pull","Clean Pull","Overhead Squat","Thruster","Kettlebell Swing","Sled Pull","Back Extension","Farmers Carry","Sandbag Lunges","GHD Sit-up"],
+  alt:"use about half your working weight with a flat, braced back, or swap for the hip hinge drill and single-leg RDLs with a dowel"},
+ knee:{heavy:1,light:0,moves:["Back Squat","Front Squat","Squat Clean","Overhead Squat","Thruster","Wall Ball","Pistol","Lunges","Bulgarian Split Squat","Sandbag Lunges","Step-ups","Goblet Squat","Snatch","Clean & Jerk"],
+  alt:"keep squats to pain-free depth at a moderate weight (tempo box squats are a good swap)"},
+ hip:{heavy:1,light:0,moves:["Back Squat","Front Squat","Squat Clean","Overhead Squat","Deadlift","Romanian Deadlift","Snatch","Clean & Jerk","Bulgarian Split Squat","Lunges","Sandbag Lunges","Pistol"],
+  alt:"lift to pain-free depth at a moderate weight, or swap for single-leg RDLs and glute bridges"},
+ shoulder:{heavy:-1,light:1,moves:["Snatch","Power Snatch","Clean & Jerk","Split Jerk","Push Jerk","Overhead Squat","Strict Press","Push Press","Handstand Push-up","Handstand Walk","Bar Muscle-up","Ring Muscle-up","Thruster","Wall Ball","Bench Press","Dips","Toes-to-bar","Pull-up","Chest-to-bar Pull-up"],
+  alt:"keep overhead and kipping work light and strict, or swap for landmine presses, ring rows and strict pulling"},
+ elbow:{heavy:1,light:1,moves:["Pull-up","Chest-to-bar Pull-up","Bar Muscle-up","Ring Muscle-up","Toes-to-bar","Rope Climb","Farmers Carry","Deadlift","Power Clean","Squat Clean","Snatch","Power Snatch"],
+  alt:"use straps, cut the pulling volume, or swap kipping for ring rows"},
+};
+function rbPhaseWarn(moves,mw){if(!S.rehab)return"";const st=S.rehab,G=RB_PHASE_GATE[st.region],R=REGIONS[st.region];if(!G||!R)return"";
+  const phs=rbPhases(R,st.cls);if(!phs||!phs.length)return"";const top=phs.length-1,need=m=>{const h=(mw&&mw[m]!=null?mw[m]:1)>=2,n=h?G.heavy:G.light;return n<0?top:Math.min(n,top)};
+  const hit=(moves||[]).filter(m=>G.moves.includes(m)&&st.phase<need(m));if(!hit.length)return"";
+  const n=Math.max(...hit.map(need)),hv=m=>mw&&mw[m]>=2,list=hit.slice(0,3).map(m=>hv(m)?`heavy ${m.toLowerCase()}s`.replace(/ss$/,"s"):m).join(", ").replace(/, ([^,]+)$/," and $1");
+  return`Your ${R.n.toLowerCase()} program is in phase ${st.phase+1} (${phs[st.phase].n}). ${list[0].toUpperCase()+list.slice(1)} ${hit.length>1||hv(hit[0])?"come":"comes"} back in phase ${n+1} (${phs[n].n}). Today: ${G.alt}, and stop if pain goes above ${PAIN_OK}/10.`}
+// every caution a Rebuild program has for one workout (impact for a tendon, and lifts its phase isn't ready for)
+const rbWorkoutWarn=(moves,mw)=>[rbLoadWarn(moves||[]),rbPhaseWarn(moves||[],mw)].filter(Boolean).join(" ");
+// the muscles around each area, used to fill a by-area session the area alone can't fill safely
+const TARGET_NEAR={ankles:["shins","feet","quads","hamstrings"],hips:["hamstrings","lowback","obliques"],posterior:["glutes","calves","adductors"],thoracic:["lats","obliques","chest"],overhead:["upperback","chest","obliques"],shoulders:["upperback","lats","neck"]};
+function planCredit(items,moves){const c={},mz=m=>(MOVE_ZONES[m]||[]).slice(0,4);
+  (moves||[]).forEach(m=>{c[m]=items.filter(it=>{const e=LIBI[it.id];return!!e&&(e.z.slice(0,3).some(z=>mz(m).includes(z))||(it.why||"").includes(m))}).map(it=>it.id)});return c}
 function targetZd(zone){const m=Object.fromEntries((TARGET_ZONES[zone]||[]).map(z=>[z,1]));Object.values(TARGET_SUPPORT[zone]||{}).flat().forEach(z=>{if(!m[z])m[z]=.6});return m}
 function buildPlan(o){
   const{need,parts,ctx}=analyze(o),flash=o.minutes===3,budget=o.minutes*60,moves=o.kind==="target"?[]:planMoves(o),zd=o.kind==="target"?targetZd(o.zone):normMap(zoneDemandOf(moves,o.mw));
@@ -3314,23 +3393,26 @@ function buildPlan(o){
     const a=fit(mk(0),cap);return a.length||flash?a:fit(mk(1),Math.max(cap,left*.4))};
   if(o.kind==="activate"){
     if(!flash)add("Rehab warm-up",preRehab());
+    // before a run, a HYROX or race sim: on your feet and moving, with as little floor work as possible
+    const runDay=moves.some(m=>RB_RUNS.has(m)),cut=rbCutMoves(moves),pmoves=moves.filter(m=>!cut.has(m));
     let rollIt=[];
     if(!flash&&(o.equip.includes("roller")||o.equip.includes("ball"))){const rz=ex=>(zd[ex.z[0]]||0)+.5*Math.max(0,...ex.z.slice(1).map(z=>zd[z]||0));
-      rollIt=(fit(LIB.filter(ex=>ex.roll&&!ex.manual&&!ex.noPre&&okEq(ex.id)&&rz(ex)>.5).sort((a,b)=>rz(b)-rz(a)).map(ex=>({id:ex.id,hold:ex.sides?30:60,why:`A minute of rolling on the ${ZONES[ex.z[0]].toLowerCase()} first takes the edge off before you move them through range.`})).filter((it,i,a)=>a.findIndex(x=>LIBI[x.id].z[0]===LIBI[it.id].z[0])===i),left*.2).slice(0,o.minutes>=15?2:1).sort((a,b)=>posOf(LIBI[b.id])-posOf(LIBI[a.id])));
+      rollIt=(fit(LIB.filter(ex=>ex.roll&&!ex.manual&&!ex.noPre&&okEq(ex.id)&&rz(ex)>.5).sort((a,b)=>rz(b)-rz(a)).map(ex=>({id:ex.id,hold:ex.sides?30:60,why:`A minute of rolling on the ${ZONES[ex.z[0]].toLowerCase()} first takes the edge off before you move them through range.`})).filter((it,i,a)=>a.findIndex(x=>LIBI[x.id].z[0]===LIBI[it.id].z[0])===i),left*.2).slice(0,o.minutes>=15&&!runDay?2:1).sort((a,b)=>posOf(LIBI[b.id])-posOf(LIBI[a.id])));
       rollIt.forEach(it=>{it.block="Roll";state.used.add(it.id);left-=itemSecs(it)})}
     // hinge-heavy days get the bird dog, everything else the side plank
     const hingeDay=moves.slice(0,3).some(m=>["Deadlift","Romanian Deadlift","Kettlebell Swing","Power Clean"].includes(m));
-    const core=o.minutes>=15?[CORE_PREP[hingeDay?0:1]].map(([id,dose,why])=>({id,dose,why})):[];
-    // groups ranked by how much of the session they cover, main lifts (listed first) counting most
-    const rel=p=>moves.reduce((t,m,i)=>t+(p.moves.includes(m)?1/(1+i*.5):0),0);
+    const core=o.minutes>=15&&!runDay?[CORE_PREP[hingeDay?0:1]].map(([id,dose,why])=>({id,dose,why})):[];
+    // groups ranked by how much of the session they cover, main lifts (listed first) counting most; movements your Rebuild
+    // program says to cut today (jumps for a tendon) don't get a warm-up of their own
+    const rel=p=>pmoves.reduce((t,m,i)=>t+(p.moves.includes(m)?1/(1+i*.5):0),0);
     const groups=MOVE_PREP.filter(p=>rel(p)>0).sort((a,b)=>rel(b)-rel(a));
     const cap=flash?2:o.minutes<=8?3:o.minutes<=12?5:o.minutes<=15?5:6;
     // breadth first: the rehearsal of the main lift, then one drill for each other movement group, then second drills
     // (a C&J warm-up gets an overhead drill before a second squat drill)
     const passes=[[],[]];
-    groups.forEach((g,gi)=>{const m=moves.find(x=>g.moves.includes(x));
+    groups.forEach((g,gi)=>{const m=pmoves.find(x=>g.moves.includes(x));
       // a pipe or plate you brought gets used: drills that need it go first (the top group keeps its main-lift rehearsal)
-      const spec=id=>LIBI[id].eq.some(q=>q!=="wall"&&q!=="band"),ok0=g.drills.filter(([id])=>okEq(id)),ok=gi===0||!ok0.some(d=>spec(d[0]))?ok0:(()=>{const i=ok0.findIndex(d=>spec(d[0]));return[ok0[i],...ok0.filter((_,j)=>j!==i)]})(),ds=gi===0&&ok.length>1?[ok[ok.length-1],ok[0]]:ok;
+      const spec=id=>LIBI[id].eq.some(q=>q!=="wall"&&q!=="band"),ok0=g.drills.filter(([id])=>okEq(id)&&!(runDay&&posOf(LIBI[id])>=2)),ok=gi===0||!ok0.some(d=>spec(d[0]))?ok0:(()=>{const i=ok0.findIndex(d=>spec(d[0]));return[ok0[i],...ok0.filter((_,j)=>j!==i)]})(),ds=gi===0&&ok.length>1?[ok[ok.length-1],ok[0]]:ok;
       ds.slice(0,2).forEach(([id,dose,why],k)=>passes[k].push({id,...(dose?{dose}:{hold:30}),why:`${m}: this ${typeof why==="function"?why(m):why}.`,rank:gi,main:gi===0&&k===0,_k:k*.4-rel(g)+(gi===0&&k===1?.5:0)}))});
     const prep=[...passes[0],...passes[1]].filter((it,i,a)=>a.findIndex(x=>x.id===it.id)===i);
     // a well-matched group's second drill beats a loosely-matched group's first (pull-aparts before good mornings for a jerk)
@@ -3351,9 +3433,13 @@ function buildPlan(o){
     else if(rS.length&&rF.length===0&&mob.items.some(low)){add("Mobilise",mob.items.filter(low));addR(rS);add("Mobilise · standing",mob.items.filter(it=>!low(it)));add("Activate",act)}
     else{addR(rollIt);add("Mobilise",mob.items);add("Activate",act)}
     // every area named as "Your mobility focus" gets at least one drill of its own (a low ankle score and no ankle work reads as a mistake)
-    if(!flash){const inA=(e,k)=>e.a===k||zoneArea(e.z[0])===k,allIt=()=>blocks.flatMap(b=>b.items),f=focusOf(o);
+    if(!flash){const inA=(e,k)=>e.a===k||zoneArea(e.z[0])===k,allIt=()=>blocks.flatMap(b=>b.items),f=[...new Set([...focusOf(o),...mobilityFocus(ctx.sc)])];
       f.forEach(k=>{if(allIt().some(it=>inA(LIBI[it.id],k)))return;
-        const c=LIB.filter(e=>e.a===k&&!e.rehab&&!e.roll&&!e.manual&&!e.custom&&!e.noPre&&!e.filler&&okEq(e.id)&&!state.used.has(e.id)&&posOf(e)<=1&&(e.dyn||(ctx.sc[k]??70)<60)).sort((a,b)=>(b.dyn?1:0)-(a.dyn?1:0)||(b.eq.length?1:0)-(a.eq.length?1:0))[0];if(!c)return;
+        // (a Rebuild program that rules out the usual drill gets the closest safe one, even a simple one)
+        const zc=z=>allIt().filter(it=>{const x=LIBI[it.id];return x&&!x.rehab&&!x.roll&&x.z[0]===z}).length;
+        const fams=new Set(allIt().flatMap(it=>LIBI[it.id]?famsOf(LIBI[it.id]):[]));
+        const cs=e=>e.a===k&&zc(e.z[0])<2&&!famsOf(e).some(f=>fams.has(f))&&!e.rehab&&!e.roll&&!e.manual&&!e.custom&&!e.noPre&&okEq(e.id)&&!state.used.has(e.id)&&posOf(e)<=(runDay?0:1)&&(e.dyn||(ctx.sc[k]??70)<60)&&!(S.rehab&&S.rehab.region==="achilles"&&!e.dyn&&e.z.includes("calves"));
+        const c=LIB.filter(e=>cs(e)&&!e.filler).sort((a,b)=>(b.dyn?1:0)-(a.dyn?1:0)||(b.eq.length?1:0)-(a.eq.length?1:0))[0]||(S.rehab?LIB.filter(cs)[0]:null);if(!c)return;
         const it={id:c.id,hold:c.dyn?(c.sides?30:45):30,why:whyFor(c,o,moves,ctx,parts,zd)};
         // one trip down and up: it goes in front of the first later item that is lower to the ground than it is (else just before the main-lift rehearsal)
         const pc=posOf(c),body=blocks.filter(x=>x.name!=="Roll"&&x.name!=="Rehab warm-up");let b=null,j=-1;
@@ -3378,7 +3464,7 @@ function buildPlan(o){
     }
     pool=pool.filter(ex=>(!ex.dyn||ex.post)&&!ex.roll);add("Long holds",pickMobility(o,C,left,pool,state).items);
     // every focus area gets at least one hold, in place of a third hold for an area that already has two
-    const lh=blocks.find(b=>b.name==="Long holds");if(lh&&!flash){const inA=(e,k)=>e.a===k||zoneArea(e.z[0])===k,f=focusOf(o),all=()=>blocks.flatMap(b=>b.items);
+    const lh=blocks.find(b=>b.name==="Long holds");if(lh&&!flash){const inA=(e,k)=>e.a===k||zoneArea(e.z[0])===k,f=[...new Set([...focusOf(o),...mobilityFocus(ctx.sc)])],all=()=>blocks.flatMap(b=>b.items);
       f.forEach(k=>{if(all().some(it=>inA(LIBI[it.id],k)))return;
         const c=pool.filter(e=>e.a===k&&!state.used.has(e.id)&&!e.filler&&(!e.adv||(ctx.sc[e.adv]??70)>=(e.advMin||60))).sort((a,b)=>((zd[b.z[0]]||0)-(zd[a.z[0]]||0))||((b.hold>=60)-(a.hold>=60)))[0];if(!c)return;
         const cnt=a=>lh.items.filter(x=>LIBI[x.id].a===a).length,di=lh.items.map((x,i)=>i).reverse().find(i=>!f.some(q=>inA(LIBI[lh.items[i].id],q))&&cnt(LIBI[lh.items[i].id].a)>1)??lh.items.map((x,i)=>i).reverse().find(i=>!f.some(q=>inA(LIBI[lh.items[i].id],q)));
@@ -3386,7 +3472,9 @@ function buildPlan(o){
         if(di!=null&&all().reduce((t,x)=>t+itemSecs(x),0)+itemSecs(it)>budget+30){state.used.delete(lh.items[di].id);lh.items.splice(di,1)}
         const pc=posOf(c),j=lh.items.findIndex(x=>posOf(LIBI[x.id])>pc);lh.items.splice(j<0?lh.items.length:j,0,it);state.used.add(c.id)})}
   }else if(o.kind==="daily"){
-    const mob=pickMobility(o,C,left*(flash?1:.72),pool,state);add("Mobility",mob.items);
+    // rolling the low back itself isn't worth a daily slot (the muscles beside it are rolled instead), and a roll you did
+    // in the last few days gives way to a different one
+    const mob=pickMobility(o,C,left*(flash?1:.72),pool.filter(ex=>!(ex.roll&&ex.z[0]==="lowback")),state);add("Mobility",mob.items);
     if(!flash){
       const wk=weekStretch(),top=AREAS.filter(a=>need[a.k]>.05).sort((a,b)=>((wk[b.k]||0)>=WEEK_TARGET)-((wk[a.k]||0)>=WEEK_TARGET)||need[b.k]-need[a.k]).slice(0,3);
       const str=[];top.forEach(a=>(END_RANGE[a.k]||[]).forEach(([id,dose])=>str.push({id,dose,why:`Strength at the end of your ${AN[a.k]} range. Loaded range work improves mobility as much as stretching and also protects against injury.${(wk[a.k]||0)>=WEEK_TARGET?" You've already done your 10 minutes of stretching here this week.":""}`})));
@@ -3406,12 +3494,40 @@ function buildPlan(o){
     while(items.length&&(items.length<4||used<cap*.8)&&round<=4){const nx=mob.items.filter(it=>{if(famsOf(LIBI[it.id]).some(f=>FLEX_FAM.has(f)))return false;const c=itemSecs(it);if(used+c>cap+8)return false;used+=c;return true});if(!nx.length)break;nx.forEach(it=>items.push({...it,why:`Round ${round}. Repeating builds more range than one long hold.`}));round++}
     add("Mobility",items);
     add("Lock it in",lock);
-    if(left>75){const more=pickMobility(o,C,left,pool,state).items;if(more.length)blocks.find(b=>b.name==="Mobility").items.push(...more.map(it=>(it.block="Mobility",state.used.add(it.id),it)));left-=more.reduce((t,it)=>t+itemSecs(it),0)}
+    if(left>75){const more=pickMobility(o,C,left,pool,state).items;const mb=blocks.find(b=>b.name==="Mobility");if(more.length&&mb)mb.items.push(...more.map(it=>(it.block="Mobility",state.used.add(it.id),it)));else if(more.length)add("Mobility",more);left-=more.reduce((t,it)=>t+itemSecs(it),0)}
+    // never a near-empty session: when a Rebuild program (or your kit) rules out most of an area's stretches (an Achilles and
+    // Target Ankles), fill with what is safe for that area and its neighbours: other stretches, then easy strength holds
+    const tot=()=>blocks.reduce((t,b)=>t+b.items.reduce((u,it)=>u+itemSecs(it),0),0);
+    if(tot()<budget*.75){const own=new Set(TARGET_ZONES[o.zone]||[]),near=new Set(TARGET_NEAR[o.zone]||[]),zv=e=>own.has(e.z[0])?3:e.z.slice(1,3).some(z=>own.has(z))?2:near.has(e.z[0])?1:0;
+      const pre=new Map((hooks.pre||[]).map(([id,d])=>[id,d]));
+      const calfSafe=e=>!(S.rehab&&S.rehab.region==="achilles"&&!e.rehab&&e.z.includes("calves"));
+      const cands=LIB.filter(e=>!e.manual&&!e.custom&&!state.used.has(e.id)&&okEq(e.id)&&zv(e)>0&&calfSafe(e)&&!(e.filler&&!own.has(e.z[0]))&&!(e.adv&&(ctx.sc[e.adv]??70)<(e.advMin||60)))
+        .sort((a,b)=>zv(b)-zv(a)||(!!a.rehab-!!b.rehab)||(pre.has(b.id)-pre.has(a.id))||(a.roll?1:0)-(b.roll?1:0));
+      const extra=[];for(const e of cands){if(tot()+extra.reduce((t,it)=>t+itemSecs(it),0)>=budget*.9)break;
+        const it=e.rehab?{id:e.id,dose:pre.get(e.id)||{...defaultDose(e.id)},why:pre.has(e.id)?`Part of your ${hooks.name} program, and safe for your ${AN[o.zone]}: an easy hold that builds strength without stretching what's sore.`:`Strength for your ${AN[o.zone]} in a position that's safe for you right now.`}
+          :{id:e.id,hold:flash?(e.sides?15:30):e.hold,why:own.has(e.z[0])||e.z.slice(1,3).some(z=>own.has(z))?`Works your ${AN[o.zone]}${hooks.x.size?` in a position your Rebuild program allows`:""}.`:`Tight ${ZONES[e.z[0]].toLowerCase()} often limit your ${AN[o.zone]}.`};
+        if(tot()+extra.reduce((t,x)=>t+itemSecs(x),0)+itemSecs(it)>budget+30)continue;extra.push(it);state.used.add(e.id)}
+      if(extra.length){const mob=extra.filter(it=>!LIBI[it.id].rehab),str=extra.filter(it=>LIBI[it.id].rehab),mb=blocks.find(b=>b.name==="Mobility");
+        if(mob.length){if(mb)mb.items.push(...mob.map(it=>(it.block="Mobility",it)));else blocks.unshift({name:"Mobility",items:mob.map(it=>(it.block="Mobility",it))})}
+        if(str.length){const lb=blocks.find(b=>b.name==="Lock it in");if(lb)lb.items.unshift(...str.map(it=>(it.block="Lock it in",it)));else add("Strength",str)}}}
+    // "the range you just opened" only when something opened it first
+    if(!blocks.some(b=>b.name==="Mobility"&&b.items.length))blocks.forEach(b=>{if(b.name==="Lock it in")b.items.forEach(it=>{if(/^Use the range you just opened/.test(it.why))it.why=`Strength at the end of your ${AN[o.zone]} range: loaded range work builds mobility as well as stretching does.`})});
   }
   const items=blocks.flatMap(b=>b.items);
   // a knee program: squats only to the depth that stays pain-free
   if(S.rehab&&S.rehab.region==="knee")items.forEach(it=>{if(it.dose&&/squat|r_ohs|a_sots/i.test(it.id+" "+LIBI[it.id].n)&&!/hold/i.test(LIBI[it.id].n)){it.dose={...it.dose,note:"To pain-free depth"};it.why=(it.why||"")+" Only as deep as your knee stays pain-free."}});
-  return{items,blocks,secs:items.reduce((t,it)=>t+itemSecs(it),0),need,parts,excluded:hooks.x.size?hooks.name:"",warn:o.kind==="activate"?rbLoadWarn(moves):""};
+  // which exercises answer each movement (shown under "Why these?"), and after training every movement that something
+  // covers is named in a why-line (muscle-ups: shoulders, box jumps: calves), not only the heaviest lift
+  let credit=null;if((o.kind==="activate"||o.kind==="recover")&&moves.length){credit={};
+    const mz=m=>(MOVE_ZONES[m]||[]).slice(0,4);Object.assign(credit,planCredit(items,moves));
+    if(o.kind==="recover")moves.forEach(m=>{if(!credit[m].length||items.some(it=>(it.why||"").includes(m)))return;
+      const named=it=>moves.filter(x=>(it.why||"").includes(x)).length;
+      const it=items.filter(x=>credit[m].includes(x.id)&&!/^Rolling|^Round/.test(x.why||"")).sort((a,b)=>named(a)-named(b))[0];if(!it)return;
+      const z=LIBI[it.id].z.slice(0,3).find(z=>mz(m).includes(z));if(!z)return;
+      const zn=ZONES[z].toLowerCase(),mm=(it.why||"").match(/^(.+?) worked your ([a-z ]+?)(?=[,.])/);
+      if(mm)it.why=mm[2]===zn?it.why.replace(mm[0],`${mm[1]} and ${m} worked your ${zn}`):it.why.replace(mm[0],`${mm[0]}, ${m} your ${zn}`);
+      else it.why=`${m} worked your ${zn}. `+(it.why||"")})}
+  return{items,blocks,credit,secs:items.reduce((t,it)=>t+itemSecs(it),0),need,parts,excluded:hooks.x.size?hooks.name:"",warn:o.kind==="activate"?rbWorkoutWarn(moves,o.mw):""};
 }
 
 /* ================= training (workouts pasted from SugarWOD) ================= */
@@ -3514,7 +3630,8 @@ const recLabel=rec=>`Recover · ${dayLabel(doneDay(rec[0]))}${rec.length>1?` · 
 // Load on each area from the last 3 days: today 1, yesterday .8, 2 days .5, 3 days .3
 function recentLoad(){
   const t=todayIso(),wt=[1,.8,.5,.3],load={};AREAS.forEach(a=>load[a.k]=0);
-  past().forEach(w=>{if(!didIt(w))return;const ago=daysFrom(doneDay(w),t);if(ago<0||ago>3)return;const d=demandOf(w.moves,moveWeights(w));for(const k in d)load[k]+=d[k]*wt[ago]});
+  // done, or a workout you added yourself for today or the last few days (logging it means you did it)
+  S.training.forEach(w=>{if(w.example||!(didIt(w)||(w.source!=="sugarwod-auto"&&w.date<=t)))return;const ago=daysFrom(doneDay(w),t);if(ago<0||ago>3)return;const d=demandOf(w.moves,moveWeights(w));for(const k in d)load[k]+=d[k]*wt[ago]});
   return load;
 }
 function wShort(w){const t=wTitle(w).split(/\s*[·|•]\s*/).filter(Boolean).pop()||"Your next workout";return t.length>32?t.slice(0,30).trim()+"…":t}
@@ -3561,6 +3678,7 @@ const wRow=w=>{
    ${w.result?(()=>{const r=w.result.split(/\s*;\s*/).filter(Boolean).map(x=>x.replace(/ RX$/,w.result.includes("scaled")?" RX":""));return`<span class="wres">${r.slice(0,3).map(x=>`<small>${esc(x)}</small>`).join("")}${r.length>3?`<small class="muted">+${r.length-3} more</small>`:""}</span>`})():""}
    ${w.loggedAt?(()=>{const late=daysFrom(w.date,iso(new Date(w.loggedAt)));return late>1?`<small>Logged ${fromIso(iso(new Date(w.loggedAt))).toLocaleDateString(undefined,{day:"numeric",month:"short"})}, ${late} days after the workout</small>`:""})():""}
    ${up&&reentryFor(w)?`<small class="c-warn">Re-entry: ${esc(reentryFor(w))}</small>`:""}
+   ${up&&w!==nextSession()&&rbWorkoutWarn(w.moves,moveWeights(w))?`<small class="c-warn">Rebuild: scale or swap part of this one. Tap Prepare for details.</small>`:""}
    ${w.moves.length?`<small>Loads ${f.map(k=>AN[k]).join(" & ")}</small>`:/rest|recovery|off/i.test(w.title||"")?"":`<small>No movements found. Tap to add them.</small>`}</button>
    <div class="wa">${up&&w.moves.length?`<button class="link" data-act="prepW" data-id="${w.id}">Prepare</button>`:""}${w.moves.length&&(!up||w.date===todayIso())?`<button class="link" data-act="recW" data-id="${w.id}">${(n=>n>1?`Recover all ${n}`:"Recover")(didIt(w)?sessionsDoneOn(doneDay(w)).length:0)}</button>`:""}</div></div>`;
 };
@@ -3569,8 +3687,8 @@ SCREENS.training=()=>{
   const sc=scores();
   return `<div class="hdr" style="grid-template-columns:1fr"><div class="brand">Range<b>.</b></div></div>
   <div class="stack" style="padding-top:8px">
-  <div style="display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap" data-tour="train-top"><h1>Training</h1><span style="display:flex;gap:16px;align-items:center;padding-bottom:4px">${S.training.length?`<button class="link" data-act="importW">Import</button><button class="link" data-act="addW">${ic("plus","")} Add workout</button>`:""}</span></div>
-  ${S.training.length?"":`<div class="banner"><div><h3>Bring in your SugarWOD workouts</h3><p class="muted" style="font-size:14px;margin:6px 0 0">Copy a workout from the SugarWOD whiteboard and paste it here. Range finds the movements, then prepares you for upcoming sessions and helps you recover from past ones.</p></div><button class="btn" data-act="importW">Import from SugarWOD</button><button class="btn sec" data-act="addW">Paste a workout</button><button class="btn sec" data-act="exampleWeek">Try with an example week</button></div>`}
+  <div style="display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap" data-tour="train-top"><h1>Training</h1><span style="display:flex;gap:16px;align-items:center;padding-bottom:4px">${S.training.length?`<button class="link" data-act="importW">Import</button>`:""}<button class="link" data-act="addW">${ic("plus","")} Add workout</button></span></div>
+  ${S.training.length?"":`<div class="banner" data-tour="bring"><div><h3>Bring in your workouts</h3><p class="muted" style="font-size:14px;margin:6px 0 0">Add the workouts you train: type one in, paste it from any whiteboard, or import from SugarWOD. Range finds the movements, then prepares you for upcoming sessions and helps you recover from past ones.</p></div><button class="btn" data-act="addW">Add a workout</button><button class="btn sec" data-act="importW">Import from SugarWOD</button><button class="btn sec" data-act="exampleWeek">Try with an example week</button></div>`}
   ${(()=>{const sy=S.sync||{};
     if(API)return connPanel();
     if(syncAvail===false&&!sy.key&&sy.preload)return`<div class="panel"><span class="eyebrow c-good">SugarWOD · connected</span><div style="font-size:14px">Last synced ${agoText(sy.preload.syncedAt)} · ${sy.preload.count} workouts (your results and the coming week).</div></div>`;
@@ -3583,6 +3701,7 @@ SCREENS.training=()=>{
   ${nx?`<div class="panel"><span class="eyebrow">Next session · ${dayLabel(nx.date)}</span><h3 class="clamp2">${esc(wTitle(nx))}</h3>
      <div class="chipset">${nx.moves.map(m=>`<span class="mchip">${esc(m)}</span>`).join("")}</div>
      <p class="muted" style="margin:0;font-size:14px">${nx.moves.length?`Needs the most from your ${focusOf({kind:"activate",moves:nx.moves,mw:moveWeights(nx)}).map(k=>`${AN[k]} (score ${sc[k]})`).join(" and ")}.`:"Add movements so Range knows what to prepare."}</p>
+     ${(w=>w?`<div class="note-warn" style="font-size:13px"><b>${esc(w)}</b></div>`:"")(rbWorkoutWarn(nx.moves,moveWeights(nx)))}
      <button class="btn" data-act="prepNext" ${nx.moves.length?"":"disabled"}>Prepare for it</button></div>`:""}
   ${rec.length?`<div class="panel"><span class="eyebrow">${recLabel(rec)}</span><h3>${esc(rec.map(wTitle).join(" + "))}</h3>
      <p class="muted" style="margin:0;font-size:14px">Long holds for the areas these sessions loaded.</p><button class="btn sec" data-act="recoverRecent">Start recovery</button></div>`:""}
@@ -3870,11 +3989,18 @@ function rbShrink(d,ex){
   if(d.k==="reps")return d.sets>2?{...d,sets:d.sets-1}:null;
   return null;
 }
+// a stand-in keeps its own kind of dose: a hold stays a hold, but slow heel raises get reps, never "3 × 45 s hold"
+function fitDose(e,d){if(!e||!e.rehab||!d||d.k!=="hold")return d;const pd=typeof progDose==="function"?progDose(e.id):null;if(!pd||pd.k==="hold")return d;delete pd.hsr;return{...pd,sets:Math.min(pd.sets||3,Math.max(1,d.sets||1)),sides:pd.sides||d.sides}}
 function rbAlt(id,items,avoid){const ex=LIBI[id];if(!ex)return null;
   return LIB.filter(e=>e.id!==id&&!e.custom&&!e.manual&&!e.roll&&e.z[0]===ex.z[0]&&(e.a===ex.a||(!!e.rehab&&!!ex.rehab))&&e.eq.every(q=>S.equip.includes(q))&&!avoid.has(e.id)&&!items.some(it=>it.id===e.id))
     .sort((a,b)=>(b.eq.length?1:0)-(a.eq.length?1:0)||(!!b.dyn===!!ex.dyn)-(!!a.dyn===!!ex.dyn))[0]||null}
 // why each Rebuild exercise is there (the dose is on the card already)
 const RB_WHY={"t4": "Gentle movement through the whole spine eases stiffness before the strength work.", "r_curlup": "Trains the front of the core to brace while the low back stays still (McGill's Big Three).", "r_sideplank": "Side-of-trunk endurance that keeps the spine steady under load (McGill's Big Three).", "r_birddog": "Teaches the back muscles to hold the spine still while the arms and legs move (McGill's Big Three).", "r_bridge": "Gets the glutes doing the hip work so the low back doesn't have to.", "r_walk": "Brisk walking is one of the best-supported ways to calm a sore back: easy, rhythmic load.", "r_hinge": "Grooves bending at the hips with a still spine, the pattern behind every safe pick-up.", "r_goblethold": "Builds strength at the bottom of the squat with the glutes on and the spine supported.", "r_pallof": "Trains the core to resist twisting, which protects the back in lifts and sport.", "r_slbridge": "One leg at a time evens out the glutes and keeps the pelvis level.", "r_row": "Upper-back strength for a tall posture under the bar.", "r_slrdl": "Hip hinge strength and balance on one leg, back to full training demands.", "r_spanish": "A heavy hold that loads the knee tendon without moving it, so pain usually eases during and after.", "r_wallsit": "Hard quad work at a fixed angle: the tendon gets load it can tolerate.", "r_boxsquat": "Slow, heavy squats rebuild the tendon's capacity; the box sets a safe depth.", "r_splitsq": "Loads each knee on its own so the weaker side catches up.", "r_hops": "Brings back springiness: the tendon has to store and release energy again before you jump.", "r_touchdown": "Knee control on one leg: the knee stays over the toes as you lower.", "r_bwsquat": "Practices a smooth squat with stable knees, only as deep as stays pain-free.", "r_bandwalk": "Strengthens the sides of the hips that keep the knees from caving in.", "r_abduction": "Side-of-hip strength that keeps the knee tracking over the foot.", "a1": "Freer ankle bend takes strain off the knee in squats and landings.", "a6": "Frees the front of the ankle so the knee isn't forced to make up for it.", "h8": "Opens the front of the hip joint so it moves without the pinch.", "r_airplane": "Controls the hip as the pelvis turns over a standing leg: strength right where it pinches.", "r_hipflexiso": "Loads the hip flexor without moving it, which calms it down.", "r_bandsquat": "Low-effort work for the side of the hip, the start of rebuilding it.", "r_gmedwall": "Targets the side-of-hip muscle that steadies the pelvis on one leg.", "r_addsqueeze": "Loads the inner thigh without stretching it, which calms an irritated groin.", "r_copenhagen": "The best-supported exercise for groin strength and preventing a relapse.", "h5": "Gets the inner-thigh range back now that it tolerates load.", "r_fig4": "Eases tension deep in the buttock without compressing the sore spot.", "h2": "Restores range deep in the glute once it is calm.", "t3": "Upper-back extension takes work off the shoulder when you reach overhead.", "t2": "Mobility between the shoulder blades so they move freely under the arm.", "o2": "Restores overhead range through the lats without loading the shoulder.", "o3": "Practices reaching overhead with the ribs down and the shoulder blades turning up.", "r_proneY": "Strengthens the lower traps that rotate the shoulder blade up as you lift your arm.", "r_ser": "Builds the rotator cuff that keeps the ball of the shoulder centred.", "r_bandw": "Rotator cuff and upper-back work that steadies the shoulder.", "r_scappull": "Teaches the shoulder blades to set before you hang or pull.", "r_kbpress": "A wobbly weight makes every shoulder muscle work together to keep it steady.", "r_wristiso": "A still hold loads the elbow tendon without moving it, which usually eases pain.", "r_wristcurl": "Slow loading through full range rebuilds the tendon's capacity.", "r_farmer": "Grip and shoulder strength with the wrist neutral, close to how you use them in training.", "r_rackhold": "Overhand grip strength for bar work, without moving the elbow.", "r_calfiso": "A heavy still hold loads the Achilles without moving it, which calms the tendon and usually eases pain.", "r_calfraise": "Slow, heavy calf raises rebuild the tendon's capacity.", "r_soleus": "The deep calf takes much of the load when you run; this rebuilds it with the knee bent.", "r_soleusiso": "The deep calf takes much of the load when you run; a still hold works it while calming the tendon."};
+// the same exercise does a different job in another program (a glute bridge protects the back, but steadies the knee)
+const RB_WHY_BY={knee:{r_bridge:"Strong glutes hold the thigh in line, so the knee tracks over the toes instead of caving in.",r_slbridge:"One leg at a time builds the glute that keeps the knee in line on single-leg landings.",r_hinge:"Shares the work with the hips, so the knee isn't the only joint taking the load."},
+  hip:{r_bridge:"Works the glutes through the hip's range without squeezing the sore spot.",r_hinge:"Grooves bending at the hips under control, loading the back of the hip gently."},
+  achilles:{r_bridge:"Strong hips take some of the push-off from the calf and Achilles."}};
+const rbWhy=(id,region)=>((RB_WHY_BY[region]||{})[id])||RB_WHY[id];
 function rbItems(){
   const st=S.rehab,R=REGIONS[st.region],ph=rbPhases(R,st.cls)[st.phase];
   const weeks=Math.floor((Date.now()-st.phaseStart)/(7*dayMs));
@@ -3890,7 +4016,7 @@ function rbItems(){
     const e=LIBI[it.id];if(!e)return;
     // equipment you don't have, or a position this problem shouldn't be in: the closest exercise that fits, else leave it out
     if(avoid.has(it.id)||!e.eq.every(q=>S.equip.includes(q))){const alt=rbAlt(it.id,items.concat(out),avoid);if(!alt)return;
-      it={...it,id:alt.id,dose:{...it.dose,sides:!!alt.sides||(alt.rehab&&it.dose.sides)},note:`In place of ${e.n.toLowerCase()} (${avoid.has(e.id)?"not a good position for this problem":"needs "+e.eq.filter(q=>!S.equip.includes(q)).map(q=>EQUIP.find(x=>x.k===q).n.toLowerCase()).join(" and ")}).`}}
+      it={...it,id:alt.id,dose:fitDose(alt,{...it.dose,sides:!!alt.sides||(alt.rehab&&it.dose.sides)}),note:`In place of ${e.n.toLowerCase()} (${avoid.has(e.id)?"not a good position for this problem":"needs "+e.eq.filter(q=>!S.equip.includes(q)).map(q=>EQUIP.find(x=>x.k===q).n.toLowerCase()).join(" and ")}).`}}
     if(!out.some(x=>x.id===it.id))out.push(it)});
   items=out;
   // fit the session length you picked: trim the biggest dose a step at a time (McGill's 6-4-2 becomes 5-3-1, then 3-2-1;
@@ -3906,8 +4032,8 @@ function rbItems(){
     later.push(items.splice(j,1)[0]);
   }
   const sideN=st.side==="left"||st.side==="right"?st.side:null;
-  items.forEach((it,i)=>{const e=LIBI[it.id];let w=it.note?it.note:RB_WHY[it.id]||e.stim+".";
-    if(it.note&&/^In place of/.test(it.note)&&RB_WHY[it.id])w+=" "+RB_WHY[it.id];
+  items.forEach((it,i)=>{const e=LIBI[it.id],rw=rbWhy(it.id,st.region);let w=it.note?it.note:rw||e.stim+".";
+    if(it.note&&/^In place of/.test(it.note)&&rw)w+=" "+rw;
     if(sideN&&it.dose.sides){it.lead=sideN;w+=` Start with your ${sideN} side, the sore one, then match it on the other side.`}
     if(i===0)w+=` ${sideN&&!it.dose.sides?`Your ${sideN} side is the sore one. `:""}Pain up to ${PAIN_OK}/10 is fine if it settles by the next morning.${RB_TIP[st.region]?" "+RB_TIP[st.region]:""}`;
     it.why=w});
@@ -3959,7 +4085,7 @@ SCREENS.rebuild=()=>{
   const head=`<div class="hdr" style="grid-template-columns:1fr"><div class="brand">Range<b>.</b></div></div>`;
   if(!S.rehab)return head+`<div class="stack" style="padding-top:8px">
    <h1>Rebuild</h1>
-   <p class="muted" style="margin:0">Pain-guided programs for lifters. You screen the area yourself, Range works out what kind of problem it is, then takes you through staged phases. Your pain rating each session decides when to hold back and when to move on.</p>
+   <p class="muted" style="margin:0">Pain-guided programs for athletes. You screen the area yourself, Range works out what kind of problem it is, then takes you through staged phases. Your pain rating each session decides when to hold back and when to move on.</p>
    <div class="sports" data-tour="rebuild">${Object.entries(REGIONS).map(([k,R])=>`<button class="scard g-${["a","b","c","d"][Object.keys(REGIONS).indexOf(k)%4]}" data-act="rbPick" data-r="${k}"><div class="art">${fig(R.fig,null,{t:.8})}</div><b>${R.n}</b></button>`).join("")}</div>
    ${myProtosPanel()}
    <p class="muted" style="margin:0;font-size:12px">Based on the screening and rebuilding method in <i>Rebuilding Milo</i> (Horschig & Sonthana), checked against current physiotherapy research. Range doesn't diagnose. See a physiotherapist if pain is severe, getting worse, or not improving after 3 weeks.</p></div>`;
@@ -4049,7 +4175,7 @@ SCREENS.rbresult=()=>{
   </div><div class="bottomcta"><button class="btn" data-act="rbBegin">Start this program</button></div>`;
 };
 ACT.rbMin=d=>{if(!S.rehab)return;S.rehab.minutes=+d.m;save();render()};
-ACT.rbBegin=()=>{const now=Date.now();S.rehab={region:RB.r,cls:RB.result.cls,side:RB.result.side||null,votes:RB.result.votes||{},minutes:(S.rehab&&S.rehab.minutes)||20,phase:0,started:now,phaseStart:now,logs:[],notes:RB.result.notes};save();stack=[{name:"rebuild",p:{}}];render();scrollTo(0,0)};
+ACT.rbBegin=()=>{const now=Date.now();delete S.rbDraft;S.rehab={region:RB.r,cls:RB.result.cls,side:RB.result.side||null,votes:RB.result.votes||{},minutes:(S.rehab&&S.rehab.minutes)||20,phase:0,started:now,phaseStart:now,logs:[],notes:RB.result.notes};save();stack=[{name:"rebuild",p:{}}];render();scrollTo(0,0)};
 ACT.rbNext=()=>{S.rehab.phase++;S.rehab.phaseStart=Date.now();save();render()};
 ACT.rbEnd=()=>sheet(`<h3>End this program?</h3><div class="scroll"><p class="muted" style="margin:0">Your pain log for this program will be deleted.</p></div><div style="display:grid;gap:8px"><button class="btn" style="background:var(--bad)" data-act="rbEndYes">End program</button><button class="btn sec" data-act="closeSheet">Keep going</button></div>`);
 ACT.rbEndYes=()=>{S.rehab=null;save();closeSheet();render()};
@@ -4200,7 +4326,7 @@ SCREENS.profile=()=>{
     const pri=sportPriority(sc),weakest=AREAS.slice().sort((x,y)=>sc[x.k]-sc[y.k])[0].k;
     return`<div class="panel"><span class="eyebrow">Your mobility for your sports${S.scores?"":" · example"}</span>
     ${ks.map(k=>{const r=sportLevel(k,sc),l=level(r.level);return`<div class="slv"><div><b>${SPI[k].n}</b><small class="muted">${r.lim?`Held back most by ${AN[r.lim]}`:"No area holding you back"}</small></div><span class="pill ${l.c}">${r.level}</span></div>`}).join("")}
-    <p class="muted" style="margin:0;font-size:13px">${pri===weakest?`Daily sessions focus on ${AN[pri]}: your lowest score, and it matters for your sports.`:`Daily sessions lean toward ${AN[pri]}, not your lowest score (${AN[weakest]}): ${AN[pri]} matters more for ${ks.map(k=>SPI[k].n).join(" and ")} and is a common injury area, so improving it pays off most.`}</p></div>`})()}
+    <p class="muted" style="margin:0;font-size:13px">Your mobility focus: <b style="color:var(--ink)">${mobilityFocus(sc).map(k=>AN[k]).join(" and ")}</b>. Sessions spend the most time there.${mobilityFocus(sc).includes(weakest)?"":` Your lowest score is ${AN[weakest]}, but ${AN[pri]} matters more for ${ks.map(k=>SPI[k].n).join(" and ")}, so improving it pays off most.`}</p></div>`})()}
   <div class="stats3">
     <div class="tile"><span class="eyebrow">Streak</span><b>${streak()}</b></div>
     <div class="tile"><span class="eyebrow">Min / week</span><b>${S.sessions.filter(s=>s.at>=wk).reduce((t,s)=>t+s.mins,0)}</b></div>
@@ -4275,11 +4401,13 @@ ACT.openTest=()=>{const dr=testDraft();if(dr){T={i:Math.min(dr.i||0,TSTEPS.lengt
   drawTest()};
 function drawTest(){
   document.body.style.overflow="hidden";
+  // picking an answer redraws the same check: keep the scroll position (the last option stays where you tapped it)
+  const f0=$("#layer .full"),keepY=f0&&T&&T._at===T.i&&!TDEMO?f0.scrollTop:0;if(T)T._at=T.i;
   // keep the answers so far: a reload resumes here
   if(!TDEMO&&(Object.keys(T.ans).length||T.i>0)){S.testDraft={i:T.i,ans:{...T.ans},at:Date.now()};save()}
   if(T.i>=TSTEPS.length){
     const{sc,side}=testScores(T.ans);const ov=overall(sc),lv=level(ov);
-    const weakest=AREAS.slice().sort((a,b)=>sc[a.k]-sc[b.k]).slice(0,2).map(a=>a.n).join(" and ");
+    const weakest=mobilityFocus(sc).map(k=>AN[k]).join(" and ");
     const lr=TEST.filter(q=>q.uni);
     $("#layer").innerHTML=`<div class="full"><div class="inner"><div class="hdr" style="grid-template-columns:1fr"><div class="brand" style="text-align:center">Range<b>.</b></div></div>
     <div class="stack" style="align-content:start"><span class="eyebrow">Your results</span><div class="score"><b>${ov}</b><span class="pill ${lv.c}">${lv.t}</span></div>
@@ -4300,15 +4428,16 @@ function drawTest(){
    <div class="tprog">${TSTEPS.map((_,k)=>`<i class="${k<=T.i?"on":""}"></i>`).join("")}</div></div>
    <div class="stack" style="align-content:start">
     <span class="eyebrow">Check ${T.i+1} of ${TSTEPS.length} · ${AN[q.k]}</span><h1>${q.t}${sd?` · ${SIDE_N[sd]}`:""}</h1>
-    <div class="detailstage tsstage${sd==="L"?" mir":""}">${pk?fig(pk,null,{anim:true,mode:"static",zones:AREA_ZONES[q.k]}):fig(q.fig,null,{anim:true,zones:AREA_ZONES[q.k]})}${sd?`<span class="pill">${SIDE_N[sd]} side</span>`:""}</div>${pk?`<p class="tsis" aria-live="polite">This is: <b>${esc(q.multi?(av?"":"none ticked: ")+q.mshort.map((m,k)=>m[(av>>k)&1]).join(" · "):sub(q.o[av]))}</b></p>`:""}
+    <div class="detailstage tsstage${sd==="L"?" mir":""}">${pk?fig(pk,null,{anim:true,mode:"static",zones:AREA_ZONES[q.k]}):fig(q.fig,null,{anim:true,zones:AREA_ZONES[q.k]})}${sd?`<span class="pill">${SIDE_N[sd]} side</span>`:""}</div>${pk?`<p class="tsis" aria-live="polite">This is: <b>${esc(q.multi?(av?q.mshort.map((m,k)=>m[(av>>k)&1]).join(" · "):`none of the three — ${q.mshort.map(m=>m[0]).join(", ")}`):sub(q.o[av]))}</b></p>`:""}
     ${sd?`<div class="tsides tsw" role="group" aria-label="Side">${["R","L"].map(k=>`<button class="${sd===k?"on":T.ans[q.id+k]!=null?"done":""}" data-act="testSide" data-k="${k}" aria-pressed="${sd===k}">${SIDE_N[k]}${T.ans[q.id+k]!=null&&sd!==k?" ✓":""}</button>`).join("")}</div><p style="margin:0"><b>${sd==="R"?"Test your right side first.":"Now the left side, the same way."}</b></p>`:""}
     <p class="muted" style="margin:0">${how}</p>
+    ${!TDEMO&&rbAvoids(q.fig)?`<div class="note-warn" style="font-size:13px">Your Rebuild program avoids this position for now. Go only as far as it stays pain-free (${PAIN_OK}/10 or less), or skip it: pick the first answer and continue.</div>`:""}
     <div class="stack" style="gap:8px">${q.multi?q.multi.map((o,k)=>`<button class="opt ${(T.ans[key]??0)>>k&1?"on":""}" data-act="testTick" data-k="${k}" aria-pressed="${!!((T.ans[key]??0)>>k&1)}"><span>${sub(o)}</span><span class="tick">${ic("check")}</span></button>`).join("")+`<p class="muted" style="margin:0;font-size:13px">None of them? That's fine, just continue.</p>`:q.o.map((o,k)=>`<button class="opt ${T.ans[key]===k?"on":""}" data-act="testPick" data-k="${k}"><span>${sub(o)}</span><span class="radio"></span></button>`).join("")}</div>
     <div aria-hidden="true" style="height:28px"></div>
    </div>
    <div class="bottomcta"><button class="btn" data-act="testNext" ${T.ans[key]==null&&!q.multi?"disabled":""}>${T.i===TSTEPS.length-1?"See my results":sd==="R"?"Now the left side":"Next test"}</button></div>
   </div></div>`;
-  $(".full").scrollTop=0;
+  $(".full").scrollTop=keepY;
 }
 
 ACT.testPick=d=>{T.ans[tKey(TSTEPS[T.i])]=+d.k;drawTest()};
@@ -4317,7 +4446,7 @@ ACT.testNext=()=>{const st=TSTEPS[T.i];if(st.q.multi&&T.ans[tKey(st)]==null)T.an
 ACT.testBack=()=>{if(T.i>0){T.i--;drawTest()}else ACT.testExit()};
 // tap Right / Left to go to that side of the same check
 ACT.testSide=d=>{const q=TSTEPS[T.i].q,j=TSTEPS.findIndex(s=>s.q===q&&s.sd===d.k);if(j>=0&&j!==T.i){T.i=j;drawTest()}};
-ACT.testExit=()=>{T=null;$("#layer").innerHTML="";document.body.style.overflow=""};
+ACT.testExit=()=>{if(!TDEMO&&T&&!T.i&&!Object.keys(T.ans).length&&S.testDraft){delete S.testDraft;save()}T=null;$("#layer").innerHTML="";document.body.style.overflow=""};
 ACT.testDiscard=()=>{delete S.testDraft;save();ACT.testExit();render()};
 ACT.testSave=()=>{const{sc,side}=testScores(T.ans);S.scores=sc;S.sideBias={...side};S.tests.push({at:Date.now(),scores:sc,ans:T.ans,side:{...side}});delete S.testDraft;save();ACT.testExit();render()};
 
@@ -4562,12 +4691,24 @@ const sbData=()=>{const d={...S};delete d.sync;return d}; // the SugarWOD passph
 const hasData=o=>!!o&&((o.tests||[]).length||(o.sessions||[]).length||(o.training||[]).length||(o.myProtocols||[]).length);
 async function sbPush(){if(!SBU)return;const{error}=await SB.from("user_data").upsert({user_id:SBU.id,data:sbData(),updated_at:new Date().toISOString()});if(error)throw error;sbErr=""}
 function sbSave(){clearTimeout(sbTimer);sbTimer=setTimeout(()=>sbPush().catch(e=>{sbErr="Couldn't save to your account. It will retry on the next change."}),2000)}
-function sbAdopt(remote){const keep=S.settings,sync=S.sync;S=Object.assign(JSON.parse(S_FRESH),remote);S.settings=Object.assign({},keep,remote.settings||{});S.sync=sync;S._owner=SBU.id;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function sbAdopt(remote){const keep=S.settings,sync=S.sync;wipeMine(true);S=Object.assign(JSON.parse(S_FRESH),remote);S.settings=Object.assign({},keep,remote.settings||{});if(sync)S.sync=sync;S._owner=SBU.id;normS();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+// the lists every screen expects, for a fresh or adopted state
+function normS(){if(!Array.isArray(S.training))S.training=[];S.myEx=S.myEx||[];S.myProtocols=S.myProtocols||[];S.tests=S.tests||[];S.sessions=S.sessions||[];S.myEx.forEach(regMyEx)}
+// in-memory traces of the person who was here: their own exercises in the library, an open test, player or editor
+function wipeMine(libOnly){for(let i=LIB.length-1;i>=0;i--)if(LIB[i].custom){delete LIBI[LIB[i].id];LIB.splice(i,1)}if(libOnly)return;if(T){T=null;$("#layer").innerHTML="";document.body.style.overflow=""}TDEMO=null;W=null;RB=null;ED=null;CX=null;TS=null;TR=null;P_LAST=null;RETEST=null;if(P)closePlayer()}
+// signing out or deleting the account: this phone forgets that person (their tests, sessions, workouts, Rebuild, routines,
+// SugarWOD link and backup settings) and keeps only how the device is set up (sound, voice, Easy Mode, 3D figures)
+function wipeLocal(){const keep=S.settings,seeded=S.seeded;clearTimeout(sbTimer);clearTimeout(bkTimer);wipeMine();S=JSON.parse(S_FRESH);S.settings=Object.assign({},keep);if(seeded)S.seeded=seeded;normS();
+  BK=null;try{localStorage.setItem(KEY,JSON.stringify(S));["range-backup-cfg","range-errors"].forEach(k=>localStorage.removeItem(k))}catch(e){}}
+// once anyone has signed in on this phone, data without an owner is never handed to a later account
+const DEV_CLAIMED="range-device-claimed",devClaimed=()=>{try{return!!localStorage.getItem(DEV_CLAIMED)}catch(e){return false}};
 // bring this phone and the account together after signing in
 async function sbPull(){
   const{data,error}=await SB.from("user_data").select("data").eq("user_id",SBU.id).maybeSingle();if(error)throw error;const remote=data&&data.data;
-  if(S._owner&&S._owner!==SBU.id){const keep=S.settings,sync=S.sync;S=JSON.parse(S_FRESH);S.settings=keep;S.sync=sync} // someone else's data was on this phone
-  if(remote&&hasData(remote)){
+  // someone else's data, or data from before accounts on a phone where an account was already used: never adopted
+  if(S._owner!==SBU.id&&(S._owner||devClaimed()))wipeLocal();
+  try{localStorage.setItem(DEV_CLAIMED,"1")}catch(e){}
+  if(remote&&(hasData(remote)||remote.onboarded)){
     if(!S._owner&&hasData(S)&&!confirm("This phone and your account both have Range data. OK keeps the data from your account; Cancel keeps this phone's data and saves it to your account."))
       {S._owner=SBU.id;save();await sbPush();return}
     if(!S._owner||(remote._upd||0)>=(S._upd||0)){sbAdopt(remote);return}}
@@ -4602,14 +4743,15 @@ ACT.sbNewPw=()=>sheet(`<h3>Set a new password</h3><div class="scroll"><label cla
 ACT.sbSetPw=async()=>{const pw=$("#sbPw").value,msg=$("#sbMsg");if(pw.length<8){msg.className="c-bad";msg.textContent="Use at least 8 characters.";return}
   const{error}=await SB.auth.updateUser({password:pw});if(error){msg.className="c-bad";msg.textContent=sbNice(error);return}closeSheet();await sbBoot();render()};
 ACT.sbSyncNow=async()=>{try{await sbPush();sbErr=""}catch(e){sbErr="Couldn't save to your account. "+sbNice(e)}render()};
-ACT.sbDel=()=>sheet(`<h3>Delete your account</h3><div class="scroll"><p style="margin:0">This permanently deletes your Range account and the data saved to it. The copy on this phone stays until you clear it.</p><p id="sbMsg" class="c-bad" style="margin:0;font-size:14px"></p></div><button class="btn" style="background:var(--bad)" data-act="sbDelGo">Delete my account</button>`);
-ACT.sbDelGo=async()=>{const{error}=await SB.rpc("delete_my_account");if(error){$("#sbMsg").textContent=sbNice(error);return}try{await SB.auth.signOut()}catch(e){}SBU=null;delete S._owner;save();closeSheet();stack=[{name:"home",p:{}}];render();gateShow("up")};
+ACT.sbDel=()=>sheet(`<h3>Delete your account</h3><div class="scroll"><p style="margin:0">This permanently deletes your Range account and everything saved to it: tests, sessions, workouts, Rebuild programs and routines. Your data is also removed from this phone. This can't be undone.</p><p id="sbMsg" class="c-bad" style="margin:0;font-size:14px"></p></div><button class="btn" style="background:var(--bad)" data-act="sbDelGo">Delete my account</button><button class="btn sec" data-act="closeSheet">Cancel</button>`);
+ACT.sbDelGo=async()=>{const{error}=await SB.rpc("delete_my_account");if(error){$("#sbMsg").textContent=sbNice(error);return}try{await SB.auth.signOut()}catch(e){}SBU=null;sbErr="";TOUR&&tourEnd(true);
+  wipeLocal();try{localStorage.removeItem("range-last-email")}catch(e){}closeSheet();stack=[{name:"home",p:{}}];render();GATE=null;gateShow("up")};
 /* ================= front page, first-run setup and the app tour =================
    Signing in is the front page. A saved Supabase session goes straight in and is refreshed quietly behind the
    launch screen; nobody is asked again until they sign out. Offline, the app opens on this phone's data.
    ?nogate (QA scripts only) opens the app on this phone's data without the front page. */
 const NOGATE=/[?&#]nogate\b/.test(location.search+location.hash);
-let GATE=null,SB_OFFLINE=false,GATE_SKIPPED=false,gateReady=false,TOUR=null,TOUR_PENDING=false;
+let GATE=null,SB_OFFLINE=false,GATE_SKIPPED=false,gateReady=false,TOUR=null;
 const sbNet=e=>!!e&&(e.name==="AuthRetryableFetchError"||/failed to fetch|network|load failed|timeout|offline|reach the account service|fetch/i.test(String(e.message||e)));
 // real Range use on this phone (not the preloaded SugarWOD rows): set up before, so no first-run questions
 const usedRange=o=>!!o&&(!!o.scores||(o.tests||[]).length>0||(o.sessions||[]).length>0||(o.myProtocols||[]).length>0||!!o.rehab);
@@ -4679,11 +4821,16 @@ async function gateIn(user){SBU=user;SB_OFFLINE=false;GATE_SKIPPED=false;try{loc
 function afterIn(){
   if(!S.onboarded&&usedRange(S)){S.onboarded=true;save()} // used Range before accounts, or on another device
   if(!S.onboarded){obStart();return}
-  gateClose();stack=[{name:"home",p:{}}];render();window.scrollTo(0,0)}
-ACT.sbOut=async()=>{try{await sbPush()}catch(e){}try{await SB.auth.signOut()}catch(e){}SBU=null;sbErr="";TOUR&&tourEnd(true);stack=[{name:"home",p:{}}];render();gateShow("in")};
+  gateClose();stack=[{name:"home",p:{}}];render();window.scrollTo(0,0);tourOwed()}
+// signing out saves to the account first, then this phone forgets the person's data (it comes back when they sign in again)
+ACT.sbOut=async()=>{clearTimeout(sbTimer);let saved=true;try{await sbPush()}catch(e){saved=false}
+  if(!saved&&!confirm("Couldn't save your latest changes to your account (no connection?). Sign out anyway? Changes since your last save will be lost from this phone."))return;
+  try{await SB.auth.signOut()}catch(e){}SBU=null;sbErr="";TOUR&&tourEnd(true);wipeLocal();stack=[{name:"home",p:{}}];render();gateShow("in")};
 
 /* ---- first run: sports, equipment, then the test or an example profile ---- */
-function obStart(){GATE=GATE||{};GATE.step="ob";GATE.ob={i:0,sports:[],equip:[],setS:false,setE:false};obDraw()}
+// setup progress is kept as you go (a reload comes back to the same step with your picks)
+function obStart(){GATE=GATE||{};GATE.step="ob";const d=S.obDraft;GATE.ob=d&&typeof d.i==="number"?{i:Math.min(2,d.i),sports:(d.sports||[]).filter(k=>SPI[k]),equip:(d.equip||[]).filter(k=>EQUIP.some(e=>e.k===k)),setS:!!d.setS,setE:!!d.setE}:{i:0,sports:[],equip:[],setS:false,setE:false};obDraw()}
+const obKeep=()=>{S.obDraft={...GATE.ob};save()};
 function obDraw(){const g=gateHost(),o=GATE.ob,i=o.i;
   const head=`<div><div class="hdr" style="grid-template-columns:64px 1fr 64px"><button data-act="obBack" aria-label="Back" ${i?"":`style="visibility:hidden"`}>${ic("back")}</button><div class="brand">Range<b>.</b></div><button class="link muted" style="justify-self:end;padding:8px 0" data-act="obSkip">Skip</button></div>
     <div class="tprog">${[0,1,2].map(k=>`<i class="${k<=i?"on":""}"></i>`).join("")}</div></div>`;
@@ -4702,20 +4849,24 @@ function obDraw(){const g=gateHost(),o=GATE.ob,i=o.i;
      <ul class="obl"><li>${ic("check")}About 10 minutes</li><li>${ic("check")}A wall and a bench or bed</li><li>${ic("check")}Retest monthly to see your progress</li></ul></div>`;
     cta=`<button class="btn" data-act="obDone" data-t="1">Take the 10-min mobility test now</button><button class="btn sec" data-act="obDone" data-t="0">Later — start with an example profile</button>`}
   g.innerHTML=`<div class="inner">${head}${body}<div class="bottomcta">${cta}</div></div>`;g.scrollTop=0}
-ACT.obSport=(d,el)=>{const o=GATE.ob,k=o.sports.indexOf(d.s);if(k>=0)o.sports.splice(k,1);else o.sports.push(d.s);const on=o.sports.includes(d.s);el.classList.toggle("on",on);el.setAttribute("aria-pressed",on);$("[data-act=obNext]").disabled=!o.sports.length};
-ACT.obEq=(d,el)=>{const o=GATE.ob,k=o.equip.indexOf(d.e);if(k>=0)o.equip.splice(k,1);else o.equip.push(d.e);const on=o.equip.includes(d.e);el.classList.toggle("on",on);el.setAttribute("aria-pressed",on);$("[data-act=obNext]").textContent=o.equip.length?"Continue":"Continue with no equipment"};
-ACT.obNext=()=>{const o=GATE.ob;if(o.i===0)o.setS=true;if(o.i===1)o.setE=true;o.i++;obDraw()};
-ACT.obBack=()=>{const o=GATE.ob;if(o.i>0){o.i--;obDraw()}};
+ACT.obSport=(d,el)=>{const o=GATE.ob,k=o.sports.indexOf(d.s);if(k>=0)o.sports.splice(k,1);else o.sports.push(d.s);const on=o.sports.includes(d.s);el.classList.toggle("on",on);el.setAttribute("aria-pressed",on);$("[data-act=obNext]").disabled=!o.sports.length;obKeep()};
+ACT.obEq=(d,el)=>{const o=GATE.ob,k=o.equip.indexOf(d.e);if(k>=0)o.equip.splice(k,1);else o.equip.push(d.e);const on=o.equip.includes(d.e);el.classList.toggle("on",on);el.setAttribute("aria-pressed",on);$("[data-act=obNext]").textContent=o.equip.length?"Continue":"Continue with no equipment";obKeep()};
+ACT.obNext=()=>{const o=GATE.ob;if(o.i===0)o.setS=true;if(o.i===1)o.setE=true;o.i++;obKeep();obDraw()};
+ACT.obBack=()=>{const o=GATE.ob;if(o.i>0){o.i--;obKeep();obDraw()}};
 // skipping a step keeps what's there now (CrossFit and every piece of equipment); you can change both in Profile
-ACT.obSkip=()=>{const o=GATE.ob;if(o.i<2){o.i++;obDraw()}else ACT.obDone({t:"0"})};
+ACT.obSkip=()=>{const o=GATE.ob;if(o.i<2){o.i++;obKeep();obDraw()}else ACT.obDone({t:"0"})};
 ACT.obDone=d=>{const o=GATE.ob;
   if(o.setS&&o.sports.length)S.sports=SPORTS.map(s=>s.k).filter(k=>o.sports.includes(k));
   if(o.setE)S.equip=EQUIP.map(e=>e.k).filter(k=>o.equip.includes(k));
-  S._eqBall=1;S._eqBar=1;S.onboarded=true;save();if(SBU)sbPush().catch(()=>{});
+  // the tour is owed until it has been seen (kept in your data, so it still starts after a reload or on another phone)
+  S._eqBall=1;S._eqBar=1;S.onboarded=true;delete S.obDraft;if(!S.tourDone)S.tourPending=true;
+  if(d.t==="1")S.testDraft={i:0,ans:{},at:Date.now()};save();if(SBU)sbPush().catch(()=>{});
   gateClose();stack=[{name:"home",p:{}}];render();window.scrollTo(0,0);
-  if(d.t==="1"){TOUR_PENDING=true;ACT.openTest()}else setTimeout(tourStart,350)};
+  if(d.t==="1")ACT.openTest();else setTimeout(tourStart,350)};
 // the tour follows the test when the person took it during setup
-{const exit=ACT.testExit;ACT.testExit=()=>{exit();if(TOUR_PENDING){TOUR_PENDING=false;setTimeout(tourStart,450)}}}
+{const exit=ACT.testExit;ACT.testExit=()=>{exit();if(S.tourPending&&!S.tourDone)setTimeout(tourStart,450)}}
+// a first-run person who hasn't seen the tour yet (the app was closed during it, or reloaded after the test) gets it on the next open
+function tourOwed(){if(NOGATE||TOUR||!S.onboarded||S.tourDone||!S.tourPending||document.getElementById("gate")||T||$("#layer").innerHTML)return;setTimeout(()=>{if(!TOUR&&!T&&!document.getElementById("gate")&&!$("#layer").innerHTML&&!S.tourDone)tourStart()},600)}
 
 /* ---- the app tour: a dimmed screen with a cut-out around the real element and a short note ---- */
 // each step points at one real element: the card, button or panel its note talks about
@@ -4727,12 +4878,12 @@ const TOUR_STEPS=[
  {tab:"home",el:()=>tq("[data-tour=flows] .hscroll"),t:"Anytime flows",d:"Short routines for a desk break, the morning or bedtime. Tap one and press play."},
  {tab:"home",el:()=>tq("[data-tour=test]")||tq("[data-tour=score]"),t:()=>S.scores?"Your mobility score":"Take the mobility test",d:()=>S.scores?"Your score across 6 areas. Retest every month and watch it climb.":"10 minutes, 18 quick checks. Every session then targets your weak spots. Until then Range uses an example profile."},
  {tab:"home",demo:()=>({}),el:()=>tq("#layer .tsstage"),t:"Inside the test",d:"Each check starts with a demo of exactly how to do it."},
- {tab:"home",demo:tdPick,el:()=>tclose("#layer [data-act=testPick]",".stack"),t:"Pick the closest answer",d:"The figure changes to show the range you picked, so you can compare it with what you see."},
+ {tab:"home",demo:tdPick,el:()=>tq("#layer .tsstage"),with:()=>tq("#layer .tsis"),t:"Pick the closest answer",d:"Tap the answer below that's closest to you. The figure changes to show the range you picked, so you can compare it with what you see."},
  {tab:"home",demo:tdPick,el:()=>tq("#layer .tsides"),t:"Right, then left",d:"One-sided checks test your right side first, then your left. Tap Right or Left to switch."},
  {tab:"home",demo:tdPick,el:()=>tq("#layer .tprog"),t:"Your progress",d:()=>`${TSTEPS.length} checks in about 10 minutes. Stop any time: your answers are kept for a week.`},
  {tab:"home",demo:tdPick,el:()=>tq("#layer [data-act=testNext]"),t:"On to the next check",d:"At the end you see your score for each area, and every session adapts to it."},
- {tab:"training",el:()=>{const t=tq("[data-tour=train-top]"),n=t&&t.nextElementSibling;return n&&/SugarWOD/.test(n.textContent)?n:null},t:"Your SugarWOD workouts",d:"Your gym's workouts arrive here. Range reads the movements in each one."},
- {tab:"training",el:()=>tq("[data-act=addW]"),t:"Add a workout",d:"Training somewhere else? Add the workout by hand, or paste it with Import."},
+ {tab:"training",el:()=>{if(tq("[data-tour=bring]"))return null;const t=tq("[data-tour=train-top]"),n=t&&t.nextElementSibling;return n&&/SugarWOD/.test(n.textContent)?n:null},t:"Your SugarWOD workouts",d:"Your gym's workouts arrive here. Range reads the movements in each one."},
+ {tab:"training",el:()=>tq("[data-tour=train-top] [data-act=addW]"),t:"Add a workout",d:()=>tq("[data-tour=bring]")?"Type in the workout you're doing, or paste it from any whiteboard. Range finds the movements. Got SugarWOD? Import from it below, or try an example week.":"Training somewhere else? Add the workout by hand: type it in or paste it from any whiteboard."},
  {tab:"training",el:()=>tclose("[data-act=prepNext]",".panel")||tclose("[data-act=prepW]",".wrow"),t:"Prepare for a session",d:"A warm-up built for that workout's movements, weighted toward your weakest areas."},
  {tab:"training",el:()=>tclose("[data-act=recoverRecent]",".panel")||tclose("[data-act=recW]",".wrow"),t:"Recover after",d:"Long holds for the areas your last sessions loaded."},
  {tab:"library",el:()=>tq("#screen .search"),t:"Library",d:"Search every stretch and drill, or browse by muscle or area below. Build and share your own routines here too."},
@@ -4753,19 +4904,19 @@ let tourSafe=null;
 function tourInsets(){if(!tourSafe){const p=document.createElement("div");p.style.cssText="position:fixed;visibility:hidden;pointer-events:none;top:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)";document.body.appendChild(p);const cs=getComputedStyle(p);tourSafe={t:parseFloat(cs.paddingTop)||0,b:parseFloat(cs.paddingBottom)||0};p.remove()}return tourSafe}
 // the steps this person can see right now, worked out before the tour starts so the count is right ("3 of 11")
 function tourBuild(){const keep=stack,y=scrollY,list=TOUR_STEPS.filter(st=>{tourShow(st);return tvis(st.el())});tdemoClose();stack=keep;render();window.scrollTo(0,y);return list}
-function tourStart(){if(TOUR)return;closeSheet();if(document.getElementById("gate"))return;
-  const steps=tourBuild();if(!steps.length)return;
+function tourStart(){if(TOUR)return;closeSheet();if(document.getElementById("gate"))return;document.body.classList.add("touring");
+  const steps=tourBuild();if(!steps.length){document.body.classList.remove("touring");return}
   const root=document.createElement("div");root.id="tour";root.setAttribute("role","dialog");root.setAttribute("aria-modal","true");root.setAttribute("aria-label","App tour");
   root.innerHTML=`<svg class="tdim" aria-hidden="true"><path fill-rule="evenodd"/></svg><div class="tring" aria-hidden="true"></div><div class="ttip" aria-live="polite"></div>`;
   root.addEventListener("touchmove",e=>e.preventDefault(),{passive:false});root.addEventListener("wheel",e=>e.preventDefault(),{passive:false});
-  document.body.appendChild(root);TOUR={i:-1,root,steps};
+  document.body.appendChild(root);TOUR={i:-1,root,steps};if(S.tourPending){delete S.tourPending;save()} // seen now: not owed again after a reload
   TOUR.onR=()=>tourPlace();TOUR.onK=e=>{if(e.key==="Escape")tourEnd();else if(e.key==="ArrowRight")ACT.tourNext();else if(e.key==="ArrowLeft")ACT.tourBack()};
   addEventListener("resize",TOUR.onR);addEventListener("orientationchange",TOUR.onR);document.addEventListener("keydown",TOUR.onK);
   if(window.visualViewport){visualViewport.addEventListener("resize",TOUR.onR);visualViewport.addEventListener("scroll",TOUR.onR)}
   tourGo(0)}
 function tourGo(i){const st=TOUR.steps[i];tourShow(st);if(!st.demo)window.scrollTo(0,0);TOUR.i=i;TOUR.scrolled=false;
   // rendered synchronously; place now and again on the next frame once layout (fonts, images) has settled
-  tourPlace();requestAnimationFrame(()=>tourPlace());const nb=TOUR.root.querySelector("[data-act=tourNext]");nb&&nb.focus({preventScroll:true})}
+  tourPlace();requestAnimationFrame(()=>tourPlace());setTimeout(()=>{if(TOUR&&TOUR.i===i)tourPlace()},250);const nb=TOUR.root.querySelector("[data-act=tourNext]");nb&&nb.focus({preventScroll:true})}
 function tourPlace(){if(!TOUR||TOUR.i<0)return;const st=TOUR.steps[TOUR.i],n=TOUR.steps.length,last=TOUR.i===n-1;
   if(!st.demo&&(stack.length>1||stack[0].name!==st.tab))return;let el=st.el();if(!tvis(el)){tourShow(st);el=st.el();if(!tvis(el))return}
   const root=TOUR.root,tip=root.querySelector(".ttip"),ins=tourInsets();
@@ -4777,9 +4928,13 @@ function tourPlace(){if(!TOUR||TOUR.i<0)return;const st=TOUR.steps[TOUR.i],n=TOU
     <div class="frow"><button class="btn sec" data-act="tourBack" ${TOUR.i?"":"disabled"}>Back</button><button class="btn" data-act="tourNext">${last?"Done":"Next"}</button></div>`}
   const tb=$("#tabbar"),tbr=!st.demo&&!tb.hidden&&tb.getBoundingClientRect(),hdr=st.demo?null:tq("#screen .hdr"),hb=hdr?hdr.getBoundingClientRect().bottom:0,sc=st.demo&&tq("#layer .full");
   const top0=Math.max(hb,vy+ins.t)+8,bot0=(tbr?Math.min(tbr.top,vy+vh):vy+vh-ins.b)-8,th=tip.offsetHeight,gap=12,pad=6;
-  let R=el.getBoundingClientRect();
+  // the highlighted area: the element, plus the one it goes with (the test figure and its "This is:" line)
+  const rectOf=()=>{const a=el.getBoundingClientRect(),w=st.with&&st.with();if(!tvis(w))return a;const b=w.getBoundingClientRect();return{top:Math.min(a.top,b.top),bottom:Math.max(a.bottom,b.bottom),left:Math.min(a.left,b.left),right:Math.max(a.right,b.right)}};
+  let R=rectOf();
+  // scroll the whole element into the visible part with room for the note (the page gets extra room at the bottom during
+  // the tour, so a card near the end of a short page can still come up above the tab bar)
   if(!TOUR.scrolled){TOUR.scrolled=true;const fits=(R.top>=top0&&R.bottom+gap+th<=bot0)||(R.top-gap-th>=top0&&R.bottom<=bot0);
-    if(!fits){const dy=R.top-top0-pad-2;if(sc)sc.scrollTop+=dy;else window.scrollTo({top:Math.max(0,scrollY+dy),behavior:"instant"});R=el.getBoundingClientRect()}}
+    if(!fits){const dy=R.top-top0-pad-2;if(sc)sc.scrollTop+=dy;else window.scrollTo({top:Math.max(0,scrollY+dy),behavior:"instant"});R=rectOf()}}
   // hug the element (6 px all round), clipped to the app column and to what's on screen
   const col=(sc?sc.querySelector(".inner"):$("#app")).getBoundingClientRect(),cl=Math.max(vx+4,col.left+16-pad),cr=Math.min(vx+vw-4,col.right-16+pad);
   const x=Math.max(cl,R.left-pad),w=Math.min(cr,R.right+pad)-x,y=Math.max(top0-pad,R.top-pad);
@@ -4799,7 +4954,7 @@ ACT.tourSkip=()=>tourEnd();
 ACT.tourStart=()=>{tourStart()};
 function tourEnd(quiet){if(!TOUR)return;removeEventListener("resize",TOUR.onR);removeEventListener("orientationchange",TOUR.onR);document.removeEventListener("keydown",TOUR.onK);
   if(window.visualViewport){visualViewport.removeEventListener("resize",TOUR.onR);visualViewport.removeEventListener("scroll",TOUR.onR)}
-  tdemoClose();TOUR.root.remove();TOUR=null;S.tourDone=true;save();if(quiet)return;stack=[{name:"home",p:{}}];render();window.scrollTo(0,0)}
+  tdemoClose();TOUR.root.remove();TOUR=null;document.body.classList.remove("touring");S.tourDone=true;delete S.tourPending;save();if(quiet)return;stack=[{name:"home",p:{}}];render();window.scrollTo(0,0)}
 // a small line on Today while the account can't be reached
 const offNote=()=>API||!(SB_OFFLINE||(!SBU&&GATE_SKIPPED))?"":SBU||sbHasSession()?`<div class="gnote">${ic("sync")}<span>Offline. Your changes save to your account when you're back online.</span></div>`
   :`<div class="gnote">${ic("sync")}<span>Offline — sign in later.</span><button class="link" data-act="sbAuth" data-m="in">Sign in</button></div>`;
@@ -4811,9 +4966,9 @@ function gateBoot(){
   // a saved session goes straight in; the launch screen stays up while it's checked (at most 4 s)
   const t=setTimeout(()=>{gateReady=true},4000);
   sbBoot().then(()=>{clearTimeout(t);gateReady=true;
-    if(SBU){if(!S.onboarded&&!usedRange(S)&&!TOUR&&!rec)obStart();else if(!S.onboarded){S.onboarded=true;save()}}
-    else if(!SB_OFFLINE)gateShow("in");else render()})}
-if(API)acctBoot();else{render();if(testDraft())try{ACT.openTest()}catch(e){}gateBoot()}
+    if(SBU){if(!S.onboarded&&!usedRange(S)&&!TOUR&&!rec)obStart();else{if(!S.onboarded){S.onboarded=true;save()}tourOwed()}}
+    else if(!SB_OFFLINE)gateShow("in");else{render();tourOwed()}})}
+if(API)acctBoot();else{rbRestore();render();if(testDraft())try{ACT.openTest()}catch(e){}gateBoot()}
 // launch screen: the sweep plays with nothing else running; then the 3D figures load behind it, and it lifts
 // once they're drawn (at least 2s, at most 6s), so the home screen appears complete with no jump
 (()=>{const sp=document.getElementById("splash");if(!sp)return;
