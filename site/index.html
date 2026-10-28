@@ -382,8 +382,8 @@ textarea{font:inherit}.edex{gap:10px}.edhead{display:grid;grid-template-columns:
 .obl{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:14px}.obl li{display:flex;gap:8px;align-items:center}.obl .ic{width:18px;height:18px;color:var(--accent)}
 #tour{position:fixed;inset:0;z-index:70;touch-action:none}
 #tour .tdim{position:absolute;inset:0;width:100%;height:100%}#tour .tdim path{fill:rgba(4,7,11,.76)}
-#tour .tring{position:fixed;border-radius:14px;box-shadow:0 0 0 2px var(--accent),0 0 22px rgba(63,208,201,.35);pointer-events:none;transition:all .25s ease}
-#tour .ttip{position:fixed;left:50%;transform:translateX(-50%);width:min(calc(100% - 32px),448px);background:var(--surface2);border-radius:14px;padding:14px 16px;display:grid;gap:6px;box-shadow:0 12px 32px rgba(0,0,0,.55);transition:top .25s ease}
+#tour .tring{position:fixed;border-radius:12px;box-shadow:0 0 0 2px var(--accent),0 0 18px rgba(63,208,201,.3);pointer-events:none}
+#tour .ttip{position:fixed;left:16px;width:calc(100% - 32px);max-width:448px;background:var(--surface2);border-radius:14px;padding:14px 16px;display:grid;gap:6px;box-shadow:0 12px 32px rgba(0,0,0,.55);transition:top .25s ease}
 #tour .ttip p{margin:0;font-size:14px;color:var(--ink);opacity:.86}
 #tour .tth{display:flex;justify-content:space-between;align-items:center;gap:10px}#tour .tth .link{font-size:13px;padding:4px 0}
 #tour .frow{display:flex;gap:8px;margin-top:6px}#tour .frow .btn{min-height:44px;flex:1}
@@ -4285,7 +4285,7 @@ ACT.openTest=()=>{const dr=testDraft();if(dr){T={i:Math.min(dr.i||0,TSTEPS.lengt
 function drawTest(){
   document.body.style.overflow="hidden";
   // keep the answers so far: a reload resumes here
-  if(Object.keys(T.ans).length||T.i>0){S.testDraft={i:T.i,ans:{...T.ans},at:Date.now()};save()}
+  if(!TDEMO&&(Object.keys(T.ans).length||T.i>0)){S.testDraft={i:T.i,ans:{...T.ans},at:Date.now()};save()}
   if(T.i>=TSTEPS.length){
     const{sc,side}=testScores(T.ans);const ov=overall(sc),lv=level(ov);
     const weakest=AREAS.slice().sort((a,b)=>sc[a.k]-sc[b.k]).slice(0,2).map(a=>a.n).join(" and ");
@@ -4727,65 +4727,88 @@ ACT.obDone=d=>{const o=GATE.ob;
 {const exit=ACT.testExit;ACT.testExit=()=>{exit();if(TOUR_PENDING){TOUR_PENDING=false;setTimeout(tourStart,450)}}}
 
 /* ---- the app tour: a dimmed screen with a cut-out around the real element and a short note ---- */
-const tq=s=>document.querySelector(s),tpanel=s=>{const e=tq(s);return e&&e.closest(".panel")};
+// each step points at one real element: the card, button or panel its note talks about
+let TDEMO=null;
+const tdPick=()=>({[tKey(TSTEPS[0])]:2});
+const tq=s=>document.querySelector(s),tclose=(s,up)=>{const e=tq(s);return e&&e.closest(up)};
 const TOUR_STEPS=[
- {tab:"home",el:()=>[tq("[data-tour=cards]")],t:"Before and after training",d:"Activate warms up what today's workout needs. Recover winds down what it loaded. Swipe for Daily and Rebuild."},
- {tab:"home",el:()=>[tq("[data-tour=flows]")],t:"Anytime flows",d:"Short routines for a desk break, the morning or bedtime. Tap one and press play."},
- {tab:"home",el:()=>[tq("[data-tour=test]")||tq("[data-tour=score]")],t:"Your mobility score",d:()=>S.scores?"Your score across 6 areas. Retest every month and watch it climb.":"Take the 10-minute test so every session targets your weak spots. Until then Range uses an example profile."},
- {tab:"training",el:()=>{const t=tq("[data-tour=train-top]"),n=t&&t.nextElementSibling;return[t,n&&/SugarWOD/.test(n.textContent)?n:null]},t:"Your training",d:"Workouts from SugarWOD arrive here, or add one by hand. Range reads the movements in each one."},
- {tab:"training",el:()=>{const a=[tpanel("[data-act=prepNext]"),tpanel("[data-act=recoverRecent]")].filter(Boolean);if(a.length)return a;const w=tq("#screen .wlist");return[w&&w.parentElement]},t:"Prepare and recover",d:"Every workout gets a warm-up built for its movements before, and a recovery for what it loaded after."},
- {tab:"library",el:()=>[tq("[data-tour=routines]"),tq("#screen .search")],t:"Library",d:"Every stretch and drill, by muscle or by area. Build your own routines and share them as a link."},
- {tab:"rebuild",el:()=>[tq("[data-tour=rebuild]")],t:"Rebuild",d:"Pain-guided programs for lifters: screen the sore area, then rebuild it in phases with clear pain rules."},
- {tab:"profile",el:()=>[tq("[data-tour=sports]"),tq("[data-tour=equip]")],t:"Your sports and equipment",d:"Change them any time. Sessions only use equipment you have."},
- {tab:"profile",el:()=>[tq("[data-tour=account]")],t:"Your account",d:"Your tests, sessions and routines save to your account and follow you to any device."},
- {tab:"profile",el:()=>[tq("[data-tour=tour-btn]")],t:"That's the tour",d:"Replay it any time from Profile. Now go and move."},
+ {tab:"home",el:()=>tq("#car .pcard"),t:"Activate before training",d:()=>nextWorkout()?"A warm-up built from your next workout's movements and your scores. Swipe for Recover, Daily and Rebuild.":"A warm-up built for what you're about to train. Swipe for Recover, Daily and Rebuild."},
+ {tab:"home",el:()=>tq("[data-tour=flows] .hscroll"),t:"Anytime flows",d:"Short routines for a desk break, the morning or bedtime. Tap one and press play."},
+ {tab:"home",el:()=>tq("[data-tour=test]")||tq("[data-tour=score]"),t:()=>S.scores?"Your mobility score":"Take the mobility test",d:()=>S.scores?"Your score across 6 areas. Retest every month and watch it climb.":"10 minutes, 18 quick checks. Every session then targets your weak spots. Until then Range uses an example profile."},
+ {tab:"home",demo:()=>({}),el:()=>tq("#layer .tsstage"),t:"Inside the test",d:"Each check starts with a demo of exactly how to do it."},
+ {tab:"home",demo:tdPick,el:()=>tclose("#layer [data-act=testPick]",".stack"),t:"Pick the closest answer",d:"The figure changes to show the range you picked, so you can compare it with what you see."},
+ {tab:"home",demo:tdPick,el:()=>tq("#layer .tsides"),t:"Right, then left",d:"One-sided checks test your right side first, then your left. Tap Right or Left to switch."},
+ {tab:"home",demo:tdPick,el:()=>tq("#layer .tprog"),t:"Your progress",d:()=>`${TSTEPS.length} checks in about 10 minutes. Stop any time: your answers are kept for a week.`},
+ {tab:"home",demo:tdPick,el:()=>tq("#layer [data-act=testNext]"),t:"On to the next check",d:"At the end you see your score for each area, and every session adapts to it."},
+ {tab:"training",el:()=>{const t=tq("[data-tour=train-top]"),n=t&&t.nextElementSibling;return n&&/SugarWOD/.test(n.textContent)?n:null},t:"Your SugarWOD workouts",d:"Your gym's workouts arrive here. Range reads the movements in each one."},
+ {tab:"training",el:()=>tq("[data-act=addW]"),t:"Add a workout",d:"Training somewhere else? Add the workout by hand, or paste it with Import."},
+ {tab:"training",el:()=>tclose("[data-act=prepNext]",".panel")||tclose("[data-act=prepW]",".wrow"),t:"Prepare for a session",d:"A warm-up built for that workout's movements, weighted toward your weakest areas."},
+ {tab:"training",el:()=>tclose("[data-act=recoverRecent]",".panel")||tclose("[data-act=recW]",".wrow"),t:"Recover after",d:"Long holds for the areas your last sessions loaded."},
+ {tab:"library",el:()=>tq("#screen .search"),t:"Library",d:"Search every stretch and drill, or browse by muscle or area below. Build and share your own routines here too."},
+ {tab:"rebuild",el:()=>tq("[data-act=rbStart]")||tq("[data-tour=rebuild] [data-act=rbPick]"),t:()=>S.rehab?"Your Rebuild program":"Rebuild",d:()=>S.rehab?"Start today's session here. Your pain rating decides when you move to the next phase.":"Sore somewhere? Pick the area: Range screens it, then rebuilds it in phases with clear pain rules."},
+ {tab:"profile",el:()=>tq("[data-tour=sports]"),t:"Your sports",d:"Daily sessions lean toward what your sports need. Tap Edit to change them."},
+ {tab:"profile",el:()=>tq("[data-tour=equip]"),t:"Your equipment",d:"Sessions only use what's switched on here."},
+ {tab:"profile",el:()=>tq("[data-tour=account]"),t:"Your account",d:"Your tests, sessions and routines save to your account and follow you to any device."},
+ {tab:"profile",el:()=>tq("[data-tour=tour-btn]"),t:"That's the tour",d:"Replay it any time from here. Now go and move."},
 ];
+const tval=v=>typeof v==="function"?v():v;
+const tvis=e=>!!e&&e.getClientRects().length>0;
+// the test steps open a demo of the real test screen: the person's own test (T) and saved progress are untouched
+// (drawTest doesn't store a draft while TDEMO is set) and come back exactly as they were when the demo closes
+function tdemoOpen(ans){if(!TDEMO)TDEMO={T};T={i:0,ans};drawTest()}
+function tdemoClose(){if(!TDEMO)return;T=TDEMO.T;TDEMO=null;$("#layer").innerHTML="";document.body.style.overflow=""}
+function tourShow(st){if(st.demo){tdemoOpen(st.demo());return}tdemoClose();if(stack.length>1||stack[0].name!==st.tab){stack=[{name:st.tab,p:{}}];render()}}
 let tourSafe=null;
 function tourInsets(){if(!tourSafe){const p=document.createElement("div");p.style.cssText="position:fixed;visibility:hidden;pointer-events:none;top:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)";document.body.appendChild(p);const cs=getComputedStyle(p);tourSafe={t:parseFloat(cs.paddingTop)||0,b:parseFloat(cs.paddingBottom)||0};p.remove()}return tourSafe}
+// the steps this person can see right now, worked out before the tour starts so the count is right ("3 of 11")
+function tourBuild(){const keep=stack,y=scrollY,list=TOUR_STEPS.filter(st=>{tourShow(st);return tvis(st.el())});tdemoClose();stack=keep;render();window.scrollTo(0,y);return list}
 function tourStart(){if(TOUR)return;closeSheet();if(document.getElementById("gate"))return;
+  const steps=tourBuild();if(!steps.length)return;
   const root=document.createElement("div");root.id="tour";root.setAttribute("role","dialog");root.setAttribute("aria-modal","true");root.setAttribute("aria-label","App tour");
   root.innerHTML=`<svg class="tdim" aria-hidden="true"><path fill-rule="evenodd"/></svg><div class="tring" aria-hidden="true"></div><div class="ttip" aria-live="polite"></div>`;
   root.addEventListener("touchmove",e=>e.preventDefault(),{passive:false});root.addEventListener("wheel",e=>e.preventDefault(),{passive:false});
-  document.body.appendChild(root);TOUR={i:-1,root,dir:1};
+  document.body.appendChild(root);TOUR={i:-1,root,steps};
   TOUR.onR=()=>tourPlace();TOUR.onK=e=>{if(e.key==="Escape")tourEnd();else if(e.key==="ArrowRight")ACT.tourNext();else if(e.key==="ArrowLeft")ACT.tourBack()};
   addEventListener("resize",TOUR.onR);addEventListener("orientationchange",TOUR.onR);document.addEventListener("keydown",TOUR.onK);
-  tourGo(0,1)}
-function tourEls(st){return(st.el()||[]).filter(e=>e&&e.getClientRects().length)}
-function tourGo(i,dir){
-  for(;i>=0&&i<TOUR_STEPS.length;i+=dir){const st=TOUR_STEPS[i];
-    if(stack.length>1||stack[0].name!==st.tab){stack=[{name:st.tab,p:{}}];render();window.scrollTo(0,0)}
-    if(tourEls(st).length)break}
-  if(i<0)i=TOUR.i;if(i>=TOUR_STEPS.length)return tourEnd();
-  TOUR.i=i;TOUR.dir=dir;TOUR.scrolled=false;tourPlace();const nb=TOUR.root.querySelector("[data-act=tourNext]");nb&&nb.focus({preventScroll:true})}
-function tourRect(els){let t=1e9,l=1e9,b=-1e9,r=-1e9;els.forEach(e=>{const q=e.getBoundingClientRect();t=Math.min(t,q.top);l=Math.min(l,q.left);b=Math.max(b,q.bottom);r=Math.max(r,q.right)});return{t,l,b,r}}
-function tourPlace(){if(!TOUR||TOUR.i<0)return;const st=TOUR_STEPS[TOUR.i],els=tourEls(st);if(!els.length)return;
-  const root=TOUR.root,tip=root.querySelector(".ttip"),vw=innerWidth,vh=innerHeight,ins=tourInsets(),n=TOUR_STEPS.length,last=TOUR.i===n-1;
-  const tb=$("#tabbar"),tbr=!tb.hidden&&tb.getBoundingClientRect(),hdr=tq("#screen .hdr"),hb=hdr?hdr.getBoundingClientRect().bottom:ins.t;
+  if(window.visualViewport){visualViewport.addEventListener("resize",TOUR.onR);visualViewport.addEventListener("scroll",TOUR.onR)}
+  tourGo(0)}
+function tourGo(i){const st=TOUR.steps[i];tourShow(st);if(!st.demo)window.scrollTo(0,0);TOUR.i=i;TOUR.scrolled=false;
+  // rendered synchronously; place now and again on the next frame once layout (fonts, images) has settled
+  tourPlace();requestAnimationFrame(()=>tourPlace());const nb=TOUR.root.querySelector("[data-act=tourNext]");nb&&nb.focus({preventScroll:true})}
+function tourPlace(){if(!TOUR||TOUR.i<0)return;const st=TOUR.steps[TOUR.i],n=TOUR.steps.length,last=TOUR.i===n-1;
+  if(!st.demo&&(stack.length>1||stack[0].name!==st.tab))return;let el=st.el();if(!tvis(el)){tourShow(st);el=st.el();if(!tvis(el))return}
+  const root=TOUR.root,tip=root.querySelector(".ttip"),ins=tourInsets();
+  // the visible part of the page: on iPhone the layout viewport can be wider than the screen, so use the visual viewport
+  const vv=window.visualViewport,vx=vv?vv.offsetLeft:0,vy=vv?vv.offsetTop:0,vw=vv?vv.width:document.documentElement.clientWidth,vh=vv?vv.height:innerHeight;
+  const tw=Math.min(448,vw-32);Object.assign(tip.style,{left:(vx+(vw-tw)/2)+"px",width:tw+"px"});
   if(tip.dataset.i!==String(TOUR.i)){tip.dataset.i=TOUR.i;tip.innerHTML=`<div class="tth"><span class="eyebrow">${TOUR.i+1} of ${n}</span>${last?"":`<button class="link muted" data-act="tourSkip">Skip tour</button>`}</div>
-    <h3>${st.t}</h3><p>${typeof st.d==="function"?st.d():st.d}</p>
+    <h3>${tval(st.t)}</h3><p>${tval(st.d)}</p>
     <div class="frow"><button class="btn sec" data-act="tourBack" ${TOUR.i?"":"disabled"}>Back</button><button class="btn" data-act="tourNext">${last?"Done":"Next"}</button></div>`}
-  const top0=Math.max(hb,ins.t)+8,bot0=(tbr?tbr.top:vh-ins.b)-8,th=tip.offsetHeight,gap=12;
-  // bring the element into view once per step: whole if it fits with the note, else its top below the header
-  let R=tourRect(els);
-  if(!TOUR.scrolled){TOUR.scrolled=true;const fits=R.t>=top0&&R.b+gap+th<=bot0||R.t-gap-th>=top0&&R.b<=bot0;
-    if(!fits){window.scrollTo({top:Math.max(0,scrollY+R.t-top0-6),behavior:"instant"});R=tourRect(els)}}
-  const pad=6,x=Math.max(8,R.l-pad),w=Math.min(vw-8,R.r+pad)-x,y=Math.max(top0-pad,R.t-pad);
-  // a tall element is shown from its top, leaving room for the note
-  let h=Math.min(R.b+pad,bot0+pad)-y,ty;
+  const tb=$("#tabbar"),tbr=!st.demo&&!tb.hidden&&tb.getBoundingClientRect(),hdr=st.demo?null:tq("#screen .hdr"),hb=hdr?hdr.getBoundingClientRect().bottom:0,sc=st.demo&&tq("#layer .full");
+  const top0=Math.max(hb,vy+ins.t)+8,bot0=(tbr?Math.min(tbr.top,vy+vh):vy+vh-ins.b)-8,th=tip.offsetHeight,gap=12,pad=6;
+  let R=el.getBoundingClientRect();
+  if(!TOUR.scrolled){TOUR.scrolled=true;const fits=(R.top>=top0&&R.bottom+gap+th<=bot0)||(R.top-gap-th>=top0&&R.bottom<=bot0);
+    if(!fits){const dy=R.top-top0-pad-2;if(sc)sc.scrollTop+=dy;else window.scrollTo({top:Math.max(0,scrollY+dy),behavior:"instant"});R=el.getBoundingClientRect()}}
+  // hug the element (6 px all round), clipped to the app column and to what's on screen
+  const col=(sc?sc.querySelector(".inner"):$("#app")).getBoundingClientRect(),cl=Math.max(vx+4,col.left+16-pad),cr=Math.min(vx+vw-4,col.right-16+pad);
+  const x=Math.max(cl,R.left-pad),w=Math.min(cr,R.right+pad)-x,y=Math.max(top0-pad,R.top-pad);
+  let h=Math.min(R.bottom+pad,bot0+pad)-y,ty;
   if(bot0-(y+h)-gap>=th)ty=y+h+gap;else if(y-(top0-pad)-gap>=th)ty=y-gap-th;
-  else{h=Math.max(60,bot0-th-gap-y);ty=Math.min(y+h+gap,bot0-th)}
-  const holes=[[x,y,w,h]];
-  const tab=tbr&&st.tab!=="home"&&tb.querySelector(`[data-t=${st.tab}]`);if(tab){const q=tab.getBoundingClientRect();holes.push([q.left+2,q.top+2,q.width-4,q.height-4])}
-  const rr=(X,Y,W,H,c=14)=>{c=Math.min(c,W/2,H/2);return`M${X+c} ${Y}H${X+W-c}A${c} ${c} 0 0 1 ${X+W} ${Y+c}V${Y+H-c}A${c} ${c} 0 0 1 ${X+W-c} ${Y+H}H${X+c}A${c} ${c} 0 0 1 ${X} ${Y+H-c}V${Y+c}A${c} ${c} 0 0 1 ${X+c} ${Y}Z`};
-  const svg=root.querySelector(".tdim");svg.setAttribute("viewBox",`0 0 ${vw} ${vh}`);svg.querySelector("path").setAttribute("d",`M0 0H${vw}V${vh}H0Z`+holes.map(o=>rr(...o)).join(""));
-  const ring=root.querySelector(".tring");Object.assign(ring.style,{left:x+"px",top:y+"px",width:w+"px",height:h+"px"});
-  tip.style.top=Math.max(top0-pad,Math.min(ty,bot0-th))+"px";tip.classList.toggle("up",ty<y)}
-ACT.tourNext=()=>{if(!TOUR)return;if(TOUR.i>=TOUR_STEPS.length-1)return tourEnd();tourGo(TOUR.i+1,1)};
-ACT.tourBack=()=>{if(TOUR&&TOUR.i>0)tourGo(TOUR.i-1,-1)};
+  else{h=Math.max(48,bot0-th-gap-y);ty=Math.min(y+h+gap,bot0-th)}
+  const rad=(parseFloat(getComputedStyle(el).borderTopLeftRadius)||6)+pad;
+  const holes=[[x,y,w,h,rad]];
+  const tab=tbr&&!st.demo&&st.tab!=="home"&&tb.querySelector(`[data-t=${st.tab}]`);if(tab){const q=tab.getBoundingClientRect();holes.push([q.left+2,q.top+2,q.width-4,q.height-4,12])}
+  const rr=(X,Y,W,H,c)=>{c=Math.max(0,Math.min(c,W/2,H/2));return`M${X+c} ${Y}H${X+W-c}A${c} ${c} 0 0 1 ${X+W} ${Y+c}V${Y+H-c}A${c} ${c} 0 0 1 ${X+W-c} ${Y+H}H${X+c}A${c} ${c} 0 0 1 ${X} ${Y+H-c}V${Y+c}A${c} ${c} 0 0 1 ${X+c} ${Y}Z`};
+  const W=innerWidth,H=innerHeight,svg=root.querySelector(".tdim");svg.setAttribute("viewBox",`0 0 ${W} ${H}`);svg.querySelector("path").setAttribute("d",`M0 0H${W}V${H}H0Z`+holes.map(o=>rr(...o)).join(""));
+  Object.assign(root.querySelector(".tring").style,{left:x+"px",top:y+"px",width:w+"px",height:h+"px",borderRadius:rad+"px"});
+  tip.style.top=Math.max(top0-pad,Math.min(ty,bot0-th))+"px"}
+ACT.tourNext=()=>{if(!TOUR)return;if(TOUR.i>=TOUR.steps.length-1)return tourEnd();tourGo(TOUR.i+1)};
+ACT.tourBack=()=>{if(TOUR&&TOUR.i>0)tourGo(TOUR.i-1)};
 ACT.tourSkip=()=>tourEnd();
 ACT.tourStart=()=>{tourStart()};
 function tourEnd(quiet){if(!TOUR)return;removeEventListener("resize",TOUR.onR);removeEventListener("orientationchange",TOUR.onR);document.removeEventListener("keydown",TOUR.onK);
-  TOUR.root.remove();TOUR=null;S.tourDone=true;save();if(quiet)return;stack=[{name:"home",p:{}}];render();window.scrollTo(0,0)}
+  if(window.visualViewport){visualViewport.removeEventListener("resize",TOUR.onR);visualViewport.removeEventListener("scroll",TOUR.onR)}
+  tdemoClose();TOUR.root.remove();TOUR=null;S.tourDone=true;save();if(quiet)return;stack=[{name:"home",p:{}}];render();window.scrollTo(0,0)}
 // a small line on Today while the account can't be reached
 const offNote=()=>API||!(SB_OFFLINE||(!SBU&&GATE_SKIPPED))?"":SBU||sbHasSession()?`<div class="gnote">${ic("sync")}<span>Offline. Your changes save to your account when you're back online.</span></div>`
   :`<div class="gnote">${ic("sync")}<span>Offline — sign in later.</span><button class="link" data-act="sbAuth" data-m="in">Sign in</button></div>`;
