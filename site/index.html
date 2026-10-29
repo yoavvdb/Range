@@ -1648,8 +1648,10 @@ function moveWeights(w){
    3. Inside an area, each stretch is scored: does it hit the exact zones your movements use
       (a snatch needs lats + upper back + ankles), does it suit the goal (moving drills before
       training, long passive holds after), and was it done in the last 4 days (variety).
-   4. The list is ordered to avoid getting up and down: Activate starts on the floor and ends
-      standing, ready to train; Recover and Daily wind down toward the floor. */
+   4. The list runs one body region at a time (regionOrder): the region the workout loaded most first,
+      small muscles (calves, wrists, neck) last; inside a region release, then stretch, then activation.
+      Activate goes floor to standing in each region and ends with the main-lift rehearsal; Recover
+      and Daily wind down from standing to the floor in each region. */
 const AREA_ZONES={shoulders:["shoulders","chest"],overhead:["lats","shoulders"],thoracic:["upperback"],hips:["hipflex","glutes","adductors","quads"],posterior:["hamstrings","lowback"],ankles:["ankles","calves"]};
 // By-area sessions: the muscles that count as that area (an exercise's MAIN target must be one of them, so a T-spine session
 // isn't filled with low-back extension and an ankle session with shin stretches), plus the neighbouring area that usually limits it
@@ -1926,9 +1928,9 @@ ACT.whySheet=()=>{
    ${(W.plan.credit=planCredit(W.plan.items,W.kind==="target"||W.kind==="daily"?[]:W.moves))&&Object.keys(W.plan.credit).length?`<div class="stack" style="gap:6px"><span class="eyebrow">${W.kind==="recover"?"What each movement worked":"What each movement needs"}</span>
     <ul class="mvcredit">${Object.entries(W.plan.credit).map(([m,ids])=>`<li><b>${esc(m)}</b><span class="muted">${(MOVE_ZONES[m]||[]).slice(0,3).map(z=>ZONES[z].toLowerCase()).join(", ")}</span><span>${ids.length?ids.map(id=>esc(LIBI[id].n)).join(", "):`<i class="muted">Lightly loaded. No exercise of its own at this length</i>`}</span></li>`).join("")}</ul></div>`:""}
    <div class="stack" style="gap:6px"><span class="eyebrow">Session structure</span><p class="muted" style="margin:0;font-size:14px">${{
-    activate:"Rehab warm-up if your Rebuild program has one, then Mobilise: dynamic drills for the positions your lifts need. A short static hold (30 s, one per area) only where your test shows you're tight and the session uses that muscle, so you keep your strength. Then Activate: brace the core, switch on the muscles your lifts rely on, and finish by rehearsing the main lift's position (for example a PVC overhead squat before snatches).",
-    recover:"Long passive holds for the muscles the session loaded, from standing down to the floor.",
-    daily:"Mobility for your weakest areas, capped at about 10 minutes of static stretching per area per week, then Strength at end range. Loaded range work improves mobility as much as stretching and also lowers injury risk.",
+    activate:"One body region at a time, starting with the muscles your workout leans on most (hips & legs, shoulders, back, then calves and wrists). Rehab warm-up first if your Rebuild program has one. In each region: roll, then Mobilise: dynamic drills for the positions your lifts need. A short static hold (30 s, one per area) only where your test shows you're tight and the session uses that muscle, so you keep your strength. Then Activate: brace the core, switch on the muscles your lifts rely on, floor first and standing last. Finish by rehearsing the main lift's position (for example a PVC overhead squat before snatches).",
+    recover:"One body region at a time, starting with the muscles the session loaded most (hips & legs, shoulders, back, then calves and wrists). In each region: release with the roller or ball first, then long passive holds, from standing down to the floor.",
+    daily:"One body region at a time (hips & legs, shoulders, back, then calves and wrists): rolling first, then mobility for your weakest areas, capped at about 10 minutes of static stretching per area per week, then strength at end range for that region. Loaded range work improves mobility as much as stretching and also lowers injury risk.",
     target:"Mobility for your chosen area, repeated in rounds if needed, then Lock it in with a strength drill in the new range."}[W.kind]}</p></div>
   </div><button class="btn sec" data-act="closeSheet">Close</button>`);
 };
@@ -2213,7 +2215,8 @@ const flowItems=f=>{const taken=new Set(f.items.map(([id])=>id)),out=[];
     if(rbAvoids(id)){const a=rbFlowAlt(id,taken);if(!a)return;taken.add(a.id);const w=`In place of ${e.n.toLowerCase()}, which your Rebuild program says to avoid for now.`;
       out.push(a.rehab?{id:a.id,dose:(((REHAB_HOOKS[S.rehab.region]||{})[S.rehab.cls]||{}).pre||[]).find(([i])=>i===a.id)?.[1]||fitDose(a,D_.hold(1,30,a.sides?1:0)),why:`${w} An easy isometric hold calms the tendon instead of stretching it.`}:{id:a.id,hold:a.sides?Math.min(t,45):t,why:w});return}
     out.push(e.rehab?{id,dose:D_.time(t),why:"Slow breathing with long exhales to finish."}:{id,hold:t,why:`Part of the ${f.n} flow.`})});
-  return out};
+  // the same order as every other session: big muscles first, one region at a time
+  return regionOrder(out,"flow",null).flatMap(b=>b.items)};
 ACT.flowStart=d=>{const f=FLOWS.find(x=>x.k===d.k);if(f)openPlayer(flowItems(f),{kind:"daily",focus:[],title:f.n})};
 const flowsRow=()=>`<div class="stack" style="gap:8px" data-tour="flows"><span class="eyebrow">Anytime flows</span><div class="hscroll">${FLOWS.map(f=>{const m=Math.max(1,Math.round(flowItems(f).reduce((t,it)=>t+itemSecs(it),0)/60));
   return`<button class="fcard ${KINDS.daily.g}" data-act="flowStart" data-k="${f.k}"><b>${f.n}</b><small>${f.sub} · ${m} min</small></button>`}).join("")}</div></div>`;
@@ -3180,8 +3183,8 @@ REGIONS.back.phasesBy={flexion:REGIONS.back.phases,extension:REGIONS.back.phases
      -> Mobilise: the joints today's movements need, dynamic first, static holds max 30 s and max 60 s per
         area (longer static holds before lifting cost strength and power)
      -> Activate: brace the core (McGill), then switch on the muscles your movements rely on.
-   RECOVER (after): Downshift with easy movement (movement beats ice for recovery), then long passive holds
-     for what you trained, winding down to the floor.
+   RECOVER (after): region by region, biggest load first: release (roller / ball) for that region, then long
+     passive holds for what you trained, winding down to the floor.
    DAILY: Mobility for your weakest areas (capped at ~10 min of static stretching per area per week, the
      point where gains level off), then Strength at end range (builds range as well as stretching does).
    TARGET: Mobility for one area, then Lock it in with a strength drill in the new range.
@@ -3405,6 +3408,44 @@ const TARGET_NEAR={ankles:["shins","feet","quads","hamstrings"],hips:["hamstring
 function planCredit(items,moves){const c={},mz=m=>(MOVE_ZONES[m]||[]).slice(0,4);
   (moves||[]).forEach(m=>{c[m]=items.filter(it=>{const e=LIBI[it.id];return!!e&&(e.z.slice(0,3).some(z=>mz(m).includes(z))||(it.why||"").includes(m))}).map(it=>it.id)});return c}
 function targetZd(zone){const m=Object.fromEntries((TARGET_ZONES[zone]||[]).map(z=>[z,1]));Object.values(TARGET_SUPPORT[zone]||{}).flat().forEach(z=>{if(!m[z])m[z]=.6});return m}
+// ---- Session order: big muscles first, region by region ----
+// Every session (Activate, Recover, Daily, Target and the Anytime flows) runs one body region at a time, starting with the
+// big groups the workout loaded most: hips & legs, shoulders (chest, lats, overhead), back, then the small and distal
+// muscles (calves, shins, feet, wrists, neck) last unless they were the main thing trained. Inside a region: release first
+// (foam roll / ball), then stretch or mobilise, then activation or end-range strength.
+const REGION_OF={hipflex:"legs",glutes:"legs",adductors:"legs",quads:"legs",hamstrings:"legs",shoulders:"upper",chest:"upper",lats:"upper",triceps:"upper",biceps:"upper",
+  upperback:"back",lowback:"back",obliques:"back",core:"back",calves:"small",shins:"small",ankles:"small",feet:"small",forearm:"small",neck:"small"};
+const REGION_DEFAULT=["legs","upper","back","small"];
+const regionOf=ex=>REGION_OF[((ex&&ex.z)||[])[0]]||"back";
+function regionLabel(r,exs){if(r!=="small")return{legs:"Hips & legs",upper:"Shoulders",back:"Back"}[r];
+  const z=new Set(exs.map(e=>e.z[0])),p=[];if(["calves","shins","ankles","feet"].some(x=>z.has(x)))p.push("calves","ankles");if(z.has("forearm"))p.push("wrists");if(z.has("neck"))p.push("neck");
+  const t=p.length>1?p.slice(0,-1).join(", ")+" & "+p[p.length-1]:p[0]||"calves & ankles";return t[0].toUpperCase()+t.slice(1)}
+// regions in the order a session should visit them: by how hard the workout loaded each one's most-loaded muscle (its other
+// muscles add a little, so a region of many small muscles doesn't outrank the one a heavy lift hammered; hips & legs, the
+// biggest muscles, count a little extra); near-ties keep the default order, and the small muscles go last unless they lead clearly
+function regionRank(zd){if(!zd||!Object.keys(zd).length)return REGION_DEFAULT.slice();
+  const dem={};REGION_DEFAULT.forEach(r=>{dem[r]=(r==="legs"?1.15:1)*Object.keys(zd).filter(z=>REGION_OF[z]===r).map(z=>zd[z]||0).sort((a,b)=>b-a).reduce((t,v,i)=>t+v*([1,.3,.1][i]||0),0)});
+  const big=REGION_DEFAULT.slice(0,3).sort((a,b)=>Math.abs(dem[a]-dem[b])>.1?dem[b]-dem[a]:REGION_DEFAULT.indexOf(a)-REGION_DEFAULT.indexOf(b));
+  return dem.small>Math.max(...big.map(r=>dem[r]))+.1?["small",...big]:[...big,"small"]}
+// items -> ordered blocks. Stage per item: "pre" (Rebuild warm-up, always first), 0 release, 1 stretch / mobilise,
+// 2 activation / end-range strength, "main" (rehearsal of the main lift, always last), "end" (closing breathing).
+// Floor vs standing inside a region: before training floor first and finish standing (once per region); after training,
+// Daily and Target wind down from standing to the floor; a flow carries on from wherever the last exercise left you.
+function regionOrder(items,kind,zd){
+  const stOf=it=>it._st!=null?it._st:it._main?"main":it.id==="r_breath"?"end":it.block==="Rehab warm-up"?"pre":(LIBI[it.id]||{}).roll||it.block==="Roll"||it.block==="Release"?0:/activate|^Activate|Strength|Lock it in/.test(it.block||"")?2:1;
+  const rows=items.map((it,i)=>{const ex=LIBI[it.id]||{z:[]};return{it,ex,i,st:stOf(it),r:regionOf(ex),pos:ex.z.length?posOf(ex):0,rnd:+(((it.why||"").match(/^Round (\d+)/)||[])[1]||0)}});
+  const rank=regionRank(zd),out=[],named=(row,name)=>{row.name=name;out.push(row)};
+  rows.filter(x=>x.st==="pre").forEach(x=>named(x,"Rehab warm-up"));
+  let cur=0;
+  rank.forEach(r=>{const rs=rows.filter(x=>x.r===r&&typeof x.st==="number");if(!rs.length)return;const label=regionLabel(r,rs.map(x=>x.ex));let seq;
+    if(kind==="activate")seq=rs.sort((a,b)=>(a.st?1:0)-(b.st?1:0)||(b.pos>=2)-(a.pos>=2)||a.st-b.st||b.pos-a.pos||a.i-b.i);
+    else if(kind==="flow"){const down=cur<2;seq=rs.sort((a,b)=>a.st-b.st||(down?a.pos-b.pos:b.pos-a.pos)||a.i-b.i)}
+    else seq=rs.sort((a,b)=>a.st-b.st||a.rnd-b.rnd||a.pos-b.pos||a.i-b.i);
+    seq.forEach(x=>named(x,x.st===2&&kind==="target"?"Lock it in":x.st===2&&kind==="daily"?`${label} · strength`:label));cur=seq[seq.length-1].pos});
+  rows.filter(x=>x.st==="main").forEach(x=>named(x,"Main lift"));
+  rows.filter(x=>x.st==="end").forEach(x=>named(x,"Finish"));
+  const blocks=[];out.forEach(x=>{const it=x.it;delete it._st;delete it._main;it.block=x.name;const last=blocks[blocks.length-1];if(last&&last.name===x.name)last.items.push(it);else blocks.push({name:x.name,items:[it]})});
+  return blocks}
 function buildPlan(o){
   const{need,parts,ctx}=analyze(o),flash=o.minutes===3,budget=o.minutes*60,moves=o.kind==="target"?[]:planMoves(o),zd=o.kind==="target"?targetZd(o.zone):normMap(zoneDemandOf(moves,o.mw));
   const hooks=rehabHooks(),state={used:new Set()},C={need,parts,ctx,flash,moves,zd};
@@ -3448,7 +3489,7 @@ function buildPlan(o){
     const kept=fit(prio,Math.max(0,left*(flash?.4:.5)));
     // shown floor first and standing last, with the rehearsal of the main lift at the very end
     const act=kept.map((it,i)=>({it,i})).sort((a,b)=>(a.it.main?1:0)-(b.it.main?1:0)||posOf(LIBI[b.it.id])-posOf(LIBI[a.it.id])||a.i-b.i).map(x=>x.it);
-    act.forEach(it=>{state.used.add(it.id);delete it.main;delete it.rank;delete it._k;const e=LIBI[it.id];if(e&&!e.rehab)(state.picks=state.picks||[]).push(e)});
+    act.forEach(it=>{state.used.add(it.id);if(it.main)it._main=1;delete it.main;delete it.rank;delete it._k;const e=LIBI[it.id];if(e&&!e.rehab)(state.picks=state.picks||[]).push(e)});
     const actSecs=act.reduce((t,it)=>t+itemSecs(it),0);
     const mob=pickMobility({...o,minutes:o.minutes*(left-actSecs)/(left*.55)},C,Math.max(60,left-actSecs),pool.filter(ex=>!ex.roll),state);
     // one trip down and one trip up: floor mobility, floor activation, then standing mobility and standing activation
@@ -3471,7 +3512,7 @@ function buildPlan(o){
         const pc=posOf(c),body=blocks.filter(x=>x.name!=="Roll"&&x.name!=="Rehab warm-up");let b=null,j=-1;
         for(const bb of body){const k=bb.items.findIndex(x=>posOf(LIBI[x.id])<pc);if(k>=0){b=bb;j=k;break}}
         if(!b){b=body[body.length-1];if(!b){b={name:"Mobilise",items:[]};blocks.push(b)}j=Math.max(0,b.items.length-1)}
-        it.block=b.name;b.items.splice(j,0,it);state.used.add(c.id);
+        it.block=b.name;it._st=1;b.items.splice(j,0,it);state.used.add(c.id);
         // keep to the time: drop the last stretch for an area that isn't in focus
         const tot=()=>allIt().reduce((t,x)=>t+itemSecs(x),0);if(tot()>budget+30){for(const bb of [...blocks].reverse()){if(!/obilise/.test(bb.name))continue;const di=bb.items.map((x,i)=>i).reverse().find(i=>bb.items[i]!==it&&!f.some(q=>inA(LIBI[bb.items[i].id],q)));if(di!=null){bb.items.splice(di,1);break}}}});
       for(let i=blocks.length-1;i>=0;i--)if(!blocks[i].items.length)blocks.splice(i,1)}
@@ -3479,7 +3520,7 @@ function buildPlan(o){
     // with a foam roller: self-massage the muscles you just worked first, then the long holds
     if(!flash&&(o.equip.includes("roller")||o.equip.includes("ball"))){
       const rel=LIB.filter(ex=>(ex.roll||ex.eq.includes("roller"))&&ex.eq.every(q=>o.equip.includes(q))&&!ex.rehab&&!ex.manual&&!hooks.x.has(ex.id)&&ex.z[0]!=="lowback").map(ex=>({ex,s:(zd[ex.z[0]]||0)+.5*Math.max(0,...ex.z.slice(1).map(z=>zd[z]||0))+.5*(need[ex.a]||0)+(ex.eq.includes("ball")?.15:0)})).filter(x=>x.s>.4).sort((a,b)=>b.s-a.s)
-        .map(({ex,s})=>({id:ex.id,_s:s,hold:ex.sides?30:60,why:`Rolling first: slow pressure on the ${ex.z.map(z=>ZONES[z].toLowerCase()).join(" and ")} you just worked eases tension, so the long holds that follow go deeper.`}));
+        .map(({ex,s})=>({id:ex.id,_s:s,hold:ex.sides?30:60,why:`Rolling first: slow pressure on the ${ex.z.map(z=>ZONES[z].toLowerCase()).join(" and ")} you just worked eases tension, so the stretches for them that follow go deeper.`}));
       let rl=fit(rel.filter(it=>(zd[LIBI[it.id].z[0]]||0)>=.7).filter((it,i,a)=>a.findIndex(x=>LIBI[x.id].z[0]===LIBI[it.id].z[0])===i),left*.3).slice(0,o.minutes>=15?3:2);
       // you said you have a massage ball: use it for one spot if it suits what you trained
       if(o.equip.includes("ball")&&rl.length>1&&!rl.some(it=>LIBI[it.id].eq.includes("ball"))){const b=rel.find(it=>LIBI[it.id].eq.includes("ball")&&!rl.some(x=>LIBI[x.id].z[0]===LIBI[it.id].z[0])&&(zd[LIBI[it.id].z[0]]||0)>.2);
@@ -3539,6 +3580,8 @@ function buildPlan(o){
     // "the range you just opened" only when something opened it first
     if(!blocks.some(b=>b.name==="Mobility"&&b.items.length))blocks.forEach(b=>{if(b.name==="Lock it in")b.items.forEach(it=>{if(/^Use the range you just opened/.test(it.why))it.why=`Strength at the end of your ${AN[o.zone]} range: loaded range work builds mobility as well as stretching does.`})});
   }
+  // one shared order for every session: region by region, biggest load first; release, then stretch, then activation
+  const ordered=regionOrder(blocks.flatMap(b=>b.items),o.kind,o.kind==="daily"?null:zd);blocks.length=0;blocks.push(...ordered);
   const items=blocks.flatMap(b=>b.items);
   // a knee program: squats only to the depth that stays pain-free
   if(S.rehab&&S.rehab.region==="knee")items.forEach(it=>{if(it.dose&&/squat|r_ohs|a_sots/i.test(it.id+" "+LIBI[it.id].n)&&!/hold/i.test(LIBI[it.id].n)){it.dose={...it.dose,note:"To pain-free depth"};it.why=(it.why||"")+" Only as deep as your knee stays pain-free."}});
@@ -3719,8 +3762,9 @@ SCREENS.training=()=>{
     if(API)return connPanel();
     if(syncAvail===false&&!sy.key&&sy.preload)return`<div class="panel"><span class="eyebrow c-good">SugarWOD · connected</span><div style="font-size:14px">Last synced ${agoText(sy.preload.syncedAt)} · ${sy.preload.count} workouts (your results and the coming week).</div></div>`;
     if(syncAvail===false&&!sy.key)return`<div class="panel"><span class="eyebrow">SugarWOD auto-sync</span><div style="font-size:14px">Want your whiteboard to arrive here by itself every hour? It takes a one-time setup (see the README). Until then, use Import.</div></div>`;
-    if(!sy.key&&!S.settings.swConnect)return""; // the sync file belongs to whoever set it up; others connect from Profile
-    if(!sy.key)return`<div class="panel"><span class="eyebrow">SugarWOD auto-sync</span><div style="font-size:14px">${syncAvail?"Your sync file is ready. Enter your passphrase to unlock it.":"Checking for your sync file…"}</div><button class="btn" data-act="syncKey">Connect</button></div>`;
+    // a sync file next to the app but no passphrase on this phone (a new phone, or signed out and back in): a small Connect row,
+    // so the Sync now card is one tap away again. Nothing while there's no sync file (or it's still being checked)
+    if(!sy.key)return syncAvail?`<div class="panel" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-block:12px"><span class="eyebrow" style="margin:0">SugarWOD auto-sync</span><button class="syncbtn" data-act="syncKey">${ic("sync")}Connect</button></div>`:"";
     return`<div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span class="eyebrow ${sy.error?"c-bad":"c-good"}">SugarWOD auto-sync ${sy.error?"· needs attention":"· on"}</span>${syncBtn()}</div>
       <div style="font-size:14px">${sy.error?esc(sy.error):syncAvail===false?"No sync file found. Check the workflow runs on GitHub.":`Synced ${agoText(sy.checked)} · ${sy.count||0} workouts<br><span class="muted" style="font-size:13px">SugarWOD read ${agoText(sy.syncedAt)} (GitHub refreshes it every hour)</span>`}</div><button class="link" style="justify-self:start" data-act="syncKey">Change passphrase</button></div>`})()}
   ${breakPanel()}
@@ -4726,6 +4770,14 @@ function wipeMine(libOnly){for(let i=LIB.length-1;i>=0;i--)if(LIB[i].custom){del
 // SugarWOD link and backup settings) and keeps only how the device is set up (sound, voice, Easy Mode, 3D figures)
 function wipeLocal(){const keep=S.settings,seeded=S.seeded;clearTimeout(sbTimer);clearTimeout(bkTimer);wipeMine();S=JSON.parse(S_FRESH);S.settings=Object.assign({},keep);if(seeded)S.seeded=seeded;normS();
   BK=null;try{localStorage.setItem(KEY,JSON.stringify(S));["range-backup-cfg","range-errors"].forEach(k=>localStorage.removeItem(k))}catch(e){}}
+// the SugarWOD passphrase survives signing out, on this phone only and only for the same account: it is parked in device-local
+// storage under the account id (never uploaded), handed back when that account signs in again here, and dropped when another
+// account signs in or the account is deleted
+const SYNC_STASH="range-sync-stash";
+function syncKeyStash(uid){try{const k=(S.sync||{}).key;if(uid&&k)localStorage.setItem(SYNC_STASH,JSON.stringify({uid,key:k}));else localStorage.removeItem(SYNC_STASH)}catch(e){}}
+function syncKeyDrop(){try{localStorage.removeItem(SYNC_STASH)}catch(e){}}
+function syncKeyRestore(uid){let st=null;try{st=JSON.parse(localStorage.getItem(SYNC_STASH)||"null")}catch(e){}if(!st)return;syncKeyDrop();
+  if(!uid||st.uid!==uid||!st.key||(S.sync||{}).key)return;S.sync={...(S.sync||{}),key:st.key,checked:0};save();autoSync(true).catch(()=>{})}
 // once anyone has signed in on this phone, data without an owner is never handed to a later account
 const DEV_CLAIMED="range-device-claimed",devClaimed=()=>{try{return!!localStorage.getItem(DEV_CLAIMED)}catch(e){return false}};
 // bring this phone and the account together after signing in
@@ -4771,7 +4823,7 @@ ACT.sbSetPw=async()=>{const pw=$("#sbPw").value,msg=$("#sbMsg");if(pw.length<8){
 ACT.sbSyncNow=async()=>{try{await sbPush();sbErr=""}catch(e){sbErr="Couldn't save to your account. "+sbNice(e)}render()};
 ACT.sbDel=()=>sheet(`<h3>Delete your account</h3><div class="scroll"><p style="margin:0">This permanently deletes your Range account and everything saved to it: tests, sessions, workouts, Rebuild programs and routines. Your data is also removed from this phone. This can't be undone.</p><p id="sbMsg" class="c-bad" style="margin:0;font-size:14px"></p></div><button class="btn" style="background:var(--bad)" data-act="sbDelGo">Delete my account</button><button class="btn sec" data-act="closeSheet">Cancel</button>`);
 ACT.sbDelGo=async()=>{const{error}=await SB.rpc("delete_my_account");if(error){$("#sbMsg").textContent=sbNice(error);return}try{await SB.auth.signOut()}catch(e){}SBU=null;sbErr="";TOUR&&tourEnd(true);
-  wipeLocal();try{localStorage.removeItem("range-last-email")}catch(e){}closeSheet();stack=[{name:"home",p:{}}];render();GATE=null;gateShow("up")};
+  wipeLocal();syncKeyDrop();try{localStorage.removeItem("range-last-email")}catch(e){}closeSheet();stack=[{name:"home",p:{}}];render();GATE=null;gateShow("up")};
 /* ================= front page, first-run setup and the app tour =================
    Signing in is the front page. A saved Supabase session goes straight in and is refreshed quietly behind the
    launch screen; nobody is asked again until they sign out. Offline, the app opens on this phone's data.
@@ -4843,6 +4895,7 @@ ACT.sbForgot=async()=>{const f=$("#sbF"),email=f.email.value.trim(),msg=$("#sbMs
 async function gateIn(user){SBU=user;SB_OFFLINE=false;GATE_SKIPPED=false;try{localStorage.setItem("range-last-email",user.email||"")}catch(e){}
   const msg=$("#sbMsg");if(msg){msg.className="muted";msg.textContent="Bringing your data together…"}
   try{await sbPull()}catch(e){sbErr=sbNice(e)}
+  syncKeyRestore(user.id);
   afterIn()}
 function afterIn(){
   if(!S.onboarded&&usedRange(S)){S.onboarded=true;save()} // used Range before accounts, or on another device
@@ -4851,7 +4904,7 @@ function afterIn(){
 // signing out saves to the account first, then this phone forgets the person's data (it comes back when they sign in again)
 ACT.sbOut=async()=>{clearTimeout(sbTimer);let saved=true;try{await sbPush()}catch(e){saved=false}
   if(!saved&&!confirm("Couldn't save your latest changes to your account (no connection?). Sign out anyway? Changes since your last save will be lost from this phone."))return;
-  try{await SB.auth.signOut()}catch(e){}SBU=null;sbErr="";TOUR&&tourEnd(true);wipeLocal();stack=[{name:"home",p:{}}];render();gateShow("in")};
+  syncKeyStash(SBU&&SBU.id);try{await SB.auth.signOut()}catch(e){}SBU=null;sbErr="";TOUR&&tourEnd(true);wipeLocal();stack=[{name:"home",p:{}}];render();gateShow("in")};
 
 /* ---- first run: sports, equipment, then the test or an example profile ---- */
 // setup progress is kept as you go (a reload comes back to the same step with your picks)
