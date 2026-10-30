@@ -31,8 +31,11 @@
 <style>
 /* Layout: phone-app column (max 480px) — home carousel, step-by-step protocol builder, full-screen guided player. Deliberately dark-only, like a gym-floor app. */
 :root{
-  --bg:#0D1015;--surface:#161A21;--surface2:#1E232C;--line:#2A303A;
-  --ink:#EEF1F5;--muted:#8B94A2;--accent:#3FD0C9;--accent-ink:#04201F;--accent-soft:#143534;
+  --bg:#131416;--surface:#1C1D20;--surface2:#26272B;--line:#323338;
+  --ink:#F2EFE8;--muted:#A19D95;--accent:#3FD0C9;--accent-ink:#04201F;--accent-soft:#163331;
+  --chalk:#F2EFE8;--chalk-ink:#151618;
+  --p-red:#B8352B;--p-blue:#2B5BBE;--p-yellow:#E0B030;--p-green:#1F7A4A;--p-white:#E4E1D9;
+  --r-hero:24px;--r-panel:18px;--r-ctl:14px;
   --warn:#E6A94B;--bad:#F07167;--good:#4CC38A;
   --fig:#D5DCE5;--fig-torso:#EEF2F6;--fig-far:#5A6373;--fig-prop:#A3ACB9;--fig-prop-hi:#4F5968;--fig-floor:#C3CAD4;
   --fig-skin:#EDC4A6;--fig-skin2:#D6A584;--fig-shirt:#D8473A;--fig-shirt2:#93281F;--fig-shorts:#5C3A6E;--fig-shorts2:#35223F;--fig-hair:#1D1A22;--fig-shoe:#3A2442;--fig-shoe2:#241628;--fig-hl:#16B5AC;--fig-ghost:#2B3442;--fig-arrow:#0E8C84;--stage:linear-gradient(180deg,#F1F3F6,#E2E7ED);
@@ -417,6 +420,59 @@ body.touring #screen{padding-bottom:70vh}
 #cover{position:fixed;inset:0;z-index:101;background:radial-gradient(120% 70% at 50% 42%,#14303A 0%,var(--bg) 62%);display:grid;place-items:center;transition:opacity .3s}#cover.out{opacity:0}#cover svg{width:132px;height:132px}
 @media (prefers-reduced-motion:reduce){#splash *{animation-duration:.01s!important;animation-delay:0s!important}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* ===== design pass: chalk & plates. Rubber-floor graphite base, chalk actions, bumper-plate colours per flow, teal only for state ===== */
+h1{font-size:34px;font-stretch:118%;letter-spacing:-.025em}#app.sub h1,.full h1{font-size:28px;font-stretch:110%;letter-spacing:-.02em}h2{letter-spacing:-.02em}
+.eyebrow{font-size:13px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--muted)}
+.pill{letter-spacing:.02em;text-transform:none;font-size:12px}
+.preview .blk{letter-spacing:0;text-transform:none;font-size:13px;font-weight:700}
+.radar text,.bm text{letter-spacing:.02em;text-transform:none;font-size:11px;font-weight:600}
+.stage .sidetag{letter-spacing:.02em;text-transform:none;font-size:12px}
+.status .c-bad,.status .c-good,.status .c-top{letter-spacing:0}
+/* action vs state: the main button is a chalk slab; teal is reserved for what is selected or in progress */
+.btn{background:var(--chalk);color:var(--chalk-ink);border-radius:var(--r-ctl);font-weight:800;letter-spacing:-.005em;box-shadow:inset 0 -2px 0 rgba(0,0,0,.12)}
+.btn:active{transform:translateY(1px);box-shadow:none}
+.btn.sec{background:var(--surface2);color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+.btn:disabled{background:var(--surface2);color:var(--muted);box-shadow:none}
+/* surfaces: a radius and elevation hierarchy instead of one flat card everywhere */
+.panel,.sumrows,.whead{border-radius:var(--r-panel);box-shadow:inset 0 1px 0 rgba(255,255,255,.045)}
+.tile,.ntile,.banner,.icard{border-radius:var(--r-panel);box-shadow:inset 0 1px 0 rgba(255,255,255,.045)}
+.lcard{border-radius:16px}
+.opt,.search,.selchip,.flag{border-radius:var(--r-ctl)}
+.tile b{font-size:34px;font-stretch:118%}
+.score b{font-stretch:118%;letter-spacing:-.03em}
+/* 44pt touch targets: text links keep their look but get a full-height hit area */
+.link{min-height:44px;padding:0 2px}
+.chip{min-height:40px;padding:9px 14px}
+.seg button{min-height:40px}
+/* home: each flow card is a bumper plate, coloured like competition plates, with ring grooves and a hub behind the figure */
+.pcard{border-radius:var(--r-hero);color:#fff}
+.pcard::before{content:"";position:absolute;z-index:-2;left:50%;top:40%;width:118%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;
+  background:radial-gradient(circle,rgba(0,0,0,.22) 0 7%,rgba(255,255,255,.10) 7% 7.8%,transparent 7.8% 30%,rgba(0,0,0,.10) 30% 31%,transparent 31% 46%,rgba(0,0,0,.12) 46% 47.2%,transparent 47.2%);pointer-events:none}
+.pcard h2{font-size:34px;font-stretch:118%}
+.pcard .go{background:var(--chalk);color:var(--chalk-ink);padding:9px 20px;font-size:14px;font-weight:800;min-height:40px}
+.g-activate{background:var(--p-red)}
+.g-recover{background:var(--p-blue)}
+.g-daily{background:var(--p-green)}
+.g-target{background:var(--p-yellow);color:#1B1606}
+.g-rebuild{background:var(--p-white);color:#17181A}
+.g-target .muted,.g-rebuild .muted{color:rgba(23,24,26,.72)}
+.g-target .go,.g-rebuild .go{background:#17181A;color:var(--chalk)}
+.fcard.g-daily{background:var(--p-green)}
+.fcard{border-radius:16px;box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}.fcard small{opacity:1}
+.ph small{opacity:.85}
+.dots i.on{background:var(--chalk)}
+/* sport tiles keep their own muted colours, but drop the muddy gradient for solid tones */
+.g-a{background:#23403F}.g-b{background:#2E2B4D}.g-c{background:#463725}.g-d{background:#22402F}
+/* the session header shows the flow's plate colour */
+.whead .hero{border-radius:var(--r-panel) var(--r-panel) 0 0}
+/* tab bar: opaque rubber with a chalk tint for the current tab, the dot of teal shows where you are */
+#tabbar{background:#17181A;border-top-color:#2A2B2F}
+#tabbar button[aria-current="page"]{color:var(--chalk);position:relative}
+#tabbar button[aria-current="page"]::after{content:"";position:absolute;top:-8px;left:50%;width:22px;height:3px;margin-left:-11px;border-radius:0 0 3px 3px;background:var(--accent)}
+#tabbar button[aria-current="page"] .ic{color:var(--accent)}
+.ringbtn{background:var(--chalk);color:var(--chalk-ink)}
+.ringbtn .num{color:var(--chalk-ink)}
 </style>
 
 <div id="splash" aria-hidden="true"><div class="spl">
@@ -1831,7 +1887,7 @@ function wizHead(){
   const kd=KINDS[W.kind],sp=W.sport?SPI[W.sport]:null;
   const title=W.from?W.from:sp?sp.n:W.kind==="target"&&W.zone?AN[W.zone]:kd.sub;
   const steps=STEPS[W.kind].filter(s=>s!=="summary");
-  return `<div class="whead"><div class="hero ${sp?sp.g:kd.g}"><div class="art">${fig(sp?sp.pose:kd.pose)}</div><span style="font-size:13px;font-weight:600">${kd.n}</span><b>${esc(title)}</b></div>
+  return `<div class="whead"><div class="hero ${kd.g}"><div class="art">${fig(sp?sp.pose:kd.pose)}</div><span style="font-size:13px;font-weight:600">${kd.n}</span><b>${esc(title)}</b></div>
   <div class="adapt"><span class="eyebrow">Adapted to your</span><span class="chips">${steps.map(s=>`<span class="ach${W.done[s]?" on":""}"><span>${ic(STEPICON[s])}</span><small>${STEPCAP[s]}</small></span>`).join("")}</span></div></div>`;
 }
 SCREENS.wizard=()=>{
@@ -2018,7 +2074,7 @@ function openPlayer(items,meta){
    <div class="segbar" id="segbar">${items.map(()=>"<i><b></b></i>").join("")}</div></div>
    <div class="stage" id="stage" data-act="pStage" role="button" aria-label="Show play and reset" tabindex="0"><div id="pfig"></div><div class="dov" id="pinfo"></div><span class="sidetag" id="pside" hidden></span><div class="ov" id="pov" hidden><button data-act="pToggle">${icf("play")}<span id="povl">Play</span></button><button data-act="pReset">${ic("reset")}Reset</button></div></div>
    <div class="ptitle"><h2 id="pname"></h2><div class="meta" id="pmeta"></div></div>
-   <div style="display:grid;grid-template-rows:minmax(120px,1fr) auto;min-height:0"><div class="pcards" id="pcards"></div><div class="pdots" id="pdots"><i class="on"></i><i></i></div></div>
+   <div style="display:grid;grid-template-rows:minmax(120px,1fr) auto;min-height:0"><div class="pcards" id="pcards" tabindex="0" aria-label="Exercise details"></div><div class="pdots" id="pdots"><i class="on"></i><i></i></div></div>
    <div class="pctrl">
      <button class="easybtn ${P.easy?"on":""}" id="peasy" data-act="pEasy" aria-pressed="${P.easy}">Easy<br>Mode</button>
      <button class="sm" data-act="pPrev" aria-label="Previous stretch">${icf("prev")}</button>
