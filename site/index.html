@@ -138,7 +138,7 @@ img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;o
 .ntile{background:var(--surface);border-radius:14px;padding:14px;display:grid;gap:6px;text-align:left}
 .ntile b{font-size:16px;font-weight:800;font-stretch:112%;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .ntile .go{justify-self:start;margin-top:4px;padding:6px 14px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:13px}
-#tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(100%,480px);background:var(--bg);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:8px 16px calc(env(safe-area-inset-bottom,0px) + 8px);z-index:10}
+#tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(100%,480px);background:var(--bg);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);padding:8px 16px calc(env(safe-area-inset-bottom,0px) + 8px);z-index:10}
 #tabbar button{display:grid;justify-items:center;gap:2px;font-size:11px;font-weight:700;color:var(--muted);padding:4px}
 #tabbar button[aria-current="page"]{color:var(--accent)}
 #tabbar .ic{width:26px;height:26px}
@@ -518,7 +518,7 @@ button,a,[data-act],.chip,.opt{touch-action:manipulation;-webkit-user-select:non
 #tabbar button[aria-current="page"]{color:var(--chalk)}
 #tabbar button[aria-current="page"]::after{display:none}
 #tabbar button[aria-current="page"] .ic{color:var(--chalk)}
-#tabbar .tlens{position:absolute;z-index:0;top:6px;bottom:6px;left:6px;width:calc((100% - 12px)/4);border-radius:26px;
+#tabbar .tlens{position:absolute;z-index:0;top:6px;bottom:6px;left:6px;width:calc((100% - 12px)/3);border-radius:26px;
   transform:translateX(calc(var(--ti,0) * 100%));transition:transform 460ms var(--ease-drawer);
   background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.06));
   box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(255,255,255,.05),0 2px 10px rgba(0,0,0,.25)}
@@ -549,6 +549,8 @@ button,a,[data-act],.chip,.opt{touch-action:manipulation;-webkit-user-select:non
 .dcard .art :is(svg,img,canvas),.flowcard .art :is(svg,img,canvas){max-height:100%;max-width:100%;width:auto;height:100%;object-fit:contain}
 .dcard .art{inset:8px 8px 8px 46%}
 .flowcard{height:190px}.flowcard .art{inset:8px 8px 58px 8px}
+.g-library{background:linear-gradient(180deg,#2C2E33,#1C1D21);color:var(--chalk);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}
+.g-library.pcard::before{background:radial-gradient(circle,rgba(255,255,255,.05) 0 7%,transparent 7% 30%,rgba(255,255,255,.05) 30% 31%,transparent 31% 46%,rgba(255,255,255,.06) 46% 47.2%,transparent 47.2%)}
 </style>
 
 <div id="splash" aria-hidden="true"><div class="spl">
@@ -560,7 +562,6 @@ button,a,[data-act],.chip,.opt{touch-action:manipulation;-webkit-user-select:non
 <div id="app"><div id="screen"></div></div>
 <nav id="tabbar" aria-label="Main"><i class="tlens" aria-hidden="true"></i>
   <button data-act="tab" data-t="home"></button>
-  <button data-act="tab" data-t="library"></button>
   <button data-act="tab" data-t="rebuild"></button>
   <button data-act="tab" data-t="profile"></button>
 </nav>
@@ -1744,12 +1745,13 @@ function bodyMap(zones){
 }
 
 /* ================= plan builder ================= */
-const HOME_KINDS=["activate","recover","daily","rebuild"];
+const HOME_KINDS=["activate","recover","daily","rebuild","library"];
 const KINDS={
  activate:{n:"Activate",sub:"Before training",g:"g-activate",pose:"squat"},
  recover:{n:"Recover",sub:"After training",g:"g-recover",pose:"pigeon"},
  daily:{n:"Daily",sub:"At home",g:"g-daily",pose:"s9090"},
  target:{n:"Target",sub:"Per body zone",g:"g-target",pose:"child"},
+ library:{n:"Library",sub:"Every exercise",g:"g-library",pose:"crossBody"},
  rebuild:{n:"Rebuild",sub:"Pain-guided rehab",g:"g-rebuild",pose:"r_birddog"},
 };
 // how much a session loads each area: each movement counts by how hard it was done (mw: heavy lifts ~2x, warm-up/accessory ~0.5x),
@@ -1875,7 +1877,7 @@ function back(){const top=stack[stack.length-1];
   if(stack.length>1)stack.pop();render();push(-1)}
 // finger swipes: on a main tab, swipe sideways to the next or previous tab; on any deeper screen, swipe right to go back.
 // Swipes that start on something that scrolls sideways itself (the cards, the flows, a 3D figure) or inside a sheet are left alone
-(()=>{const TABS=["home","library","rebuild","profile"];let t=null;
+(()=>{const TABS=["home","rebuild","profile"];let t=null;
  const skip=el=>el.closest(".carousel,.hscroll,.pcards,canvas,input,textarea,select,.sheet,#tabbar,#layer > *,#tour,[data-noswipe]");
  document.addEventListener("touchstart",e=>{if(e.touches.length!==1||TOUR||$("#layer").children.length||skip(e.target)){t=null;return}
   const x=e.touches[0].clientX;if(!navigator.standalone&&x<24){t=null;return} // in Safari the left edge is Safari's own back swipe
@@ -1897,8 +1899,8 @@ function render(){
   $("#screen").innerHTML=SCREENS[top.name](top.p);
   const root=stack.length===1;
   $("#tabbar").hidden=!root;$("#app").classList.toggle("sub",!root);
-  const tabs={library:["grid","Library"],home:["home","Today"],rebuild:["heart","Rebuild"],training:["cal","Training"],profile:["user","Profile"]};
-  const ti=["home","library","rebuild","profile"].indexOf(stack[0].name);$("#tabbar").style.setProperty("--ti",Math.max(0,ti));
+  const tabs={home:["home","Today"],rebuild:["heart","Rebuild"],training:["cal","Training"],profile:["user","Profile"]};
+  const ti=["home","rebuild","profile"].indexOf(stack[0].name);$("#tabbar").style.setProperty("--ti",Math.max(0,ti));
   document.querySelectorAll("#tabbar button").forEach(b=>{const[icn,l]=tabs[b.dataset.t];b.innerHTML=ic(icn)+l;b.toggleAttribute("aria-current",false);if(b.dataset.t===stack[0].name)b.setAttribute("aria-current","page")});
   (AFTER[top.name]||(()=>{}))(top.p);
   rbKeepDraft(top.name);
@@ -1945,6 +1947,7 @@ AFTER.home=()=>{
 ACT.startKind=d=>{
   const k=d.kind;
   if(k==="rebuild"){ACT.tab({t:"rebuild"});return}
+  if(k==="library"){go("library");return}
   // Recover goes straight to everything you logged a score for today (from SugarWOD or added by hand)
   if(k==="recover"){const td=loggedToday();if(td.length){recoverFrom(td);return}
     const tw=S.training.find(w=>w.date===todayIso()&&w.moves.length);if(tw){recoverFrom([tw]);return}}
@@ -2437,7 +2440,7 @@ ACT.routineAdd=()=>{const r=RT_IN;if(!r)return;const map={};
   // the sender's own exercises join yours under a fresh id unless you already have the same one
   r.own.forEach(e=>{const mine=S.myEx.find(m=>m.n===e.n);if(mine){map[e.id]=mine.id;return}const id="mx"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);const x={id,n:e.n,fig:e.fig,c:e.c};S.myEx.push(x);regMyEx(x);map[e.id]=id});
   S.myProtocols.push({id:"p"+Date.now().toString(36),kind:"routine",name:r.name,notes:r.notes,from:"Shared with you",freq:"",test:{n:"",how:"",side:true,fig:null},items:r.items.map(it=>({id:map[it.id]||it.id,dose:it.dose})),created:Date.now(),logs:[]});
-  RT_IN=null;save();closeSheet();stack=[{name:"library",p:{}}];render();scrollTo(0,0)};
+  RT_IN=null;save();closeSheet();stack=[{name:"home",p:{}},{name:"library",p:{}}];render();scrollTo(0,0)};
 ACT.routinePaste=async()=>{let t="";try{t=await navigator.clipboard.readText()}catch(e){}
   const r=parseRoutine(t);if(r)return offerRoutine(r);
   sheet(`<h3>Add a shared routine</h3><div class="scroll"><p class="muted" style="margin:0;font-size:14px">Paste the link someone sent you.</p><textarea id="rtLink" class="field" rows="4" style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px;font-size:13px"></textarea><p id="rtMsg" class="c-bad" style="margin:0;font-size:14px"></p></div>
@@ -2449,7 +2452,7 @@ const routinesPanel=()=>{const rs=myRoutines();return`<div class="stack" style="
    <p class="muted" style="margin:0;font-size:13px">${p.items.length} exercise${p.items.length===1?"":"s"} · about ${m} min${p.from?` · ${esc(p.from)}`:""}</p>
    <p style="margin:0;font-size:14px">${p.items.map(it=>LIBI[it.id]).filter(Boolean).map(e=>esc(e.n)).join(" · ")}</p>
    <div class="frow"><button class="btn" data-act="routineStart" data-id="${p.id}">${icf("play")}Start</button><button class="btn sec" data-act="routineShare" data-id="${p.id}">Share</button></div></div>`}).join(""):`<button class="panel" data-act="routineNew" style="text-align:left"><b>Build your own routine</b><span class="muted" style="font-size:14px">Pick exercises from the library, set holds or reps, then share it with a link.</span></button>`}</div>`};
-SCREENS.library=()=>`<div class="hdr" style="grid-template-columns:1fr"><div class="brand">Range<b>.</b></div></div>
+SCREENS.library=()=>`${stack.length>1?hdr():`<div class="hdr" style="grid-template-columns:1fr"><div class="brand">Range<b>.</b></div></div>`}
   <div class="stack" style="padding-top:8px">
   <h1>Library</h1>
   ${libQ?"":routinesPanel()}
@@ -4536,9 +4539,9 @@ ACT.edSave=()=>{readEd();
   if(!ED.items.length){$("#edMsg").textContent="Add at least one exercise.";return}
   if(ED.id){const i=S.myProtocols.findIndex(x=>x.id===ED.id);S.myProtocols[i]={...S.myProtocols[i],...ED}}
   else S.myProtocols.push({...ED,id:"p"+Date.now().toString(36),created:Date.now(),logs:[]});
-  const home=ED.kind==="routine"?"library":"rebuild";save();ED=null;stack=[{name:home,p:{}}];render();scrollTo(0,0)};
+  const home=ED.kind==="routine"?"library":"rebuild";save();ED=null;stack=home==="library"?[{name:"home",p:{}},{name:"library",p:{}}]:[{name:home,p:{}}];render();scrollTo(0,0)};
 ACT.edDel=()=>sheet(`<h3>Delete this ${ED.kind==="routine"?"routine":"protocol"}?</h3><div class="scroll"><p class="muted" style="margin:0">${ED.kind==="routine"?"Links you already shared keep working.":"Its pain log is deleted too."}</p></div><div style="display:grid;gap:8px"><button class="btn" style="background:var(--bad)" data-act="edDelYes">Delete</button><button class="btn sec" data-act="closeSheet">Keep it</button></div>`);
-ACT.edDelYes=()=>{const home=ED.kind==="routine"?"library":"rebuild";S.myProtocols=S.myProtocols.filter(x=>x.id!==ED.id);save();ED=null;closeSheet();stack=[{name:home,p:{}}];render()};
+ACT.edDelYes=()=>{const home=ED.kind==="routine"?"library":"rebuild";S.myProtocols=S.myProtocols.filter(x=>x.id!==ED.id);save();ED=null;closeSheet();stack=home==="library"?[{name:"home",p:{}},{name:"library",p:{}}]:[{name:home,p:{}}];render()};
 ACT.myStart=d=>{const p=S.myProtocols.find(x=>x.id===d.id);if(!p)return;
   const run=t=>openPlayer(p.items.filter(it=>LIBI[it.id]).map(it=>({id:it.id,dose:it.dose})),{kind:"rehab",title:p.name,proto:p.id,...t});
   if(p.test&&p.test.n)testSheet({n:p.test.n,how:p.test.how,fig:p.test.fig,side:p.test.side,optional:true},run);else run({testPain:null})};
@@ -5255,7 +5258,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="7875761";
+<script>window.RANGE_BUILD="74601385";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
