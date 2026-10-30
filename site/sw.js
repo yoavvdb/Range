@@ -1,5 +1,5 @@
 // Offline support: the app shell is cached on install; fonts are cached the first time they load.
-const CACHE = "range-79358258";
+const CACHE = "range-11956282";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png", "three.module.min.js"];
 
 self.addEventListener("install", (e) => {
@@ -18,6 +18,7 @@ self.addEventListener("fetch", (e) => {
   const isFont = url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com";
   if (url.origin !== location.origin && !isFont) return;
   if (url.pathname.endsWith(".enc")) return; // the SugarWOD sync file always comes from the network
+  if (url.pathname.endsWith("/wod.json")) return; // the workout feed always comes from the network
   if (url.pathname.startsWith("/api/")) return; // account data is never cached (it is per person and changes)
   // Network first for the page (so updates arrive), cache first for everything else.
   if (req.mode === "navigate") {

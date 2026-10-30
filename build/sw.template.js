@@ -18,6 +18,7 @@ self.addEventListener("fetch", (e) => {
   const isFont = url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com";
   if (url.origin !== location.origin && !isFont) return;
   if (url.pathname.endsWith(".enc")) return; // the SugarWOD sync file always comes from the network
+  if (url.pathname.endsWith("/wod.json")) return; // the workout feed always comes from the network
   if (url.pathname.startsWith("/api/")) return; // account data is never cached (it is per person and changes)
   // Network first for the page (so updates arrive), cache first for everything else.
   if (req.mode === "navigate") {

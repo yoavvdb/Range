@@ -1,6 +1,7 @@
-# Every hour: log in to SugarWOD with your secrets, read the whiteboard, encrypt it with RANGE_SYNC_KEY,
-# and publish it with the Range app on GitHub Pages. Logs show counts only, never workouts or credentials.
-name: SugarWOD sync
+# Deploys the app, and every hour refreshes the gym's public workout feed (wod.json). No login, no API key,
+# no secrets: the programme is the same public feed the gym's own website embed reads.
+# (The old version logged in to SugarWOD with a password and published an encrypted file; that is gone.)
+name: Workout feed
 
 on:
   schedule:
@@ -20,7 +21,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  sync-and-publish:
+  feed-and-publish:
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -31,44 +32,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-          cache-dependency-path: sugarwod-sync/package-lock.json
-
-      # the browser download is cached between runs, so most hourly runs skip it
-      - uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('sugarwod-sync/package-lock.json') }}
-
-      - name: Install the sync tool
-        working-directory: sugarwod-sync
-        run: |
-          npm ci
-          npx playwright install --with-deps chromium
 
       - id: pages
         uses: actions/configure-pages@v5
 
-      - name: Keep the previous sync file (history is merged, not replaced)
-        run: curl -fsSL "${{ steps.pages.outputs.base_url }}/sugarwod.json.enc" -o site/sugarwod.json.enc || echo "No previous file yet"
+      - name: Keep the previous feed (used if SugarWOD doesn't answer)
+        run: curl -fsSL "${{ steps.pages.outputs.base_url }}/wod.json" -o site/wod.json || echo "No previous feed yet"
 
-      - name: Read your SugarWOD whiteboard
-        working-directory: sugarwod-sync
+      - name: Read the gym's public workouts
         continue-on-error: true
-        env:
-          SUGARWOD_EMAIL: ${{ secrets.SUGARWOD_EMAIL }}
-          SUGARWOD_PASSWORD: ${{ secrets.SUGARWOD_PASSWORD }}
-          RANGE_SYNC_KEY: ${{ secrets.RANGE_SYNC_KEY }}
-          # optional: "time to recover" push when a new score shows up (see README)
-          VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
-          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
-          PUSH_SUBSCRIPTION: ${{ secrets.PUSH_SUBSCRIPTION }}
-        run: node src/cli.js ci-sync --out ../site/sugarwod.json.enc --back 7 --ahead 7
-
-      - name: Publish the public push key (lets your phone subscribe to notifications)
-        env:
-          VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
-        run: if [ -n "$VAPID_PUBLIC_KEY" ]; then printf '%s' "$VAPID_PUBLIC_KEY" > site/push-key.txt; fi
+        run: node wod-feed/fetch.mjs site/wod.json
 
       - uses: actions/upload-pages-artifact@v3
         with:

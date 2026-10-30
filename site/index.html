@@ -525,6 +525,7 @@ button,a,[data-act],.chip,.opt{touch-action:manipulation;-webkit-user-select:non
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){#tabbar{background:rgba(30,31,35,.96)}}
 @media (prefers-reduced-transparency:reduce){#tabbar{background:#1E1F23;-webkit-backdrop-filter:none;backdrop-filter:none}}
 #app{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 104px)}
+.stephead.x3{grid-template-columns:36px 1fr auto;align-items:center}.stephead.x3 p{margin:2px 0 0;color:var(--muted);font-size:14px}
 </style>
 
 <div id="splash" aria-hidden="true"><div class="spl">
@@ -1912,7 +1913,8 @@ ACT.startKind=d=>{
   const k=d.kind;
   if(k==="rebuild"){ACT.tab({t:"rebuild"});return}
   // Recover goes straight to everything you logged a score for today (from SugarWOD or added by hand)
-  if(k==="recover"){const td=loggedToday();if(td.length){recoverFrom(td);return}}
+  if(k==="recover"){const td=loggedToday();if(td.length){recoverFrom(td);return}
+    const tw=S.training.find(w=>w.date===todayIso()&&w.moves.length);if(tw){recoverFrom([tw]);return}}
   // Activate goes straight to your next workout's movements
   if(k==="activate"){const nx=nextWorkout();if(nx){prepFor(nx);return}}
   if(k==="activate"||k==="recover")go("sport",{kind:k});
@@ -1940,15 +1942,13 @@ const STEPS={activate:["moves","time","equip","summary"],recover:["moves","time"
 const STEPICON={moves:"move",time:"clock",equip:"equip",zone:"target"},STEPCAP={moves:"Workout",time:"Time",equip:"Kit",zone:"Zone"};
 function startWizard(o){
   W={hist:[],kind:o.kind,mw:o.mw||null,sport:o.sport||null,moves:o.moves?o.moves.slice():o.sport?(S.moves[o.sport]||[]).slice():[],from:o.from||null,minutes:null,equip:S.equip.slice(),zone:null,step:0,done:{}};
-  // Coming from a logged workout: movements are already known, start at the time step
-  if(o.moves&&o.moves.length&&STEPS[W.kind][0]==="moves"){W.done.moves=true;W.step=1}
-  // auto: your usual time and equipment, straight to the chosen exercises (every choice stays editable there)
-  if(o.auto&&W.done.moves){W.minutes=(S.lastMin||{})[W.kind]||10;W.done.time=W.done.equip=true;W.step=STEPS[W.kind].indexOf("summary")}
+  // Activate and Recover always open on the movements: today's workout is already filled in, and you can take some out
+  // or add others to warm up (or release) for something else
   if(W.minutes==null)W.minutes=(S.lastMin||{})[W.kind]||null;
   go("wizard",{});
 }
 // which workout movements this session warms up for (Activate) or releases after (Recover)
-function forLine(){if(!(W.kind==="activate"||W.kind==="recover")||!W.moves.length)return"";const m=W.moves.slice(0,4),more=W.moves.length-m.length;
+function forLine(){if(!(W.kind==="activate"||W.kind==="recover")||!W.moves.length||STEPS[W.kind][W.step]==="moves")return"";const m=W.moves.slice(0,3),more=W.moves.length-m.length;
   const list=m.join(", ").replace(/, ([^,]+)$/,more?", $1":" and $1")+(more?` +${more}`:"");
   return`<span style="font-size:14px;font-weight:600;line-height:1.3">${W.kind==="activate"?"Warm-up for":"Release after"} ${esc(list)}</span>`}
 function wizHead(){
@@ -1964,9 +1964,9 @@ SCREENS.wizard=()=>{
   if(step==="moves"){
     const sp=W.sport?SPI[W.sport]:null;
     const sugg=(sp?sp.m:Object.keys(MOVES)).filter(m=>!W.moves.includes(m)).slice(0,8);
-    body=`<div class="stephead"><span class="bub">${ic("move")}</span><div><h3>${W.kind==="recover"?"What did you train today?":"Your workout movements"}</h3><p>${W.kind==="recover"?"Your Recover protocol targets the joints these movements loaded.":"Your Activate protocol prepares the joints these movements need."}</p></div></div>
-    ${W.moves.length?`<div class="mlist">${W.moves.map(m=>`<div><span>${esc(m)}</span><button data-act="rmMove" data-m="${esc(m)}" aria-label="Remove ${esc(m)}">${ic("x")}</button></div>`).join("")}</div>`:`<p class="muted" style="margin:0">Add the movements in today's session.</p>`}
-    ${sugg.length?`<div class="stack" style="gap:8px"><span class="eyebrow">Quick add</span><div class="chipset">${sugg.map(m=>`<button class="chip" data-act="addMove" data-m="${esc(m)}">${ic("plus")}${esc(m)}</button>`).join("")}</div></div>`:""}`;
+    body=`<div class="stephead x3"><span class="bub">${ic("move")}</span><div><h3>${W.kind==="recover"?"Release after":"Warm up for"}</h3>${W.from?`<p>${esc(W.from)}</p>`:""}</div>${W.moves.length>1?`<button class="link" data-act="clearMoves">Clear</button>`:""}</div>
+    ${W.moves.length?`<div class="mlist">${W.moves.map(m=>`<div><span>${esc(m)}</span><button data-act="rmMove" data-m="${esc(m)}" aria-label="Remove ${esc(m)}">${ic("x")}</button></div>`).join("")}</div>`:`<p class="muted" style="margin:0">Add what you're training.</p>`}
+    ${sugg.length?`<div class="stack" style="gap:8px"><span class="eyebrow">Add</span><div class="chipset">${sugg.map(m=>`<button class="chip" data-act="addMove" data-m="${esc(m)}">${ic("plus")}${esc(m)}</button>`).join("")}</div></div>`:""}`;
     cta=`<button class="btn sec" data-act="moveSheet">${ic("plus")}Add movement</button><button class="btn" data-act="wNext" ${W.moves.length?"":"disabled"}>Next</button>`;
   }
   if(step==="time"){
@@ -2015,6 +2015,7 @@ ACT.pickTime=d=>{W.minutes=+d.m;S.lastMin={...(S.lastMin||{}),[W.kind]:W.minutes
 ACT.pickArea=d=>{W.zone=d.a;render();setTimeout(ACT.wNext,REDUCED?0:220)};
 ACT.togEq=d=>{const i=W.equip.indexOf(d.e);if(i>=0)W.equip.splice(i,1);else W.equip.push(d.e);render()};
 ACT.addMove=d=>{if(!W.moves.includes(d.m))W.moves.push(d.m);render()};
+ACT.clearMoves=()=>{W.moves=[];render()};
 ACT.rmMove=d=>{W.moves=W.moves.filter(m=>m!==d.m);render()};
 /* editing the chosen exercises on the summary */
 function wSync(){const p=W.plan;p.blocks=(p.blocks||[{name:"",items:p.items}]).filter(b=>b.items.length);p.items=p.blocks.flatMap(b=>b.items);p.secs=p.items.reduce((t,it)=>t+itemSecs(it),0);const y=scrollY;render();scrollTo(0,y);
@@ -3762,11 +3763,11 @@ const ALIASES=[
  ["Bar Muscle-up",/bar muscle[- ]?ups?|\bbmus?\b/],
  ["Ring Muscle-up",/(ring )?muscle[- ]?ups?|\brmus?\b/],
  ["Handstand Push-up",/handstand push[- ]?ups?|\bhspus?\b/],
- ["Handstand Walk",/handstand walk(ing|s)?|\bhs ?walks?\b/],
+ ["Handstand Walk",/handstand walk(ing|s)?|\bhs ?walks?\b|\bhsw\b/],
  ["Pull-up",/pull[- ]?ups?/],
  ["Toes-to-bar",/toes[- ]to[- ]bar|\bt2b\b|\bttb\b/],
  ["Rope Climb",/rope climbs?/],
- ["Kettlebell Swing",/(kettlebell|kb|american|russian) swings?/],
+ ["Kettlebell Swing",/(kettlebell|kb|american|russian) swings?|\b(russian |american )?kbs\b/],
  ["Box Jump",/box jump( over)?s?|\bbjos?\b/],
  ["Pistol",/pistols?/],
  ["Bulgarian Split Squat",/bulgarian split squats?|\bbss\b|split squats?/],
@@ -3815,7 +3816,8 @@ function upcoming(){return S.training.filter(w=>!isPast(w)).sort((a,b)=>a.date.l
 function past(){return S.training.filter(isPast).sort((a,b)=>b.date.localeCompare(a.date))}
 // did you actually do it? A synced day is only your gym's programme until you log a score or tick it done;
 // workouts you add yourself count as done once their day has passed (or when ticked)
-const didIt=w=>!!w.result||!!w.marked||(w.source!=="sugarwod-auto"&&!!w.done);
+const isSynced=w=>w.source==="sugarwod-auto"||w.source==="sugarwod-public";
+const didIt=w=>!!w.result||!!w.marked||(!isSynced(w)&&!!w.done);
 // the day you actually did a session: when you logged its score if that's later than its programmed date
 // (catching up on missed days means doing the 5 Oct programme on the 14th and logging it under the 5th)
 const isoLocal=t=>{const d=new Date(t);return isNaN(d)?"":`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`};
@@ -3835,7 +3837,7 @@ const recLabel=rec=>`Recover · ${dayLabel(doneDay(rec[0]))}${rec.length>1?` · 
 function recentLoad(){
   const t=todayIso(),wt=[1,.8,.5,.3],load={};AREAS.forEach(a=>load[a.k]=0);
   // done, or a workout you added yourself for today or the last few days (logging it means you did it)
-  S.training.forEach(w=>{if(w.example||!(didIt(w)||(w.source!=="sugarwod-auto"&&w.date<=t)))return;const ago=daysFrom(doneDay(w),t);if(ago<0||ago>3)return;const d=demandOf(w.moves,moveWeights(w));for(const k in d)load[k]+=d[k]*wt[ago]});
+  S.training.forEach(w=>{if(w.example||!(didIt(w)||(!isSynced(w)&&w.date<=t)))return;const ago=daysFrom(doneDay(w),t);if(ago<0||ago>3)return;const d=demandOf(w.moves,moveWeights(w));for(const k in d)load[k]+=d[k]*wt[ago]});
   return load;
 }
 function wShort(w){const t=wTitle(w).split(/\s*[·|•]\s*/).filter(Boolean).pop()||"Your next workout";return t.length>32?t.slice(0,30).trim()+"…":t}
@@ -3851,7 +3853,7 @@ ACT.prepNext=()=>{const n=nextSession();if(n)prepFor(n)};
 ACT.recoverRecent=()=>{const r=recentSessions();if(r.length)recoverFrom(r)};
 ACT.prepW=d=>{const w=S.training.find(x=>x.id===d.id);if(w)prepFor(w)};
 ACT.recW=d=>{const w=S.training.find(x=>x.id===d.id);if(!w)return;const same=didIt(w)?sessionsDoneOn(doneDay(w)).filter(x=>x.moves.length):[];recoverFrom(same.length>1&&same.includes(w)?same:[w])};
-ACT.doneW=d=>{const w=S.training.find(x=>x.id===d.id);if(!w)return;if(isPast(w)&&w.source==="sugarwod-auto"&&!w.result)w.marked=!w.marked;else{w.done=!w.done;w.marked=w.done}save();render()};
+ACT.doneW=d=>{const w=S.training.find(x=>x.id===d.id);if(!w)return;if(isPast(w)&&isSynced(w)&&!w.result)w.marked=!w.marked;else{w.done=!w.done;w.marked=w.done}save();render()};
 
 /* Back from a break: a gap of 7+ days since the last session with scores.
    Detraining research: strength holds for ~2-3 weeks off, but tissue tolerance and bar speed drop sooner,
@@ -3978,49 +3980,64 @@ function mergeRows(rows,source){
     const plan=w.result&&S.training.find(x=>x.date===w.date&&x.source===source&&!x.result);
     if(plan){plan.title=w.title||"";plan.text=w.text||"";plan.result=w.result;plan.loggedAt=w.loggedAt||null;plan.moves=parseMoves(plan.title+"\n"+plan.text);have.add(key(w));if(doneDay(plan)>=recent)fresh.push(plan);return}
     have.add(key(w));added++;
-    const row={id:"i"+Date.now().toString(36)+i,date:w.date,title:w.title||"",text:w.text||"",result:w.result||"",loggedAt:w.loggedAt||null,source,moves:parseMoves((w.title||"")+"\n"+(w.text||"")),done:w.date<todayIso()};
+    const row={id:"i"+Date.now().toString(36)+i,date:w.date,title:w.title||"",text:w.text||"",result:w.result||"",loggedAt:w.loggedAt||null,source,moves:parseMoves((w.title||"")+"\n"+(w.text||"")+"\n"+(w.extra||"")),done:w.date<todayIso()};
     S.training.push(row);if(row.result&&doneDay(row)>=recent)fresh.push(row);
   });
   return{total:rows.length,added,skipped,fresh};
 }
-/* ---- SugarWOD auto-sync ----
-   A scheduled GitHub workflow logs in to SugarWOD, reads the whiteboard and publishes an encrypted file
-   (sugarwod.json.enc) next to the installed app. Range decrypts it here with your passphrase (AES-GCM,
-   PBKDF2) and merges new workouts. The passphrase stays on this device. */
-const SYNC_FILE="sugarwod.json.enc";
+/* ---- Workout feed ----
+   An hourly GitHub workflow reads the gym's public workout feed (no login, no key) and publishes it as wod.json
+   next to the app. Range loads it here, keeps your chosen track (RX-Club by default) and turns each day into a workout. */
+const SYNC_FILE="wod.json";
 let syncAvail=null; // null = unknown, true/false after the first check
+// AES-GCM + PBKDF2 unseal: used by the encrypted GitHub backup of your own data
 async function unsealBox(box,pass){
   const u=b=>Uint8Array.from(atob(b),c=>c.charCodeAt(0)),enc=new TextEncoder();
   const base=await crypto.subtle.importKey("raw",enc.encode(pass),"PBKDF2",false,["deriveKey"]);
   const key=await crypto.subtle.deriveKey({name:"PBKDF2",salt:u(box.salt),iterations:box.iter||250000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["decrypt"]);
   return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM",iv:u(box.iv)},key,u(box.ct))));
 }
+const FEED_SKIP=/^(rest day|full rest day)$/i;
+function feedRows(data,track){
+  const rows=[];
+  for(const [date,items] of Object.entries(data.days||{})){
+    const mine=(items||[]).filter(w=>w.track===track).sort((a,b)=>(a.order||0)-(b.order||0));
+    if(!mine.length)continue;
+    const body=mine.filter(w=>w.text);
+    const title=(body.length?body:mine).slice(0,2).map(w=>w.title.replace(/:$/,"")).filter(Boolean).join(" + ")||"Workout";
+    const text=mine.map(w=>(w.title?w.title+"\n":"")+(w.text||"")).join("\n\n");
+    // the gym's own movement tags are loose ("Clean" on a clean prep), so they only fill in when the text names nothing we know
+    const extra=parseMoves(title+"\n"+text).length?"":mine.flatMap(w=>w.movements||[]).join("\n");
+    rows.push({date,title,text,extra});
+  }
+  return rows;
+}
 async function autoSync(force){
   if(API)return acctPull(force);
   S.sync=S.sync||{};
-  if(!force&&S.sync.checked&&Date.now()-S.sync.checked<20*60e3)return;
-  let box;
-  try{const r=await fetch(SYNC_FILE+"?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;box=await r.json();syncAvail=box&&box.format==="range-sealed/1"}catch(e){syncAvail=false}
-  if(!syncAvail||!S.sync.key){if(stack[stack.length-1].name==="profile")render();return}
+  if(!force&&S.sync.feed&&S.sync.checked&&Date.now()-S.sync.checked<20*60e3)return; // the first run of the new feed always goes through
+  let data;
+  try{const r=await fetch(SYNC_FILE+"?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;data=await r.json();syncAvail=!!(data&&data.format==="range-wod/1")}catch(e){syncAvail=false}
+  if(!syncAvail){if(stack[stack.length-1].name==="profile")render();return}
   try{
-    const data=await unsealBox(box,S.sync.key);
-    const rows=(data.workouts||[]).map(w=>({date:w.date,title:w.title,text:w.text,result:w.result,loggedAt:w.loggedAt}));
-    const r=mergeRows(rows,"sugarwod-auto");
-    // the file is the whiteboard as it is now: drop synced programming for today onward that the gym has since changed or removed
-    // (unless you scored it or ticked it), so the next session is never an outdated version
-    const inFile=new Set(rows.map(wKey)),last=rows.reduce((m,w)=>w.date>m?w.date:m,"");
-    if(rows.length)S.training=S.training.filter(w=>!(w.source==="sugarwod-auto"&&w.date>=todayIso()&&w.date<=last&&!w.result&&!w.marked&&!inFile.has(wKey(w))));
-    S.sync={...S.sync,checked:Date.now(),syncedAt:data.syncedAt||null,count:(data.workouts||[]).length,lastAdded:r.added,error:""};
-    if(r.fresh.length)recoverNudge(r.fresh);
-  }catch(e){S.sync={...S.sync,checked:Date.now(),error:"The passphrase doesn't open the sync file. Use the RANGE_SYNC_KEY saved in GitHub. If you just changed it there, the file switches to the new one at the next sync (hourly, or run it now: GitHub → Actions → SugarWOD sync → Run workflow)."}}
+    // the tracks the gym programs, biggest first; RX-Club unless you picked another
+    const cnt={};Object.values(data.days||{}).forEach(l=>l.forEach(w=>{if(w.track)cnt[w.track]=(cnt[w.track]||0)+1}));
+    const tracks=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]);
+    let track=S.sync.track;if(!track||!tracks.includes(track))track=tracks.includes("RX-Club")?"RX-Club":tracks[0]||"";
+    const rows=feedRows(data,track);
+    // the feed is the whiteboard as it is now: drop earlier synced programming (the old login sync included) that is no longer on it,
+    // unless you ticked it, so the next session is never an outdated version
+    const inFeed=new Set(rows.map(w=>wKey({date:w.date,title:w.title,text:w.text})));
+    S.training=S.training.filter(w=>!((w.source==="sugarwod-public"||(w.source==="sugarwod-auto"&&w.date>=todayIso()))&&!w.result&&!w.marked&&!inFeed.has(wKey(w))));
+    const r=mergeRows(rows,"sugarwod-public");
+    S.sync={...S.sync,feed:1,track,tracks,checked:Date.now(),syncedAt:data.fetchedAt||null,count:rows.length,lastAdded:r.added,error:""};
+  }catch(e){S.sync={...S.sync,checked:Date.now(),error:"Couldn't read the workout feed."}}
   save();const top=stack[stack.length-1].name;if(top==="profile"||top==="home")render();
 }
 const agoText=t=>{if(!t)return"never";const m=Math.round((Date.now()-new Date(t))/6e4);return m<2?"just now":m<60?`${m} min ago`:m<1440?`${Math.round(m/60)} h ago`:`${Math.round(m/1440)} d ago`};
-ACT.syncKey=()=>sheet(`<h3>Connect SugarWOD auto-sync</h3><div class="scroll"><p class="muted" style="margin:0;font-size:14px">Enter the passphrase you saved as <b>RANGE_SYNC_KEY</b> in your GitHub repository. It stays on this device and is only used to unlock your workouts.</p>
-  <label class="field"><span class="eyebrow">Passphrase</span><input id="skey" type="password" autocomplete="off" value="${esc((S.sync||{}).key||"")}"></label><p id="skMsg" class="muted" style="margin:0;font-size:14px" aria-live="polite"></p></div>
-  <div style="display:grid;gap:8px"><button class="btn" data-act="syncSave">Save and sync now</button>${(S.sync||{}).key?`<button class="btn sec" data-act="syncForget">Disconnect</button>`:""}</div>`);
-ACT.syncSave=async()=>{const k=$("#skey").value.trim();if(!k){$("#skMsg").textContent="Enter the passphrase first.";return}S.sync={...(S.sync||{}),key:k,checked:0};save();$("#skMsg").textContent="Syncing…";await autoSync(true);$("#skMsg").textContent=S.sync.error||(syncAvail?`Synced. ${S.sync.count} workouts in the file, ${S.sync.lastAdded} new.`:"No sync file found next to this app yet. Run the workflow on GitHub once.");if(!S.sync.error&&syncAvail)setTimeout(closeSheet,900)};
-ACT.syncForget=()=>{S.sync={};save();closeSheet();render()};
+ACT.syncKey=()=>{const sy=S.sync||{},tr=sy.tracks||[];if(!tr.length)return;
+  sheet(`<h3>Your SugarWOD track</h3><div class="scroll"><div class="stack" style="gap:10px">${tr.map(t=>`<button class="opt ${t===sy.track?"on":""}" data-act="syncTrack" data-t="${esc(t)}"><span>${esc(t)}</span><span class="radio"></span></button>`).join("")}</div></div>`)};
+ACT.syncTrack=async d=>{S.sync={...(S.sync||{}),track:d.t,checked:0};save();closeSheet();SYNCING=true;render();try{await autoSync(true)}finally{SYNCING=false;render()}};
 // Sync button: spins while it works, then says what happened for a few seconds
 let SYNCING=false,syncDone=0;
 const syncBtn=()=>SYNCING?`<button class="syncbtn busy" disabled aria-live="polite">${ic("sync")}${SYNCING==="sugarwod"?"Reading SugarWOD…":"Syncing…"}</button>`:Date.now()-syncDone<4000?`<button class="syncbtn ok" data-act="syncNow">${ic("check")}${(S.sync||{}).error?"Check the message":"Up to date"}</button>`:`<button class="syncbtn" data-act="syncNow">${ic("sync")}Sync now</button>`;
@@ -4499,15 +4516,9 @@ function radar(sc){
 const KN={activate:"Activate",recover:"Recover",daily:"Daily",target:"Target",single:"Single stretch"};
 // SugarWOD connection, one row on Profile (workouts arrive by themselves and feed Activate, Recover and the load bars)
 function sugarRow(){const sy=S.sync||{};
-    if(API)return connPanel();
-    if(syncAvail===false&&!sy.key&&sy.preload)return`<div class="panel" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-block:12px"><span style="font-size:14px;font-weight:600">SugarWOD</span><span class="muted" style="font-size:13px">Synced ${agoText(sy.preload.syncedAt)}</span></div>`;
-    if(syncAvail===false&&!sy.key)return`<div class="panel"><span class="eyebrow">SugarWOD auto-sync</span><div style="font-size:14px">Want your whiteboard to arrive here by itself every hour? It takes a one-time setup (see the README). Until then, use Import.</div></div>`;
-    // a sync file next to the app but no passphrase on this phone (a new phone, or signed out and back in): a small Connect row,
-    // so the Sync now card is one tap away again. Nothing while there's no sync file (or it's still being checked)
-    if(!sy.key)return syncAvail?`<div class="panel" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-block:12px"><span class="eyebrow" style="margin:0">SugarWOD auto-sync</span><button class="syncbtn" data-act="syncKey">${ic("sync")}Connect</button></div>`:"";
-    // connected: one row (name, last sync, Sync). The passphrase link only shows when something needs fixing; tapping the name also opens it
-    return`<div class="panel" style="gap:8px;padding-block:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><button data-act="syncKey" style="display:grid;text-align:left;min-height:44px;align-content:center" aria-label="SugarWOD settings"><span style="font-size:14px;font-weight:600">SugarWOD</span><span class="${sy.error?"c-bad":"muted"}" style="font-size:12px">${sy.error?"Needs attention":syncAvail===false?"No sync file found":`Synced ${agoText(sy.checked)}`}</span></button>${syncBtn()}</div>
-      ${sy.error||syncAvail===false?`<div style="font-size:13px">${sy.error?esc(sy.error):"Check the workflow runs on GitHub."}</div><button class="link" style="justify-self:start" data-act="syncKey">Change passphrase</button>`:""}</div>`}
+  if(API)return connPanel();
+  if(syncAvail!==true&&!sy.syncedAt)return"";
+  return`<div class="panel" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-block:12px"><button data-act="syncKey" style="display:grid;text-align:left;min-height:44px;align-content:center" aria-label="Choose your SugarWOD track"><span style="font-size:14px;font-weight:600">SugarWOD · ${esc(sy.track||"RX-Club")}</span><span class="${sy.error?"c-bad":"muted"}" style="font-size:12px">${sy.error?esc(sy.error):`Updated ${agoText(sy.syncedAt)}`}</span></button>${syncBtn()}</div>`}
 // how hard each area worked in the last 3 days, from the synced workouts
 function loadPanel(){const load=recentLoad(),mx=Math.max(1,...Object.values(load));return S.training.length?`<div class="panel"><span class="eyebrow">Load from the last 3 days</span>
      <ul class="bars">${AREAS.map(a=>{const v=load[a.k]/mx;const c=v>.66?"var(--bad)":v>.33?"var(--warn)":"var(--good)";return`<li><span>${a.n}</span><span class="tr"><i style="width:${Math.max(4,v*100)}%;background:${c}"></i></span><b style="font-size:11px;color:var(--muted)">${v>.66?"High":v>.33?"Mid":"Low"}</b></li>`}).join("")}</ul></div>`:""}
@@ -4561,7 +4572,7 @@ SCREENS.profile=()=>{
   ${API?"":`<div class="panel"><h3>Your data</h3><p class="muted" style="margin:0;font-size:14px">Move it to another phone by hand: copy it here and paste it in Range there.</p>
     <div class="frow"><button class="btn sec" style="flex:1" data-act="copyData">Copy my data</button><button class="btn sec" style="flex:1" data-act="pasteData">Paste data</button></div>
     <p id="dataMsg" class="muted" style="margin:0;font-size:13px" aria-live="polite"></p><textarea id="dataBox" class="field" rows="3" hidden style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px"></textarea>
-    <details class="adv" ${BK||(S.sync||{}).key?"open":""}><summary>Advanced</summary><div class="stack" style="gap:10px;padding-top:10px">${bkRow()}${(S.sync||{}).key?"":`<button class="link" style="justify-self:start" data-act="syncKey">Have a SugarWOD auto-sync passphrase? Connect it</button>`}</div></details></div>`}
+    <details class="adv" ${BK?"open":""}><summary>Advanced</summary><div class="stack" style="gap:10px;padding-top:10px">${bkRow()}</div></details></div>`}
   <div class="panel"><h3>History</h3><div class="hist">${S.sessions.length?S.sessions.slice(-12).reverse().map(s=>`<div><span>${esc(s.title||KN[s.kind]||"Session")}<br><small>${new Date(s.at).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})} · ${s.count} stretches${s.feel!=null?" · felt "+["stiff","tight","OK","loose","great"][s.feel]:""}</small></span><span style="font-variant-numeric:tabular-nums">${s.mins} min</span></div>`).join(""):`<p class="muted" style="margin:0">No sessions yet. Finish a protocol from Today and it appears here.</p>`}</div></div>
   ${S.tests.length?`<div class="panel"><h3>Test history</h3><div class="hist">${S.tests.slice().reverse().map(t=>`<div><span>${new Date(t.at).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})}<br><small>${AREAS.map(a=>a.n+" "+t.scores[a.k]).join(" · ")}</small></span><b style="font-variant-numeric:tabular-nums">${overall(t.scores)}</b></div>`).join("")}</div></div>`:""}
   </div>`;
@@ -4914,7 +4925,7 @@ function wipeLocal(){const keep=S.settings,seeded=S.seeded;clearTimeout(sbTimer)
 const SYNC_STASH="range-sync-stash";
 function syncKeyStash(uid){try{const k=(S.sync||{}).key;if(uid&&k)localStorage.setItem(SYNC_STASH,JSON.stringify({uid,key:k}));else localStorage.removeItem(SYNC_STASH)}catch(e){}}
 function syncKeyDrop(){try{localStorage.removeItem(SYNC_STASH)}catch(e){}}
-function syncKeyRestore(uid){let st=null;try{st=JSON.parse(localStorage.getItem(SYNC_STASH)||"null")}catch(e){}if(!st)return;syncKeyDrop();
+function syncKeyRestore(uid){return;let st=null;try{st=JSON.parse(localStorage.getItem(SYNC_STASH)||"null")}catch(e){}if(!st)return;syncKeyDrop();
   if(!uid||st.uid!==uid||!st.key||(S.sync||{}).key)return;S.sync={...(S.sync||{}),key:st.key,checked:0};save();autoSync(true).catch(()=>{})}
 // once anyone has signed in on this phone, data without an owner is never handed to a later account
 const DEV_CLAIMED="range-device-claimed",devClaimed=()=>{try{return!!localStorage.getItem(DEV_CLAIMED)}catch(e){return false}};
@@ -5197,7 +5208,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="79358258";
+<script>window.RANGE_BUILD="11956282";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
