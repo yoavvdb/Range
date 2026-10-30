@@ -22,3 +22,4 @@ GitHub Pages serves it again within a minute or two. The app source lives outsid
 | 2026-10-30 | `2026-10-30_swipes-step-back.html` | Swipe between tabs and swipe right to go back; Back in a routine steps one screen back | 6e87eb0 |
 | 2026-10-30 | `2026-10-30_public-feed.html` | Workouts from the gym's public feed (RX-Club), login sync removed; Activate/Recover start on a movements screen | 02f1dbc |
 | 2026-10-30 | `2026-10-30_daily-hub.html` | Home = tall cards only; Daily screen (Personalized, Per body zone, Classic flows); full-page slides; score counts up | e4518b0 |
+| 2026-10-30 | `2026-10-30_library-card.html` | Library is a card on Today instead of a tab (3 tabs: Today, Rebuild, Profile) | f9c36a4 |
