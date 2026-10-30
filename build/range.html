@@ -10,6 +10,7 @@
   --chalk:#F2EFE8;--chalk-ink:#151618;
   --p-red:#B8352B;--p-blue:#2B5BBE;--p-yellow:#E0B030;--p-green:#1F7A4A;--p-white:#E4E1D9;
   --r-hero:24px;--r-panel:18px;--r-ctl:14px;
+  --ease-out:cubic-bezier(.23,1,.32,1);--ease-drawer:cubic-bezier(.32,.72,0,1);
   --warn:#E6A94B;--bad:#F07167;--good:#4CC38A;
   --fig:#D5DCE5;--fig-torso:#EEF2F6;--fig-far:#5A6373;--fig-prop:#A3ACB9;--fig-prop-hi:#4F5968;--fig-floor:#C3CAD4;
   --fig-skin:#EDC4A6;--fig-skin2:#D6A584;--fig-shirt:#D8473A;--fig-shirt2:#93281F;--fig-shorts:#5C3A6E;--fig-shorts2:#35223F;--fig-hair:#1D1A22;--fig-shoe:#3A2442;--fig-shoe2:#241628;--fig-hl:#16B5AC;--fig-ghost:#2B3442;--fig-arrow:#0E8C84;--stage:linear-gradient(180deg,#F1F3F6,#E2E7ED);
@@ -449,6 +450,33 @@ h1{font-size:34px;font-stretch:118%;letter-spacing:-.025em}#app.sub h1,.full h1{
 .ringbtn .num{color:var(--chalk-ink)}
 .rbnote{font-size:13px}.rbnote summary{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center;min-height:24px}.rbnote summary::-webkit-details-marker{display:none}.rbnote summary::after{content:"+";font-weight:800;margin-left:8px}.rbnote[open] summary::after{content:"−"}
 .safeln .ic{width:14px;height:14px;vertical-align:-2px;color:var(--good)}
+
+/* ===== native feel (mobile-native + Apple HIG + motion audit) ===== */
+html{-webkit-text-size-adjust:100%;overscroll-behavior:none}body{overscroll-behavior:none}
+/* iOS zooms into any input under 16px and never zooms back out */
+input,textarea,select{font-size:16px!important}
+/* controls: no 300ms tap wait, no text selection or callout on long-press (content text stays selectable) */
+button,a,[data-act],.chip,.opt{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+/* press feedback the moment a finger lands, on everything pressable, not just the main buttons */
+.pcard,.tile,.ntile,.lcard,.fcard,.scard,.zcard,.opt,.chip,.rx,.navrow,.flag,.mtile,.eq span,.srow{transition:transform 160ms var(--ease-out)}
+.pcard:active,.tile:active,.ntile:active,.lcard:active,.fcard:active,.scard:active,.zcard:active,.navrow:active,.rx:active,.mtile:active{transform:scale(.97)}
+.opt:active,.chip:active,.flag:active,.eq:active span{transform:scale(.98)}
+#tabbar button:active .ic{transform:scale(.9)}#tabbar .ic{transition:transform 120ms var(--ease-out)}
+/* HIG: 11pt is the smallest text */
+#tabbar button{font-size:11px}.dchips i{font-size:11px}
+/* sheets rise from the bottom with the iOS drawer curve and can be dragged down to close */
+.scrim{animation:scrimIn 220ms ease-out both}
+.sheet{animation:sheetIn 380ms var(--ease-drawer) both;touch-action:none;will-change:transform}
+.sheet .scroll,.sheet textarea,.sheet .res{touch-action:pan-y;overscroll-behavior:contain}
+.sheet .grab{width:100%;height:20px;margin:-8px 0 -10px;background:none;position:relative;cursor:grab}
+.sheet .grab::before{content:"";position:absolute;left:50%;top:8px;width:40px;height:5px;margin-left:-20px;border-radius:3px;background:var(--line)}
+.scrim.out{animation:scrimOut 200ms ease-in both;pointer-events:none}.scrim.out .sheet{animation:sheetOut 220ms var(--ease-out) both}
+@keyframes scrimIn{from{background:rgba(0,0,0,0)}}@keyframes scrimOut{to{background:rgba(0,0,0,0)}}
+@keyframes sheetIn{from{transform:translateY(100%)}}@keyframes sheetOut{to{transform:translateY(100%)}}
+/* the player comes up like a full-screen iOS view */
+.player.rise{animation:sheetIn 420ms var(--ease-drawer) both}
+.full{overscroll-behavior:contain}
+@media (prefers-reduced-motion:reduce){.scrim,.sheet,.player.rise,.scrim.out,.scrim.out .sheet{animation:none!important}}
 </style>
 
 <div id="splash" aria-hidden="true"><div class="spl">
@@ -1767,8 +1795,9 @@ let stack=[{name:"home",p:{}}];
 const ACT={};
 document.addEventListener("click",e=>{const el=e.target.closest("[data-act]");if(!el)return;const f=ACT[el.dataset.act];if(!f)return;
   try{const r=f(el.dataset,el,e);if(r&&r.catch)r.catch(err=>{noteError(err,el.dataset.act);errToast()})}catch(err){noteError(err,el.dataset.act);errToast()}});
-function go(name,p={}){stack.push({name,p});render();window.scrollTo(0,0)}
-function back(){if(stack.length>1)stack.pop();render()}
+function go(name,p={}){stack.push({name,p});render();window.scrollTo(0,0);push(1)}
+function back(){if(stack.length>1)stack.pop();render();push(-1)}
+function push(dir){if(REDUCED||TOUR)return;const el=$("#screen");try{el.animate([{opacity:.4,transform:`translateX(${dir*28}px)`},{opacity:1,transform:"none"}],{duration:260,easing:"cubic-bezier(.23,1,.32,1)"})}catch(e){}}
 ACT.back=back;
 ACT.tab=d=>{stack=[{name:d.t,p:{}}];render();window.scrollTo(0,0)};
 const hdr=(right="")=>`<div class="hdr"><button data-act="back" aria-label="Back">${ic("back")}</button><div class="brand">Range<b>.</b></div><div>${right}</div></div>`;
@@ -1988,7 +2017,20 @@ ACT.saveMoves=()=>{W.moves=tmpMoves.slice();closeSheet();render()};
 
 /* generic sheet */
 function sheet(html){$("#layer").innerHTML=`<div class="scrim" data-act="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div></div>`}
-function closeSheet(){$("#layer").innerHTML=""}
+function closeSheet(){const sc=$("#layer > .scrim");$("#layer").innerHTML="";sheetGhost(sc)}
+function sheetGhost(sc){if(!sc||REDUCED)return;sc.classList.add("out");sc.removeAttribute("data-act");sc.querySelectorAll("[id]").forEach(e=>e.removeAttribute("id"));document.body.appendChild(sc);setTimeout(()=>sc.remove(),260)}
+// drag a sheet down to close it (from anywhere except its scrolling list and form fields); a short flick also closes it
+(()=>{let d=null;
+ document.addEventListener("pointerdown",e=>{const sh=e.target.closest(".scrim:not(.out) .sheet");if(!sh||e.target.closest(".scroll,input,textarea,select,.res"))return;
+  d={sh,y0:e.clientY,t0:performance.now(),dy:0,id:e.pointerId,moved:false}});
+ document.addEventListener("pointermove",e=>{if(!d||e.pointerId!==d.id)return;d.dy=Math.max(0,e.clientY-d.y0);if(d.dy>6){d.moved=true;d.sh.style.animation="none";d.sh.style.transition="none";d.sh.style.transform=`translateY(${d.dy}px)`}});
+ const end=e=>{if(!d||e.pointerId!==d.id)return;const{sh,dy,t0,moved}=d;d=null;if(!moved)return;
+  const v=dy/Math.max(1,performance.now()-t0);
+  if(dy>Math.min(140,sh.offsetHeight*.3)||v>.6){const sc=sh.closest(".scrim");if(sc&&sc.dataset.act==="scrimP")closeSheetP();else closeSheet()}
+  else{sh.style.transition="transform 300ms var(--ease-drawer)";sh.style.transform="";setTimeout(()=>{sh.style.transition=""},320)}
+  // a drag is not a tap: swallow the click that follows
+  const eat=ev=>{ev.stopPropagation();ev.preventDefault()};addEventListener("click",eat,{capture:true,once:true});setTimeout(()=>removeEventListener("click",eat,{capture:true}),350)};
+ document.addEventListener("pointerup",end);document.addEventListener("pointercancel",end)})();
 ACT.closeSheet=closeSheet;
 ACT.scrim=(d,el,e)=>{if(e.target===el)closeSheet()};
 
@@ -2040,7 +2082,7 @@ function openPlayer(items,meta){
   const segs=[];
   items.forEach((it,i)=>segs.push(...segsFor(it,i)));
   P={items,meta,segs,si:0,running:false,started:false,remaining:segs[0].secs,total:segs[0].secs,endAt:0,easy:S.settings.easy,activeMs:0,lastTs:0,lastBeep:-1,curI:-1};
-  $("#layer").innerHTML=`<div class="player" role="dialog" aria-label="Session player"><div class="pl">
+  $("#layer").innerHTML=`<div class="player rise" role="dialog" aria-label="Session player"><div class="pl">
    <div><div class="ptop"><button data-act="pExit" aria-label="End session">${ic("back")}</button><div class="brand" style="text-align:center">Range<b>.</b></div><button data-act="pSettings" aria-label="Settings">${ic("gear")}</button><button data-act="pMenu" aria-label="More">${icf("dots")}</button></div>
    <div class="segbar" id="segbar">${items.map(()=>"<i><b></b></i>").join("")}</div></div>
    <div class="stage" id="stage" data-act="pStage" role="button" aria-label="Show play and reset" tabindex="0"><div id="pfig"></div><div class="dov" id="pinfo"></div><span class="sidetag" id="pside" hidden></span><div class="ov" id="pov" hidden><button data-act="pToggle">${icf("play")}<span id="povl">Play</span></button><button data-act="pReset">${ic("reset")}Reset</button></div></div>

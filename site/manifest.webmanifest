@@ -4,8 +4,8 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0D1015",
-  "theme_color": "#0D1015",
+  "background_color": "#131416",
+  "theme_color": "#131416",
   "orientation": "portrait",
   "description": "Mobility tests, stretching protocols around your training, and a guided player.",
   "icons": [
