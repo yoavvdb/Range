@@ -477,6 +477,28 @@ button,a,[data-act],.chip,.opt{touch-action:manipulation;-webkit-user-select:non
 .player.rise{animation:sheetIn 420ms var(--ease-drawer) both}
 .full{overscroll-behavior:contain}
 @media (prefers-reduced-motion:reduce){.scrim,.sheet,.player.rise,.scrim.out,.scrim.out .sheet{animation:none!important}}
+
+/* ===== Today: greeting with the streak flame on the right ===== */
+.greet{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.streak{display:inline-flex;align-items:center;gap:5px;min-height:44px;padding:0 4px 0 8px;font-size:22px;font-weight:800;font-stretch:112%;font-variant-numeric:tabular-nums}
+.streak .ic{width:24px;height:24px;color:#FF7A2E}
+.streak b{font-weight:800}
+/* ===== glass tab bar: a floating capsule over the content, the current tab sits under a glass lens that slides between icons ===== */
+#tabbar{left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);width:min(calc(100% - 28px),452px);transform:translateX(-50%);
+  padding:6px;border-radius:32px;border:1px solid rgba(255,255,255,.09);border-top-color:rgba(255,255,255,.16);
+  background:rgba(24,25,28,.8);-webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);
+  box-shadow:0 10px 30px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.06)}
+#tabbar button{position:relative;z-index:1;padding:7px 4px 6px;border-radius:26px;color:#CFCBC3;transition:color 200ms ease}
+#tabbar button[aria-current="page"]{color:var(--chalk)}
+#tabbar button[aria-current="page"]::after{display:none}
+#tabbar button[aria-current="page"] .ic{color:var(--chalk)}
+#tabbar .tlens{position:absolute;z-index:0;top:6px;bottom:6px;left:6px;width:calc((100% - 12px)/4);border-radius:26px;
+  transform:translateX(calc(var(--ti,0) * 100%));transition:transform 460ms var(--ease-drawer);
+  background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.06));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),inset 0 -1px 0 rgba(255,255,255,.05),0 2px 10px rgba(0,0,0,.25)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){#tabbar{background:rgba(30,31,35,.96)}}
+@media (prefers-reduced-transparency:reduce){#tabbar{background:#1E1F23;-webkit-backdrop-filter:none;backdrop-filter:none}}
+#app{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 104px)}
 </style>
 
 <div id="splash" aria-hidden="true"><div class="spl">
@@ -486,7 +508,7 @@ button,a,[data-act],.chip,.opt{touch-action:manipulation;-webkit-user-select:non
 <g transform="translate(28 35.2) scale(.72)"><g class="fig"><path d="M100 70V118L130 120L132 158M100 118L76 140L52 152"/><g class="arm"><path d="M100 76L116 52L124 30"/></g></g><circle cx="96" cy="52" r="13" fill="var(--ink)"/></g></svg>
 <div class="word">Range<b>.</b></div><div class="tag">Move better. Every day.</div><div class="bar"><i></i></div></div></div>
 <div id="app"><div id="screen"></div></div>
-<nav id="tabbar" aria-label="Main">
+<nav id="tabbar" aria-label="Main"><i class="tlens" aria-hidden="true"></i>
   <button data-act="tab" data-t="home"></button>
   <button data-act="tab" data-t="library"></button>
   <button data-act="tab" data-t="rebuild"></button>
@@ -704,6 +726,7 @@ const dayKey=d=>{const x=new Date(d);return`${x.getFullYear()}-${x.getMonth()}-$
 const REDUCED=matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const ICON={
+ flame:'<path d="M12 2.5c.6 3.2 2.6 4.9 4.2 6.8A7.3 7.3 0 0 1 18.5 14a6.5 6.5 0 0 1-13 0c0-2.4 1.1-4.2 2.6-5.6.2 1.6.9 2.8 2.1 3.5C9.6 8.4 10.4 5 12 2.5Z"/>',
  sync:'<path d="M20 11a8 8 0 0 0-14.5-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.5 4.5L20 16M20 20v-4h-4"/>',
  ball:'<circle cx="12" cy="12" r="7.5"/><path d="M5.5 10c4 1.6 9 1.6 13 0M7 15.5c3.2-1.2 6.8-1.2 10 0"/>',
  back:'<path d="M15 5l-7 7 7 7"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',plus:'<path d="M12 5v14M5 12h14"/>',check:'<path d="M5 12.5l4.5 4.5L19 7"/>',
@@ -1807,6 +1830,7 @@ function render(){
   const root=stack.length===1;
   $("#tabbar").hidden=!root;$("#app").classList.toggle("sub",!root);
   const tabs={library:["grid","Library"],home:["home","Today"],rebuild:["heart","Rebuild"],training:["cal","Training"],profile:["user","Profile"]};
+  const ti=["home","library","rebuild","profile"].indexOf(stack[0].name);$("#tabbar").style.setProperty("--ti",Math.max(0,ti));
   document.querySelectorAll("#tabbar button").forEach(b=>{const[icn,l]=tabs[b.dataset.t];b.innerHTML=ic(icn)+l;b.toggleAttribute("aria-current",false);if(b.dataset.t===stack[0].name)b.setAttribute("aria-current","page")});
   (AFTER[top.name]||(()=>{}))(top.p);
   rbKeepDraft(top.name);
@@ -1829,20 +1853,15 @@ function streak(){const days=new Set(S.sessions.map(s=>dayKey(s.at)));let n=0,d=
 SCREENS.home=()=>{
   const sc=scores(),ov=overall(sc),lv=level(ov);
   return `<div class="hdr" style="grid-template-columns:1fr"><div class="brand">Range<b>.</b></div></div>
-  <div class="greet"><h1>${greeting()}</h1></div>${offNote()}
+  <div class="greet"><h1>${greeting()}</h1><button class="streak" data-act="tab" data-t="profile" data-tour="streak" aria-label="${streak()} day streak">${ic("flame","fill")}<b>${streak()}</b></button></div>
   <div class="carousel" id="car" data-tour="cards">${Object.entries(KINDS).map(([k,v])=>drawPart("card "+k,()=>`
     <button class="pcard ${v.g}" data-act="startKind" data-kind="${k}" aria-label="${v.n}, ${v.sub}">
       <div class="art">${fig(v.pose,null,{anim:true})}</div>
       <h2>${v.n}</h2><p>${k==="activate"&&nextWorkout()?`For ${(w=>{const d=dayLabel(w.date);return d==="Today"?"today's":d==="Tomorrow"?"tomorrow's":fromIso(w.date).toLocaleDateString(undefined,{weekday:"long"})+"'s"})(nextWorkout())} workout`:k==="recover"&&loggedToday().length?`From today's ${loggedToday().length===1?"workout":loggedToday().length+" workouts"}`:v.sub}</p><span class="go">Start ▶</span></button>`)).join("")}</div>
   <div class="dots" id="cardots">${Object.keys(KINDS).map((_,i)=>`<i class="${i?"":"on"}"></i>`).join("")}</div>
   <div class="stack">
-    ${S.rehab?drawPart("rebuild",()=>{const R=REGIONS[S.rehab.region],ph=rbPhases(R,S.rehab.cls)[S.rehab.phase],st=rbStatus();return`<button class="ntile" data-act="tab" data-t="rebuild"><span class="eyebrow">Rebuild · ${R.n} · Phase ${S.rehab.phase+1}</span><b>${esc(ph.n)}</b><span class="go ${st.k==="back"||st.k==="stuck"?"c-bad":""}">${st.k==="back"?"Back off":st.k==="ready"?"Progress":"Open"}</span></button>`}):""}
     ${drawPart("flows",flowsRow)}
-    ${S.scores?"":`<div class="banner" data-tour="test"><div><h3>Find your weak spots</h3><div class="muted" style="font-size:14px;margin-top:4px">Take the 10-minute mobility test: ${TSTEPS.length} quick checks across 6 areas. Until then, routines use an example profile.</div></div><button class="btn" data-act="openTest">${testDraft()?"Resume my test":"Test my mobility"}</button></div>`}
-    ${drawPart("tiles",()=>`<div class="tiles">
-      <button class="tile" data-act="tab" data-t="profile" data-tour="score"><span class="eyebrow">Mobility score</span><b>${ov}</b><span class="pill ${lv.c}" style="justify-self:start">${S.scores?lv.t:"Example"}</span></button>
-      <button class="tile" data-act="tab" data-t="profile"><span class="eyebrow">Streak</span><b>${streak()}</b><span class="muted" style="font-size:13px">day${streak()===1?"":"s"} in a row</span></button>
-    </div>`)}
+    ${S.scores?"":`<div class="banner" data-tour="test"><div><h3>Find your weak spots</h3><div class="muted" style="font-size:14px;margin-top:4px">A 10-minute test so every session fits your body.</div></div><button class="btn" data-act="openTest">${testDraft()?"Resume my test":"Test my mobility"}</button></div>`}
   </div>`;
 };
 AFTER.home=()=>{
@@ -5034,7 +5053,7 @@ const tq=s=>document.querySelector(s),tclose=(s,up)=>{const e=tq(s);return e&&e.
 const TOUR_STEPS=[
  {tab:"home",el:()=>tq("#car .pcard"),t:"Activate before training",d:()=>nextWorkout()?"A warm-up built from your next workout's movements and your scores. Swipe for Recover, Daily and Rebuild.":"A warm-up built for what you're about to train. Swipe for Recover, Daily and Rebuild."},
  {tab:"home",el:()=>tq("[data-tour=flows] .hscroll"),t:"Anytime flows",d:"Short routines for a desk break, the morning or bedtime. Tap one and press play."},
- {tab:"home",el:()=>tq("[data-tour=test]")||tq("[data-tour=score]"),t:()=>S.scores?"Your mobility score":"Take the mobility test",d:()=>S.scores?"Your score across 6 areas. Retest every month and watch it climb.":"10 minutes, 18 quick checks. Every session then targets your weak spots. Until then Range uses an example profile."},
+ {tab:"home",el:()=>tq("[data-tour=test]")||tq("[data-tour=streak]"),t:()=>S.scores?"Your streak":"Take the mobility test",d:()=>S.scores?"Days in a row with a session. Tap it for your mobility score.":"10 minutes, 18 quick checks. Every session then targets your weak spots. Until then Range uses an example profile."},
  {tab:"home",demo:()=>({}),el:()=>tq("#layer .tsstage"),t:"Inside the test",d:"Each check starts with a demo of exactly how to do it."},
  {tab:"home",demo:tdPick,el:()=>tq("#layer .tsstage"),with:()=>tq("#layer .tsis"),t:"Pick the closest answer",d:"Tap the answer below that's closest to you. The figure changes to show the range you picked, so you can compare it with what you see."},
  {tab:"home",demo:tdPick,el:()=>tq("#layer .tsides"),t:"Right, then left",d:"One-sided checks test your right side first, then your left. Tap Right or Left to switch."},
