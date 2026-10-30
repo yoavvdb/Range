@@ -1885,6 +1885,7 @@ function startWizard(o){
   if(o.moves&&o.moves.length&&STEPS[W.kind][0]==="moves"){W.done.moves=true;W.step=1}
   // auto: your usual time and equipment, straight to the chosen exercises (every choice stays editable there)
   if(o.auto&&W.done.moves){W.minutes=(S.lastMin||{})[W.kind]||10;W.done.time=W.done.equip=true;W.step=STEPS[W.kind].indexOf("summary")}
+  if(W.minutes==null)W.minutes=(S.lastMin||{})[W.kind]||null;
   go("wizard",{});
 }
 function wizHead(){
@@ -1911,7 +1912,7 @@ SCREENS.wizard=()=>{
     cta=`<button class="btn" data-act="wNext" ${W.minutes?"":"disabled"}>Next</button>`;
   }
   if(step==="equip"){
-    body=`<div class="stephead"><span class="bub">${ic("equip")}</span><div><h3>Your equipment</h3><p>Unselect the equipment you don't have access to today</p></div></div>
+    body=`<div class="stephead"><span class="bub">${ic("equip")}</span><div><h3>Your gear</h3><p>Turn off what you don't have today</p></div></div>
     <div class="equip">${EQUIP.map(e=>`<button class="eq ${W.equip.includes(e.k)?"on":""}" data-act="togEq" data-e="${e.k}" aria-pressed="${W.equip.includes(e.k)}"><span>${ic(e.k)}</span>${e.n}</button>`).join("")}</div>`;
     cta=`<button class="btn" data-act="wNext">Next</button>`;
   }
@@ -3781,8 +3782,8 @@ function wTitle(w){
   let p=w.title.split(/\s*[·|]\s*/).filter(Boolean);if(w.title.length>=78&&p.length>1)p.pop();
   p=p.map(x=>/[a-z]/.test(x)||x.length<5?x:x.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase()));
   return[...new Set(p)].join(" · ")||w.title}
-function prepFor(w){startWizard({kind:"activate",sport:S.sports[0]||"crossfit",moves:w.moves,mw:moveWeights(w),from:wTitle(w),auto:true})}
-function recoverFrom(list){const moves=[...new Set(list.flatMap(w=>w.moves))],mw={};list.forEach(w=>{const x=moveWeights(w);for(const m in x)mw[m]=Math.max(mw[m]??0,x[m])});startWizard({kind:"recover",auto:true,sport:S.sports[0]||"crossfit",moves,mw,from:list.length===1?wTitle(list[0]):`${list.length} workouts · ${dayLabel(doneDay(list[0]))}`})}
+function prepFor(w){startWizard({kind:"activate",sport:S.sports[0]||"crossfit",moves:w.moves,mw:moveWeights(w),from:wTitle(w)})}
+function recoverFrom(list){const moves=[...new Set(list.flatMap(w=>w.moves))],mw={};list.forEach(w=>{const x=moveWeights(w);for(const m in x)mw[m]=Math.max(mw[m]??0,x[m])});startWizard({kind:"recover",sport:S.sports[0]||"crossfit",moves,mw,from:list.length===1?wTitle(list[0]):`${list.length} workouts · ${dayLabel(doneDay(list[0]))}`})}
 ACT.prepNext=()=>{const n=nextSession();if(n)prepFor(n)};
 ACT.recoverRecent=()=>{const r=recentSessions();if(r.length)recoverFrom(r)};
 ACT.prepW=d=>{const w=S.training.find(x=>x.id===d.id);if(w)prepFor(w)};
