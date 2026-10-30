@@ -526,6 +526,29 @@ button,a,[data-act],.chip,.opt{touch-action:manipulation;-webkit-user-select:non
 @media (prefers-reduced-transparency:reduce){#tabbar{background:#1E1F23;-webkit-backdrop-filter:none;backdrop-filter:none}}
 #app{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 104px)}
 .stephead.x3{grid-template-columns:36px 1fr auto;align-items:center}.stephead.x3 p{margin:2px 0 0;color:var(--muted);font-size:14px}
+
+/* ===== GOWOD-style: tall centred cards with the next ones peeking, Daily as its own screen, the score counts up ===== */
+.carousel{grid-auto-columns:82%;scroll-snap-type:x mandatory;padding-inline:9%;scroll-padding-inline:9%;margin-inline:-16px}
+.carousel .pcard{scroll-snap-align:center;height:clamp(360px,60vh,560px);padding:26px}
+.pcard .art{padding:8% 6% 26%}
+.pcard h2{font-size:36px;margin-bottom:6px}
+.pcard::before{top:42%}
+#screen{background:var(--bg)}
+.dcard{position:relative;display:grid;align-content:end;text-align:left;height:150px;border-radius:var(--r-panel);padding:16px 18px;overflow:hidden;isolation:isolate;color:#fff}
+.dcard.g-target,.flowcard.g-target,.flowcard.g-rebuild{color:#17181A}
+.dcard .art{position:absolute;inset:0 0 0 42%;z-index:-1;display:grid;place-items:center;padding:8px}
+.dcard b{font-size:22px;font-weight:800;font-stretch:112%;letter-spacing:-.01em}
+.dcard:first-of-type{height:200px}.dcard:first-of-type b{font-size:26px}
+.hscroll.flows{gap:10px;padding-bottom:4px;scroll-snap-type:x mandatory;scroll-padding-inline:16px}
+.flowcard{flex:none;width:72%;max-width:300px;height:170px;scroll-snap-align:start;position:relative;display:grid;align-content:end;gap:1px;text-align:left;border-radius:var(--r-panel);padding:14px 16px;overflow:hidden;isolation:isolate;color:#fff}
+.flowcard .art{position:absolute;inset:0 0 34% 0;z-index:-1;display:grid;place-items:center;padding:6px}
+.flowcard b{font-size:19px;font-weight:800;font-stretch:112%}.flowcard small{font-size:13px;opacity:.8}
+.flowcard,.dcard{transition:transform 160ms var(--ease-out)}.flowcard:active,.dcard:active{transform:scale(.97)}
+.bars .tr i{transform-origin:left center}
+
+.dcard .art :is(svg,img,canvas),.flowcard .art :is(svg,img,canvas){max-height:100%;max-width:100%;width:auto;height:100%;object-fit:contain}
+.dcard .art{inset:8px 8px 8px 46%}
+.flowcard{height:190px}.flowcard .art{inset:8px 8px 58px 8px}
 </style>
 
 <div id="splash" aria-hidden="true"><div class="spl">
@@ -1721,6 +1744,7 @@ function bodyMap(zones){
 }
 
 /* ================= plan builder ================= */
+const HOME_KINDS=["activate","recover","daily","rebuild"];
 const KINDS={
  activate:{n:"Activate",sub:"Before training",g:"g-activate",pose:"squat"},
  recover:{n:"Recover",sub:"After training",g:"g-recover",pose:"pigeon"},
@@ -1861,9 +1885,12 @@ function back(){const top=stack[stack.length-1];
   if(stack.length>1||(stack[0].name==="wizard")){if(dx>0)back();return}
   const i=TABS.indexOf(stack[0].name),j=i+(dx<0?1:-1);if(i<0||j<0||j>=TABS.length)return;
   ACT.tab({t:TABS[j]});push(dx<0?1:-1)},{passive:true})})();
-function push(dir){if(REDUCED||TOUR)return;const el=$("#screen");try{el.animate([{opacity:.4,transform:`translateX(${dir*28}px)`},{opacity:1,transform:"none"}],{duration:260,easing:"cubic-bezier(.23,1,.32,1)"})}catch(e){}}
+function push(dir){if(REDUCED||TOUR)return;const el=$("#screen");
+  try{el.animate(dir>0?[{transform:"translateX(100%)",boxShadow:"-12px 0 24px rgba(0,0,0,.35)"},{transform:"none",boxShadow:"none"}]:[{transform:"translateX(-30%)",opacity:.6},{transform:"none",opacity:1}],{duration:dir>0?420:360,easing:"cubic-bezier(.32,.72,0,1)"})}catch(e){}}
 ACT.back=back;
-ACT.tab=d=>{stack=[{name:d.t,p:{}}];render();window.scrollTo(0,0)};
+let PROF_ANIM=false;
+ACT.tab=d=>{if(d.t==="profile"&&stack[0].name!=="profile")PROF_ANIM=true;stack=[{name:d.t,p:{}}];render();window.scrollTo(0,0)};
+
 const hdr=(right="")=>`<div class="hdr"><button data-act="back" aria-label="Back">${ic("back")}</button><div class="brand">Range<b>.</b></div><div>${right}</div></div>`;
 function render(){
   const top=stack[stack.length-1];
@@ -1887,6 +1914,12 @@ function rbRestore(){const d=S.rbDraft;rbRestored=true;if(!d||!REGIONS[d.r]||Dat
   RB={r:d.r,flags:new Set(d.flags||[]),step:Math.min(d.step||0,REGIONS[d.r].screens.length-1),ans:d.ans||[],first:d.first||undefined,sub:d.sub||undefined};
   stack=[{name:"rebuild",p:{}},{name:"rbflags",p:{}}];if(d.screen!=="rbflags")stack.push({name:d.screen,p:{}});return true}
 const SCREENS={},AFTER={};
+// arriving on Profile, the score counts up and its bars grow (once per visit, not on every refresh)
+AFTER.profile=()=>{if(!PROF_ANIM||REDUCED||TOUR){PROF_ANIM=false;return}PROF_ANIM=false;
+  const b=document.querySelector(".score b");if(b){const to=+b.textContent||0,t0=performance.now(),D=900;
+    const step=t=>{const k=Math.min(1,(t-t0)/D),e=1-Math.pow(1-k,3);b.textContent=Math.round(to*e);if(k<1)requestAnimationFrame(step)};b.textContent="0";requestAnimationFrame(step)}
+  document.querySelectorAll(".panel .bars .tr i").forEach((i,n)=>{try{i.animate([{transform:"scaleX(0)"},{transform:"none"}],{duration:900,delay:60+n*50,easing:"cubic-bezier(.23,1,.32,1)",fill:"backwards"})}catch(e){}});
+  const r=document.querySelector(".radar");if(r){try{r.animate([{opacity:0,transform:"scale(.85)"},{opacity:1,transform:"none"}],{duration:700,easing:"cubic-bezier(.23,1,.32,1)"})}catch(e){}}};
 
 /* ================= home ================= */
 function greeting(){const h=new Date().getHours();return h<5?"Good evening":h<12?"Good morning":h<18?"Good afternoon":"Good evening"}
@@ -1895,19 +1928,19 @@ SCREENS.home=()=>{
   const sc=scores(),ov=overall(sc),lv=level(ov);
   return `<div class="hdr" style="grid-template-columns:1fr"><div class="brand">Range<b>.</b></div></div>
   <div class="greet"><h1>${greeting()}</h1><button class="streak" data-act="tab" data-t="profile" data-tour="streak" aria-label="${streak()} day streak">${ic("flame","fill")}<b>${streak()}</b></button></div>
-  <div class="carousel" id="car" data-tour="cards">${Object.entries(KINDS).map(([k,v])=>drawPart("card "+k,()=>`
-    <button class="pcard ${v.g}" data-act="startKind" data-kind="${k}" aria-label="${v.n}, ${v.sub}">
+  <div class="carousel" id="car" data-tour="cards">${HOME_KINDS.map(k=>[k,KINDS[k]]).map(([k,v])=>drawPart("card "+k,()=>`
+    <button class="pcard ${v.g}" data-act="startKind" data-kind="${k}" aria-label="${v.n}">
       <div class="art">${fig(v.pose,null,{anim:true})}</div>
-      <h2>${v.n}</h2><p>${k==="activate"&&nextWorkout()?`For ${(w=>{const d=dayLabel(w.date);return d==="Today"?"today's":d==="Tomorrow"?"tomorrow's":fromIso(w.date).toLocaleDateString(undefined,{weekday:"long"})+"'s"})(nextWorkout())} workout`:k==="recover"&&loggedToday().length?`From today's ${loggedToday().length===1?"workout":loggedToday().length+" workouts"}`:v.sub}</p><span class="go">Start ▶</span></button>`)).join("")}</div>
-  <div class="dots" id="cardots">${Object.keys(KINDS).map((_,i)=>`<i class="${i?"":"on"}"></i>`).join("")}</div>
+      <h2>${v.n}</h2>
+    </button>`)).join("")}</div>
+  <div class="dots" id="cardots">${HOME_KINDS.map((_,i)=>`<i class="${i?"":"on"}"></i>`).join("")}</div>
   <div class="stack">
-    ${drawPart("flows",flowsRow)}
     ${S.scores?"":`<div class="banner" data-tour="test"><div><h3>Find your weak spots</h3><div class="muted" style="font-size:14px;margin-top:4px">A 10-minute test so every session fits your body.</div></div><button class="btn" data-act="openTest">${testDraft()?"Resume my test":"Test my mobility"}</button></div>`}
   </div>`;
 };
 AFTER.home=()=>{
   const car=$("#car");if(!car)return;
-  car.addEventListener("scroll",()=>{const i=Math.round(car.scrollLeft/(car.firstElementChild.offsetWidth+12));document.querySelectorAll("#cardots i").forEach((d,k)=>d.classList.toggle("on",k===i))},{passive:true});
+  car.addEventListener("scroll",()=>{const c=car.scrollLeft+car.clientWidth/2;let i=0,best=1e9;[...car.children].forEach((el,k)=>{const d=Math.abs(el.offsetLeft+el.offsetWidth/2-c);if(d<best){best=d;i=k}});document.querySelectorAll("#cardots i").forEach((d,k)=>d.classList.toggle("on",k===i))},{passive:true});
 };
 ACT.startKind=d=>{
   const k=d.kind;
@@ -1917,6 +1950,7 @@ ACT.startKind=d=>{
     const tw=S.training.find(w=>w.date===todayIso()&&w.moves.length);if(tw){recoverFrom([tw]);return}}
   // Activate goes straight to your next workout's movements
   if(k==="activate"){const nx=nextWorkout();if(nx){prepFor(nx);return}}
+  if(k==="daily"){go("daily");return}
   if(k==="activate"||k==="recover")go("sport",{kind:k});
   else startWizard({kind:k});
 };
@@ -1936,6 +1970,19 @@ SCREENS.sport=p=>{
 ACT.pickSport=d=>startWizard({kind:stack[stack.length-1].p.kind,sport:d.s});
 ACT.pickZone=()=>startWizard({kind:"target"});
 
+
+/* ================= Daily ================= */
+// Daily is a place of its own: your personalised session, one body zone, and the classic flows
+SCREENS.daily=()=>`${hdr()}
+  <div class="stack" style="padding-top:4px">
+  <h1>Daily</h1>
+  <button class="dcard g-daily" data-act="dailyGo"><div class="art">${fig("s9090",null,{anim:true})}</div><b>Personalized</b></button>
+  <button class="dcard g-target" data-act="pickZone"><div class="art">${fig("child")}</div><b>Per body zone</b></button>
+  <div class="stack" style="gap:10px;margin-top:6px"><h3>Classic flows</h3>
+   <div class="hscroll flows" data-tour="flows">${FLOWS.map((f,i)=>{const m=Math.max(1,Math.round(flowItems(f).reduce((t,it)=>t+itemSecs(it),0)/60));
+    return`<button class="flowcard ${["g-recover","g-activate","g-rebuild","g-target","g-daily"][i%5]}" data-act="flowStart" data-k="${f.k}"><div class="art">${fig(f.pose||"s9090")}</div><b>${f.n}</b><small>${m} min</small></button>`}).join("")}</div></div>
+  </div>`;
+ACT.dailyGo=()=>startWizard({kind:"daily"});
 /* ================= wizard ================= */
 let W=null;
 const STEPS={activate:["moves","time","equip","summary"],recover:["moves","time","equip","summary"],daily:["time","equip","summary"],target:["zone","time","equip","summary"]};
@@ -2009,7 +2056,7 @@ AFTER.wizard=()=>{
 };
 function wRender(){render();window.scrollTo(0,0)}
 ACT.wNext=()=>{const s=STEPS[W.kind][W.step];if(W.returnTo==null)W.hist.push(W.step);W.done[s]=true;if(s==="moves"&&W.sport){S.moves[W.sport]=W.moves.slice();save()}if(s==="equip"){S.equip=W.equip.slice();save()}W.plan=null;
-  W.step=W.returnTo!=null?W.returnTo:W.step+1;W.returnTo=null;wRender()};
+  W.step=W.returnTo!=null?W.returnTo:W.step+1;W.returnTo=null;wRender();push(1)};
 ACT.wGoto=d=>{W.returnTo=STEPS[W.kind].indexOf("summary");W.step=STEPS[W.kind].indexOf(d.s);wRender()};
 ACT.pickTime=d=>{W.minutes=+d.m;S.lastMin={...(S.lastMin||{}),[W.kind]:W.minutes};save();render();setTimeout(ACT.wNext,REDUCED?0:220)};
 ACT.pickArea=d=>{W.zone=d.a;render();setTimeout(ACT.wNext,REDUCED?0:220)};
@@ -5208,7 +5255,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="11956282";
+<script>window.RANGE_BUILD="7875761";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
