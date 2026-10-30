@@ -1819,7 +1819,21 @@ const ACT={};
 document.addEventListener("click",e=>{const el=e.target.closest("[data-act]");if(!el)return;const f=ACT[el.dataset.act];if(!f)return;
   try{const r=f(el.dataset,el,e);if(r&&r.catch)r.catch(err=>{noteError(err,el.dataset.act);errToast()})}catch(err){noteError(err,el.dataset.act);errToast()}});
 function go(name,p={}){stack.push({name,p});render();window.scrollTo(0,0);push(1)}
-function back(){if(stack.length>1)stack.pop();render();push(-1)}
+function back(){const top=stack[stack.length-1];
+  if(top.name==="wizard"&&W&&W.hist&&W.hist.length){W.step=W.hist.pop();W.returnTo=null;render();window.scrollTo(0,0);push(-1);return}
+  if(stack.length>1)stack.pop();render();push(-1)}
+// finger swipes: on a main tab, swipe sideways to the next or previous tab; on any deeper screen, swipe right to go back.
+// Swipes that start on something that scrolls sideways itself (the cards, the flows, a 3D figure) or inside a sheet are left alone
+(()=>{const TABS=["home","library","rebuild","profile"];let t=null;
+ const skip=el=>el.closest(".carousel,.hscroll,.pcards,canvas,input,textarea,select,.sheet,#tabbar,#layer > *,#tour,[data-noswipe]");
+ document.addEventListener("touchstart",e=>{if(e.touches.length!==1||TOUR||$("#layer").children.length||skip(e.target)){t=null;return}
+  const x=e.touches[0].clientX;if(!navigator.standalone&&x<24){t=null;return} // in Safari the left edge is Safari's own back swipe
+  t={x0:x,y0:e.touches[0].clientY,t0:Date.now()}},{passive:true});
+ document.addEventListener("touchend",e=>{if(!t)return;const c=e.changedTouches[0],dx=c.clientX-t.x0,dy=c.clientY-t.y0,dt=Date.now()-t.t0;t=null;
+  if(Math.abs(dx)<70||Math.abs(dy)>Math.abs(dx)*.6||dt>700)return;
+  if(stack.length>1||(stack[0].name==="wizard")){if(dx>0)back();return}
+  const i=TABS.indexOf(stack[0].name),j=i+(dx<0?1:-1);if(i<0||j<0||j>=TABS.length)return;
+  ACT.tab({t:TABS[j]});push(dx<0?1:-1)},{passive:true})})();
 function push(dir){if(REDUCED||TOUR)return;const el=$("#screen");try{el.animate([{opacity:.4,transform:`translateX(${dir*28}px)`},{opacity:1,transform:"none"}],{duration:260,easing:"cubic-bezier(.23,1,.32,1)"})}catch(e){}}
 ACT.back=back;
 ACT.tab=d=>{stack=[{name:d.t,p:{}}];render();window.scrollTo(0,0)};
@@ -1899,7 +1913,7 @@ let W=null;
 const STEPS={activate:["moves","time","equip","summary"],recover:["moves","time","equip","summary"],daily:["time","equip","summary"],target:["zone","time","equip","summary"]};
 const STEPICON={moves:"move",time:"clock",equip:"equip",zone:"target"},STEPCAP={moves:"Workout",time:"Time",equip:"Kit",zone:"Zone"};
 function startWizard(o){
-  W={kind:o.kind,mw:o.mw||null,sport:o.sport||null,moves:o.moves?o.moves.slice():o.sport?(S.moves[o.sport]||[]).slice():[],from:o.from||null,minutes:null,equip:S.equip.slice(),zone:null,step:0,done:{}};
+  W={hist:[],kind:o.kind,mw:o.mw||null,sport:o.sport||null,moves:o.moves?o.moves.slice():o.sport?(S.moves[o.sport]||[]).slice():[],from:o.from||null,minutes:null,equip:S.equip.slice(),zone:null,step:0,done:{}};
   // Coming from a logged workout: movements are already known, start at the time step
   if(o.moves&&o.moves.length&&STEPS[W.kind][0]==="moves"){W.done.moves=true;W.step=1}
   // auto: your usual time and equipment, straight to the chosen exercises (every choice stays editable there)
@@ -1968,7 +1982,7 @@ AFTER.wizard=()=>{
 
 };
 function wRender(){render();window.scrollTo(0,0)}
-ACT.wNext=()=>{const s=STEPS[W.kind][W.step];W.done[s]=true;if(s==="moves"&&W.sport){S.moves[W.sport]=W.moves.slice();save()}if(s==="equip"){S.equip=W.equip.slice();save()}W.plan=null;
+ACT.wNext=()=>{const s=STEPS[W.kind][W.step];if(W.returnTo==null)W.hist.push(W.step);W.done[s]=true;if(s==="moves"&&W.sport){S.moves[W.sport]=W.moves.slice();save()}if(s==="equip"){S.equip=W.equip.slice();save()}W.plan=null;
   W.step=W.returnTo!=null?W.returnTo:W.step+1;W.returnTo=null;wRender()};
 ACT.wGoto=d=>{W.returnTo=STEPS[W.kind].indexOf("summary");W.step=STEPS[W.kind].indexOf(d.s);wRender()};
 ACT.pickTime=d=>{W.minutes=+d.m;S.lastMin={...(S.lastMin||{}),[W.kind]:W.minutes};save();render();setTimeout(ACT.wNext,REDUCED?0:220)};
