@@ -20,3 +20,4 @@ GitHub Pages serves it again within a minute or two. The app source lives outsid
 | 2026-10-30 | `2026-10-30_warmup-for-line.html` | Session header: "Warm-up for …" / "Release after …" | cb5206e |
 | 2026-10-30 | `2026-10-30_clean-home-glass-bar.html` | Today = plates + Anytime flows only, streak flame top-right, glass tab bar with sliding lens | 9d540f1 |
 | 2026-10-30 | `2026-10-30_swipes-step-back.html` | Swipe between tabs and swipe right to go back; Back in a routine steps one screen back | 6e87eb0 |
+| 2026-10-30 | `2026-10-30_public-feed.html` | Workouts from the gym's public feed (RX-Club), login sync removed; Activate/Recover start on a movements screen | 02f1dbc |
