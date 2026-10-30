@@ -447,6 +447,8 @@ h1{font-size:34px;font-stretch:118%;letter-spacing:-.025em}#app.sub h1,.full h1{
 #tabbar button[aria-current="page"] .ic{color:var(--accent)}
 .ringbtn{background:var(--chalk);color:var(--chalk-ink)}
 .ringbtn .num{color:var(--chalk-ink)}
+.rbnote{font-size:13px}.rbnote summary{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center;min-height:24px}.rbnote summary::-webkit-details-marker{display:none}.rbnote summary::after{content:"+";font-weight:800;margin-left:8px}.rbnote[open] summary::after{content:"−"}
+.safeln .ic{width:14px;height:14px;vertical-align:-2px;color:var(--good)}
 </style>
 
 <div id="splash" aria-hidden="true"><div class="spl">
@@ -1861,8 +1863,8 @@ function wizHead(){
   const kd=KINDS[W.kind],sp=W.sport?SPI[W.sport]:null;
   const title=W.from?W.from:sp?sp.n:W.kind==="target"&&W.zone?AN[W.zone]:kd.sub;
   const steps=STEPS[W.kind].filter(s=>s!=="summary");
-  return `<div class="whead"><div class="hero ${kd.g}"><div class="art">${fig(sp?sp.pose:kd.pose)}</div><span style="font-size:13px;font-weight:600">${kd.n}</span><b>${esc(title)}</b></div>
-  <div class="adapt"><span class="eyebrow">Adapted to your</span><span class="chips">${steps.map(s=>`<span class="ach${W.done[s]?" on":""}"><span>${ic(STEPICON[s])}</span><small>${STEPCAP[s]}</small></span>`).join("")}</span></div></div>`;
+  const sum=STEPS[W.kind][W.step]==="summary"&&W.plan;
+  return `<div class="whead"><div class="hero ${kd.g}"><div class="art">${fig(sp?sp.pose:kd.pose)}</div><b>${esc(W.kind==="target"&&W.zone?AN[W.zone]:kd.n)}</b>${sum?`<span style="font-size:14px;font-weight:600;opacity:.85">${Math.max(1,Math.round(W.plan.secs/60))} min · ${W.plan.items.length} exercises</span>`:""}</div></div>`;
 }
 SCREENS.wizard=()=>{
   const step=STEPS[W.kind][W.step];
@@ -1900,22 +1902,18 @@ SCREENS.wizard=()=>{
     rows.push(["equip","Your equipment",eqn.length?eqn.join(", "):"None","equip"]);
     rows.push(["target","Your mobility focus",mobilityFocus().map(k=>AN[k]).join(", "),null]);
     if(!W.plan)W.plan=buildPlan(W);
-    body=`<div class="stack" style="gap:6px"><span class="eyebrow">Your choices</span>
-    <div class="sumrows" id="sumrows">${rows.map(r=>`<button class="srow" ${r[3]?`data-act="wGoto" data-s="${r[3]}"`:"disabled"}><span class="bub">${ic(r[0])}</span><span><small>${r[1]}</small><span class="val">${esc(r[2])}</span></span><span class="ok">${ic("check")}</span></button>`).join("")}</div></div>
-    <div class="stack" style="gap:6px"><div style="display:flex;justify-content:space-between;align-items:baseline"><span class="eyebrow">${W.plan.items.length} exercise${W.plan.items.length===1?"":"s"} · ${Math.max(1,Math.round(W.plan.secs/60))} min</span><span style="display:flex;gap:14px"><button class="link" data-act="whySheet">Why these?</button><button class="link" data-act="reshuffle">Shuffle</button></span></div>
-    ${W.plan.warn?`<div class="note-warn" style="font-size:13px"><b>${esc(W.plan.warn)}</b></div>`:""}
-    ${W.plan.excluded?`<div class="note-warn" style="font-size:13px">Adjusted for your Rebuild program: ${esc(W.plan.excluded)}. Exercises it says to avoid are left out.</div>`:""}
-    <div class="preview">${W.plan.items.length?(()=>{let n=0;return(W.plan.blocks||[{name:"",items:W.plan.items}]).map((b,bi)=>`${b.name?`<p class="blk">${esc(b.name)} <span>${Math.round(b.items.reduce((t,it)=>t+itemSecs(it),0)/60)||"<1"} min</span></p>`:""}${b.items.map((it,ii)=>{const ex=LIBI[it.id];n++;return`<div class="ed"><span>${n}</span><span>${esc(ex.n)}${it.why?`<small class="why">${esc(it.why)}</small>`:""}</span><span class="rt"><span>${it.dose?esc(doseText(it).split(" · ")[0]):fmt(it.hold)+(ex.sides?" ×2":"")}</span><span class="pe"><button data-act="wSwap" data-b="${bi}" data-i="${ii}" aria-label="Swap ${esc(ex.n)}">${ic("reset")}</button><button data-act="wRm" data-b="${bi}" data-i="${ii}" aria-label="Remove ${esc(ex.n)}">${ic("x")}</button></span></span></div>`}).join("")}`).join("")})():`<div><span></span><span class="muted">No stretches match this equipment and time. Add equipment or pick more time.</span><span></span></div>`}</div>
+    body=`<div class="stack" style="gap:6px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="chipset">${W.kind==="target"?`<button class="chip" data-act="wGoto" data-s="zone">${ic("target")}${esc(AN[W.zone])}</button>`:""}<button class="chip" data-act="wGoto" data-s="time">${ic("clock")}${W.minutes} min</button><button class="chip" data-act="wGoto" data-s="equip" aria-label="Equipment">${ic("equip")}Kit</button></span><span style="display:flex;gap:14px"><button class="link" data-act="whySheet">Why?</button><button class="link" data-act="reshuffle">Shuffle</button></span></div>
+    ${rbNote(W.plan.warn)}
+    ${W.plan.excluded&&!W.plan.warn?`<p class="muted safeln" style="margin:0;font-size:13px">${ic("check")} Safe for your ${esc(W.plan.excluded.toLowerCase().replace(/ \(.*\)$/,""))}</p>`:""}
+    <div class="preview">${W.plan.items.length?(()=>{let n=0;return(W.plan.blocks||[{name:"",items:W.plan.items}]).map((b,bi)=>`${b.name?`<p class="blk">${esc(b.name)} <span>${Math.round(b.items.reduce((t,it)=>t+itemSecs(it),0)/60)||"<1"} min</span></p>`:""}${b.items.map((it,ii)=>{const ex=LIBI[it.id];n++;return`<div class="ed"><span>${n}</span><span>${esc(ex.n)}</span><span class="rt"><span>${it.dose?esc(doseText(it).split(" · ")[0]):fmt(it.hold)+(ex.sides?" ×2":"")}</span><span class="pe"><button data-act="wSwap" data-b="${bi}" data-i="${ii}" aria-label="Swap ${esc(ex.n)}">${ic("reset")}</button><button data-act="wRm" data-b="${bi}" data-i="${ii}" aria-label="Remove ${esc(ex.n)}">${ic("x")}</button></span></span></div>`}).join("")}`).join("")})():`<div><span></span><span class="muted">No stretches match this equipment and time. Add equipment or pick more time.</span><span></span></div>`}</div>
     <button class="btn sec" data-act="wAdd">${ic("plus","")} Add exercise</button></div>`;
-    cta=`<button class="btn" id="goBtn" data-act="letsGo" disabled>Processing</button>`;
+    cta=`<button class="btn" id="goBtn" data-act="letsGo" ${W.plan.items.length?"":"disabled"}>${W.plan.items.length?"Start":"Nothing to play"}</button>`;
   }
   return hdr(`<button data-act="info" aria-label="About this protocol">${ic("info")}</button>`)+`<div class="stack" style="padding-top:4px">${wizHead()}${body}</div><div class="bottomcta">${cta}</div>`;
 };
 AFTER.wizard=()=>{
   if(STEPS[W.kind][W.step]!=="summary")return;
-  const rows=[...document.querySelectorAll("#sumrows .srow")];
-  rows.forEach((r,i)=>setTimeout(()=>r.classList.add("done"),REDUCED?0:220*(i+1)));
-  setTimeout(()=>{const b=$("#goBtn");if(b&&W.plan.items.length){b.disabled=false;b.textContent="Let's go!"}else if(b){b.textContent="Nothing to play"}},REDUCED?0:220*(rows.length+1));
+
 };
 function wRender(){render();window.scrollTo(0,0)}
 ACT.wNext=()=>{const s=STEPS[W.kind][W.step];W.done[s]=true;if(s==="moves"&&W.sport){S.moves[W.sport]=W.moves.slice();save()}if(s==="equip"){S.equip=W.equip.slice();save()}W.plan=null;
@@ -1928,7 +1926,7 @@ ACT.addMove=d=>{if(!W.moves.includes(d.m))W.moves.push(d.m);render()};
 ACT.rmMove=d=>{W.moves=W.moves.filter(m=>m!==d.m);render()};
 /* editing the chosen exercises on the summary */
 function wSync(){const p=W.plan;p.blocks=(p.blocks||[{name:"",items:p.items}]).filter(b=>b.items.length);p.items=p.blocks.flatMap(b=>b.items);p.secs=p.items.reduce((t,it)=>t+itemSecs(it),0);const y=scrollY;render();scrollTo(0,y);
-  document.querySelectorAll("#sumrows .srow").forEach(r=>r.classList.add("done"));const g=$("#goBtn");if(g){g.disabled=!p.items.length;g.textContent=p.items.length?"Let's go!":"Nothing to play"}}
+  document.querySelectorAll("#sumrows .srow").forEach(r=>r.classList.add("done"));const g=$("#goBtn");if(g){g.disabled=!p.items.length;g.textContent=p.items.length?"Start":"Nothing to play"}}
 ACT.wRm=d=>{const b=W.plan.blocks?W.plan.blocks[+d.b]:{items:W.plan.items};b.items.splice(+d.i,1);wSync()};
 function wSwapOptions(it){const ex=LIBI[it.id],ov=e=>e.z.filter(z=>ex.z.includes(z)).length,have=new Set(W.plan.items.map(x=>x.id));
   return LIB.filter(e=>e.id!==ex.id&&!!e.rehab===!!ex.rehab&&!e.custom&&(e.a===ex.a||ov(e)>=2)&&ov(e)>0&&e.eq.every(q=>W.equip.includes(q))&&!have.has(e.id)&&!rbAvoids(e.id))
@@ -1944,7 +1942,7 @@ ACT.wAdd=()=>{sheet(`<h3>Add an exercise</h3><label class="search" style="box-sh
   q.addEventListener("input",draw);draw();setTimeout(()=>q.focus(),50)};
 ACT.wAddPick=d=>{const e=LIBI[d.id];if(!e)return;const it=e.rehab?{id:e.id,dose:newDose(e.id),why:"Your pick."}:{id:e.id,hold:W.kind==="recover"?Math.max(60,e.hold||60):e.hold||30,why:"Your pick."};
   if(W.plan.blocks&&W.plan.blocks.length)W.plan.blocks[W.plan.blocks.length-1].items.push(it);else W.plan.items.push(it);closeSheet();wSync()};
-ACT.reshuffle=()=>{W.plan=buildPlan(W);render();document.querySelectorAll("#sumrows .srow").forEach(r=>r.classList.add("done"));const b=$("#goBtn");if(b&&W.plan.items.length){b.disabled=false;b.textContent="Let's go!"}};
+ACT.reshuffle=()=>{W.plan=buildPlan(W);render();document.querySelectorAll("#sumrows .srow").forEach(r=>r.classList.add("done"));const b=$("#goBtn");if(b&&W.plan.items.length){b.disabled=false;b.textContent="Start"}};
 ACT.letsGo=()=>{const kd=KINDS[W.kind];openPlayer(W.plan.items,{kind:W.kind,focus:focusOf(W),title:kd.n+(W.from?" · "+W.from:W.sport?" · "+SPI[W.sport].n:W.zone?" · "+AN[W.zone]:"")})};
 ACT.whySheet=()=>{
   const{need,parts}=W.plan,mx=Math.max(...Object.values(need))||1;
@@ -3426,6 +3424,8 @@ const RB_PHASE_GATE={
  elbow:{heavy:1,light:1,moves:["Pull-up","Chest-to-bar Pull-up","Bar Muscle-up","Ring Muscle-up","Toes-to-bar","Rope Climb","Farmers Carry","Deadlift","Power Clean","Squat Clean","Snatch","Power Snatch"],
   alt:"use straps, cut the pulling volume, or swap kipping for ring rows"},
 };
+// the Rebuild caution as one tappable line; the full advice opens underneath
+const rbNote=w=>w?`<details class="note-warn rbnote"><summary>Rebuild: lighten or swap today's lifts</summary><div style="margin-top:6px">${esc(w)}</div></details>`:"";
 function rbPhaseWarn(moves,mw){if(!S.rehab)return"";const st=S.rehab,G=RB_PHASE_GATE[st.region],R=REGIONS[st.region];if(!G||!R)return"";
   const phs=rbPhases(R,st.cls);if(!phs||!phs.length)return"";const top=phs.length-1,need=m=>{const h=(mw&&mw[m]!=null?mw[m]:1)>=2,n=h?G.heavy:G.light;return n<0?top:Math.min(n,top)};
   const hit=(moves||[]).filter(m=>G.moves.includes(m)&&st.phase<need(m));if(!hit.length)return"";
@@ -3766,19 +3766,16 @@ function reentryFor(w){
 }
 ACT.breakRecover=()=>{const b=breakInfo(),n=nextSession();startWizard({kind:"activate",sport:S.sports[0]||"crossfit",moves:n?n.moves:[],from:"Back from a break"})};
 const breakPanel=()=>{const b=breakInfo();if(!b)return"";
-  return`<div class="panel"><span class="eyebrow c-warn">Back from a break · ${b.gap} days since your last scores</span>
-   <h3>${b.lastWeek&&b.nowWeek&&b.nowWeek>b.lastWeek?`You last logged Week ${b.lastWeek}. The gym is on Week ${b.nowWeek}.`:"Ease back in this week"}</h3>
-   <p class="muted" style="margin:0;font-size:14px">Don't jump straight to this week's percentages, and don't try to make up the missed sessions. ${b.nowWeek>b.lastWeek+1?`Train with the gym this week but use Week ${b.nowWeek-1}'s loads (about 5% under what's written).`:"Train with the gym but about 5% under what's written."} If your top sets feel like RPE 8 or easier, rejoin the program fully next week. Each session below shows its re-entry load.</p>
-   <button class="btn sec" data-act="breakRecover">Longer warm-up for the next session</button></div>`};
+  return`<div class="panel"><h3>Back from a break</h3><p class="muted" style="margin:0;font-size:14px">${b.gap} days off. Go about 5% lighter this week.</p>
+   <button class="btn sec" data-act="breakRecover">Longer warm-up</button></div>`};
 const wRow=w=>{
   const up=!isPast(w),f=focusOf({kind:"activate",moves:w.moves,mw:moveWeights(w)});
   return `<div class="wrow"><div class="wd"><b>${dayLabel(w.date)}</b>${w.example?'<span class="pill">Example</span>':""}</div>
-   <button class="wt" data-act="editW" data-id="${w.id}"><b>${esc(wTitle(w))}</b><span class="chipset">${w.moves.slice(0,6).map(m=>`<span class="mchip">${esc(m)}</span>`).join("")}${w.moves.length>6?`<span class="mchip">+${w.moves.length-6}</span>`:""}</span>
-   ${w.result?(()=>{const r=w.result.split(/\s*;\s*/).filter(Boolean).map(x=>x.replace(/ RX$/,w.result.includes("scaled")?" RX":""));return`<span class="wres">${r.slice(0,3).map(x=>`<small>${esc(x)}</small>`).join("")}${r.length>3?`<small class="muted">+${r.length-3} more</small>`:""}</span>`})():""}
-   ${w.loggedAt?(()=>{const late=daysFrom(w.date,iso(new Date(w.loggedAt)));return late>1?`<small>Logged ${fromIso(iso(new Date(w.loggedAt))).toLocaleDateString(undefined,{day:"numeric",month:"short"})}, ${late} days after the workout</small>`:""})():""}
-   ${up&&reentryFor(w)?`<small class="c-warn">Re-entry: ${esc(reentryFor(w))}</small>`:""}
-   ${up&&w!==nextSession()&&rbWorkoutWarn(w.moves,moveWeights(w))?`<small class="c-warn">Rebuild: scale or swap part of this one. Tap Prepare for details.</small>`:""}
-   ${w.moves.length?`<small>Loads ${f.map(k=>AN[k]).join(" & ")}</small>`:/rest|recovery|off/i.test(w.title||"")?"":`<small>No movements found. Tap to add them.</small>`}</button>
+   <button class="wt" data-act="editW" data-id="${w.id}"><b>${esc(wTitle(w))}</b>
+   ${w.result?(()=>{const r=w.result.split(/\s*;\s*/).filter(Boolean).map(x=>x.replace(/ RX$/,w.result.includes("scaled")?" RX":""));return`<span class="wres">${r.slice(0,2).map(x=>`<small>${esc(x)}</small>`).join("")}${r.length>2?`<small class="muted">+${r.length-2} more</small>`:""}</span>`})():""}
+   ${up&&reentryFor(w)?`<small class="c-warn">Go ~5% lighter</small>`:""}
+   ${up&&w!==nextSession()&&rbWorkoutWarn(w.moves,moveWeights(w))?`<small class="c-warn">Rebuild: lighten or swap</small>`:""}
+   ${w.moves.length||/rest|recovery|off/i.test(w.title||"")?"":`<small>No movements found. Tap to add them.</small>`}</button>
    <div class="wa">${up&&w.moves.length?`<button class="link" data-act="prepW" data-id="${w.id}">Prepare</button>`:""}${w.moves.length&&(!up||w.date===todayIso())?`<button class="link" data-act="recW" data-id="${w.id}">${(n=>n>1?`Recover all ${n}`:"Recover")(didIt(w)?sessionsDoneOn(doneDay(w)).length:0)}</button>`:""}</div></div>`;
 };
 SCREENS.training=()=>{
@@ -3790,24 +3787,24 @@ SCREENS.training=()=>{
   ${S.training.length?"":`<div class="banner" data-tour="bring"><div><h3>Bring in your workouts</h3><p class="muted" style="font-size:14px;margin:6px 0 0">Add the workouts you train: type one in, paste it from any whiteboard, or import from SugarWOD. Range finds the movements, then prepares you for upcoming sessions and helps you recover from past ones.</p></div><button class="btn" data-act="addW">Add a workout</button><button class="btn sec" data-act="importW">Import from SugarWOD</button><button class="btn sec" data-act="exampleWeek">Try with an example week</button></div>`}
   ${(()=>{const sy=S.sync||{};
     if(API)return connPanel();
-    if(syncAvail===false&&!sy.key&&sy.preload)return`<div class="panel"><span class="eyebrow c-good">SugarWOD · connected</span><div style="font-size:14px">Last synced ${agoText(sy.preload.syncedAt)} · ${sy.preload.count} workouts (your results and the coming week).</div></div>`;
+    if(syncAvail===false&&!sy.key&&sy.preload)return`<div class="panel" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-block:12px"><span style="font-size:14px;font-weight:600">SugarWOD</span><span class="muted" style="font-size:13px">Synced ${agoText(sy.preload.syncedAt)}</span></div>`;
     if(syncAvail===false&&!sy.key)return`<div class="panel"><span class="eyebrow">SugarWOD auto-sync</span><div style="font-size:14px">Want your whiteboard to arrive here by itself every hour? It takes a one-time setup (see the README). Until then, use Import.</div></div>`;
     // a sync file next to the app but no passphrase on this phone (a new phone, or signed out and back in): a small Connect row,
     // so the Sync now card is one tap away again. Nothing while there's no sync file (or it's still being checked)
     if(!sy.key)return syncAvail?`<div class="panel" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-block:12px"><span class="eyebrow" style="margin:0">SugarWOD auto-sync</span><button class="syncbtn" data-act="syncKey">${ic("sync")}Connect</button></div>`:"";
-    return`<div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span class="eyebrow ${sy.error?"c-bad":"c-good"}">SugarWOD auto-sync ${sy.error?"· needs attention":"· on"}</span>${syncBtn()}</div>
-      <div style="font-size:14px">${sy.error?esc(sy.error):syncAvail===false?"No sync file found. Check the workflow runs on GitHub.":`Synced ${agoText(sy.checked)} · ${sy.count||0} workouts<br><span class="muted" style="font-size:13px">SugarWOD read ${agoText(sy.syncedAt)} (GitHub refreshes it every hour)</span>`}</div><button class="link" style="justify-self:start" data-act="syncKey">Change passphrase</button></div>`})()}
+    // connected: one row (name, last sync, Sync). The passphrase link only shows when something needs fixing; tapping the name also opens it
+    return`<div class="panel" style="gap:8px;padding-block:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><button data-act="syncKey" style="display:grid;text-align:left;min-height:44px;align-content:center" aria-label="SugarWOD settings"><span style="font-size:14px;font-weight:600">SugarWOD</span><span class="${sy.error?"c-bad":"muted"}" style="font-size:12px">${sy.error?"Needs attention":syncAvail===false?"No sync file found":`Synced ${agoText(sy.checked)}`}</span></button>${syncBtn()}</div>
+      ${sy.error||syncAvail===false?`<div style="font-size:13px">${sy.error?esc(sy.error):"Check the workflow runs on GitHub."}</div><button class="link" style="justify-self:start" data-act="syncKey">Change passphrase</button>`:""}</div>`})()}
   ${breakPanel()}
   ${nx?`<div class="panel"><span class="eyebrow">Next session · ${dayLabel(nx.date)}</span><h3 class="clamp2">${esc(wTitle(nx))}</h3>
-     <div class="chipset">${nx.moves.map(m=>`<span class="mchip">${esc(m)}</span>`).join("")}</div>
-     <p class="muted" style="margin:0;font-size:14px">${nx.moves.length?`Needs the most from your ${focusOf({kind:"activate",moves:nx.moves,mw:moveWeights(nx)}).map(k=>`${AN[k]} (score ${sc[k]})`).join(" and ")}.`:"Add movements so Range knows what to prepare."}</p>
-     ${(w=>w?`<div class="note-warn" style="font-size:13px"><b>${esc(w)}</b></div>`:"")(rbWorkoutWarn(nx.moves,moveWeights(nx)))}
-     <button class="btn" data-act="prepNext" ${nx.moves.length?"":"disabled"}>Prepare for it</button></div>`:""}
+     ${nx.moves.length?"":`<p class="muted" style="margin:0;font-size:14px">Add movements so Range knows what to prepare.</p>`}
+     ${rbNote(rbWorkoutWarn(nx.moves,moveWeights(nx)))}
+     <button class="btn" data-act="prepNext" ${nx.moves.length?"":"disabled"}>Prepare</button></div>`:""}
   ${rec.length?`<div class="panel"><span class="eyebrow">${recLabel(rec)}</span><h3>${esc(rec.map(wTitle).join(" + "))}</h3>
-     <p class="muted" style="margin:0;font-size:14px">Long holds for the areas these sessions loaded.</p><button class="btn sec" data-act="recoverRecent">Start recovery</button></div>`:""}
+<button class="btn sec" data-act="recoverRecent">Recover</button></div>`:""}
   ${S.training.length?`<div class="panel"><span class="eyebrow">Load from the last 3 days</span>
      <ul class="bars">${AREAS.map(a=>{const v=load[a.k]/mx;const c=v>.66?"var(--bad)":v>.33?"var(--warn)":"var(--good)";return`<li><span>${a.n}</span><span class="tr"><i style="width:${Math.max(4,v*100)}%;background:${c}"></i></span><b style="font-size:11px;color:var(--muted)">${v>.66?"High":v>.33?"Mid":"Low"}</b></li>`}).join("")}</ul></div>`:""}
-  ${ups.length?`<div class="stack" style="gap:4px"><span class="eyebrow">This week · prepare or recover</span><div class="wlist">${ups.map(wRow).join("")}</div></div>`:""}
+  ${ups.length?`<div class="stack" style="gap:4px"><span class="eyebrow">This week</span><div class="wlist">${ups.map(wRow).join("")}</div></div>`:""}
   ${ps.length?`<div class="stack" style="gap:4px"><span class="eyebrow">Recover · your last ${ps.length===1?"session":ps.length+" sessions"}</span><div class="wlist">${ps.map(wRow).join("")}</div></div>`:""}
   </div>`;
 };
