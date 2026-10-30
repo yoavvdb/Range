@@ -1888,12 +1888,16 @@ function startWizard(o){
   if(W.minutes==null)W.minutes=(S.lastMin||{})[W.kind]||null;
   go("wizard",{});
 }
+// which workout movements this session warms up for (Activate) or releases after (Recover)
+function forLine(){if(!(W.kind==="activate"||W.kind==="recover")||!W.moves.length)return"";const m=W.moves.slice(0,4),more=W.moves.length-m.length;
+  const list=m.join(", ").replace(/, ([^,]+)$/,more?", $1":" and $1")+(more?` +${more}`:"");
+  return`<span style="font-size:14px;font-weight:600;line-height:1.3">${W.kind==="activate"?"Warm-up for":"Release after"} ${esc(list)}</span>`}
 function wizHead(){
   const kd=KINDS[W.kind],sp=W.sport?SPI[W.sport]:null;
   const title=W.from?W.from:sp?sp.n:W.kind==="target"&&W.zone?AN[W.zone]:kd.sub;
   const steps=STEPS[W.kind].filter(s=>s!=="summary");
   const sum=STEPS[W.kind][W.step]==="summary"&&W.plan;
-  return `<div class="whead"><div class="hero ${kd.g}"><div class="art">${fig(sp?sp.pose:kd.pose)}</div><b>${esc(W.kind==="target"&&W.zone?AN[W.zone]:kd.n)}</b>${sum?`<span style="font-size:14px;font-weight:600;opacity:.85">${Math.max(1,Math.round(W.plan.secs/60))} min · ${W.plan.items.length} exercises</span>`:""}</div></div>`;
+  return `<div class="whead"><div class="hero ${kd.g}"><div class="art">${fig(sp?sp.pose:kd.pose)}</div><b>${esc(W.kind==="target"&&W.zone?AN[W.zone]:kd.n)}</b>${forLine()}${sum?`<span style="font-size:14px;font-weight:600;opacity:.85">${Math.max(1,Math.round(W.plan.secs/60))} min · ${W.plan.items.length} exercises</span>`:""}</div></div>`;
 }
 SCREENS.wizard=()=>{
   const step=STEPS[W.kind][W.step];
