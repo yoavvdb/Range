@@ -111,7 +111,7 @@ img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;o
 .ntile{background:var(--surface);border-radius:14px;padding:14px;display:grid;gap:6px;text-align:left}
 .ntile b{font-size:16px;font-weight:800;font-stretch:112%;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .ntile .go{justify-self:start;margin-top:4px;padding:6px 14px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:13px}
-#tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(100%,480px);background:var(--bg);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:8px 16px calc(env(safe-area-inset-bottom,0px) + 8px);z-index:10}
+#tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(100%,480px);background:var(--bg);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:8px 16px calc(env(safe-area-inset-bottom,0px) + 8px);z-index:10}
 #tabbar button{display:grid;justify-items:center;gap:2px;font-size:11px;font-weight:700;color:var(--muted);padding:4px}
 #tabbar button[aria-current="page"]{color:var(--accent)}
 #tabbar .ic{width:26px;height:26px}
@@ -460,7 +460,6 @@ h1{font-size:34px;font-stretch:118%;letter-spacing:-.025em}#app.sub h1,.full h1{
 <div id="app"><div id="screen"></div></div>
 <nav id="tabbar" aria-label="Main">
   <button data-act="tab" data-t="home"></button>
-  <button data-act="tab" data-t="training"></button>
   <button data-act="tab" data-t="library"></button>
   <button data-act="tab" data-t="rebuild"></button>
   <button data-act="tab" data-t="profile"></button>
@@ -3785,16 +3784,7 @@ SCREENS.training=()=>{
   <div class="stack" style="padding-top:8px">
   <div style="display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap" data-tour="train-top"><h1>Training</h1><span style="display:flex;gap:16px;align-items:center;padding-bottom:4px">${S.training.length?`<button class="link" data-act="importW">Import</button>`:""}<button class="link" data-act="addW">${ic("plus","")} Add workout</button></span></div>
   ${S.training.length?"":`<div class="banner" data-tour="bring"><div><h3>Bring in your workouts</h3><p class="muted" style="font-size:14px;margin:6px 0 0">Add the workouts you train: type one in, paste it from any whiteboard, or import from SugarWOD. Range finds the movements, then prepares you for upcoming sessions and helps you recover from past ones.</p></div><button class="btn" data-act="addW">Add a workout</button><button class="btn sec" data-act="importW">Import from SugarWOD</button><button class="btn sec" data-act="exampleWeek">Try with an example week</button></div>`}
-  ${(()=>{const sy=S.sync||{};
-    if(API)return connPanel();
-    if(syncAvail===false&&!sy.key&&sy.preload)return`<div class="panel" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-block:12px"><span style="font-size:14px;font-weight:600">SugarWOD</span><span class="muted" style="font-size:13px">Synced ${agoText(sy.preload.syncedAt)}</span></div>`;
-    if(syncAvail===false&&!sy.key)return`<div class="panel"><span class="eyebrow">SugarWOD auto-sync</span><div style="font-size:14px">Want your whiteboard to arrive here by itself every hour? It takes a one-time setup (see the README). Until then, use Import.</div></div>`;
-    // a sync file next to the app but no passphrase on this phone (a new phone, or signed out and back in): a small Connect row,
-    // so the Sync now card is one tap away again. Nothing while there's no sync file (or it's still being checked)
-    if(!sy.key)return syncAvail?`<div class="panel" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-block:12px"><span class="eyebrow" style="margin:0">SugarWOD auto-sync</span><button class="syncbtn" data-act="syncKey">${ic("sync")}Connect</button></div>`:"";
-    // connected: one row (name, last sync, Sync). The passphrase link only shows when something needs fixing; tapping the name also opens it
-    return`<div class="panel" style="gap:8px;padding-block:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><button data-act="syncKey" style="display:grid;text-align:left;min-height:44px;align-content:center" aria-label="SugarWOD settings"><span style="font-size:14px;font-weight:600">SugarWOD</span><span class="${sy.error?"c-bad":"muted"}" style="font-size:12px">${sy.error?"Needs attention":syncAvail===false?"No sync file found":`Synced ${agoText(sy.checked)}`}</span></button>${syncBtn()}</div>
-      ${sy.error||syncAvail===false?`<div style="font-size:13px">${sy.error?esc(sy.error):"Check the workflow runs on GitHub."}</div><button class="link" style="justify-self:start" data-act="syncKey">Change passphrase</button>`:""}</div>`})()}
+  ${sugarRow()}
   ${breakPanel()}
   ${nx?`<div class="panel"><span class="eyebrow">Next session · ${dayLabel(nx.date)}</span><h3 class="clamp2">${esc(wTitle(nx))}</h3>
      ${nx.moves.length?"":`<p class="muted" style="margin:0;font-size:14px">Add movements so Range knows what to prepare.</p>`}
@@ -3802,8 +3792,7 @@ SCREENS.training=()=>{
      <button class="btn" data-act="prepNext" ${nx.moves.length?"":"disabled"}>Prepare</button></div>`:""}
   ${rec.length?`<div class="panel"><span class="eyebrow">${recLabel(rec)}</span><h3>${esc(rec.map(wTitle).join(" + "))}</h3>
 <button class="btn sec" data-act="recoverRecent">Recover</button></div>`:""}
-  ${S.training.length?`<div class="panel"><span class="eyebrow">Load from the last 3 days</span>
-     <ul class="bars">${AREAS.map(a=>{const v=load[a.k]/mx;const c=v>.66?"var(--bad)":v>.33?"var(--warn)":"var(--good)";return`<li><span>${a.n}</span><span class="tr"><i style="width:${Math.max(4,v*100)}%;background:${c}"></i></span><b style="font-size:11px;color:var(--muted)">${v>.66?"High":v>.33?"Mid":"Low"}</b></li>`}).join("")}</ul></div>`:""}
+  ${loadPanel()}
   ${ups.length?`<div class="stack" style="gap:4px"><span class="eyebrow">This week</span><div class="wlist">${ups.map(wRow).join("")}</div></div>`:""}
   ${ps.length?`<div class="stack" style="gap:4px"><span class="eyebrow">Recover · your last ${ps.length===1?"session":ps.length+" sessions"}</span><div class="wlist">${ps.map(wRow).join("")}</div></div>`:""}
   </div>`;
@@ -3906,7 +3895,7 @@ async function autoSync(force){
   if(!force&&S.sync.checked&&Date.now()-S.sync.checked<20*60e3)return;
   let box;
   try{const r=await fetch(SYNC_FILE+"?t="+Date.now(),{cache:"no-store"});if(!r.ok)throw 0;box=await r.json();syncAvail=box&&box.format==="range-sealed/1"}catch(e){syncAvail=false}
-  if(!syncAvail||!S.sync.key){if(stack[stack.length-1].name==="training")render();return}
+  if(!syncAvail||!S.sync.key){if(stack[stack.length-1].name==="profile")render();return}
   try{
     const data=await unsealBox(box,S.sync.key);
     const rows=(data.workouts||[]).map(w=>({date:w.date,title:w.title,text:w.text,result:w.result,loggedAt:w.loggedAt}));
@@ -3918,7 +3907,7 @@ async function autoSync(force){
     S.sync={...S.sync,checked:Date.now(),syncedAt:data.syncedAt||null,count:(data.workouts||[]).length,lastAdded:r.added,error:""};
     if(r.fresh.length)recoverNudge(r.fresh);
   }catch(e){S.sync={...S.sync,checked:Date.now(),error:"The passphrase doesn't open the sync file. Use the RANGE_SYNC_KEY saved in GitHub. If you just changed it there, the file switches to the new one at the next sync (hourly, or run it now: GitHub → Actions → SugarWOD sync → Run workflow)."}}
-  save();const top=stack[stack.length-1].name;if(top==="training"||top==="home")render();
+  save();const top=stack[stack.length-1].name;if(top==="profile"||top==="home")render();
 }
 const agoText=t=>{if(!t)return"never";const m=Math.round((Date.now()-new Date(t))/6e4);return m<2?"just now":m<60?`${m} min ago`:m<1440?`${Math.round(m/60)} h ago`:`${Math.round(m/1440)} d ago`};
 ACT.syncKey=()=>sheet(`<h3>Connect SugarWOD auto-sync</h3><div class="scroll"><p class="muted" style="margin:0;font-size:14px">Enter the passphrase you saved as <b>RANGE_SYNC_KEY</b> in your GitHub repository. It stays on this device and is only used to unlock your workouts.</p>
@@ -4402,6 +4391,20 @@ function radar(sc){
   return `<svg class="radar" viewBox="-70 -8 340 216" role="img" aria-label="Mobility scores by area">${g}</svg>`;
 }
 const KN={activate:"Activate",recover:"Recover",daily:"Daily",target:"Target",single:"Single stretch"};
+// SugarWOD connection, one row on Profile (workouts arrive by themselves and feed Activate, Recover and the load bars)
+function sugarRow(){const sy=S.sync||{};
+    if(API)return connPanel();
+    if(syncAvail===false&&!sy.key&&sy.preload)return`<div class="panel" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-block:12px"><span style="font-size:14px;font-weight:600">SugarWOD</span><span class="muted" style="font-size:13px">Synced ${agoText(sy.preload.syncedAt)}</span></div>`;
+    if(syncAvail===false&&!sy.key)return`<div class="panel"><span class="eyebrow">SugarWOD auto-sync</span><div style="font-size:14px">Want your whiteboard to arrive here by itself every hour? It takes a one-time setup (see the README). Until then, use Import.</div></div>`;
+    // a sync file next to the app but no passphrase on this phone (a new phone, or signed out and back in): a small Connect row,
+    // so the Sync now card is one tap away again. Nothing while there's no sync file (or it's still being checked)
+    if(!sy.key)return syncAvail?`<div class="panel" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-block:12px"><span class="eyebrow" style="margin:0">SugarWOD auto-sync</span><button class="syncbtn" data-act="syncKey">${ic("sync")}Connect</button></div>`:"";
+    // connected: one row (name, last sync, Sync). The passphrase link only shows when something needs fixing; tapping the name also opens it
+    return`<div class="panel" style="gap:8px;padding-block:12px"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><button data-act="syncKey" style="display:grid;text-align:left;min-height:44px;align-content:center" aria-label="SugarWOD settings"><span style="font-size:14px;font-weight:600">SugarWOD</span><span class="${sy.error?"c-bad":"muted"}" style="font-size:12px">${sy.error?"Needs attention":syncAvail===false?"No sync file found":`Synced ${agoText(sy.checked)}`}</span></button>${syncBtn()}</div>
+      ${sy.error||syncAvail===false?`<div style="font-size:13px">${sy.error?esc(sy.error):"Check the workflow runs on GitHub."}</div><button class="link" style="justify-self:start" data-act="syncKey">Change passphrase</button>`:""}</div>`}
+// how hard each area worked in the last 3 days, from the synced workouts
+function loadPanel(){const load=recentLoad(),mx=Math.max(1,...Object.values(load));return S.training.length?`<div class="panel"><span class="eyebrow">Load from the last 3 days</span>
+     <ul class="bars">${AREAS.map(a=>{const v=load[a.k]/mx;const c=v>.66?"var(--bad)":v>.33?"var(--warn)":"var(--good)";return`<li><span>${a.n}</span><span class="tr"><i style="width:${Math.max(4,v*100)}%;background:${c}"></i></span><b style="font-size:11px;color:var(--muted)">${v>.66?"High":v>.33?"Mid":"Low"}</b></li>`}).join("")}</ul></div>`:""}
 SCREENS.profile=()=>{
   const sc=scores(),ov=overall(sc),lv=level(ov),last=S.tests[S.tests.length-1];
   const left=last?30-Math.floor((Date.now()-last.at)/864e5):0;
@@ -4424,6 +4427,8 @@ SCREENS.profile=()=>{
     return`<div class="panel"><span class="eyebrow">Your mobility for your sports${S.scores?"":" · example"}</span>
     ${ks.map(k=>{const r=sportLevel(k,sc),l=level(r.level);return`<div class="slv"><div><b>${SPI[k].n}</b><small class="muted">${r.lim?`Held back most by ${AN[r.lim]}`:"No area holding you back"}</small></div><span class="pill ${l.c}">${r.level}</span></div>`}).join("")}
     <p class="muted" style="margin:0;font-size:13px">Your mobility focus: <b style="color:var(--ink)">${mobilityFocus(sc).map(k=>AN[k]).join(" and ")}</b>. Sessions spend the most time there.${mobilityFocus(sc).includes(weakest)?"":` Your lowest score is ${AN[weakest]}, but ${AN[pri]} matters more for ${ks.map(k=>SPI[k].n).join(" and ")}, so improving it pays off most.`}</p></div>`})()}
+  ${loadPanel()}
+  ${sugarRow()}
   <div class="stats3">
     <div class="tile"><span class="eyebrow">Streak</span><b>${streak()}</b></div>
     <div class="tile"><span class="eyebrow">Min / week</span><b>${S.sessions.filter(s=>s.at>=wk).reduce((t,s)=>t+s.mins,0)}</b></div>
@@ -4670,7 +4675,7 @@ async function acctPull(force){
     S.sync={...S.sync,checked:Date.now(),syncedAt:r.syncedAt,count:r.workouts.length,error:""};
     if(m.fresh.length)recoverNudge(m.fresh);
   }catch(e){if(e.status===401)return authScreen("in");S.sync={...S.sync,checked:Date.now(),error:e.message}}
-  save();const top=stack[stack.length-1].name;if(top==="training"||top==="home")render();
+  save();const top=stack[stack.length-1].name;if(top==="profile"||top==="home")render();
 }
 async function refreshConns(){try{CONNS=(await api("GET","/connections")).connections}catch(e){CONNS=CONNS||[]}const top=stack[stack.length-1].name;if(top==="training"||top==="profile")render()}
 const connStatus=c=>c.status==="ok"?{c:"c-good",t:"on"}:c.status==="auth_failed"?{c:"c-bad",t:"login rejected"}:c.status==="error"?{c:"c-bad",t:"needs attention"}:{c:"",t:"connecting"};
@@ -4988,10 +4993,6 @@ const TOUR_STEPS=[
  {tab:"home",demo:tdPick,el:()=>tq("#layer .tsides"),t:"Right, then left",d:"One-sided checks test your right side first, then your left. Tap Right or Left to switch."},
  {tab:"home",demo:tdPick,el:()=>tq("#layer .tprog"),t:"Your progress",d:()=>`${TSTEPS.length} checks in about 10 minutes. Stop any time: your answers are kept for a week.`},
  {tab:"home",demo:tdPick,el:()=>tq("#layer [data-act=testNext]"),t:"On to the next check",d:"At the end you see your score for each area, and every session adapts to it."},
- {tab:"training",el:()=>{if(tq("[data-tour=bring]"))return null;const t=tq("[data-tour=train-top]"),n=t&&t.nextElementSibling;return n&&/SugarWOD/.test(n.textContent)?n:null},t:"Your SugarWOD workouts",d:"Your gym's workouts arrive here. Range reads the movements in each one."},
- {tab:"training",el:()=>tq("[data-tour=train-top] [data-act=addW]"),t:"Add a workout",d:()=>tq("[data-tour=bring]")?"Type in the workout you're doing, or paste it from any whiteboard. Range finds the movements. Got SugarWOD? Import from it below, or try an example week.":"Training somewhere else? Add the workout by hand: type it in or paste it from any whiteboard."},
- {tab:"training",el:()=>tclose("[data-act=prepNext]",".panel")||tclose("[data-act=prepW]",".wrow"),t:"Prepare for a session",d:"A warm-up built for that workout's movements, weighted toward your weakest areas."},
- {tab:"training",el:()=>tclose("[data-act=recoverRecent]",".panel")||tclose("[data-act=recW]",".wrow"),t:"Recover after",d:"Long holds for the areas your last sessions loaded."},
  {tab:"library",el:()=>tq("#screen .search"),t:"Library",d:"Search every stretch and drill, or browse by muscle or area below. Build and share your own routines here too."},
  {tab:"rebuild",el:()=>tq("[data-act=rbStart]")||tq("[data-tour=rebuild] [data-act=rbPick]"),t:()=>S.rehab?"Your Rebuild program":"Rebuild",d:()=>S.rehab?"Start today's session here. Your pain rating decides when you move to the next phase.":"Sore somewhere? Pick the area: Range screens it, then rebuilds it in phases with clear pain rules."},
  {tab:"profile",el:()=>tq("[data-tour=sports]"),t:"Your sports",d:"Daily sessions lean toward what your sports need. Tap Edit to change them."},
