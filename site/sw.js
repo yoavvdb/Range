@@ -1,5 +1,5 @@
 // Offline support: the app shell is cached on install; fonts are cached the first time they load.
-const CACHE = "range-8297760";
+const CACHE = "range-34457293";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png", "three.module.min.js"];
 
 self.addEventListener("install", (e) => {
@@ -22,7 +22,7 @@ self.addEventListener("fetch", (e) => {
   // Network first for the page (so updates arrive), cache first for everything else.
   if (req.mode === "navigate") {
     e.respondWith(
-      fetch(req).then((res) => { caches.open(CACHE).then((c) => c.put("index.html", res.clone())); return res; })
+      fetch(req, { cache: "no-cache" }).then((res) => { caches.open(CACHE).then((c) => c.put("index.html", res.clone())); return res; })
         .catch(() => caches.match("index.html")),
     );
     return;

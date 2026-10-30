@@ -5117,5 +5117,10 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
+<script>window.RANGE_BUILD="34457293";
+if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
+(()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
+ try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
+  if(m&&m[1]!==window.RANGE_BUILD&&!document.querySelector(".player,.full:not(#gate)")){location.reload();return}}catch(e){}busy=false};
+ document.addEventListener("visibilitychange",check);addEventListener("focus",check);setTimeout(check,4000);setInterval(check,30*60*1000)})();</script>
 </body></html>

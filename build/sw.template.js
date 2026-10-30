@@ -22,7 +22,7 @@ self.addEventListener("fetch", (e) => {
   // Network first for the page (so updates arrive), cache first for everything else.
   if (req.mode === "navigate") {
     e.respondWith(
-      fetch(req).then((res) => { caches.open(CACHE).then((c) => c.put("index.html", res.clone())); return res; })
+      fetch(req, { cache: "no-cache" }).then((res) => { caches.open(CACHE).then((c) => c.put("index.html", res.clone())); return res; })
         .catch(() => caches.match("index.html")),
     );
     return;

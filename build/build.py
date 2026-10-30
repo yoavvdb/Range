@@ -64,7 +64,16 @@ def main():
 <style>html{{background:#0D1015}}:root{{color-scheme:dark;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}}body{{margin:0;font:14px system-ui,sans-serif}}img{{max-width:100%}}[hidden]{{display:none!important}}</style>
 </head><body>
 """
-    sw = """<script>if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>"""
+    version = str(abs(hash(page)) % 10**8)
+    # updates arrive by themselves: whenever the app comes back to the screen (iOS keeps a home-screen app suspended for days)
+    # it asks for sw.js fresh; a new build number there means a newer app, so it reloads, unless a session or test is open,
+    # in which case it waits for the next time the app is reopened
+    sw = """<script>window.RANGE_BUILD="%s";
+if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
+(()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
+ try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\\d+)/);
+  if(m&&m[1]!==window.RANGE_BUILD&&!document.querySelector(".player,.full:not(#gate)")){location.reload();return}}catch(e){}busy=false};
+ document.addEventListener("visibilitychange",check);addEventListener("focus",check);setTimeout(check,4000);setInterval(check,30*60*1000)})();</script>""" % version
     open(os.path.join(DIST, "index.html"), "w", encoding="utf8").write(head + page + "\n" + sw + "\n</body></html>\n")
     manifest = {
         "name": title, "short_name": "Range", "start_url": "./", "scope": "./", "display": "standalone",
@@ -86,7 +95,6 @@ def main():
             if fn.endswith(".png"): shutil.copy(os.path.join(LD, fn), os.path.join(DIST, fn))
     # the 3D library ships with the app so the 3D demos work offline
     shutil.copy(os.path.join(HERE, "three.module.min.js"), os.path.join(DIST, "three.module.min.js"))
-    version = str(abs(hash(page)) % 10**8)
     open(os.path.join(DIST, "sw.js"), "w").write(open(os.path.join(HERE, "sw.template.js")).read().replace("__VERSION__", version))
     print("Built", DIST)
 
