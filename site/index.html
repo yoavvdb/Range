@@ -595,6 +595,18 @@ body.touring .carousel .pcard{height:clamp(220px,32vh,320px)}
 .chart{width:100%;height:auto;display:block;overflow:visible}.chart .cax{fill:var(--muted);font:600 11px var(--f)}.chart .cval2{fill:var(--ink);font:700 12px var(--f);font-variant-numeric:tabular-nums}
 .chart .cdot{transition:r .2s}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 92px);z-index:60;max-width:min(92vw,420px);padding:12px 16px;border-radius:16px;font-size:14px;font-weight:600;text-align:center;color:var(--ink);background:rgba(38,34,29,.92);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:0 8px 24px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.08)}
+/* ===== Rebuild dashboard ===== */
+.rbgo{position:relative;border:0;background:none;padding:0;width:min(100%,150px);aspect-ratio:1;display:block;margin-top:6px;transition:transform 160ms var(--ease-out)}.rbgo:active{transform:scale(.95)}
+.rbgo .rnum .ic{width:48px;height:48px;color:var(--chalk)}
+.rbmeta{display:flex;align-items:baseline;gap:6px}.rbmeta b{font-size:26px;font-weight:800;font-stretch:112%}.rbmeta span{font-size:14px;color:var(--muted)}
+.rbmin{display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%}.rbmin .chip{justify-content:center;padding:9px 0}
+.fpain{font-size:28px;font-weight:800;font-stretch:112%;font-variant-numeric:tabular-nums}.dcell.focus .fic{width:72px;height:72px}
+.rxrow{gap:10px;padding-bottom:4px}.rxm{flex:none;width:132px;display:grid;gap:3px;text-align:left;align-content:start}.rxm .th{display:block;background:var(--stage);border-radius:14px;overflow:hidden}.rxm b{font-size:13px;line-height:1.25}.rxm small{font-size:12px;color:var(--muted)}
+.steps2{gap:0;padding-block:6px}.stp{display:grid;grid-template-columns:34px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);opacity:.62}.stp:last-child{border-bottom:0}.stp.on,.stp.done{opacity:1}
+.stp .sn{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;background:var(--surface2);color:var(--muted)}.stp .sn .ic{width:16px;height:16px}
+.stp.on .sn{background:var(--accent);color:var(--accent-ink)}.stp.done .sn{background:var(--accent-soft);color:var(--accent)}
+.stp b{display:block;font-size:16px}.stp small{display:block;color:var(--muted);font-size:13px}.stp p{margin:6px 0 0;font-size:14px}
+.acc details{border-bottom:1px solid var(--line);padding:2px 0}.acc details:last-child{border-bottom:0}.acc summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;min-height:48px;font-weight:700;font-size:16px}.acc summary::-webkit-details-marker{display:none}.acc summary::after{content:"+";font-weight:800;color:var(--muted)}.acc details[open] summary::after{content:"−"}.acc details>ul,.acc details>div{margin:0 0 12px}
 </style>
 
 <div id="splash" aria-hidden="true"><div class="spl">
@@ -1938,13 +1950,16 @@ function back(){const top=stack[stack.length-1];
   if(stack[0].name==="profile"){const P=PROF_TABS.map(x=>x[0]),k=P.indexOf(PROF_TAB);
     if(dx<0){if(k<P.length-1)ACT.profTab({p:P[k+1]});return}
     if(k>0){ACT.profTab({p:P[k-1]});return}}
+  if(stack[0].name==="rebuild"&&S.rehab){const P=RB_TABS.map(x=>x[0]),k=P.indexOf(RB_TAB);
+    if(dx<0){if(k<P.length-1)ACT.rbTab({p:P[k+1]});return}
+    if(k>0){ACT.rbTab({p:P[k-1]});return}}
   const i=TABS.indexOf(stack[0].name),j=i+(dx<0?1:-1);if(i<0||j<0||j>=TABS.length)return;
   ACT.tab({t:TABS[j]});push(dx<0?1:-1)},{passive:true})})();
 function push(dir){if(REDUCED||TOUR)return;const el=$("#screen");
   try{el.animate(dir>0?[{transform:"translateX(100%)",boxShadow:"-12px 0 24px rgba(0,0,0,.35)"},{transform:"none",boxShadow:"none"}]:[{transform:"translateX(-30%)",opacity:.6},{transform:"none",opacity:1}],{duration:dir>0?420:360,easing:"cubic-bezier(.32,.72,0,1)"})}catch(e){}}
 ACT.back=back;
 let PROF_ANIM=false;
-ACT.tab=d=>{if(d.t==="profile"&&stack[0].name!=="profile")PROF_ANIM=true;stack=[{name:d.t,p:{}}];render();window.scrollTo(0,0)};
+ACT.tab=d=>{if(d.t==="profile"&&stack[0].name!=="profile")PROF_ANIM=true;if(d.t==="rebuild"&&stack[0].name!=="rebuild")RB_ANIM=true;stack=[{name:d.t,p:{}}];render();window.scrollTo(0,0)};
 
 const hdr=(right="")=>`<div class="hdr"><button data-act="back" aria-label="Back">${ic("back")}</button><div class="brand">Range<b>.</b></div><div>${right}</div></div>`;
 function render(){
@@ -1971,7 +1986,9 @@ function rbRestore(){const d=S.rbDraft;rbRestored=true;if(!d||!REGIONS[d.r]||Dat
 const SCREENS={},AFTER={};
 // arriving on Profile, the score counts up and its bars grow (once per visit, not on every refresh)
 AFTER.profile=()=>{const on=document.querySelector(".cchips .chip.on");if(on&&on.offsetLeft>on.parentElement.clientWidth-90)on.parentElement.scrollLeft=on.offsetLeft-20;
-  if(!PROF_ANIM||REDUCED||TOUR){PROF_ANIM=false;return}PROF_ANIM=false;
+  if(!PROF_ANIM||REDUCED||TOUR){PROF_ANIM=false;return}PROF_ANIM=false;dashAnim()};
+AFTER.rebuild=()=>{if(!RB_ANIM||REDUCED||TOUR){RB_ANIM=false;return}RB_ANIM=false;dashAnim()};
+function dashAnim(){
   const b=document.querySelector(".ringnum");if(b){const to=+b.textContent||0,t0=performance.now(),D=900;
     const step=t=>{const k=Math.min(1,(t-t0)/D),e=1-Math.pow(1-k,3);b.textContent=Math.round(to*e);if(k<1)requestAnimationFrame(step)};b.textContent="0";requestAnimationFrame(step)}
   const rf=document.querySelector(".rfg");if(rf){const o=rf.getAttribute("stroke-dashoffset"),c=rf.getAttribute("stroke-dasharray");try{rf.animate([{strokeDashoffset:c},{strokeDashoffset:o}],{duration:1000,easing:"cubic-bezier(.23,1,.32,1)"})}catch(e){}}
@@ -1979,7 +1996,7 @@ AFTER.profile=()=>{const on=document.querySelector(".cchips .chip.on");if(on&&on
   const cp=document.querySelector(".cpath");if(cp){try{cp.animate([{strokeDasharray:"1 1",strokeDashoffset:1},{strokeDasharray:"1 1",strokeDashoffset:0}],{duration:1100,easing:"cubic-bezier(.23,1,.32,1)"})}catch(e){}
     const ca=document.querySelector(".carea");if(ca){try{ca.animate([{opacity:0},{opacity:1}],{duration:900,delay:300,fill:"backwards"})}catch(e){}}
     document.querySelectorAll(".cdot,.cval2").forEach((d,n)=>{try{d.animate([{opacity:0},{opacity:1}],{duration:400,delay:500+n*60,fill:"backwards"})}catch(e){}})}
-  const mi=document.querySelector(".mbar i");if(mi){try{mi.animate([{transform:"scaleX(0)"},{transform:"none"}],{duration:900,delay:100,easing:"cubic-bezier(.23,1,.32,1)"});mi.style.transformOrigin="left"}catch(e){}}};
+  const mi=document.querySelector(".mbar i");if(mi){try{mi.animate([{transform:"scaleX(0)"},{transform:"none"}],{duration:900,delay:100,easing:"cubic-bezier(.23,1,.32,1)"});mi.style.transformOrigin="left"}catch(e){}}}
 
 /* ================= home ================= */
 function greeting(){const h=new Date().getHours();return h<5?"Good evening":h<12?"Good morning":h<18?"Good afternoon":"Good evening"}
@@ -4414,44 +4431,76 @@ function spark(logs){
    <line x1="${pad}" x2="${w-pad}" y1="${y(PAIN_OK)}" y2="${y(PAIN_OK)}" class="sl"/><text x="${w-pad}" y="${y(PAIN_OK)-4}" text-anchor="end" class="st">${PAIN_OK}/10</text>
    <polyline points="${pts}" class="sp"/>${logs.map((l,i)=>`<circle cx="${x(i)}" cy="${y(l.testPain)}" r="${i===n-1?4:2.5}" class="sd"/>`).join("")}</svg>`;
 }
+/* ================= Rebuild: the same three slides as Profile ================= */
+let RB_TAB="today",RB_ANIM=false;const RB_TABS=[["today","Today"],["plan","Program"],["prog","Progress"]];
+const painCol=v=>v<=PAIN_OK?"var(--good)":v<=PAIN_STOP?"var(--accent)":v<=7?"var(--warn)":"var(--bad)";
+const lastPain=st=>{const L=(st.logs||[]).slice(-1)[0];return L?(L.testR!=null?Math.max(L.testR,L.testL):L.testPain):null};
+function rbTodayPane(st,R,phs,ph,stt,items){
+  const g=rbProgress(),n=phs.length,pct=Math.round(Math.min(1,(Math.min(g.days,g.min)/Math.max(1,g.min)+Math.min(g.streak,3)/3)/2)*100),lp=lastPain(st),mins=rbMinutes();
+  const tone={back:"c-bad",stuck:"c-bad",ready:"c-good",done:"c-good"}[stt.k];
+  return`<div class="dgrid">
+    <div class="dcell time"><span class="dt">Phase</span><div class="dsub">${esc(ph.n)}</div><b class="dbig">${st.phase+1}/${n}</b><div class="mbar" role="img" aria-label="Day ${Math.min(g.days,g.min)} of ${g.min}"><i style="width:${Math.max(2,Math.min(100,g.days/Math.max(1,g.min)*100))}%"></i></div><div class="dnext"><span>Day</span><b>${g.days}/${g.min}</b></div></div>
+    <div class="dcell score" data-tour="rbtoday"><span class="dt">Today</span>
+      <button class="ringwrap rbgo" data-act="rbStart" aria-label="Start today's session">${ringSvg(pct,"var(--accent)")}<span class="rnum">${icf("play")}</span></button>
+      <div class="rbmeta"><b>${items.length}</b><span>exercises</span></div>
+      <div class="chipset rbmin" role="group" aria-label="Session length">${[10,15,20,30].map(m=>`<button class="chip ${mins===m?"on":""}" data-act="rbMin" data-m="${m}" aria-pressed="${mins===m}">${m}</button>`).join("")}</div></div>
+    <div class="dcell focus"><span class="dt">Pain</span><div class="fic" style="${lp!=null?`color:${painCol(lp)};box-shadow:inset 0 0 0 2px ${painCol(lp)}`:""}"><b class="fpain">${lp!=null?lp:"–"}</b></div><small class="muted">${lp!=null?"/ 10":"No sessions yet"}</small></div>
+  </div>
+  ${tone?`<div class="panel status"><span class="eyebrow ${tone}">${{back:"Back off",stuck:"Get it checked",ready:"Ready to progress",done:"Program complete"}[stt.k]}</span><div>${esc(stt.t)}</div>${stt.k==="ready"?`<button class="btn" data-act="rbNext">Move to phase ${st.phase+2}</button>`:""}</div>`:""}
+  <div class="stack" style="gap:8px"><div style="display:flex;justify-content:space-between;align-items:baseline"><h3>Session</h3><span class="muted" style="font-size:13px">${mins} min</span></div>
+    <div class="hscroll rxrow">${items.map(it=>{const e=LIBI[it.id];return`<button class="rxm" data-act="openEx" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><b>${esc(e.n)}</b><small>${esc(doseText(it))}</small></button>`}).join("")}</div></div>`}
+function rbPlanPane(st,R,C,phs,ph){
+  const g=rbProgress(),bar=(v,m)=>`<span class="tr"><i style="width:${Math.min(100,v/m*100)}%;background:${v>=m?"var(--good)":"var(--accent)"}"></i></span>`;
+  return`<div class="panel steps2">${phs.map((p,i)=>`<div class="stp ${i<st.phase?"done":i===st.phase?"on":""}"><span class="sn">${i<st.phase?ic("check"):i+1}</span><div><b>${esc(p.n)}</b><small>${p.min}+ d · ${esc(p.freq)}</small>${i===st.phase?`<p>${esc(p.goal)}</p>`:""}</div></div>`).join("")}</div>
+  ${ph.last?"":`<div class="panel"><h3>Unlock phase ${st.phase+2}</h3>
+    <ul class="bars gates">
+     <li><span>${g.timeOk?"✓ ":""}Time</span>${bar(g.days,g.min)}<b>${Math.min(g.days,g.min)}/${g.min} d</b></li>
+     <li><span>${g.painOk?"✓ ":""}Pain ≤${PAIN_OK}</span>${bar(g.streak,3)}<b>${g.streak}/3</b></li>
+    </ul>
+    <p class="muted" style="margin:0;font-size:14px">${esc(ph.exit)}</p>
+    ${g.timeOk&&g.painOk?"":`<button class="link muted" style="justify-self:start" data-act="rbForce">My physio cleared me</button>`}</div>`}
+  <div class="panel acc"><details><summary>Do</summary><ul class="tick">${C.habits.map(h=>`<li>${esc(h)}</li>`).join("")}</ul></details>
+    <details><summary>Avoid</summary><ul class="cross">${C.avoid.map(h=>`<li>${esc(h)}</li>`).join("")}</ul>${(st.notes||[]).map(n=>`<div class="note-warn">${esc(n)}</div>`).join("")}</details>
+    <details><summary>See a physio if</summary><ul class="cross">${[...R.urgent,...R.doctor,"Pain is getting worse week to week","There's no real change after 3 weeks"].map(h=>`<li>${esc(h)}</li>`).join("")}</ul></details></div>
+  ${myProtosPanel()}`}
+function rbChart(st){
+  const logs=(st.logs||[]).map(l=>({at:l.at,v:l.testR!=null?Math.max(l.testR,l.testL):l.testPain}));
+  if(!logs.length)return`<div class="panel chartp"><span class="dt">Pain before each session</span><p class="muted" style="margin:0;font-size:14px">Your line appears after the first session.</p></div>`;
+  const W=320,H=190,L=30,R=14,T=26,B=28,lo=0,hi=10,t0=logs[0].at,t1=logs[logs.length-1].at,xs=at=>logs.length===1||t1===t0?(L+W-R)/2:L+(at-t0)/(t1-t0)*(W-L-R),ys=v=>T+(1-(v-lo)/(hi-lo))*(H-T-B);
+  const pts=logs.map(x=>[xs(x.at),ys(x.v)]),line=smoothPath(pts),area=pts.length>1?`${line}L${pts[pts.length-1][0].toFixed(1)} ${H-B}L${pts[0][0].toFixed(1)} ${H-B}Z`:"",last=logs[logs.length-1].v,col=painCol(last),dt=at=>new Date(at).toLocaleDateString(undefined,{month:"short",day:"numeric"}),delta=logs.length>1?last-logs[0].v:null;
+  return`<div class="panel chartp"><span class="dt">Pain before each session</span><div class="cval"><b style="color:${col}">${last}</b><span class="muted">/ 10</span>${delta!=null?`<span class="${delta<0?"c-good":delta>0?"c-bad":"muted"}">${delta>0?"+":""}${delta} since ${dt(t0)}</span>`:""}</div>
+   <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Pain over ${logs.length} session${logs.length===1?"":"s"}, latest ${last} out of 10">
+    <defs><linearGradient id="cg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".3"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
+    ${[0,5,10].map(v=>`<line x1="${L}" x2="${W-R}" y1="${ys(v).toFixed(1)}" y2="${ys(v).toFixed(1)}" stroke="var(--line)" stroke-dasharray="3 4"/><text x="${L-6}" y="${(ys(v)+4).toFixed(1)}" text-anchor="end" class="cax">${v}</text>`).join("")}
+    <line x1="${L}" x2="${W-R}" y1="${ys(PAIN_OK).toFixed(1)}" y2="${ys(PAIN_OK).toFixed(1)}" stroke="var(--good)" stroke-width="1.5" stroke-dasharray="5 4" opacity=".7"/>
+    ${area?`<path d="${area}" fill="url(#cg2)" class="carea"/>`:""}${line?`<path d="${line}" fill="none" stroke="${col}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="cpath" pathLength="1"/>`:""}
+    ${pts.map((q,i)=>{const lastp=i===pts.length-1;return`<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="${lastp?5.5:4}" fill="${lastp?painCol(logs[i].v):"var(--bg)"}" stroke="${painCol(logs[i].v)}" stroke-width="2.5" class="cdot"/>${logs.length<=6||lastp?`<text x="${q[0].toFixed(1)}" y="${(q[1]-11).toFixed(1)}" text-anchor="middle" class="cval2">${logs[i].v}</text>`:""}`}).join("")}
+    <text x="${logs.length===1?pts[0][0]:L}" y="${H-8}" text-anchor="${logs.length===1?"middle":"start"}" class="cax">${dt(t0)}</text>${logs.length>1?`<text x="${W-R}" y="${H-8}" text-anchor="end" class="cax">${dt(t1)}</text>`:""}
+   </svg></div>`}
+function rbProgPane(st,phs){const days=Math.floor((Date.now()-st.started)/dayMs);
+  return`${rbChart(st)}<div class="stats3">
+    <div class="tile"><span class="eyebrow">Sessions</span><b>${(st.logs||[]).length}</b></div>
+    <div class="tile"><span class="eyebrow">Days</span><b>${days}</b></div>
+    <div class="tile"><span class="eyebrow">Phase</span><b>${st.phase+1}/${phs.length}</b></div>
+  </div>`}
 SCREENS.rebuild=()=>{
-  const head=`<div class="hdr" style="grid-template-columns:1fr"><div class="brand">Range<b>.</b></div></div>`;
-  if(!S.rehab)return head+`<div class="stack" style="padding-top:8px">
+  if(!S.rehab)return`<div class="hdr" style="grid-template-columns:1fr"><div class="brand">Range<b>.</b></div></div><div class="stack" style="padding-top:8px">
    <h1>Rebuild</h1>
-   <p class="muted" style="margin:0">Pain-guided programs for athletes. You screen the area yourself, Range works out what kind of problem it is, then takes you through staged phases. Your pain rating each session decides when to hold back and when to move on.</p>
    <div class="sports" data-tour="rebuild">${Object.entries(REGIONS).map(([k,R])=>`<button class="scard g-${["a","b","c","d"][Object.keys(REGIONS).indexOf(k)%4]}" data-act="rbPick" data-r="${k}"><div class="art">${fig(R.fig,null,{t:.8})}</div><b>${R.n}</b></button>`).join("")}</div>
-   ${myProtosPanel()}
-   <p class="muted" style="margin:0;font-size:12px">Based on the screening and rebuilding method in <i>Rebuilding Milo</i> (Horschig & Sonthana), checked against current physiotherapy research. Range doesn't diagnose. See a physiotherapist if pain is severe, getting worse, or not improving after 3 weeks.</p></div>`;
+   ${myProtosPanel()}</div>`;
   const st=S.rehab,R=REGIONS[st.region],C=R.classes[st.cls],phs=rbPhases(R,st.cls),ph=phs[st.phase],stt=rbStatus(),items=rbItems();
-  const tone={back:"c-bad",stuck:"c-bad",ready:"c-good",done:"c-good",ok:"c-top",start:"c-top"}[stt.k];
-  return head+`<div class="stack" style="padding-top:8px">
-   <div><span class="eyebrow">Rebuild · ${R.n}${st.side&&st.side!=="both"?` · ${st.side} side`:""}</span><h1 style="margin-top:4px">${C.n}</h1></div>
-   <div class="phases">${phs.map((p,i)=>`<div class="ph ${i<st.phase?"done":i===st.phase?"on":""}"><span>${i+1}</span>${esc(p.n)}<small>${p.min}+ d</small></div>`).join("")}</div>
-   <div class="panel status"><span class="eyebrow ${tone}">${{back:"Back off",stuck:"Get it checked",ready:"Ready to progress",done:"Program complete",ok:"Status",start:"How it works"}[stt.k]}</span><div>${esc(stt.t)}</div>
-    ${stt.k==="ready"?`<p style="margin:0"><b>Last check:</b> ${esc(ph.exit)}</p><button class="btn" data-act="rbNext">Yes, move to phase ${st.phase+2}</button>`:""}</div>
-   ${(()=>{if(ph.last)return"";const g=rbProgress(),bar=(v,m)=>`<span class="tr"><i style="width:${Math.min(100,v/m*100)}%;background:${v>=m?"var(--good)":"var(--accent)"}"></i></span>`;
-     return`<div class="panel"><span class="eyebrow">To unlock phase ${st.phase+2} · ${esc(phs[st.phase+1].n)}</span>
-      <ul class="bars gates">
-       <li><span>${g.timeOk?"✓ ":""}Time in phase</span>${bar(g.days,g.min)}<b>${Math.min(g.days,g.min)}/${g.min} d</b></li>
-       <li><span>${g.painOk?"✓ ":""}Sessions ≤${PAIN_OK}/10 in a row</span>${bar(g.streak,3)}<b>${g.streak}/3</b></li>
-      </ul>
-      <p class="muted" style="margin:0;font-size:14px"><b>And:</b> ${esc(ph.exit)}</p>
-      ${g.timeOk&&g.painOk?"":`<p style="margin:0;font-size:14px">Earliest: <b>${g.earliest.toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short"})}</b>, if every session stays at ${PAIN_OK}/10 or lower. A session above that restarts the count.</p><button class="link muted" style="justify-self:start" data-act="rbForce">My physio cleared me to move on</button>`}</div>`})()}
-   <div class="panel"><span class="eyebrow">Phase ${st.phase+1} · ${esc(ph.freq)}</span><h3>${esc(ph.goal)}</h3>
-    <div class="chipset" role="group" aria-label="Session length">${[10,15,20,30].map(m=>`<button class="chip ${rbMinutes()===m?"on":""}" data-act="rbMin" data-m="${m}" aria-pressed="${rbMinutes()===m}">${m} min</button>`).join("")}</div>
-    <div class="rxlist">${items.map(it=>{const e=LIBI[it.id];return`<button class="rx" data-act="openEx" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><span><b>${esc(e.n)}</b><small>${esc(doseText(it))}</small></span></button>`}).join("")}</div>
-    <button class="btn" data-act="rbStart">${icf("play")}Start today's session</button>
-    </div>
-   <div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline"><span class="eyebrow">${esc(R.test.n)} · pain before each session</span>${st.logs.length?(()=>{const L=st.logs[st.logs.length-1];return`<b style="font-variant-numeric:tabular-nums;white-space:nowrap">${L.testR!=null?`R ${L.testR} · L ${L.testL}`:`${L.testPain}/10`}</b>`})():""}</div>
-    ${st.logs.length>1?spark(st.logs):`<p class="muted" style="margin:0;font-size:14px">Your trend appears after two sessions.</p>`}</div>
-   <div class="panel"><h3>For now, do</h3><ul class="tick">${C.habits.map(h=>`<li>${esc(h)}</li>`).join("")}</ul>
-    <h3>For now, avoid</h3><ul class="cross">${C.avoid.map(h=>`<li>${esc(h)}</li>`).join("")}</ul>
-    ${(st.notes||[]).map(n=>`<div class="note-warn">${esc(n)}</div>`).join("")}</div>
-   <div class="panel"><h3>See a physiotherapist or doctor if</h3><ul class="cross">${[...R.urgent,...R.doctor,"Pain is getting worse week to week","There's no real change after 3 weeks"].map(h=>`<li>${esc(h)}</li>`).join("")}</ul></div>
-   ${myProtosPanel()}
-   <div class="row2"><button class="btn sec" data-act="rbPick" data-r="${st.region}">Redo the screen</button><button class="btn sec" data-act="rbEnd">End program</button></div>
-  </div>`;
-};
+  return`<div class="hdr"><span></span><div class="brand">Range<b>.</b></div><button data-act="rbMenu" aria-label="Program options">${ic("dots")}</button></div>
+  <div class="stack" style="padding-top:4px">
+  <div class="phead"><button class="avatar" data-act="rbMenu" aria-label="Program options">${ic("heart")}</button>
+    <div class="pwho"><button class="pname" data-act="rbMenu">${esc(C.n)}</button><span class="pprog" style="cursor:default"><i class="pdot"></i>${esc(R.n)}${st.side&&st.side!=="both"?` · ${esc(st.side)}`:""}</span></div></div>
+  <div class="pseg" role="tablist"><i class="plens" style="--pi:${RB_TABS.findIndex(t=>t[0]===RB_TAB)}"></i>${RB_TABS.map(([k,n])=>`<button role="tab" aria-selected="${k===RB_TAB}" class="${k===RB_TAB?"on":""}" data-act="rbTab" data-p="${k}">${n}</button>`).join("")}</div>
+  <div id="pane" class="stack">${RB_TAB==="today"?rbTodayPane(st,R,phs,ph,stt,items):RB_TAB==="plan"?rbPlanPane(st,R,C,phs,ph):rbProgPane(st,phs)}</div>
+  </div>`};
+ACT.rbTab=d=>{const a=RB_TABS.findIndex(t=>t[0]===RB_TAB),b=RB_TABS.findIndex(t=>t[0]===d.p);if(a===b||b<0)return;RB_TAB=d.p;RB_ANIM=true;render();window.scrollTo(0,0);
+  if(!REDUCED){const el=$("#pane");try{el&&el.animate([{opacity:0,transform:`translateX(${(b>a?1:-1)*36}px)`},{opacity:1,transform:"none"}],{duration:380,easing:"cubic-bezier(.32,.72,0,1)"})}catch(e){}}};
+ACT.rbMenu=()=>{const st=S.rehab;if(!st)return;sheet(`<h3>${esc(REGIONS[st.region].n)}</h3><div style="display:grid;gap:8px"><button class="btn sec" data-act="rbRedo">Redo the screen</button><button class="btn sec" style="color:var(--bad)" data-act="rbEndFromMenu">End program</button></div>`)};
+ACT.rbRedo=()=>{closeSheet();ACT.rbPick({r:S.rehab.region})};
+ACT.rbEndFromMenu=()=>{closeSheet();ACT.rbEnd()};
 let RB=null;
 ACT.rbPick=d=>{RB={r:d.r,flags:new Set(),step:0,ans:[]};go("rbflags",{})};
 SCREENS.rbflags=()=>{
@@ -5287,7 +5336,7 @@ const TOUR_STEPS=[
  {tab:"home",demo:tdPick,el:()=>tq("#layer .tprog"),t:"Your progress",d:()=>`${TSTEPS.length} checks in about 10 minutes. Stop any time: your answers are kept for a week.`},
  {tab:"home",demo:tdPick,el:()=>tq("#layer [data-act=testNext]"),t:"On to the next check",d:"At the end you see your score for each area, and every session adapts to it."},
  {tab:"library",el:()=>tq("#screen .search"),t:"Library",d:"Search every stretch and drill, or browse by muscle or area below. Build and share your own routines here too."},
- {tab:"rebuild",el:()=>tq("[data-act=rbStart]")||tq("[data-tour=rebuild] [data-act=rbPick]"),t:()=>S.rehab?"Your Rebuild program":"Rebuild",d:()=>S.rehab?"Start today's session here. Your pain rating decides when you move to the next phase.":"Sore somewhere? Pick the area: Range screens it, then rebuilds it in phases with clear pain rules."},
+ {tab:"rebuild",rbPane:"today",el:()=>tq("[data-tour=rbtoday]")||tq("[data-act=rbStart]")||tq("[data-tour=rebuild] [data-act=rbPick]"),t:()=>S.rehab?"Your Rebuild program":"Rebuild",d:()=>S.rehab?"Start today's session here. Your pain rating decides when you move to the next phase.":"Sore somewhere? Pick the area: Range screens it, then rebuilds it in phases with clear pain rules."},
  {tab:"profile",pane:"dash",el:()=>tq("[data-tour=program]"),t:"Your program",d:"Tap it to switch to another SugarWOD program."},
  {tab:"profile",pane:"dash",el:()=>tq("[data-tour=score]"),t:"Your dashboard",d:"Your mobility score, time and focus. Swipe for equipment and progress."},
  {tab:"profile",pane:"equip",el:()=>tq("[data-tour=sports]"),t:"Your sports",d:"Daily sessions lean toward what your sports need. Tap Edit to change them."},
@@ -5300,7 +5349,7 @@ const tvis=e=>!!e&&e.getClientRects().length>0;
 // (drawTest doesn't store a draft while TDEMO is set) and come back exactly as they were when the demo closes
 function tdemoOpen(ans){if(!TDEMO)TDEMO={T};T={i:0,ans};drawTest()}
 function tdemoClose(){if(!TDEMO)return;T=TDEMO.T;TDEMO=null;$("#layer").innerHTML="";document.body.style.overflow=""}
-function tourShow(st){if(st.demo){tdemoOpen(st.demo());return}tdemoClose();const pane=st.pane&&st.pane!==PROF_TAB;if(pane)PROF_TAB=st.pane;if(stack.length>1||stack[0].name!==st.tab||pane){stack=[{name:st.tab,p:{}}];render()}}
+function tourShow(st){if(st.demo){tdemoOpen(st.demo());return}tdemoClose();const rbp=st.rbPane&&st.rbPane!==RB_TAB;if(rbp)RB_TAB=st.rbPane;const pane=(st.pane&&st.pane!==PROF_TAB)||rbp;if(st.pane&&st.pane!==PROF_TAB)PROF_TAB=st.pane;if(stack.length>1||stack[0].name!==st.tab||pane){stack=[{name:st.tab,p:{}}];render()}}
 let tourSafe=null;
 function tourInsets(){if(!tourSafe){const p=document.createElement("div");p.style.cssText="position:fixed;visibility:hidden;pointer-events:none;top:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)";document.body.appendChild(p);const cs=getComputedStyle(p);tourSafe={t:parseFloat(cs.paddingTop)||0,b:parseFloat(cs.paddingBottom)||0};p.remove()}return tourSafe}
 // the steps this person can see right now, worked out before the tour starts so the count is right ("3 of 11")
@@ -5387,7 +5436,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="37024459";
+<script>window.RANGE_BUILD="18133888";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
