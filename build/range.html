@@ -560,7 +560,7 @@ button,a,[data-act],.chip,.opt{touch-action:manipulation;-webkit-user-select:non
 .dtest{display:flex;align-items:center;justify-content:space-between;margin:0;font-size:13px}
 #screen .stack>.panel h3{font-size:18px}
 @media (prefers-reduced-motion:reduce){.plens{transition:none}}
-.bars li{grid-template-columns:96px 1fr auto}.bars b{white-space:nowrap}
+.bars li{grid-template-columns:96px 1fr 62px}.bars b{white-space:nowrap;text-align:right}
 body.touring .carousel .pcard{height:clamp(220px,32vh,320px)}
 
 .chartp{gap:10px}.chead{display:flex;justify-content:space-between;align-items:flex-start}
@@ -788,7 +788,7 @@ const scores=()=>S.scores||EXAMPLE;
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const overall=sc=>Math.round(AREAS.reduce((t,a)=>t+sc[a.k],0)/AREAS.length);
-function level(v){if(v<40)return{t:"Restricted",c:"c-bad",v:"var(--bad)"};if(v<65)return{t:"Limited",c:"c-warn",v:"var(--warn)"};if(v<85)return{t:"Good",c:"c-good",v:"var(--good)"};return{t:"Optimal",c:"c-top",v:"var(--accent)"}}
+function level(v){if(v<40)return{t:"Restricted",c:"c-bad",v:"var(--bad)"};if(v<65)return{t:"Limited",c:"c-warn",v:"var(--warn)"};if(v<85)return{t:"Good",c:"c-top",v:"var(--accent)"};return{t:"Optimal",c:"c-good",v:"var(--good)"}}
 const fmt=s=>{s=Math.round(s);const m=Math.floor(s/60),r=s%60;return m?(r?`${m}:${String(r).padStart(2,"0")}`:`${m} min`):`${r}s`};
 const dayKey=d=>{const x=new Date(d);return`${x.getFullYear()}-${x.getMonth()}-${x.getDate()}`};
 const REDUCED=matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1835,6 +1835,12 @@ function recentlyStretched(){const now=Date.now(),r={};S.sessions.forEach(s=>{if
 // Flexibility gains plateau at about 10 min of static stretching per area per week (Ingram et al. 2025).
 const WEEK_TARGET=600;
 function weekStretch(){const since=Date.now()-7*864e5,r={};S.sessions.forEach(s=>{if(s.at<since||!s.stretch)return;for(const k in s.stretch)r[k]=(r[k]||0)+s.stretch[k]});return r}
+// minutes per body area over the last 7 days. Every session's minutes are shared out between its areas, so the areas always add up to the weekly total
+function weekAreaSecs(){const since=Date.now()-7*864e5,r={};
+  S.sessions.forEach(s=>{if(s.at<since||!(s.mins>0))return;let w=s.areas;
+    if(!w||!Object.keys(w).length){w={};(s.items||[]).forEach(id=>{const e=LIBI[id];if(e&&AN[e.a])w[e.a]=(w[e.a]||0)+1})}
+    const tot=Object.values(w).reduce((t,v)=>t+v,0);if(!tot)return;for(const k in w)r[k]=(r[k]||0)+w[k]/tot*s.mins*60});
+  return r}
 function recentExercises(){const now=Date.now(),m=new Map();S.sessions.forEach(s=>{if(!s.items||now-s.at>4*864e5)return;s.items.forEach(id=>m.set(id,(m.get(id)||0)+1))});return m}
 function analyze(o){
   const sc=scores(),moves=planMoves(o),W=WEIGHTS[o.kind]||WEIGHTS.daily;
@@ -2369,6 +2375,8 @@ function finishSession(complete){
   const rec={at:Date.now(),items:P.items.slice(0,doneCount).map(it=>it.id),kind:P.meta.kind,title:P.meta.title,mins:Math.max(mins,P.activeMs>20000?1:0),count:doneCount,feel:null,stretch:{}};
   // seconds of static stretching per body area, for the weekly 10-minute target
   P.segs.slice(0,complete?P.segs.length:P.si).forEach(sg=>{const e=LIBI[P.items[sg.i].id];if(sg.type==="hold"&&!e.rehab&&!e.dyn&&AN[e.a])rec.stretch[e.a]=(rec.stretch[e.a]||0)+segSecs(sg)});
+  {const secs={};let tot=0;P.segs.slice(0,complete?P.segs.length:P.si+1).forEach(sg=>{const it=P.items[sg.i],e=it&&LIBI[it.id];if(!e||!AN[e.a])return;const t=segSecs(sg);secs[e.a]=(secs[e.a]||0)+t;tot+=t});
+   if(tot>0){rec.areas={};for(const k in secs)rec.areas[k]=Math.round(secs[k]/tot*rec.mins*60)}}
   const isRehab=P.meta.kind==="rehab",rchk=isRehab?[]:retestChecks(P.meta.focus),canRetest=rchk.length&&doneCount>0;
   if(isRehab)P_LAST={testPain:P.meta.testPain,testR:P.meta.testR,testL:P.meta.testL,proto:P.meta.proto||null,logged:0};
   RETEST={focus:isRehab?[]:retestChecks(P.meta.focus).map(c=>c.k),items:rec.items};
@@ -4633,8 +4641,9 @@ function progPane(sc){const wk=Date.now()-7*864e5;return`${testChart()}<div clas
     <div class="tile"><span class="eyebrow">Min / week</span><b>${S.sessions.filter(s=>s.at>=wk).reduce((t,s)=>t+s.mins,0)}</b></div>
     <div class="tile"><span class="eyebrow">Sessions</span><b>${S.sessions.length}</b></div>
   </div>
-  <div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline"><h3>Stretching this week</h3><span class="muted" style="font-size:12px">Target 10 min per area</span></div>
-    <ul class="bars">${(()=>{const w=weekStretch();return AREAS.map(a=>{const m=(w[a.k]||0)/60,v=Math.min(100,m/10*100);return`<li><span>${a.n}</span><span class="tr"><i style="width:${v}%;background:${m>=10?"var(--good)":"var(--accent)"}"></i></span><b>${m>=10||m===0?Math.round(m):m.toFixed(1)} min</b></li>`}).join("")})()}</ul></div>
+  <div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline"><h3>This week by area</h3><span class="muted" style="font-size:12px">10 min per area</span></div>
+    <ul class="bars">${(()=>{const w=weekAreaSecs();return AREAS.map(a=>{const m=(w[a.k]||0)/60,pc=m/10*100,col=pc>=100?"var(--good)":pc>=35?"var(--accent)":"var(--warn)";return`<li><span>${a.n}</span><span class="tr"><i style="width:${Math.min(100,pc)}%;background:${col}"></i></span><b>${m<.05?"0":m.toFixed(1)} min</b></li>`}).join("")})()}</ul>
+    <p class="muted" style="margin:0;font-size:13px;display:flex;justify-content:space-between"><span>Total</span><b style="color:var(--ink)">${S.sessions.filter(x=>x.at>=wk).reduce((t,x)=>t+x.mins,0)} min</b></p></div>
 `}
 
 // progress across your mobility tests: one line, overall or any single area
