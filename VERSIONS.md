@@ -32,3 +32,4 @@ GitHub Pages serves it again within a minute or two. The app source lives outsid
 | 2026-10-31 | `2026-10-31_track-switch.html` | Track switch replaces workouts instantly for Activate and Recover | 0251911 |
 | 2026-10-31 | `2026-10-31_rest-day-empty.html` | Rest day opens Activate empty (no jump ahead) | e29215e |
 | 2026-10-31 | `2026-10-31_today-only.html` | Activate uses only today's workout; rest day or nothing posted opens empty | 52da827 |
+| 2026-10-31 | `2026-10-31_rebuild-dashboard.html` | Rebuild = dashboard with Today / Program / Progress slides and a pain chart | ee19597 |
