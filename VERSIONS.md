@@ -26,3 +26,4 @@ GitHub Pages serves it again within a minute or two. The app source lives outsid
 | 2026-10-30 | `2026-10-30_fitribe-colors.html` | Fitribe colours: coal, bone, amber, ember/orange/tan/sand cards | e6306f0 |
 | 2026-10-31 | `2026-10-31_no-saved-moves.html` | Fix: movements aren't saved between sessions; rest day opens an empty movements screen | 5adadfb |
 | 2026-10-31 | `2026-10-31_strength-last.html` | Strength and activation come last, after every area is warmed up | 3ed256e |
+| 2026-10-31 | `2026-10-31_profile-dashboard.html` | Profile = name + program switch, Dashboard / Equipment / Progress slides, settings behind the gear, history removed | 4a479f9 |
