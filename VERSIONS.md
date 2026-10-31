@@ -28,3 +28,4 @@ GitHub Pages serves it again within a minute or two. The app source lives outsid
 | 2026-10-31 | `2026-10-31_strength-last.html` | Strength and activation come last, after every area is warmed up | 3ed256e |
 | 2026-10-31 | `2026-10-31_profile-dashboard.html` | Profile = name + program switch, Dashboard / Equipment / Progress slides, settings behind the gear, history removed | 4a479f9 |
 | 2026-10-31 | `2026-10-31_progress-chart.html` | Progress shows mobility tests as a line chart (overall or per area) | cae5bbe |
+| 2026-10-31 | `2026-10-31_week-by-area.html` | Week by area sums to the weekly minutes; one colour scale across score, bars and chart | 0d4aafd |
