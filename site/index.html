@@ -2010,7 +2010,12 @@ ACT.startKind=d=>{
   if(k==="recover"){const td=loggedToday();if(td.length){recoverFrom(td);return}
     const tw=S.training.find(w=>w.date===todayIso()&&w.moves.length);if(tw){recoverFrom([tw]);return}}
   // Activate goes straight to your next workout's movements
-  if(k==="activate"){const nx=nextWorkout();if(nx){prepFor(nx);return}}
+  // today's workout if there is one; a rest day (the gym posted a day with no movements) opens empty instead of jumping ahead;
+  // only when nothing is posted for today at all does it prepare for the next workout
+  if(k==="activate"){const td=S.training.filter(w=>w.date===todayIso()&&!w.example),tw=td.find(w=>w.moves.length);
+    if(tw){prepFor(tw);return}
+    if(td.length){startWizard({kind:k,sport:(S.sports||[])[0]||"crossfit",moves:[]});return}
+    const nx=nextWorkout();if(nx){prepFor(nx);return}}
   if(k==="daily"){go("daily");return}
   if((k==="activate"||k==="recover")&&(S.sports||[]).length<=1){startWizard({kind:k,sport:(S.sports||[])[0]||"crossfit",moves:[]});return}
   if(k==="activate"||k==="recover")go("sport",{kind:k});
@@ -5386,7 +5391,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="74235366";
+<script>window.RANGE_BUILD="1301520";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
