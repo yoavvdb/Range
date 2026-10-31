@@ -25,3 +25,4 @@ GitHub Pages serves it again within a minute or two. The app source lives outsid
 | 2026-10-30 | `2026-10-30_library-card.html` | Library is a card on Today instead of a tab (3 tabs: Today, Rebuild, Profile) | f9c36a4 |
 | 2026-10-30 | `2026-10-30_fitribe-colors.html` | Fitribe colours: coal, bone, amber, ember/orange/tan/sand cards | e6306f0 |
 | 2026-10-31 | `2026-10-31_no-saved-moves.html` | Fix: movements aren't saved between sessions; rest day opens an empty movements screen | 5adadfb |
+| 2026-10-31 | `2026-10-31_strength-last.html` | Strength and activation come last, after every area is warmed up | 3ed256e |
