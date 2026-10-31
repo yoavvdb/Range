@@ -568,6 +568,7 @@ body.touring .carousel .pcard{height:clamp(220px,32vh,320px)}
 .cchips{padding-block:2px}
 .chart{width:100%;height:auto;display:block;overflow:visible}.chart .cax{fill:var(--muted);font:600 11px var(--f)}.chart .cval2{fill:var(--ink);font:700 12px var(--f);font-variant-numeric:tabular-nums}
 .chart .cdot{transition:r .2s}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 92px);z-index:60;max-width:min(92vw,420px);padding:12px 16px;border-radius:16px;font-size:14px;font-weight:600;text-align:center;color:var(--ink);background:rgba(38,34,29,.92);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:0 8px 24px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.08)}
 </style>
 
 <div id="splash" aria-hidden="true"><div class="spl">
@@ -4115,8 +4116,10 @@ async function autoSync(force){
     // the feed is the whiteboard as it is now: drop earlier synced programming (the old login sync included) that is no longer on it,
     // unless you ticked it, so the next session is never an outdated version
     const inFeed=new Set(rows.map(w=>wKey({date:w.date,title:w.title,text:w.text})));
-    S.training=S.training.filter(w=>!((w.source==="sugarwod-public"||(w.source==="sugarwod-auto"&&w.date>=todayIso()))&&!w.result&&!w.marked&&!inFeed.has(wKey(w))));
+    // another track's workouts go at once (even ones you ticked), so Activate and Recover only ever see the track you follow
+    S.training=S.training.filter(w=>!(w.source==="sugarwod-public"&&w.track&&w.track!==track)&&!((w.source==="sugarwod-public"||(w.source==="sugarwod-auto"&&w.date>=todayIso()))&&!w.result&&!w.marked&&!inFeed.has(wKey(w))));
     const r=mergeRows(rows,"sugarwod-public");
+    S.training.forEach(w=>{if(w.source==="sugarwod-public"&&!w.track)w.track=track});
     S.sync={...S.sync,feed:1,track,tracks,checked:Date.now(),syncedAt:data.fetchedAt||null,count:rows.length,lastAdded:r.added,error:""};
   }catch(e){S.sync={...S.sync,checked:Date.now(),error:"Couldn't read the workout feed."}}
   save();const top=stack[stack.length-1].name;if(top==="profile"||top==="home")render();
@@ -4124,7 +4127,14 @@ async function autoSync(force){
 const agoText=t=>{if(!t)return"never";const m=Math.round((Date.now()-new Date(t))/6e4);return m<2?"just now":m<60?`${m} min ago`:m<1440?`${Math.round(m/60)} h ago`:`${Math.round(m/1440)} d ago`};
 ACT.syncKey=()=>{const sy=S.sync||{},tr=sy.tracks||[];if(!tr.length)return;
   sheet(`<h3>Your SugarWOD track</h3><div class="scroll"><div class="stack" style="gap:10px">${tr.map(t=>`<button class="opt ${t===sy.track?"on":""}" data-act="syncTrack" data-t="${esc(t)}"><span>${esc(t)}</span><span class="radio"></span></button>`).join("")}</div></div>`)};
-ACT.syncTrack=async d=>{S.sync={...(S.sync||{}),track:d.t,checked:0};save();closeSheet();SYNCING=true;render();try{await autoSync(true)}finally{SYNCING=false;render()}};
+ACT.syncTrack=async d=>{if(d.t===(S.sync||{}).track){closeSheet();return}
+  S.sync={...(S.sync||{}),track:d.t,checked:0};S.training=S.training.filter(w=>w.source!=="sugarwod-public");save();closeSheet();SYNCING=true;render();
+  try{await autoSync(true)}finally{SYNCING=false;render()}
+  const t=todayIso(),n=S.training.filter(w=>w.source==="sugarwod-public"&&w.date>=t&&w.moves.length).length;
+  toast(n?`${d.t}: ${n} workout${n===1?"":"s"} ready for Activate and Recover`:`${d.t}: no workouts posted yet`)};
+// a short note at the bottom, over the tab bar
+function toast(msg){const old=document.getElementById("toast");if(old)old.remove();const d=document.createElement("div");d.id="toast";d.setAttribute("role","status");d.textContent=msg;document.body.appendChild(d);
+  try{d.animate([{opacity:0,transform:"translate(-50%,12px)"},{opacity:1,transform:"translate(-50%,0)"}],{duration:300,easing:"cubic-bezier(.23,1,.32,1)"})}catch(e){}setTimeout(()=>{try{d.animate([{opacity:1},{opacity:0}],{duration:250}).onfinish=()=>d.remove()}catch(e){d.remove()}},2800)}
 // Sync button: spins while it works, then says what happened for a few seconds
 let SYNCING=false,syncDone=0;
 const syncBtn=()=>SYNCING?`<button class="syncbtn busy" disabled aria-live="polite">${ic("sync")}${SYNCING==="sugarwod"?"Reading SugarWOD…":"Syncing…"}</button>`:Date.now()-syncDone<4000?`<button class="syncbtn ok" data-act="syncNow">${ic("check")}${(S.sync||{}).error?"Check the message":"Up to date"}</button>`:`<button class="syncbtn" data-act="syncNow">${ic("sync")}Sync now</button>`;
