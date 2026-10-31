@@ -1958,6 +1958,7 @@ ACT.startKind=d=>{
   // Activate goes straight to your next workout's movements
   if(k==="activate"){const nx=nextWorkout();if(nx){prepFor(nx);return}}
   if(k==="daily"){go("daily");return}
+  if((k==="activate"||k==="recover")&&(S.sports||[]).length<=1){startWizard({kind:k,sport:(S.sports||[])[0]||"crossfit",moves:[]});return}
   if(k==="activate"||k==="recover")go("sport",{kind:k});
   else startWizard({kind:k});
 };
@@ -1995,7 +1996,7 @@ let W=null;
 const STEPS={activate:["moves","time","equip","summary"],recover:["moves","time","equip","summary"],daily:["time","equip","summary"],target:["zone","time","equip","summary"]};
 const STEPICON={moves:"move",time:"clock",equip:"equip",zone:"target"},STEPCAP={moves:"Workout",time:"Time",equip:"Kit",zone:"Zone"};
 function startWizard(o){
-  W={hist:[],kind:o.kind,mw:o.mw||null,sport:o.sport||null,moves:o.moves?o.moves.slice():o.sport?(S.moves[o.sport]||[]).slice():[],from:o.from||null,minutes:null,equip:S.equip.slice(),zone:null,step:0,done:{}};
+  W={hist:[],kind:o.kind,mw:o.mw||null,sport:o.sport||null,moves:o.moves?o.moves.slice():[],from:o.from||null,minutes:null,equip:S.equip.slice(),zone:null,step:0,done:{}};
   // Activate and Recover always open on the movements: today's workout is already filled in, and you can take some out
   // or add others to warm up (or release) for something else
   if(W.minutes==null)W.minutes=(S.lastMin||{})[W.kind]||null;
@@ -2062,7 +2063,7 @@ AFTER.wizard=()=>{
 
 };
 function wRender(){render();window.scrollTo(0,0)}
-ACT.wNext=()=>{const s=STEPS[W.kind][W.step];if(W.returnTo==null)W.hist.push(W.step);W.done[s]=true;if(s==="moves"&&W.sport){S.moves[W.sport]=W.moves.slice();save()}if(s==="equip"){S.equip=W.equip.slice();save()}W.plan=null;
+ACT.wNext=()=>{const s=STEPS[W.kind][W.step];if(W.returnTo==null)W.hist.push(W.step);W.done[s]=true;if(s==="equip"){S.equip=W.equip.slice();save()}W.plan=null;
   W.step=W.returnTo!=null?W.returnTo:W.step+1;W.returnTo=null;wRender();push(1)};
 ACT.wGoto=d=>{W.returnTo=STEPS[W.kind].indexOf("summary");W.step=STEPS[W.kind].indexOf(d.s);wRender()};
 ACT.pickTime=d=>{W.minutes=+d.m;S.lastMin={...(S.lastMin||{}),[W.kind]:W.minutes};save();render();setTimeout(ACT.wNext,REDUCED?0:220)};
@@ -4966,7 +4967,7 @@ async function sbPush(){if(!SBU)return;const{error}=await SB.from("user_data").u
 function sbSave(){clearTimeout(sbTimer);sbTimer=setTimeout(()=>sbPush().catch(e=>{sbErr="Couldn't save to your account. It will retry on the next change."}),2000)}
 function sbAdopt(remote){const keep=S.settings,sync=S.sync;wipeMine(true);S=Object.assign(JSON.parse(S_FRESH),remote);S.settings=Object.assign({},keep,remote.settings||{});if(sync)S.sync=sync;S._owner=SBU.id;normS();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 // the lists every screen expects, for a fresh or adopted state
-function normS(){if(!Array.isArray(S.training))S.training=[];S.myEx=S.myEx||[];S.myProtocols=S.myProtocols||[];S.tests=S.tests||[];S.sessions=S.sessions||[];S.myEx.forEach(regMyEx)}
+function normS(){if(!Array.isArray(S.training))S.training=[];S.moves={};S.myEx=S.myEx||[];S.myProtocols=S.myProtocols||[];S.tests=S.tests||[];S.sessions=S.sessions||[];S.myEx.forEach(regMyEx)}
 // in-memory traces of the person who was here: their own exercises in the library, an open test, player or editor
 function wipeMine(libOnly){for(let i=LIB.length-1;i>=0;i--)if(LIB[i].custom){delete LIBI[LIB[i].id];LIB.splice(i,1)}if(libOnly)return;if(T){T=null;$("#layer").innerHTML="";document.body.style.overflow=""}TDEMO=null;W=null;RB=null;ED=null;CX=null;TS=null;TR=null;P_LAST=null;RETEST=null;if(P)closePlayer()}
 // signing out or deleting the account: this phone forgets that person (their tests, sessions, workouts, Rebuild, routines,
@@ -5262,7 +5263,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="60462786";
+<script>window.RANGE_BUILD="59915118";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
