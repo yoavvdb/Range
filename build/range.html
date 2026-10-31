@@ -1984,12 +1984,8 @@ ACT.startKind=d=>{
   if(k==="recover"){const td=loggedToday();if(td.length){recoverFrom(td);return}
     const tw=S.training.find(w=>w.date===todayIso()&&w.moves.length);if(tw){recoverFrom([tw]);return}}
   // Activate goes straight to your next workout's movements
-  // today's workout if there is one; a rest day (the gym posted a day with no movements) opens empty instead of jumping ahead;
-  // only when nothing is posted for today at all does it prepare for the next workout
-  if(k==="activate"){const td=S.training.filter(w=>w.date===todayIso()&&!w.example),tw=td.find(w=>w.moves.length);
-    if(tw){prepFor(tw);return}
-    if(td.length){startWizard({kind:k,sport:(S.sports||[])[0]||"crossfit",moves:[]});return}
-    const nx=nextWorkout();if(nx){prepFor(nx);return}}
+  // only today's workout: posted with movements -> they are filled in; a rest day or nothing posted -> an empty list to fill yourself
+  if(k==="activate"){const tw=S.training.find(w=>w.date===todayIso()&&!w.example&&w.moves.length);if(tw){prepFor(tw);return}}
   if(k==="daily"){go("daily");return}
   if((k==="activate"||k==="recover")&&(S.sports||[]).length<=1){startWizard({kind:k,sport:(S.sports||[])[0]||"crossfit",moves:[]});return}
   if(k==="activate"||k==="recover")go("sport",{kind:k});
