@@ -4094,7 +4094,8 @@ function mergeRows(rows,source){
 /* ---- Workout feed ----
    An hourly GitHub workflow reads the gym's public workout feed (no login, no key) and publishes it as wod.json
    next to the app. Range loads it here, keeps your chosen track (RX-Club by default) and turns each day into a workout. */
-const SYNC_FILE="wod.json";
+// inside the native iOS shell the page is a local file, so the workout feed is read from the web
+const SYNC_FILE=location.protocol==="capacitor:"?"https://yoavvdb.github.io/Range/wod.json":"wod.json";
 let syncAvail=null; // null = unknown, true/false after the first check
 // AES-GCM + PBKDF2 unseal: used by the encrypted GitHub backup of your own data
 async function unsealBox(box,pass){

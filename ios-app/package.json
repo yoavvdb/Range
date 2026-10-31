@@ -1,0 +1,12 @@
+{
+  "name": "range-ios",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Range inside a native iOS shell (Capacitor). The app files are bundled, not loaded from the web.",
+  "dependencies": {
+    "@capacitor/cli": "^8.6.0",
+    "@capacitor/core": "^8.6.0",
+    "@capacitor/ios": "^8.6.0",
+    "@capacitor/status-bar": "^8.0.4"
+  }
+}
