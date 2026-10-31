@@ -588,6 +588,12 @@ button,a,[data-act],.chip,.opt{touch-action:manipulation;-webkit-user-select:non
 @media (prefers-reduced-motion:reduce){.plens{transition:none}}
 .bars li{grid-template-columns:96px 1fr auto}.bars b{white-space:nowrap}
 body.touring .carousel .pcard{height:clamp(220px,32vh,320px)}
+
+.chartp{gap:10px}.chead{display:flex;justify-content:space-between;align-items:flex-start}
+.cval{display:flex;align-items:baseline;gap:10px;margin-top:2px}.cval b{font-size:40px;font-weight:800;font-stretch:112%;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}.cval span{font-size:14px;font-weight:600}
+.cchips{padding-block:2px}
+.chart{width:100%;height:auto;display:block;overflow:visible}.chart .cax{fill:var(--muted);font:600 11px var(--f)}.chart .cval2{fill:var(--ink);font:700 12px var(--f);font-variant-numeric:tabular-nums}
+.chart .cdot{transition:r .2s}
 </style>
 
 <div id="splash" aria-hidden="true"><div class="spl">
@@ -1957,11 +1963,15 @@ function rbRestore(){const d=S.rbDraft;rbRestored=true;if(!d||!REGIONS[d.r]||Dat
   stack=[{name:"rebuild",p:{}},{name:"rbflags",p:{}}];if(d.screen!=="rbflags")stack.push({name:d.screen,p:{}});return true}
 const SCREENS={},AFTER={};
 // arriving on Profile, the score counts up and its bars grow (once per visit, not on every refresh)
-AFTER.profile=()=>{if(!PROF_ANIM||REDUCED||TOUR){PROF_ANIM=false;return}PROF_ANIM=false;
+AFTER.profile=()=>{const on=document.querySelector(".cchips .chip.on");if(on&&on.offsetLeft>on.parentElement.clientWidth-90)on.parentElement.scrollLeft=on.offsetLeft-20;
+  if(!PROF_ANIM||REDUCED||TOUR){PROF_ANIM=false;return}PROF_ANIM=false;
   const b=document.querySelector(".ringnum");if(b){const to=+b.textContent||0,t0=performance.now(),D=900;
     const step=t=>{const k=Math.min(1,(t-t0)/D),e=1-Math.pow(1-k,3);b.textContent=Math.round(to*e);if(k<1)requestAnimationFrame(step)};b.textContent="0";requestAnimationFrame(step)}
   const rf=document.querySelector(".rfg");if(rf){const o=rf.getAttribute("stroke-dashoffset"),c=rf.getAttribute("stroke-dasharray");try{rf.animate([{strokeDashoffset:c},{strokeDashoffset:o}],{duration:1000,easing:"cubic-bezier(.23,1,.32,1)"})}catch(e){}}
   document.querySelectorAll(".vb i").forEach((i,n)=>{try{i.animate([{transform:"scaleY(0)"},{transform:"none"}],{duration:800,delay:120+n*60,easing:"cubic-bezier(.23,1,.32,1)",fill:"backwards"})}catch(e){}});
+  const cp=document.querySelector(".cpath");if(cp){try{cp.animate([{strokeDasharray:"1 1",strokeDashoffset:1},{strokeDasharray:"1 1",strokeDashoffset:0}],{duration:1100,easing:"cubic-bezier(.23,1,.32,1)"})}catch(e){}
+    const ca=document.querySelector(".carea");if(ca){try{ca.animate([{opacity:0},{opacity:1}],{duration:900,delay:300,fill:"backwards"})}catch(e){}}
+    document.querySelectorAll(".cdot,.cval2").forEach((d,n)=>{try{d.animate([{opacity:0},{opacity:1}],{duration:400,delay:500+n*60,fill:"backwards"})}catch(e){}})}
   const mi=document.querySelector(".mbar i");if(mi){try{mi.animate([{transform:"scaleX(0)"},{transform:"none"}],{duration:900,delay:100,easing:"cubic-bezier(.23,1,.32,1)"});mi.style.transformOrigin="left"}catch(e){}}};
 
 /* ================= home ================= */
@@ -4644,14 +4654,42 @@ function dashPane(sc){
 function equipPane(){return`<div class="panel" data-tour="sports"><div style="display:flex;justify-content:space-between;align-items:center"><h3>My sports</h3><button class="link" data-act="sportsSheet">Edit</button></div>
     <div class="chipset">${S.sports.map(k=>`<span class="chip">${SPI[k].n}</span>`).join("")}</div></div>
   <div class="panel" data-tour="equip"><h3>My equipment</h3><div class="chipset">${EQUIP.map(e=>`<button class="chip ${S.equip.includes(e.k)?"on":""}" data-act="profEq" data-e="${e.k}">${ic(e.k)}${e.n}</button>`).join("")}</div></div>`}
-function progPane(sc){const wk=Date.now()-7*864e5;return`<div class="stats3">
+function progPane(sc){const wk=Date.now()-7*864e5;return`${testChart()}<div class="stats3">
     <div class="tile"><span class="eyebrow">Streak</span><b>${streak()}</b></div>
     <div class="tile"><span class="eyebrow">Min / week</span><b>${S.sessions.filter(s=>s.at>=wk).reduce((t,s)=>t+s.mins,0)}</b></div>
     <div class="tile"><span class="eyebrow">Sessions</span><b>${S.sessions.length}</b></div>
   </div>
   <div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline"><h3>Stretching this week</h3><span class="muted" style="font-size:12px">Target 10 min per area</span></div>
     <ul class="bars">${(()=>{const w=weekStretch();return AREAS.map(a=>{const m=(w[a.k]||0)/60,v=Math.min(100,m/10*100);return`<li><span>${a.n}</span><span class="tr"><i style="width:${v}%;background:${m>=10?"var(--good)":"var(--accent)"}"></i></span><b>${m>=10||m===0?Math.round(m):m.toFixed(1)} min</b></li>`}).join("")})()}</ul></div>
-  ${S.tests.length?`<div class="panel"><h3>Mobility tests</h3><div class="hist">${S.tests.slice().reverse().map(t=>`<div><span>${new Date(t.at).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})}<br><small>${AREAS.map(a=>a.n+" "+t.scores[a.k]).join(" · ")}</small></span><b style="font-variant-numeric:tabular-nums">${overall(t.scores)}</b></div>`).join("")}</div></div>`:""}`}
+`}
+
+// progress across your mobility tests: one line, overall or any single area
+let PROG_METRIC="overall";
+function smoothPath(pts){if(pts.length<2)return"";let d=`M${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`;
+  for(let i=0;i<pts.length-1;i++){const p0=pts[i-1]||pts[i],p1=pts[i],p2=pts[i+1],p3=pts[i+2]||p2,t=.18;
+    d+=`C${(p1[0]+(p2[0]-p0[0])*t).toFixed(1)} ${(p1[1]+(p2[1]-p0[1])*t).toFixed(1)} ${(p2[0]-(p3[0]-p1[0])*t).toFixed(1)} ${(p2[1]-(p3[1]-p1[1])*t).toFixed(1)} ${p2[0].toFixed(1)} ${p2[1].toFixed(1)}`}return d}
+function testChart(){
+  const tests=S.tests.slice().sort((a,b)=>a.at-b.at);if(!tests.length)return"";
+  const val=t=>PROG_METRIC==="overall"?overall(t.scores):t.scores[PROG_METRIC],pts0=tests.map(t=>({at:t.at,v:val(t)}));
+  const W=320,H=190,L=30,R=14,T=26,B=28,vs=pts0.map(x=>x.v),lo0=Math.min(...vs),hi0=Math.max(...vs);
+  let lo=Math.max(0,Math.floor((lo0-8)/10)*10),hi=Math.min(100,Math.ceil((hi0+8)/10)*10);if(hi-lo<30){const c=(hi+lo)/2;lo=Math.max(0,Math.round((c-15)/10)*10);hi=Math.min(100,lo+30);lo=Math.max(0,hi-30)}
+  const t0=pts0[0].at,t1=pts0[pts0.length-1].at,xs=at=>pts0.length===1||t1===t0?(L+W-R)/2:L+(at-t0)/(t1-t0)*(W-L-R),ys=v=>T+(1-(v-lo)/(hi-lo))*(H-T-B);
+  const pts=pts0.map(x=>[xs(x.at),ys(x.v)]),line=smoothPath(pts),area=pts.length>1?`${line}L${pts[pts.length-1][0].toFixed(1)} ${H-B}L${pts[0][0].toFixed(1)} ${H-B}Z`:"";
+  const col=level(pts0[pts0.length-1].v).v,mid=Math.round((lo+hi)/2),dt=at=>new Date(at).toLocaleDateString(undefined,{month:"short",day:"numeric"});
+  const delta=pts0.length>1?pts0[pts0.length-1].v-pts0[0].v:null,name=PROG_METRIC==="overall"?"Overall":AN[PROG_METRIC];
+  const label=pts0.length<=6;
+  return`<div class="panel chartp"><div class="chead"><div><span class="dt">Mobility score</span><div class="cval"><b>${pts0[pts0.length-1].v}</b>${delta!=null?`<span class="${delta>0?"c-good":delta<0?"c-bad":"muted"}">${delta>0?"+":""}${delta} since ${dt(t0)}</span>`:`<span class="muted">First test</span>`}</div></div></div>
+    <div class="hscroll cchips">${[["overall","Overall"],...AREAS.map(a=>[a.k,a.n])].map(([k,n])=>`<button class="chip ${PROG_METRIC===k?"on":""}" data-act="progMetric" data-m="${k}">${n}</button>`).join("")}</div>
+    <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${name} score over ${pts0.length} test${pts0.length===1?"":"s"}, from ${pts0[0].v} to ${pts0[pts0.length-1].v}">
+      <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".32"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
+      ${[lo,mid,hi].map(v=>`<line x1="${L}" x2="${W-R}" y1="${ys(v).toFixed(1)}" y2="${ys(v).toFixed(1)}" stroke="var(--line)" stroke-dasharray="3 4"/><text x="${L-6}" y="${(ys(v)+4).toFixed(1)}" text-anchor="end" class="cax">${v}</text>`).join("")}
+      ${area?`<path d="${area}" fill="url(#cg)" class="carea"/>`:""}
+      ${line?`<path d="${line}" fill="none" stroke="${col}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="cpath" pathLength="1"/>`:""}
+      ${pts.map((q,i)=>{const last=i===pts.length-1;return`<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="${last?5.5:4}" fill="${last?col:"var(--bg)"}" stroke="${col}" stroke-width="2.5" class="cdot"/>${label||last?`<text x="${q[0].toFixed(1)}" y="${(q[1]-11).toFixed(1)}" text-anchor="middle" class="cval2">${pts0[i].v}</text>`:""}`}).join("")}
+      <text x="${pts.length===1?pts[0][0]:L}" y="${H-8}" text-anchor="${pts.length===1?"middle":"start"}" class="cax">${dt(t0)}</text>${pts.length>1?`<text x="${W-R}" y="${H-8}" text-anchor="end" class="cax">${dt(t1)}</text>`:""}
+    </svg>
+    ${pts0.length===1?`<p class="muted" style="margin:0;font-size:13px;text-align:center">Retest in a month to see your line move.</p>`:""}</div>`}
+ACT.progMetric=d=>{PROG_METRIC=d.m;PROF_ANIM=true;render()};
 SCREENS.profile=()=>{
   const sc=scores(),sy=S.sync||{};
   return`<div class="hdr"><span></span><div class="brand">Range<b>.</b></div><button data-act="settings" aria-label="Settings" data-tour="gear">${ic("gear")}</button></div>
@@ -4661,7 +4699,7 @@ SCREENS.profile=()=>{
   <div class="pseg" role="tablist"><i class="plens" style="--pi:${PROF_TABS.findIndex(t=>t[0]===PROF_TAB)}"></i>${PROF_TABS.map(([k,n])=>`<button role="tab" aria-selected="${k===PROF_TAB}" class="${k===PROF_TAB?"on":""}" data-act="profTab" data-p="${k}">${n}</button>`).join("")}</div>
   <div id="pane" class="stack">${PROF_TAB==="dash"?dashPane(sc):PROF_TAB==="equip"?equipPane():progPane(sc)}</div>
   </div>`};
-ACT.profTab=d=>{const a=PROF_TABS.findIndex(t=>t[0]===PROF_TAB),b=PROF_TABS.findIndex(t=>t[0]===d.p);if(a===b||b<0)return;PROF_TAB=d.p;PROF_ANIM=PROF_TAB==="dash";render();window.scrollTo(0,0);
+ACT.profTab=d=>{const a=PROF_TABS.findIndex(t=>t[0]===PROF_TAB),b=PROF_TABS.findIndex(t=>t[0]===d.p);if(a===b||b<0)return;PROF_TAB=d.p;PROF_ANIM=true;render();window.scrollTo(0,0);
   if(!REDUCED){const el=$("#pane");try{el&&el.animate([{opacity:0,transform:`translateX(${(b>a?1:-1)*36}px)`},{opacity:1,transform:"none"}],{duration:380,easing:"cubic-bezier(.32,.72,0,1)"})}catch(e){}}};
 ACT.settings=()=>go("settings");
 ACT.nameSheet=()=>sheet(`<h3>Your name</h3><div class="scroll"><label class="field"><span class="eyebrow">Name</span><input id="uname" value="${esc(S.name||"")}" placeholder="${esc(userName())}" maxlength="24" autocomplete="off"></label></div><div style="display:grid;gap:8px"><button class="btn" data-act="nameSave">Save</button></div>`);
@@ -5329,7 +5367,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="81032735";
+<script>window.RANGE_BUILD="11511426";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
