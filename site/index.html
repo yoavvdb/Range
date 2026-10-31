@@ -555,6 +555,39 @@ button,a,[data-act],.chip,.opt{touch-action:manipulation;-webkit-user-select:non
 .flowcard{height:190px}.flowcard .art{inset:8px 8px 58px 8px}
 .g-library{background:linear-gradient(180deg,#2C2E33,#1C1D21);color:var(--chalk);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}
 .g-library.pcard::before{background:radial-gradient(circle,rgba(255,255,255,.05) 0 7%,transparent 7% 30%,rgba(255,255,255,.05) 30% 31%,transparent 31% 46%,rgba(255,255,255,.06) 46% 47.2%,transparent 47.2%)}
+
+/* ===== Profile: who you are, the program you follow, and a dashboard in three slides ===== */
+.phead{display:flex;align-items:center;gap:14px;padding:6px 0 2px}
+.avatar{width:56px;height:56px;border-radius:50%;background:var(--surface2);box-shadow:inset 0 0 0 1px var(--line);display:grid;place-items:center;font-size:24px;font-weight:800;font-stretch:112%;color:var(--accent);flex:none}
+.pwho{display:grid;gap:2px;min-width:0}
+.pname{text-align:left;font-size:26px;font-weight:800;font-stretch:112%;letter-spacing:-.02em;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:34px}
+.pprog{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:600;color:var(--muted);min-height:36px;text-align:left}
+.pdot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px rgba(246,180,58,.2);flex:none}
+.pseg{position:relative;display:grid;grid-template-columns:repeat(3,1fr);padding:4px;border-radius:18px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.pseg button{position:relative;z-index:1;min-height:44px;border-radius:14px;font-size:14px;font-weight:700;color:var(--muted);transition:color 200ms ease}
+.pseg button.on{color:var(--chalk)}
+.plens{position:absolute;z-index:0;top:4px;bottom:4px;left:4px;width:calc((100% - 8px)/3);border-radius:14px;transform:translateX(calc(var(--pi,0) * 100%));transition:transform 420ms var(--ease-drawer);background:var(--surface2);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),inset 0 1px 0 rgba(255,255,255,.1)}
+.dgrid{display:grid;grid-template-columns:1fr 1.12fr;grid-template-rows:auto 1fr;gap:10px}
+.dcell{background:var(--surface);border-radius:var(--r-panel);padding:14px;display:grid;align-content:start;gap:6px;text-align:left;min-width:0;box-shadow:inset 0 0 0 1px rgba(255,255,255,.04),inset 0 1px 0 rgba(255,255,255,.05)}
+.dcell.time{grid-column:1;grid-row:1}.dcell.focus{grid-column:1;grid-row:2;justify-items:center;text-align:center;align-content:center;gap:10px}.dcell.score{grid-column:2;grid-row:1/3;justify-items:center;align-content:start;gap:14px;transition:transform 160ms var(--ease-out)}
+.dcell.score:active{transform:scale(.98)}
+.dt{font-size:14px;font-weight:700;justify-self:start}
+.dsub{font-size:15px;color:var(--muted);margin-top:6px}
+.dbig{font-size:34px;font-weight:800;font-stretch:112%;letter-spacing:-.02em;color:var(--accent);line-height:1;font-variant-numeric:tabular-nums}
+.mbar{height:14px;border-radius:7px;margin-top:8px;background:repeating-linear-gradient(90deg,var(--line) 0 2px,transparent 2px 5px);overflow:hidden;position:relative}
+.mbar i{display:block;height:100%;border-radius:7px;background:linear-gradient(90deg,#E5481A,#F6B43A)}
+.dnext{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--muted);margin-top:2px}.dnext b{color:var(--ink);font-size:14px}
+.ringwrap{position:relative;width:min(100%,150px);aspect-ratio:1;margin-top:6px}.ring{width:100%;height:100%;display:block}
+.rnum{position:absolute;inset:0;display:grid;place-content:center;grid-auto-flow:column;align-items:baseline;gap:2px}.rnum b{font-size:40px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}.rnum small{font-size:16px;font-weight:600}
+.vbars{display:flex;justify-content:space-between;gap:6px;width:100%;height:130px;padding:0 6px}
+.vb{flex:1;height:100%;border-radius:4px;background:var(--line);position:relative;overflow:hidden;max-width:8px;margin-inline:auto}.vb i{position:absolute;left:0;right:0;bottom:0;border-radius:4px;transform-origin:bottom}
+.fic{width:64px;height:64px;border-radius:50%;background:var(--surface2);box-shadow:inset 0 0 0 1px var(--line);display:grid;place-items:center;color:var(--ink)}.fic .ic{width:30px;height:30px}
+.fnames{display:grid;gap:2px}.fnames b{font-size:17px;font-weight:700}
+.dtest{display:flex;align-items:center;justify-content:space-between;margin:0;font-size:13px}
+#screen .stack>.panel h3{font-size:18px}
+@media (prefers-reduced-motion:reduce){.plens{transition:none}}
+.bars li{grid-template-columns:96px 1fr auto}.bars b{white-space:nowrap}
+body.touring .carousel .pcard{height:clamp(220px,32vh,320px)}
 </style>
 
 <div id="splash" aria-hidden="true"><div class="spl">
@@ -1889,6 +1922,9 @@ function back(){const top=stack[stack.length-1];
  document.addEventListener("touchend",e=>{if(!t)return;const c=e.changedTouches[0],dx=c.clientX-t.x0,dy=c.clientY-t.y0,dt=Date.now()-t.t0;t=null;
   if(Math.abs(dx)<70||Math.abs(dy)>Math.abs(dx)*.6||dt>700)return;
   if(stack.length>1||(stack[0].name==="wizard")){if(dx>0)back();return}
+  if(stack[0].name==="profile"){const P=PROF_TABS.map(x=>x[0]),k=P.indexOf(PROF_TAB);
+    if(dx<0){if(k<P.length-1)ACT.profTab({p:P[k+1]});return}
+    if(k>0){ACT.profTab({p:P[k-1]});return}}
   const i=TABS.indexOf(stack[0].name),j=i+(dx<0?1:-1);if(i<0||j<0||j>=TABS.length)return;
   ACT.tab({t:TABS[j]});push(dx<0?1:-1)},{passive:true})})();
 function push(dir){if(REDUCED||TOUR)return;const el=$("#screen");
@@ -1922,10 +1958,11 @@ function rbRestore(){const d=S.rbDraft;rbRestored=true;if(!d||!REGIONS[d.r]||Dat
 const SCREENS={},AFTER={};
 // arriving on Profile, the score counts up and its bars grow (once per visit, not on every refresh)
 AFTER.profile=()=>{if(!PROF_ANIM||REDUCED||TOUR){PROF_ANIM=false;return}PROF_ANIM=false;
-  const b=document.querySelector(".score b");if(b){const to=+b.textContent||0,t0=performance.now(),D=900;
+  const b=document.querySelector(".ringnum");if(b){const to=+b.textContent||0,t0=performance.now(),D=900;
     const step=t=>{const k=Math.min(1,(t-t0)/D),e=1-Math.pow(1-k,3);b.textContent=Math.round(to*e);if(k<1)requestAnimationFrame(step)};b.textContent="0";requestAnimationFrame(step)}
-  document.querySelectorAll(".panel .bars .tr i").forEach((i,n)=>{try{i.animate([{transform:"scaleX(0)"},{transform:"none"}],{duration:900,delay:60+n*50,easing:"cubic-bezier(.23,1,.32,1)",fill:"backwards"})}catch(e){}});
-  const r=document.querySelector(".radar");if(r){try{r.animate([{opacity:0,transform:"scale(.85)"},{opacity:1,transform:"none"}],{duration:700,easing:"cubic-bezier(.23,1,.32,1)"})}catch(e){}}};
+  const rf=document.querySelector(".rfg");if(rf){const o=rf.getAttribute("stroke-dashoffset"),c=rf.getAttribute("stroke-dasharray");try{rf.animate([{strokeDashoffset:c},{strokeDashoffset:o}],{duration:1000,easing:"cubic-bezier(.23,1,.32,1)"})}catch(e){}}
+  document.querySelectorAll(".vb i").forEach((i,n)=>{try{i.animate([{transform:"scaleY(0)"},{transform:"none"}],{duration:800,delay:120+n*60,easing:"cubic-bezier(.23,1,.32,1)",fill:"backwards"})}catch(e){}});
+  const mi=document.querySelector(".mbar i");if(mi){try{mi.animate([{transform:"scaleX(0)"},{transform:"none"}],{duration:900,delay:100,easing:"cubic-bezier(.23,1,.32,1)"});mi.style.transformOrigin="left"}catch(e){}}};
 
 /* ================= home ================= */
 function greeting(){const h=new Date().getHours();return h<5?"Good evening":h<12?"Good morning":h<18?"Good afternoon":"Good evening"}
@@ -4580,50 +4617,74 @@ function sugarRow(){const sy=S.sync||{};
 // how hard each area worked in the last 3 days, from the synced workouts
 function loadPanel(){const load=recentLoad(),mx=Math.max(1,...Object.values(load));return S.training.length?`<div class="panel"><span class="eyebrow">Load from the last 3 days</span>
      <ul class="bars">${AREAS.map(a=>{const v=load[a.k]/mx;const c=v>.66?"var(--bad)":v>.33?"var(--warn)":"var(--good)";return`<li><span>${a.n}</span><span class="tr"><i style="width:${Math.max(4,v*100)}%;background:${c}"></i></span><b style="font-size:11px;color:var(--muted)">${v>.66?"High":v>.33?"Mid":"Low"}</b></li>`}).join("")}</ul></div>`:""}
-SCREENS.profile=()=>{
-  const sc=scores(),ov=overall(sc),lv=level(ov),last=S.tests[S.tests.length-1];
-  const left=last?30-Math.floor((Date.now()-last.at)/864e5):0;
-  const wk=Date.now()-7*864e5;
-  return `<div class="hdr" style="grid-template-columns:1fr"><div class="brand">Range<b>.</b></div></div>
-  <div class="stack" style="padding-top:8px">
-  <h1>Profile</h1>
-  <div class="panel">
-    <span class="eyebrow">Mobility score${S.scores?"":" · example"}</span>
-    <div class="score"><b>${ov}</b><span class="pill ${lv.c}">${lv.t}</span></div>
-    ${radar(sc)}
-    <ul class="bars">${AREAS.map(a=>{const v=sc[a.k],l=level(v);return`<li><span>${a.n}</span><span class="tr"><i style="width:${v}%;background:${l.v}"></i></span><b>${v}</b></li>`}).join("")}</ul>
-    ${(()=>{const prev=S.tests.length>1?S.tests[S.tests.length-2].scores:null;if(!prev||!S.scores)return"";
-      const ch=AREAS.map(a=>[a,sc[a.k]-(prev[a.k]??sc[a.k])]).filter(([,d])=>d);
-      return ch.length?`<p style="margin:0;font-size:13px"><span class="muted">Since your previous test:</span> ${ch.map(([a,d])=>`${a.n} <b class="${d>0?"c-good":"c-bad"}">${d>0?"+":""}${d}</b>`).join(" · ")}</p>`:`<p class="muted" style="margin:0;font-size:13px">Same scores as your previous test.</p>`})()}
-    ${last&&left>0?`<p class="muted" style="margin:0;font-size:13px">Last tested ${new Date(last.at).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})}. Your next test is due in ${left} day${left===1?"":"s"}.</p><button class="btn sec" data-act="openTest">Retest early</button>`:`<button class="btn" data-act="openTest">${testDraft()?"Resume my test":"Test my mobility"}</button>`}
+/* ================= Profile: a dashboard of three slides, settings behind the gear ================= */
+let PROF_TAB="dash";const PROF_TABS=[["dash","Dashboard"],["equip","Equipment"],["prog","Progress"]];
+const userName=()=>S.name||(SBU&&SBU.email?(e=>e?e[0].toUpperCase()+e.slice(1):"")(SBU.email.split("@")[0].split(/[+._-]/)[0]):"")||"Athlete";
+const fmtTime=m=>m<60?`${Math.round(m)} min`:`${Math.floor(m/60)}h${String(Math.round(m%60)).padStart(2,"0")}`;
+const MILESTONES=[1,5,10,20,40,75,100,150,200,300,500,1000];
+function ringSvg(v,col){const r=52,c=2*Math.PI*r;return`<svg class="ring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="${r}" fill="none" stroke="var(--line)" stroke-width="9"/><circle class="rfg" cx="60" cy="60" r="${r}" fill="none" stroke="${col}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c*(1-v/100)).toFixed(1)}" transform="rotate(-90 60 60)"/></svg>`}
+function dashPane(sc){
+  const ov=overall(sc),lv=level(ov),mins=S.sessions.reduce((t,x)=>t+(x.mins||0),0),hrs=mins/60,next=MILESTONES.find(m=>m>hrs)||Math.ceil(hrs/100)*100+100,prev=[0,...MILESTONES].filter(m=>m<=hrs).pop()||0,pct=Math.max(2,Math.min(100,(hrs-prev)/(next-prev)*100));
+  const foc=mobilityFocus(sc),sp=SPI[(S.sports||[])[0]]||{n:"Your sport"};
+  const last=S.tests[S.tests.length-1],left=last?30-Math.floor((Date.now()-last.at)/864e5):0;
+  return`<div class="dgrid">
+    <div class="dcell time"><span class="dt">Mobility time</span><div class="dsub">Total</div><b class="dbig">${fmtTime(mins)}</b><div class="mbar" role="img" aria-label="${Math.round(pct)}% of the way to ${next} hours"><i style="width:${pct}%"></i></div><div class="dnext"><span>Next</span><b>${next}h</b></div></div>
+    <button class="dcell score" data-act="scoreSheet" data-tour="score" aria-label="Mobility score ${ov}%, details"><span class="dt">Mobility score${S.scores?"":" · example"}</span>
+      <div class="ringwrap">${ringSvg(ov,lv.v)}<span class="rnum"><b class="ringnum">${ov}</b><small>%</small></span></div>
+      <div class="vbars" aria-hidden="true">${AREAS.map(a=>{const v=sc[a.k];return`<span class="vb"><i style="height:${Math.max(4,v)}%;background:${level(v).v}"></i></span>`}).join("")}</div></button>
+    <div class="dcell focus"><span class="dt">Mobility focus</span><div class="fic">${ic("target")}</div><small class="muted">${esc(sp.n)}</small><div class="fnames">${foc.map(k=>`<b>${AN[k]}</b>`).join("")}</div></div>
   </div>
+  ${S.scores&&left>0?`<p class="muted dtest">Tested ${new Date(last.at).toLocaleDateString(undefined,{month:"short",day:"numeric"})}. Next in ${left} day${left===1?"":"s"}.<button class="link" data-act="openTest">Retest</button></p>`:`<button class="btn" data-act="openTest">${testDraft()?"Resume my test":"Test my mobility"}</button>`}
   ${(()=>{const ks=(S.sports||[]).filter(k=>SPORT_NEEDS[k]);if(!ks.length)return"";
     const pri=sportPriority(sc),weakest=AREAS.slice().sort((x,y)=>sc[x.k]-sc[y.k])[0].k;
-    return`<div class="panel"><span class="eyebrow">Your mobility for your sports${S.scores?"":" · example"}</span>
+    return`<div class="panel"><h3>Mobility levels</h3>
     ${ks.map(k=>{const r=sportLevel(k,sc),l=level(r.level);return`<div class="slv"><div><b>${SPI[k].n}</b><small class="muted">${r.lim?`Held back most by ${AN[r.lim]}`:"No area holding you back"}</small></div><span class="pill ${l.c}">${r.level}</span></div>`}).join("")}
-    <p class="muted" style="margin:0;font-size:13px">Your mobility focus: <b style="color:var(--ink)">${mobilityFocus(sc).map(k=>AN[k]).join(" and ")}</b>. Sessions spend the most time there.${mobilityFocus(sc).includes(weakest)?"":` Your lowest score is ${AN[weakest]}, but ${AN[pri]} matters more for ${ks.map(k=>SPI[k].n).join(" and ")}, so improving it pays off most.`}</p></div>`})()}
-  ${loadPanel()}
-  ${sugarRow()}
-  <div class="stats3">
+</div>`})()}
+  ${loadPanel()}`}
+function equipPane(){return`<div class="panel" data-tour="sports"><div style="display:flex;justify-content:space-between;align-items:center"><h3>My sports</h3><button class="link" data-act="sportsSheet">Edit</button></div>
+    <div class="chipset">${S.sports.map(k=>`<span class="chip">${SPI[k].n}</span>`).join("")}</div></div>
+  <div class="panel" data-tour="equip"><h3>My equipment</h3><div class="chipset">${EQUIP.map(e=>`<button class="chip ${S.equip.includes(e.k)?"on":""}" data-act="profEq" data-e="${e.k}">${ic(e.k)}${e.n}</button>`).join("")}</div></div>`}
+function progPane(sc){const wk=Date.now()-7*864e5;return`<div class="stats3">
     <div class="tile"><span class="eyebrow">Streak</span><b>${streak()}</b></div>
     <div class="tile"><span class="eyebrow">Min / week</span><b>${S.sessions.filter(s=>s.at>=wk).reduce((t,s)=>t+s.mins,0)}</b></div>
     <div class="tile"><span class="eyebrow">Sessions</span><b>${S.sessions.length}</b></div>
   </div>
   <div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline"><h3>Stretching this week</h3><span class="muted" style="font-size:12px">Target 10 min per area</span></div>
-    <ul class="bars">${(()=>{const wk=weekStretch();return AREAS.map(a=>{const m=(wk[a.k]||0)/60,v=Math.min(100,m/10*100);return`<li><span>${a.n}</span><span class="tr"><i style="width:${v}%;background:${m>=10?"var(--good)":"var(--accent)"}"></i></span><b>${m>=10||m===0?Math.round(m):m.toFixed(1)} min</b></li>`}).join("")})()}</ul>
-    <p class="muted" style="margin:0;font-size:12px">Static stretching gains level off at about 10 minutes per area per week. Past that, Daily sessions move on to other areas.</p></div>
-  <button class="panel navrow" data-act="howItWorks"><span><b>How Range works</b><small class="muted">The science and sources behind each session</small></span><span class="chev">${ic("back")}</span></button>
-  <button class="panel navrow" data-act="tourStart" data-tour="tour-btn"><span><b>Show the app tour</b><small class="muted">A one-minute walk through every tab</small></span><span class="chev">${ic("back")}</span></button>
-  <div class="panel" data-tour="sports"><div style="display:flex;justify-content:space-between;align-items:center"><h3>My sports</h3><button class="link" data-act="sportsSheet">Edit</button></div>
-    <div class="chipset">${S.sports.map(k=>`<span class="chip">${SPI[k].n}</span>`).join("")}</div></div>
-  <div class="panel" data-tour="equip"><h3>My equipment</h3><div class="chipset">${EQUIP.map(e=>`<button class="chip ${S.equip.includes(e.k)?"on":""}" data-act="profEq" data-e="${e.k}">${ic(e.k)}${e.n}</button>`).join("")}</div></div>
+    <ul class="bars">${(()=>{const w=weekStretch();return AREAS.map(a=>{const m=(w[a.k]||0)/60,v=Math.min(100,m/10*100);return`<li><span>${a.n}</span><span class="tr"><i style="width:${v}%;background:${m>=10?"var(--good)":"var(--accent)"}"></i></span><b>${m>=10||m===0?Math.round(m):m.toFixed(1)} min</b></li>`}).join("")})()}</ul></div>
+  ${S.tests.length?`<div class="panel"><h3>Mobility tests</h3><div class="hist">${S.tests.slice().reverse().map(t=>`<div><span>${new Date(t.at).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})}<br><small>${AREAS.map(a=>a.n+" "+t.scores[a.k]).join(" · ")}</small></span><b style="font-variant-numeric:tabular-nums">${overall(t.scores)}</b></div>`).join("")}</div></div>`:""}`}
+SCREENS.profile=()=>{
+  const sc=scores(),sy=S.sync||{};
+  return`<div class="hdr"><span></span><div class="brand">Range<b>.</b></div><button data-act="settings" aria-label="Settings" data-tour="gear">${ic("gear")}</button></div>
+  <div class="stack" style="padding-top:4px">
+  <div class="phead"><button class="avatar" data-act="nameSheet" aria-label="Your name">${esc(userName()[0]||"A").toUpperCase()}</button>
+    <div class="pwho"><button class="pname" data-act="nameSheet">${esc(userName())}</button>${sy.track?`<button class="pprog" data-act="syncKey" data-tour="program"><i class="pdot"></i>${esc(sy.track)}</button>`:""}</div></div>
+  <div class="pseg" role="tablist"><i class="plens" style="--pi:${PROF_TABS.findIndex(t=>t[0]===PROF_TAB)}"></i>${PROF_TABS.map(([k,n])=>`<button role="tab" aria-selected="${k===PROF_TAB}" class="${k===PROF_TAB?"on":""}" data-act="profTab" data-p="${k}">${n}</button>`).join("")}</div>
+  <div id="pane" class="stack">${PROF_TAB==="dash"?dashPane(sc):PROF_TAB==="equip"?equipPane():progPane(sc)}</div>
+  </div>`};
+ACT.profTab=d=>{const a=PROF_TABS.findIndex(t=>t[0]===PROF_TAB),b=PROF_TABS.findIndex(t=>t[0]===d.p);if(a===b||b<0)return;PROF_TAB=d.p;PROF_ANIM=PROF_TAB==="dash";render();window.scrollTo(0,0);
+  if(!REDUCED){const el=$("#pane");try{el&&el.animate([{opacity:0,transform:`translateX(${(b>a?1:-1)*36}px)`},{opacity:1,transform:"none"}],{duration:380,easing:"cubic-bezier(.32,.72,0,1)"})}catch(e){}}};
+ACT.settings=()=>go("settings");
+ACT.nameSheet=()=>sheet(`<h3>Your name</h3><div class="scroll"><label class="field"><span class="eyebrow">Name</span><input id="uname" value="${esc(S.name||"")}" placeholder="${esc(userName())}" maxlength="24" autocomplete="off"></label></div><div style="display:grid;gap:8px"><button class="btn" data-act="nameSave">Save</button></div>`);
+ACT.nameSave=()=>{const v=($("#uname").value||"").trim();if(v)S.name=v;else delete S.name;save();closeSheet();render()};
+ACT.scoreSheet=()=>{const sc=scores(),ov=overall(sc),lv=level(ov),last=S.tests[S.tests.length-1],left=last?30-Math.floor((Date.now()-last.at)/864e5):0;
+  sheet(`<h3>Mobility score</h3><div class="scroll">
+    <div class="score"><b>${ov}</b><span class="pill ${lv.c}">${lv.t}</span></div>${radar(sc)}
+    <ul class="bars">${AREAS.map(a=>{const v=sc[a.k],l=level(v);return`<li><span>${a.n}</span><span class="tr"><i style="width:${v}%;background:${l.v}"></i></span><b>${v}</b></li>`}).join("")}</ul>
+    ${(()=>{const prev=S.tests.length>1?S.tests[S.tests.length-2].scores:null;if(!prev||!S.scores)return"";const ch=AREAS.map(a=>[a,sc[a.k]-(prev[a.k]??sc[a.k])]).filter(([,d])=>d);
+      return ch.length?`<p style="margin:0;font-size:13px"><span class="muted">Since your previous test:</span> ${ch.map(([a,d])=>`${a.n} <b class="${d>0?"c-good":"c-bad"}">${d>0?"+":""}${d}</b>`).join(" · ")}</p>`:""})()}</div>
+    <button class="btn ${last&&left>0?"sec":""}" data-act="scoreTest">${last&&left>0?"Retest early":testDraft()?"Resume my test":"Test my mobility"}</button>`)};
+ACT.scoreTest=()=>{closeSheet();ACT.openTest()};
+SCREENS.settings=()=>`${hdr()}
+  <div class="stack" style="padding-top:4px">
+  <h1>Settings</h1>
+  ${sugarRow()}
   <div class="panel"><h3>Player</h3>
     <button class="toggle" data-act="setTog" data-k="sound"><span>Sound cues</span><span class="sw ${S.settings.sound?"on":""}"></span></button>
     <button class="toggle" data-act="setTog" data-k="voice"><span>Voice coach</span><span class="sw ${S.settings.voice?"on":""}"></span></button>
     <button class="toggle" data-act="setTog" data-k="easy"><span>Start in Easy Mode</span><span class="sw ${S.settings.easy?"on":""}"></span></button>
     <div class="toggle" style="flex-direction:column;align-items:stretch;gap:10px"><span>Demo style</span><span class="chipset">${[["illustrated","Illustrated"],["anatomy","Anatomy"],["mannequin","Mannequin"],["gymkit","Gym kit"],["xray","X-ray"]].map(([k,n])=>`<button class="chip ${(S.settings.figStyle||"gymkit")===k?"on":""}" data-act="setFig" data-v="${k}">${n}</button>`).join("")}</span></div>
     <button class="toggle" data-act="set3d"><span>3D demos <small class="muted">(drag to turn)</small></span><span class="sw ${S.settings.fig3d!==false?"on":""}"></span></button>
-    <div class="toggle" style="border:0"><span>Get-ready countdown</span><span class="chipset">${[5,10,15].map(v=>`<button class="chip ${S.settings.ready===v?"on":""}" data-act="setReady" data-v="${v}">${v}s</button>`).join("")}</span></div>
+    <div class="toggle" style="border:0"><span>Time between sets</span><span class="chipset">${[5,10,15].map(v=>`<button class="chip ${S.settings.ready===v?"on":""}" data-act="setReady" data-v="${v}">${v}s</button>`).join("")}</span></div>
   </div>
   ${API?acctPanel():sbPanel()}
   ${notifPanel()}
@@ -4631,10 +4692,9 @@ SCREENS.profile=()=>{
     <div class="frow"><button class="btn sec" style="flex:1" data-act="copyData">Copy my data</button><button class="btn sec" style="flex:1" data-act="pasteData">Paste data</button></div>
     <p id="dataMsg" class="muted" style="margin:0;font-size:13px" aria-live="polite"></p><textarea id="dataBox" class="field" rows="3" hidden style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px"></textarea>
     <details class="adv" ${BK?"open":""}><summary>Advanced</summary><div class="stack" style="gap:10px;padding-top:10px">${bkRow()}</div></details></div>`}
-  <div class="panel"><h3>History</h3><div class="hist">${S.sessions.length?S.sessions.slice(-12).reverse().map(s=>`<div><span>${esc(s.title||KN[s.kind]||"Session")}<br><small>${new Date(s.at).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})} · ${s.count} stretches${s.feel!=null?" · felt "+["stiff","tight","OK","loose","great"][s.feel]:""}</small></span><span style="font-variant-numeric:tabular-nums">${s.mins} min</span></div>`).join(""):`<p class="muted" style="margin:0">No sessions yet. Finish a protocol from Today and it appears here.</p>`}</div></div>
-  ${S.tests.length?`<div class="panel"><h3>Test history</h3><div class="hist">${S.tests.slice().reverse().map(t=>`<div><span>${new Date(t.at).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})}<br><small>${AREAS.map(a=>a.n+" "+t.scores[a.k]).join(" · ")}</small></span><b style="font-variant-numeric:tabular-nums">${overall(t.scores)}</b></div>`).join("")}</div></div>`:""}
+  <button class="panel navrow" data-act="howItWorks"><span><b>How Range works</b></span><span class="chev">${ic("back")}</span></button>
+  <button class="panel navrow" data-act="tourStart" data-tour="tour-btn"><span><b>Show the app tour</b></span><span class="chev">${ic("back")}</span></button>
   </div>`;
-};
 ACT.howItWorks=()=>sheet(`<h3>How Range works</h3><div class="scroll evid">
  <p><b>Mobility sessions</b> split your time by need: your test scores, what today's movements require, what you trained in the last 3 days and what's coming up. Each area starts with a static stretch and ends with an active drill that uses the new range, so it carries into your lifts.</p>
  <p><b>Dose.</b> Before training, static holds stay at 30 seconds or less per muscle inside a dynamic warm-up, which has little to no effect on strength or power. Flexibility gains level off at about 4 minutes per session and 10 minutes per area per week. Strength training builds range about as well as stretching does, and unlike stretching it reduces injuries.</p>
@@ -5170,10 +5230,11 @@ const TOUR_STEPS=[
  {tab:"home",demo:tdPick,el:()=>tq("#layer [data-act=testNext]"),t:"On to the next check",d:"At the end you see your score for each area, and every session adapts to it."},
  {tab:"library",el:()=>tq("#screen .search"),t:"Library",d:"Search every stretch and drill, or browse by muscle or area below. Build and share your own routines here too."},
  {tab:"rebuild",el:()=>tq("[data-act=rbStart]")||tq("[data-tour=rebuild] [data-act=rbPick]"),t:()=>S.rehab?"Your Rebuild program":"Rebuild",d:()=>S.rehab?"Start today's session here. Your pain rating decides when you move to the next phase.":"Sore somewhere? Pick the area: Range screens it, then rebuilds it in phases with clear pain rules."},
- {tab:"profile",el:()=>tq("[data-tour=sports]"),t:"Your sports",d:"Daily sessions lean toward what your sports need. Tap Edit to change them."},
- {tab:"profile",el:()=>tq("[data-tour=equip]"),t:"Your equipment",d:"Sessions only use what's switched on here."},
- {tab:"profile",el:()=>tq("[data-tour=account]"),t:"Your account",d:"Your tests, sessions and routines save to your account and follow you to any device."},
- {tab:"profile",el:()=>tq("[data-tour=tour-btn]"),t:"That's the tour",d:"Replay it any time from here. Now go and move."},
+ {tab:"profile",pane:"dash",el:()=>tq("[data-tour=program]"),t:"Your program",d:"Tap it to switch to another SugarWOD program."},
+ {tab:"profile",pane:"dash",el:()=>tq("[data-tour=score]"),t:"Your dashboard",d:"Your mobility score, time and focus. Swipe for equipment and progress."},
+ {tab:"profile",pane:"equip",el:()=>tq("[data-tour=sports]"),t:"Your sports",d:"Daily sessions lean toward what your sports need. Tap Edit to change them."},
+ {tab:"profile",pane:"equip",el:()=>tq("[data-tour=equip]"),t:"Your equipment",d:"Sessions only use what's switched on here."},
+ {tab:"profile",pane:"dash",el:()=>tq("[data-tour=gear]"),t:"Settings",d:"Your account, the player, and this tour. Replay it any time. Now go and move."},
 ];
 const tval=v=>typeof v==="function"?v():v;
 const tvis=e=>!!e&&e.getClientRects().length>0;
@@ -5181,7 +5242,7 @@ const tvis=e=>!!e&&e.getClientRects().length>0;
 // (drawTest doesn't store a draft while TDEMO is set) and come back exactly as they were when the demo closes
 function tdemoOpen(ans){if(!TDEMO)TDEMO={T};T={i:0,ans};drawTest()}
 function tdemoClose(){if(!TDEMO)return;T=TDEMO.T;TDEMO=null;$("#layer").innerHTML="";document.body.style.overflow=""}
-function tourShow(st){if(st.demo){tdemoOpen(st.demo());return}tdemoClose();if(stack.length>1||stack[0].name!==st.tab){stack=[{name:st.tab,p:{}}];render()}}
+function tourShow(st){if(st.demo){tdemoOpen(st.demo());return}tdemoClose();const pane=st.pane&&st.pane!==PROF_TAB;if(pane)PROF_TAB=st.pane;if(stack.length>1||stack[0].name!==st.tab||pane){stack=[{name:st.tab,p:{}}];render()}}
 let tourSafe=null;
 function tourInsets(){if(!tourSafe){const p=document.createElement("div");p.style.cssText="position:fixed;visibility:hidden;pointer-events:none;top:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)";document.body.appendChild(p);const cs=getComputedStyle(p);tourSafe={t:parseFloat(cs.paddingTop)||0,b:parseFloat(cs.paddingBottom)||0};p.remove()}return tourSafe}
 // the steps this person can see right now, worked out before the tour starts so the count is right ("3 of 11")
@@ -5215,21 +5276,23 @@ function tourPlace(){if(!TOUR||TOUR.i<0)return;const st=TOUR.steps[TOUR.i],n=TOU
   let R=rectOf();
   // scroll the whole element into the visible part with room for the note (the page gets extra room at the bottom during
   // the tour, so a card near the end of a short page can still come up above the tab bar)
-  if(!TOUR.scrolled){TOUR.scrolled=true;const fits=(R.top>=top0&&R.bottom+gap+th<=bot0)||(R.top-gap-th>=top0&&R.bottom<=bot0);
+  const inH=!!(el.closest&&el.closest(".hdr")); // something in the header (the settings gear) stays where it is; the note goes below it
+  if(!TOUR.scrolled){TOUR.scrolled=true;const fits=inH||(R.top>=top0&&R.bottom+gap+th<=bot0)||(R.top-gap-th>=top0&&R.bottom<=bot0);
     if(!fits){const dy=R.top-top0-pad-2;if(sc)sc.scrollTop+=dy;else window.scrollTo({top:Math.max(0,scrollY+dy),behavior:"instant"});R=rectOf()}}
   // hug the element (6 px all round), clipped to the app column and to what's on screen
   const col=(sc?sc.querySelector(".inner"):$("#app")).getBoundingClientRect(),cl=Math.max(vx+4,col.left+16-pad),cr=Math.min(vx+vw-4,col.right-16+pad);
-  const x=Math.max(cl,R.left-pad),w=Math.min(cr,R.right+pad)-x,y=Math.max(top0-pad,R.top-pad);
+  const x=Math.max(cl,R.left-pad),w=Math.min(cr,R.right+pad)-x,y=inH?R.top-pad:Math.max(top0-pad,R.top-pad);
   let h=Math.min(R.bottom+pad,bot0+pad)-y,ty;
   if(bot0-(y+h)-gap>=th)ty=y+h+gap;else if(y-(top0-pad)-gap>=th)ty=y-gap-th;
   else{h=Math.max(48,bot0-th-gap-y);ty=Math.min(y+h+gap,bot0-th)}
+  if(inH){h=R.bottom+pad-y;ty=y+h+gap}
   const rad=(parseFloat(getComputedStyle(el).borderTopLeftRadius)||6)+pad;
   const holes=[[x,y,w,h,rad]];
   const tab=tbr&&!st.demo&&st.tab!=="home"&&tb.querySelector(`[data-t=${st.tab}]`);if(tab){const q=tab.getBoundingClientRect();holes.push([q.left+2,q.top+2,q.width-4,q.height-4,12])}
   const rr=(X,Y,W,H,c)=>{c=Math.max(0,Math.min(c,W/2,H/2));return`M${X+c} ${Y}H${X+W-c}A${c} ${c} 0 0 1 ${X+W} ${Y+c}V${Y+H-c}A${c} ${c} 0 0 1 ${X+W-c} ${Y+H}H${X+c}A${c} ${c} 0 0 1 ${X} ${Y+H-c}V${Y+c}A${c} ${c} 0 0 1 ${X+c} ${Y}Z`};
   const W=innerWidth,H=innerHeight,svg=root.querySelector(".tdim");svg.setAttribute("viewBox",`0 0 ${W} ${H}`);svg.querySelector("path").setAttribute("d",`M0 0H${W}V${H}H0Z`+holes.map(o=>rr(...o)).join(""));
   Object.assign(root.querySelector(".tring").style,{left:x+"px",top:y+"px",width:w+"px",height:h+"px",borderRadius:rad+"px"});
-  tip.style.top=Math.max(top0-pad,Math.min(ty,bot0-th))+"px"}
+  tip.style.top=(inH?ty:Math.max(top0-pad,Math.min(ty,bot0-th)))+"px"}
 ACT.tourNext=()=>{if(!TOUR)return;if(TOUR.i>=TOUR.steps.length-1)return tourEnd();tourGo(TOUR.i+1)};
 ACT.tourBack=()=>{if(TOUR&&TOUR.i>0)tourGo(TOUR.i-1)};
 ACT.tourSkip=()=>tourEnd();
@@ -5266,7 +5329,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="7075342";
+<script>window.RANGE_BUILD="81032735";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
