@@ -2078,9 +2078,9 @@ ACT.whySheet=()=>{
    ${(W.plan.credit=planCredit(W.plan.items,W.kind==="target"||W.kind==="daily"?[]:W.moves))&&Object.keys(W.plan.credit).length?`<div class="stack" style="gap:6px"><span class="eyebrow">${W.kind==="recover"?"What each movement worked":"What each movement needs"}</span>
     <ul class="mvcredit">${Object.entries(W.plan.credit).map(([m,ids])=>`<li><b>${esc(m)}</b><span class="muted">${(MOVE_ZONES[m]||[]).slice(0,3).map(z=>ZONES[z].toLowerCase()).join(", ")}</span><span>${ids.length?ids.map(id=>esc(LIBI[id].n)).join(", "):`<i class="muted">Lightly loaded. No exercise of its own at this length</i>`}</span></li>`).join("")}</ul></div>`:""}
    <div class="stack" style="gap:6px"><span class="eyebrow">Session structure</span><p class="muted" style="margin:0;font-size:14px">${{
-    activate:"One body region at a time, starting with the muscles your workout leans on most (hips & legs, shoulders, back, then calves and wrists). Rehab warm-up first if your Rebuild program has one. In each region: roll, then Mobilise: dynamic drills for the positions your lifts need. A short static hold (30 s, one per area) only where your test shows you're tight and the session uses that muscle, so you keep your strength. Then Activate: brace the core, switch on the muscles your lifts rely on, floor first and standing last. Finish by rehearsing the main lift's position (for example a PVC overhead squat before snatches).",
+    activate:"One body region at a time, starting with the muscles your workout leans on most (hips & legs, shoulders, back, then calves and wrists). Rehab warm-up first if your Rebuild program has one. In each region: roll, then mobilise with dynamic drills for the positions your lifts need. A short static hold (30 s, one per area) only where your test shows you're tight and the session uses that muscle, so you keep your strength. Once every area is warm, Activate comes last: brace the core and switch on the muscles your lifts rely on, floor first and standing last. Finish by rehearsing the main lift's position (for example a PVC overhead squat before snatches).",
     recover:"One body region at a time, starting with the muscles the session loaded most (hips & legs, shoulders, back, then calves and wrists). In each region: release with the roller or ball first, then long passive holds, from standing down to the floor.",
-    daily:"One body region at a time (hips & legs, shoulders, back, then calves and wrists): rolling first, then mobility for your weakest areas, capped at about 10 minutes of static stretching per area per week, then strength at end range for that region. Loaded range work improves mobility as much as stretching and also lowers injury risk.",
+    daily:"One body region at a time (hips & legs, shoulders, back, then calves and wrists): rolling first, then mobility for your weakest areas, capped at about 10 minutes of static stretching per area per week. Strength at end range comes last, once every area is warm. Loaded range work improves mobility as much as stretching and also lowers injury risk.",
     target:"Mobility for your chosen area, repeated in rounds if needed, then Lock it in with a strength drill in the new range."}[W.kind]}</p></div>
   </div><button class="btn sec" data-act="closeSheet">Close</button>`);
 };
@@ -3601,12 +3601,15 @@ function regionOrder(items,kind,zd){
   const rows=items.map((it,i)=>{const ex=LIBI[it.id]||{z:[]};return{it,ex,i,st:stOf(it),r:regionOf(ex),pos:ex.z.length?posOf(ex):0,rnd:+(((it.why||"").match(/^Round (\d+)/)||[])[1]||0)}});
   const rank=regionRank(zd),out=[],named=(row,name)=>{row.name=name;out.push(row)};
   rows.filter(x=>x.st==="pre").forEach(x=>named(x,"Rehab warm-up"));
-  let cur=0;
-  rank.forEach(r=>{const rs=rows.filter(x=>x.r===r&&typeof x.st==="number");if(!rs.length)return;const label=regionLabel(r,rs.map(x=>x.ex));let seq;
+  let cur=0;const strong=[]; // strength and activation drills wait until every area has been mobilised, then close the session together
+  rank.forEach(r=>{const all=rows.filter(x=>x.r===r&&typeof x.st==="number"),rs=all.filter(x=>x.st!==2);
+    all.filter(x=>x.st===2).sort((a,b)=>a.i-b.i).forEach(x=>strong.push(x));
+    if(!rs.length)return;const label=regionLabel(r,rs.map(x=>x.ex));let seq;
     if(kind==="activate")seq=rs.sort((a,b)=>(a.st?1:0)-(b.st?1:0)||(b.pos>=2)-(a.pos>=2)||a.st-b.st||b.pos-a.pos||a.i-b.i);
     else if(kind==="flow"){const down=cur<2;seq=rs.sort((a,b)=>a.st-b.st||(down?a.pos-b.pos:b.pos-a.pos)||a.i-b.i)}
     else seq=rs.sort((a,b)=>a.st-b.st||a.rnd-b.rnd||a.pos-b.pos||a.i-b.i);
-    seq.forEach(x=>named(x,x.st===2&&kind==="target"?"Lock it in":x.st===2&&kind==="daily"?`${label} · strength`:label));cur=seq[seq.length-1].pos});
+    seq.forEach(x=>named(x,label));cur=seq[seq.length-1].pos});
+  strong.forEach(x=>named(x,kind==="target"?"Lock it in":kind==="activate"?"Activate":"Strength"));
   rows.filter(x=>x.st==="main").forEach(x=>named(x,"Main lift"));
   rows.filter(x=>x.st==="end").forEach(x=>named(x,"Finish"));
   const blocks=[];out.forEach(x=>{const it=x.it;delete it._st;delete it._main;it.block=x.name;const last=blocks[blocks.length-1];if(last&&last.name===x.name)last.items.push(it);else blocks.push({name:x.name,items:[it]})});
