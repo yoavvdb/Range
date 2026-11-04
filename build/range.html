@@ -303,7 +303,7 @@ img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;o
 .full .hdr{top:0;height:calc(56px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px)}.full .hdr::before{display:none}
 .full .inner{max-width:480px;margin:0 auto;padding:0 16px calc(env(safe-area-inset-bottom,0px) + 16px);min-height:100%;display:grid;grid-template-rows:auto 1fr auto;gap:16px}
 .tprog{display:flex;gap:4px}.tprog i{flex:1;height:3px;border-radius:2px;background:var(--line)}.tprog i.on{background:var(--accent)}
-.big{font-size:72px;font-weight:800;font-stretch:115%;line-height:.9;font-variant-numeric:tabular-nums}
+.big{font-size:72px;font-weight:800;font-stretch:115%;line-height:.9;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .feel{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
 .feel button{padding:12px 2px;border-radius:10px;background:var(--surface2);border:1px solid var(--line);font-size:13px;font-weight:700;min-height:44px}
 .feel button.on{background:var(--accent);color:var(--accent-ink)}
@@ -477,6 +477,11 @@ button,a,[data-act],.chip,.opt{touch-action:manipulation;-webkit-user-select:non
 .scrim.out{animation:scrimOut 200ms ease-in both;pointer-events:none}.scrim.out .sheet{animation:sheetOut 220ms var(--ease-out) both}
 @keyframes scrimIn{from{background:rgba(0,0,0,0)}}@keyframes scrimOut{to{background:rgba(0,0,0,0)}}
 @keyframes sheetIn{from{transform:translateY(100%)}}@keyframes sheetOut{to{transform:translateY(100%)}}
+/* a sheet pulled up past its rest keeps its surface under it instead of showing a gap */
+.sheet{box-shadow:0 420px 0 0 var(--surface)}
+/* Increase Contrast: brighter secondary text, visible edges, solid chrome */
+@media (prefers-contrast:more){:root{--muted:#D9CFC1;--line:#7A7166}#tabbar{background:#0D0B09!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;border-top:1px solid #8C8378!important}.sheet{outline:1px solid #7A7166}}
+
 /* the player comes up like a full-screen iOS view */
 .player.rise{animation:sheetIn 420ms var(--ease-drawer) both}
 .full{overscroll-behavior:contain}
@@ -1683,10 +1688,11 @@ const FIG3D=(()=>{
     requestAnimationFrame(step);
   }
   function hookDrag(cv){
-    let x0=null;
-    cv.addEventListener("pointerdown",e=>{x0=e.clientX;try{cv.setPointerCapture(e.pointerId)}catch(_){};cv.dataset.drag=1});
-    cv.addEventListener("pointermove",e=>{if(x0==null)return;cv.dataset.yaw=(+cv.dataset.yaw||0)+(e.clientX-x0)*.012;x0=e.clientX;cv.dataset.drawn=""});
-    const end=e=>{if(x0!=null&&Math.abs(+cv.dataset.yaw)<.02)cv.dataset.drag="";x0=null};
+    let x0=null,tr=null;
+    cv.addEventListener("pointerdown",e=>{x0=e.clientX;cv._spin=0;tr=tracker();tr.add(e.clientX);try{cv.setPointerCapture(e.pointerId)}catch(_){};cv.dataset.drag=1});
+    cv.addEventListener("pointermove",e=>{if(x0==null)return;cv.dataset.yaw=(+cv.dataset.yaw||0)+(e.clientX-x0)*.012;x0=e.clientX;tr.add(e.clientX);cv.dataset.drawn=""});
+    // let go mid-turn and it keeps turning, slowing like a real thing would
+    const end=e=>{if(x0!=null){const v=tr.v()*.012/1000;if(!REDUCED&&Math.abs(v)>.0004){cv._spin=v;cv._st=0}if(Math.abs(+cv.dataset.yaw)<.02)cv.dataset.drag=""}x0=null};
     cv.addEventListener("pointerup",end);cv.addEventListener("pointercancel",end);
   }
   function tick(ts){
@@ -1697,6 +1703,7 @@ const FIG3D=(()=>{
     try{
       scope.querySelectorAll("canvas.fig.f3.anim").forEach(cv=>{
         // a static stretch is drawn once in its held position (and again only when you turn it)
+        if(cv._spin){const dt=cv._st?Math.min(50,ts-cv._st):16;cv._st=ts;cv.dataset.yaw=(+cv.dataset.yaw||0)+cv._spin*dt;cv._spin*=Math.pow(.996,dt);if(Math.abs(cv._spin)<.00003)cv._spin=0;cv.dataset.drawn=""}
         const paused=(cv.closest(".player")&&animPaused)||cv.dataset.mode==="static";if(paused&&cv.dataset.drawn)return;
         // size from the container, never from the canvas itself: on iPhone a canvas can take its pixel size as its
         // display size, which made it grow every frame and look zoomed in
@@ -1912,24 +1919,46 @@ function back(){const top=stack[stack.length-1];
   if(top.name==="wizard"&&W&&W.hist&&W.hist.length){W.step=W.hist.pop();W.returnTo=null;render();window.scrollTo(0,0);push(-1);return}
   if(stack.length>1)stack.pop();render();push(-1)}
 // finger swipes: on a main tab, swipe sideways to the next or previous tab; on any deeper screen, swipe right to go back.
+// The screen follows the finger 1:1 and can be pulled back to cancel; a flick commits and both screens move on at the finger's speed.
 // Swipes that start on something that scrolls sideways itself (the cards, the flows, a 3D figure) or inside a sheet are left alone
+let NOPUSH=false;
 (()=>{const TABS=["home","rebuild","profile"];let t=null;
  const skip=el=>el.closest(".carousel,.hscroll,.pcards,canvas,input,textarea,select,.sheet,#tabbar,#layer > *,#tour,[data-noswipe]");
+ // dir -1: finger moving left (next), +1: moving right (previous / back)
+ const target=dir=>{
+  if(stack.length>1||stack[0].name==="wizard")return dir>0?{go:()=>back(),kind:"back"}:null;
+  if(stack[0].name==="profile"){const P=PROF_TABS.map(x=>x[0]),j=P.indexOf(PROF_TAB)-dir;return j>=0&&j<P.length?{go:()=>ACT.profTab({p:P[j]}),kind:"pane"}:null}
+  if(stack[0].name==="rebuild"&&S.rehab){const P=RB_TABS.map(x=>x[0]),j=P.indexOf(RB_TAB)-dir;return j>=0&&j<P.length?{go:()=>ACT.rbTab({p:P[j]}),kind:"pane"}:null}
+  const i=TABS.indexOf(stack[0].name),j=i-dir;return i<0||j<0||j>=TABS.length?null:{go:()=>ACT.tab({t:TABS[j]}),kind:"tab"}};
+ const scr=()=>$("#screen");
  document.addEventListener("touchstart",e=>{if(e.touches.length!==1||TOUR||$("#layer").children.length||skip(e.target)){t=null;return}
   const x=e.touches[0].clientX;if(!navigator.standalone&&x<24){t=null;return} // in Safari the left edge is Safari's own back swipe
-  t={x0:x,y0:e.touches[0].clientY,t0:Date.now()}},{passive:true});
- document.addEventListener("touchend",e=>{if(!t)return;const c=e.changedTouches[0],dx=c.clientX-t.x0,dy=c.clientY-t.y0,dt=Date.now()-t.t0;t=null;
-  if(Math.abs(dx)<70||Math.abs(dy)>Math.abs(dx)*.6||dt>700)return;
-  if(stack.length>1||(stack[0].name==="wizard")){if(dx>0)back();return}
-  if(stack[0].name==="profile"){const P=PROF_TABS.map(x=>x[0]),k=P.indexOf(PROF_TAB);
-    if(dx<0){if(k<P.length-1)ACT.profTab({p:P[k+1]});return}
-    if(k>0){ACT.profTab({p:P[k-1]});return}}
-  if(stack[0].name==="rebuild"&&S.rehab){const P=RB_TABS.map(x=>x[0]),k=P.indexOf(RB_TAB);
-    if(dx<0){if(k<P.length-1)ACT.rbTab({p:P[k+1]});return}
-    if(k>0){ACT.rbTab({p:P[k-1]});return}}
-  const i=TABS.indexOf(stack[0].name),j=i+(dx<0?1:-1);if(i<0||j<0||j>=TABS.length)return;
-  ACT.tab({t:TABS[j]});push(dx<0?1:-1)},{passive:true})})();
-function push(dir){if(REDUCED||TOUR)return;const el=$("#screen");
+  if(t&&t.sp){t.sp.stop();t.sp=null}
+  t={x0:x,y0:e.touches[0].clientY,t0:Date.now(),mode:null,off:0,tr:tracker(),node:e.target};
+  // listen on the touched node: if a re-render takes it out of the page, it still gets the rest of the gesture (the document doesn't)
+  const n=e.target,off_=()=>{n.removeEventListener("touchmove",mv);n.removeEventListener("touchend",en);n.removeEventListener("touchcancel",cn)};
+  n.addEventListener("touchmove",mv,{passive:true});n.addEventListener("touchend",en=ev=>{off_();onEnd(ev)},{passive:true});n.addEventListener("touchcancel",cn=()=>{off_();onCancel()},{passive:true})},{passive:true});
+ let en,cn;
+ const mv=e=>{if(!t||t.mode==="v")return;const c=e.touches[0],dx=c.clientX-t.x0,dy=c.clientY-t.y0;
+  if(!t.mode){if(Math.hypot(dx,dy)<10)return;if(Math.abs(dx)>Math.abs(dy)*1.2){t.mode="h";t.x0=c.clientX}else{t.mode="v";return}}
+  const off=c.clientX-t.x0;t.tr.add(off);const tg=target(off<0?-1:1);
+  if(REDUCED||(tg&&tg.kind==="pane")){t.off=off;return}
+  t.off=tg?off:rubber(off,innerWidth*.5);const el=scr();el.style.transition="none";el.style.transform=`translateX(${t.off}px)`};
+ const onEnd=()=>{if(!t)return;const T_=t;t=null;if(T_.mode!=="h")return;
+  const v=T_.tr.v(),off=T_.off,w=innerWidth,dest=off+project(v),dir=Math.sign(Math.abs(dest)>1?dest:off)||1,tg=target(dir);
+  const go=tg&&(Math.abs(dest)>Math.min(w,480)*.35||Math.abs(v)>700)&&v*dir>-150&&off*dir>=0;
+  if(tg&&tg.kind==="pane"||REDUCED){if(go)tg.go();scr().style.transform="";return}
+  const el=scr();
+  if(!go){T_.sp=spring({from:off,to:0,v,damping:1,response:.3,onUpdate:x=>el.style.transform=x?`translateX(${x}px)`:""});return}
+  // a still copy of the old screen leaves with the finger while the new one comes in beside it (tabs) or from under it (back)
+  const r=el.getBoundingClientRect(),g=el.cloneNode(true);g.removeAttribute("id");g.setAttribute("aria-hidden","true");g.querySelectorAll("[id]").forEach(n=>n.removeAttribute("id"));
+  const oc=el.querySelectorAll("canvas"),gc=g.querySelectorAll("canvas");gc.forEach((c,i)=>{try{c.getContext("2d").drawImage(oc[i],0,0)}catch(_){}});
+  Object.assign(g.style,{position:"fixed",top:r.top+"px",left:r.left+"px",width:r.width+"px",margin:"0",zIndex:"5",pointerEvents:"none",background:"var(--bg)",transform:`translateX(${off}px)`,boxShadow:tg.kind==="back"?"-12px 0 24px rgba(0,0,0,.35)":"none"});
+  document.body.appendChild(g);NOPUSH=true;try{tg.go()}finally{NOPUSH=false}
+  const nel=scr(),to=dir*w,move=x=>{g.style.transform=`translateX(${x}px)`;nel.style.transform=`translateX(${tg.kind==="back"?-.3*(w-x):x-to}px)`};
+  move(off);spring({from:off,to,v,damping:1,response:.32,onUpdate:move,onDone:()=>{g.remove();nel.style.transform=""}})};
+ const onCancel=()=>{if(t&&t.mode==="h")scr().style.transform="";t=null}})();
+function push(dir){if(REDUCED||TOUR||NOPUSH)return;const el=$("#screen");
   try{el.animate(dir>0?[{transform:"translateX(100%)",boxShadow:"-12px 0 24px rgba(0,0,0,.35)"},{transform:"none",boxShadow:"none"}]:[{transform:"translateX(-30%)",opacity:.6},{transform:"none",opacity:1}],{duration:dir>0?420:360,easing:"cubic-bezier(.32,.72,0,1)"})}catch(e){}}
 ACT.back=back;
 let PROF_ANIM=false;
@@ -2185,15 +2214,38 @@ ACT.saveMoves=()=>{W.moves=tmpMoves.slice();closeSheet();render()};
 function sheet(html){$("#layer").innerHTML=`<div class="scrim" data-act="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div></div>`}
 function closeSheet(){const sc=$("#layer > .scrim");$("#layer").innerHTML="";sheetGhost(sc)}
 function sheetGhost(sc){if(!sc||REDUCED)return;sc.classList.add("out");sc.removeAttribute("data-act");sc.querySelectorAll("[id]").forEach(e=>e.removeAttribute("id"));document.body.appendChild(sc);setTimeout(()=>sc.remove(),260)}
-// drag a sheet down to close it (from anywhere except its scrolling list and form fields); a short flick also closes it
+/* fluid motion (Apple "Designing Fluid Interfaces"): springs start from where the thing is and how fast it moves,
+   flicks project forward like scrolling does, edges resist instead of stopping dead, and anything moving can be grabbed */
+function spring(o){const w=2*Math.PI/(o.response||.35),k=w*w,c=2*(o.damping??1)*w;let x=o.from,v=o.v||0,last=0,raf=0,dead=false;
+  // real elapsed time in small fixed steps: the same motion at 120 Hz, 60 Hz or a throttled 10 Hz
+  const step=now=>{if(dead)return;const dt=last?Math.min(.1,(now-last)/1000):1/60,n=Math.ceil(dt/.004),h=dt/n;last=now;
+    for(let i=0;i<n;i++){const a=-k*(x-o.to)-c*v;v+=a*h;x+=v*h}
+    if(Math.abs(x-o.to)<.4&&Math.abs(v)<8){o.onUpdate(o.to);if(o.onDone)o.onDone();return}
+    o.onUpdate(x);raf=requestAnimationFrame(step)};
+  raf=requestAnimationFrame(step);return{stop(){dead=true;cancelAnimationFrame(raf);return x}}}
+const project=(v,d=.998)=>v/1000*d/(1-d);                        // where a flick at v px/s would come to rest
+const rubber=(over,dim,c=.55)=>over*dim*c/(dim+c*Math.abs(over)); // the further past the edge, the less it follows
+function tracker(){const s=[];return{add(p){const t=performance.now();s.push([t,p]);while(s.length>2&&t-s[0][0]>50)s.shift()},
+  v(){if(s.length<2||performance.now()-s[s.length-1][0]>80)return 0;const a=s[0],b=s[s.length-1],dt=(b[0]-a[0])/1000;return dt>0?(b[1]-a[1])/dt:0}}}
+// drag a sheet down to close it (from anywhere except its scrolling list and form fields): it follows the finger,
+// a flick throws it, pulling up resists, and a sheet still settling can be caught again
 (()=>{let d=null;
+ const place=(sh,y)=>{sh._y=y;sh.style.transform=y?`translateY(${y}px)`:"";const sc=sh.closest(".scrim");
+   if(sc)sc.style.backgroundColor=`rgba(0,0,0,${(.55*Math.max(0,1-Math.max(0,y)/Math.max(1,sh.offsetHeight))).toFixed(3)})`};
  document.addEventListener("pointerdown",e=>{const sh=e.target.closest(".scrim:not(.out) .sheet");if(!sh||e.target.closest(".scroll,input,textarea,select,.res"))return;
-  d={sh,y0:e.clientY,t0:performance.now(),dy:0,id:e.pointerId,moved:false}});
- document.addEventListener("pointermove",e=>{if(!d||e.pointerId!==d.id)return;d.dy=Math.max(0,e.clientY-d.y0);if(d.dy>6){d.moved=true;d.sh.style.animation="none";d.sh.style.transition="none";d.sh.style.transform=`translateY(${d.dy}px)`}});
- const end=e=>{if(!d||e.pointerId!==d.id)return;const{sh,dy,t0,moved}=d;d=null;if(!moved)return;
-  const v=dy/Math.max(1,performance.now()-t0);
-  if(dy>Math.min(140,sh.offsetHeight*.3)||v>.6){const sc=sh.closest(".scrim");if(sc&&sc.dataset.act==="scrimP")closeSheetP();else closeSheet()}
-  else{sh.style.transition="transform 300ms var(--ease-drawer)";sh.style.transform="";setTimeout(()=>{sh.style.transition=""},320)}
+  let y=0;if(sh._sp){y=sh._sp.stop();sh._sp=null}
+  d={sh,y0:e.clientY,start:Math.max(0,y),id:e.pointerId,moved:y!==0,tr:tracker()};d.tr.add(d.start)});
+ document.addEventListener("pointermove",e=>{if(!d||e.pointerId!==d.id)return;const raw=d.start+e.clientY-d.y0;
+  if(!d.moved&&Math.abs(raw-d.start)<6)return;
+  if(!d.moved){d.moved=true;d.y0+=raw>d.start?6:-6;try{d.sh.setPointerCapture(d.id)}catch(_){}}                 // start tracking from where the drag was recognised, no jump
+  const r=d.start+e.clientY-d.y0;d.sh.style.animation="none";d.sh.style.transition="none";
+  place(d.sh,r>=0?r:rubber(r,d.sh.offsetHeight));d.tr.add(r)});
+ const end=e=>{if(!d||e.pointerId!==d.id)return;const{sh,moved,tr}=d;d=null;if(!moved)return;
+  const v=tr.v(),y=sh._y||0,h=sh.offsetHeight,sc=sh.closest(".scrim"),dest=y+project(v);
+  if((dest>h*.45&&v>-200)||v>900){if(sc)sc.style.pointerEvents="none";
+    sh._sp=spring({from:y,to:h+24,v:Math.max(v,0),damping:1,response:.3,onUpdate:x=>place(sh,x),onDone:()=>{sh._sp=null;
+      if(sc&&sc.dataset.act==="scrimP")closeSheetP();else if(sc&&sc.parentNode===$("#layer"))$("#layer").innerHTML=""}})}
+  else sh._sp=spring({from:y,to:0,v,damping:1,response:.3,onUpdate:x=>place(sh,x),onDone:()=>{sh._sp=null;sh.style.transform="";if(sc)sc.style.backgroundColor=""}});
   // a drag is not a tap: swallow the click that follows
   const eat=ev=>{ev.stopPropagation();ev.preventDefault()};addEventListener("click",eat,{capture:true,once:true});setTimeout(()=>removeEventListener("click",eat,{capture:true}),350)};
  document.addEventListener("pointerup",end);document.addEventListener("pointercancel",end)})();
