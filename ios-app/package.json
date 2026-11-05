@@ -4,6 +4,8 @@
   "private": true,
   "description": "Range inside a native iOS shell (Capacitor). The app files are bundled, not loaded from the web.",
   "dependencies": {
+    "@capacitor/app": "^8.1.2",
+    "@capacitor/browser": "^8.0.5",
     "@capacitor/cli": "^8.6.0",
     "@capacitor/core": "^8.6.0",
     "@capacitor/ios": "^8.6.0",

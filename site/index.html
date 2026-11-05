@@ -387,6 +387,12 @@ textarea{font:inherit}.edex{gap:10px}.edhead{display:grid;grid-template-columns:
 .gate .ghero.sm{padding-top:clamp(16px,4vh,40px)}.gate .ghero.sm .gmark{width:64px;height:64px}
 .gmark{width:clamp(72px,13vh,104px);height:auto}
 .gword{font-weight:800;font-stretch:125%;font-size:24px;letter-spacing:.32em;text-transform:uppercase;margin-right:-.32em}.gword b{color:var(--accent)}
+.oauth{display:grid;gap:10px}
+.obtn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:50px;border-radius:14px;font-size:16px;font-weight:600;letter-spacing:-.01em;width:100%}
+.obtn svg{width:19px;height:19px;flex:none}.obtn:disabled{opacity:.55}
+.obtn.apple{background:#fff;color:#000}.obtn.apple svg{fill:#000;margin-top:-2px}
+.obtn.google{background:#131314;color:#E3E3E3;border:1px solid #8E918F}
+.ordiv{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px;margin:2px 0}.ordiv::before,.ordiv::after{content:"";flex:1;height:1px;background:var(--line)}
 .gtag{margin:0;color:var(--muted);font-size:15px;max-width:30ch;text-wrap:balance}
 .gnote{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted);background:var(--surface);border-radius:10px;padding:8px 12px}.gnote .ic{width:16px;height:16px;flex:none}.gnote span{flex:1}
 .obgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.obgrid .opt{min-height:50px;padding:0 12px}
@@ -5167,10 +5173,20 @@ ACT.applyPaste=()=>{
    account and follows you to any device. The SugarWOD passphrase and backup token never leave this phone.
    Table + row-level security: supabase/schema.sql in the repo. */
 const SB_URL="https://xssgqlosuwsquesqdqif.supabase.co",SB_KEY="sb_publishable_ptwUPG47NEU23AMIeT7LdA_FMDclNt8";
+/* Sign in with Apple / Google (Supabase OAuth). On the web the page goes to Apple or Google and comes back here with the
+   session in the URL. In the iOS app (Capacitor) Google refuses sign-in inside an app's web view, so the page opens in an
+   in-app Safari sheet and comes back through the app's own link, app.range.mobility://auth, with a one-time code. */
+const NATIVE=!!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform()),APP_CB="app.range.mobility://auth";
+const OAUTH_NAME={apple:"Apple",google:"Google"};
+// which providers are switched on in Supabase, so a button that can't work says so instead of opening an error page
+let SB_PROV=null;const sbProviders=()=>SB_PROV||(SB_PROV=fetch(SB_URL+"/auth/v1/settings",{headers:{apikey:SB_KEY}}).then(r=>r.json()).then(d=>d.external||{}).catch(()=>{SB_PROV=null;return null}));
+// coming back from Apple or Google with an error (cancelled, or the provider refused): say so on the front page
+let OAUTH_ERR=(()=>{try{const q=new URLSearchParams(location.search),h=new URLSearchParams(location.hash.slice(1)),e=q.get("error_description")||h.get("error_description")||q.get("error")||h.get("error");
+  if(!e)return"";history.replaceState(history.state,"",location.pathname);return/cancel|denied/i.test(e)?"Sign-in was cancelled.":"Couldn't finish signing in. Please try again."}catch(e){return""}})();
 const SB_JS="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js";
 const sbHasSession=()=>{try{return Object.keys(localStorage).some(k=>k.startsWith("range-sb"))}catch(e){return false}};
 function sbLoad(){if(SB)return Promise.resolve(SB);return new Promise((res,rej)=>{
-  const mk=()=>{SB=window.supabase.createClient(SB_URL,SB_KEY,{auth:{storageKey:"range-sb",persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  const mk=()=>{SB=window.supabase.createClient(SB_URL,SB_KEY,{auth:{storageKey:"range-sb",persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,...(NATIVE?{flowType:"pkce"}:{})}});
     SB.auth.onAuthStateChange((ev,ses)=>{SBU=ses&&ses.user||null;if(ev==="PASSWORD_RECOVERY")setTimeout(()=>ACT.sbNewPw(),300)});res(SB)};
   if(window.supabase)return mk();const sc=document.createElement("script");sc.src=SB_JS;sc.onload=mk;sc.onerror=()=>rej(new Error("Couldn't reach the account service. Check your connection."));document.head.appendChild(sc)})}
 const sbData=()=>{const d={...S};delete d.sync;return d}; // the SugarWOD passphrase stays on this phone
@@ -5211,7 +5227,7 @@ async function sbPull(){
 // a saved session: refresh it quietly; offline, keep going on this phone's data and catch up when back online
 async function sbBoot(){try{await sbLoad()}catch(e){SB_OFFLINE=true;return}
   try{const{data,error}=await SB.auth.getSession();if(error&&sbNet(error)){SB_OFFLINE=true;return}
-    SBU=data.session&&data.session.user||null;if(SBU){SB_OFFLINE=false;await sbPull();render()}}
+    SBU=data.session&&data.session.user||null;if(SBU){SB_OFFLINE=false;try{if(SBU.email)localStorage.setItem("range-last-email",SBU.email)}catch(e){}await sbPull();render()}}
   catch(e){if(sbNet(e))SB_OFFLINE=true;sbErr=sbNice(e)||"Account sync failed."}}
 function sbPanel(){
   if(SBU)return`<div class="panel" data-tour="account"><h3>Account</h3><div style="font-size:14px">Signed in as <b>${esc(SBU.email||"")}</b>. Your Range data is saved to your account and follows you to any device.</div>${sbErr?`<div class="c-bad" style="font-size:13px">${esc(sbErr)}</div>`:""}
@@ -5267,6 +5283,9 @@ function gateDraw(keep){const g=gateHost(),G=GATE;
   const up=G.m==="up",off=G.net||navigator.onLine===false;
   g.innerHTML=`<div class="inner gate"><div class="ghero">${RANGE_MARK}<div class="gword">Range<b>.</b></div><p class="gtag">Warm-ups and recovery built from the workout you're actually doing.</p></div>
    <form id="sbF" class="stack" style="align-content:start;gap:12px" onsubmit="return false" novalidate>
+    <div class="oauth"><button type="button" class="obtn apple" data-act="sbOAuth" data-p="apple"><svg viewBox="0 0 384 512" aria-hidden="true"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>Continue with Apple</button>
+     <button type="button" class="obtn google" data-act="sbOAuth" data-p="google"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Continue with Google</button></div>
+    <div class="ordiv">or with email</div>
     <div class="seg" style="grid-template-columns:1fr 1fr" role="tablist" aria-label="Account"><button type="button" role="tab" aria-selected="${up}" class="${up?"on":""}" data-act="gateMode" data-m="up">Create account</button><button type="button" role="tab" aria-selected="${!up}" class="${up?"":"on"}" data-act="gateMode" data-m="in">Sign in</button></div>
     <label class="field"><span class="eyebrow">Email</span><input name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" value="${esc(G.email||"")}"></label>
     <label class="field"><span class="eyebrow">Password${up?" · at least 8 characters":""}</span><input name="password" type="password" autocomplete="${up?"new-password":"current-password"}" enterkeyhint="go"></label>
@@ -5279,7 +5298,29 @@ function gateDraw(keep){const g=gateHost(),G=GATE;
   const nf=$("#sbF");if(keep&&typed){nf.email.value=typed.email;nf.password.value=typed.password}
   nf.password.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();ACT.sbGo()}});
   nf.email.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();nf.password.focus()}});
+  if(OAUTH_ERR){const mm=$("#sbMsg");mm.className="c-bad";mm.textContent=OAUTH_ERR;OAUTH_ERR=""}
 }
+ACT.sbOAuth=async d=>{const p=d.p,name=OAUTH_NAME[p],msg=$("#sbMsg"),btns=[...document.querySelectorAll("[data-act=sbOAuth]")];
+  const say=(t,c)=>{if(msg){msg.className=c;msg.textContent=t}},bad=t=>{say(t,"c-bad");btns.forEach(b=>b.disabled=false)};
+  btns.forEach(b=>b.disabled=true);say(`Opening ${name}…`,"muted");
+  try{await sbLoad();const ex=await sbProviders();if(ex&&!ex[p])return bad(`Sign in with ${name} isn't switched on yet. Use your email for now.`);
+    const{data,error}=await SB.auth.signInWithOAuth({provider:p,options:{redirectTo:NATIVE?APP_CB:location.origin+location.pathname,skipBrowserRedirect:NATIVE}});
+    if(error)throw error;
+    if(NATIVE){const B=Capacitor.Plugins.Browser;if(!B)return bad(`Sign in with ${name} needs the latest version of the app.`);await B.open({url:data.url})}}
+  catch(e){bad(sbNet(e)?"Couldn't reach the server. Check your connection and try again.":sbNice(e))}};
+// iOS app: Apple or Google sends you back to app.range.mobility://auth with a one-time code; swap it for a session
+if(NATIVE&&Capacitor.Plugins.App){const B=Capacitor.Plugins.Browser,reset=()=>document.querySelectorAll("[data-act=sbOAuth]").forEach(b=>b.disabled=false);
+  // closing the Safari sheet without signing in gives the buttons back
+  if(B)B.addListener("browserFinished",()=>{if(GATE&&!SBU){reset();const mm=$("#sbMsg");if(mm&&/^Opening/.test(mm.textContent))mm.textContent=""}});
+  Capacitor.Plugins.App.addListener("appUrlOpen",async ev=>{const url=String(ev&&ev.url||"");if(!url.startsWith(APP_CB))return;
+    if(B)B.close().catch(()=>{});
+    let q;try{const u=new URL(url);q=new URLSearchParams(u.search||u.hash.slice(1))}catch(e){q=new URLSearchParams(url.split(/[?#]/)[1]||"")}
+    const code=q.get("code"),err=q.get("error_description")||q.get("error");
+    const show=t=>{if(!GATE)gateShow("in");reset();const mm=$("#sbMsg");if(mm){mm.className="c-bad";mm.textContent=t}};
+    if(!code)return show(err&&/cancel|denied/i.test(err)?"Sign-in was cancelled.":"Couldn't finish signing in. Please try again.");
+    const mm=$("#sbMsg");if(mm){mm.className="muted";mm.textContent="Signing in…"}
+    try{await sbLoad();const r=await SB.auth.exchangeCodeForSession(code);if(r.error)throw r.error;await gateIn(r.data.user||r.data.session.user)}
+    catch(e){show(sbNet(e)?"Couldn't reach the server. Check your connection and try again.":"Couldn't finish signing in. Please try again.")}})}
 ACT.gateMode=d=>{const f=$("#sbF");if(f)GATE.email=f.email.value.trim();GATE.m=d.m;GATE.step="form";gateDraw()};
 ACT.gateOffline=()=>{GATE_SKIPPED=true;gateClose();stack=[{name:"home",p:{}}];render()};
 addEventListener("online",()=>{if(GATE&&GATE.step==="form"&&GATE.net){GATE.net=false;gateDraw(true)}if(SB_OFFLINE&&!GATE)sbBoot().then(()=>{if(SBU){SB_OFFLINE=false;render()}})});
@@ -5479,7 +5520,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="90223978";
+<script>window.RANGE_BUILD="65758436";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);

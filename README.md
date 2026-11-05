@@ -29,6 +29,14 @@ Free GitHub hosting needs a **public** repository. That's safe: the SugarWOD fil
    3. Range then saves your data, encrypted, to `backup/range-backup.enc` after changes.
    4. On a new phone: set up backup the same way and tap **Restore**.
 
+## Sign in with Apple and Google
+
+The front page has "Continue with Apple" and "Continue with Google". Until a provider is switched on in Supabase, its button says so and email still works. To switch them on (Supabase dashboard → your project):
+
+1. **Authentication → URL Configuration → Redirect URLs:** add your app address (`https://<your-username>.github.io/<repo-name>/`) and `app.range.mobility://auth` (the iOS app comes back through this link).
+2. **Google:** in Google Cloud Console → APIs & Services → Credentials, create an OAuth client ID of type *Web application*. Under Authorized redirect URIs add `https://xssgqlosuwsquesqdqif.supabase.co/auth/v1/callback`. Then in Supabase → Authentication → Sign In / Providers → Google, turn it on and paste the client ID and secret.
+3. **Apple** (needs a paid Apple Developer account): in developer.apple.com → Certificates, Identifiers & Profiles, create a *Services ID* with Sign in with Apple on. Set its domain to `xssgqlosuwsquesqdqif.supabase.co` and its return URL to `https://xssgqlosuwsquesqdqif.supabase.co/auth/v1/callback`. Create a *Key* with Sign in with Apple. In Supabase → Providers → Apple, turn it on and enter the Services ID, Team ID, Key ID and the key file (Supabase makes the secret from it). Apple makes you renew that secret every 6 months.
+
 ## Optional: "time to recover" notifications
 
 When the sync finds a score you just logged, it can push a notification to your phone, even with Range closed.
