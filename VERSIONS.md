@@ -35,3 +35,4 @@ GitHub Pages serves it again within a minute or two. The app source lives outsid
 | 2026-10-31 | `2026-10-31_rebuild-dashboard.html` | Rebuild = dashboard with Today / Program / Progress slides and a pain chart | ee19597 |
 | 2026-10-31 | `2026-10-31_ios-shell.html` | Adds ios-app/ (native iOS shell for the Simulator); web app reads the feed from the web inside it | 7511db2 |
 | 2026-11-05 | `2026-11-05_launch-reveal.html` | Today opens on the first card with a one-line greeting (no jump); blueprint logo reveal on the launch screen | 98e6d72 |
+| 2026-11-05 | `2026-11-05_opens-on-today.html` | Opens on Today; a half-done mobility test waits behind Resume my test instead of reopening | 4ab5849 |
