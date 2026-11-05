@@ -2088,11 +2088,15 @@ AFTER.home=()=>{
   car.addEventListener("touchstart",()=>{car._touched=1},{passive:true,once:true});
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>requestAnimationFrame(home));
   setTimeout(home,700);car._home=home;
-  let held=false,settle=0;
-  const wrap=()=>{if(held||!car.isConnected)return;const i=near();if(i===0)go(N);else if(i===N+1)go(1)};
-  car.addEventListener("touchstart",()=>{held=true},{passive:true});
-  car.addEventListener("touchend",()=>{held=false;clearTimeout(settle);settle=setTimeout(wrap,160)},{passive:true});
-  car.addEventListener("scrollend",wrap);
+  // once the row comes to rest on a copy, jump to the real card. Touch events can't say when that is: once a swipe
+  // turns into a scroll, the browser (iOS included) may never send touchend or touchcancel. So the jump waits for the
+  // row to stop moving: scrollend where it exists, otherwise a short pause in scroll events. Snapping is switched off
+  // for the jump so WebKit doesn't pull the row back to the copy it was resting on.
+  let settle=0;
+  // the jump moves by exactly one lap (copy to the real card), keeping any offset, so the row looks the same before and after
+  const jump=(from,to)=>{car.style.scrollSnapType="none";car.scrollLeft+=pos(car.children[to])-pos(car.children[from]);requestAnimationFrame(()=>requestAnimationFrame(()=>{car.style.scrollSnapType=""}))};
+  const wrap=()=>{if(!car.isConnected)return;const i=near();if(i===0)jump(0,N);else if(i===N+1)jump(N+1,1)};
+  car.addEventListener("scrollend",()=>{clearTimeout(settle);settle=setTimeout(wrap,30)});
   car.addEventListener("scroll",()=>{const i=near(),real=(i-1+N)%N;document.querySelectorAll("#cardots i").forEach((d,k)=>d.classList.toggle("on",k===real));
     clearTimeout(settle);settle=setTimeout(wrap,160)},{passive:true});
 };
@@ -5553,7 +5557,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="84746322";
+<script>window.RANGE_BUILD="75274011";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
