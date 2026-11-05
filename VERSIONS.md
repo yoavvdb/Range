@@ -39,3 +39,4 @@ GitHub Pages serves it again within a minute or two. The app source lives outsid
 | 2026-11-05 | `2026-11-05_apple-google-login.html` | Continue with Apple / Google on the front page (web and iOS app) | 78a66f7 |
 | 2026-11-05 | `2026-11-05_ios-review-fixes.html` | Activate opens centred (looping cards), 44pt targets, small-phone layout, Dynamic Type, wordmark only on Today, honest Profile before the test | 68f490f |
 | 2026-11-05 | `2026-11-05_circular-today.html` | Today cards go round and round in both directions | 1f9e2cd |
+| 2026-11-05 | `2026-11-05_smooth-loop.html` | Today loop stays smooth across a new lap, even with quick swipes | bf869b8 |
