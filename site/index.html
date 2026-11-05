@@ -599,6 +599,7 @@ button,a,[data-act],.chip,.opt{touch-action:manipulation;-webkit-user-select:non
 .phead{display:flex;align-items:center;gap:14px;padding:6px 0 2px}
 .avatar{width:56px;height:56px;border-radius:50%;background:var(--surface2);box-shadow:inset 0 0 0 1px var(--line);display:grid;place-items:center;font-size:calc(24px * var(--ts));font-weight:800;font-stretch:112%;color:var(--accent);flex:none}
 .pwho{display:grid;gap:2px;min-width:0}
+.btn.danger{background:var(--surface2);color:var(--bad);box-shadow:none}
 .tabtop{height:calc(env(safe-area-inset-top,0px) + 12px)}
 .dcell.score.none p{margin:0;font-size:calc(13px * var(--ts));line-height:1.35;text-align:center}
 .pname{text-align:left;font-size:calc(26px * var(--ts));font-weight:800;font-stretch:112%;letter-spacing:-.02em;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:44px}
@@ -891,7 +892,7 @@ const ICON={
  flame:'<path d="M12 2.5c.6 3.2 2.6 4.9 4.2 6.8A7.3 7.3 0 0 1 18.5 14a6.5 6.5 0 0 1-13 0c0-2.4 1.1-4.2 2.6-5.6.2 1.6.9 2.8 2.1 3.5C9.6 8.4 10.4 5 12 2.5Z"/>',
  sync:'<path d="M20 11a8 8 0 0 0-14.5-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.5 4.5L20 16M20 20v-4h-4"/>',
  ball:'<circle cx="12" cy="12" r="7.5"/><path d="M5.5 10c4 1.6 9 1.6 13 0M7 15.5c3.2-1.2 6.8-1.2 10 0"/>',
- back:'<path d="M15 5l-7 7 7 7"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',plus:'<path d="M12 5v14M5 12h14"/>',check:'<path d="M5 12.5l4.5 4.5L19 7"/>',
+ back:'<path d="M15 5l-7 7 7 7"/>',signout:'<path d="M10 4H6.5A1.5 1.5 0 0 0 5 5.5v13A1.5 1.5 0 0 0 6.5 20H10"/><path d="M14.5 8l4 4-4 4M18.5 12H9.5"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',plus:'<path d="M12 5v14M5 12h14"/>',check:'<path d="M5 12.5l4.5 4.5L19 7"/>',
  search:'<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
  gear:'<circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M2.5 12h3M18.5 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/>',
  dots:'<circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/>',
@@ -2060,7 +2061,7 @@ function greeting(){const h=new Date().getHours();return h<5?"Good evening":h<12
 function streak(){const days=new Set(S.sessions.map(s=>dayKey(s.at)));let n=0,d=new Date();if(!days.has(dayKey(d)))d.setDate(d.getDate()-1);while(days.has(dayKey(d))){n++;d.setDate(d.getDate()-1)}return n}
 SCREENS.home=()=>{
   const sc=scores(),ov=overall(sc),lv=level(ov);
-  return `<div class="hdr" style="grid-template-columns:1fr"><div class="brand">Range<b>.</b></div></div>
+  return `<div class="hdr">${SBU?`<button data-act="signOutAsk" aria-label="Sign out">${ic("signout")}</button>`:"<span></span>"}<div class="brand">Range<b>.</b></div><span></span></div>
   <div class="greet"><h1>${greeting()}</h1><button class="streak" data-act="tab" data-t="profile" data-tour="streak" aria-label="${streak()} day streak">${ic("flame","fill")}<b>${streak()}</b></button></div>
   <div class="carousel${S.scores?"":" short"}" id="car" data-tour="cards">${homeCards()}</div>
   <div class="dots" id="cardots">${HOME_KINDS.map((_,i)=>`<i class="${i?"":"on"}"></i>`).join("")}</div>
@@ -5395,6 +5396,9 @@ function afterIn(){
   if(!S.onboarded&&usedRange(S)){S.onboarded=true;save()} // used Range before accounts, or on another device
   if(!S.onboarded){obStart();return}
   gateClose();stack=[{name:"home",p:{}}];render();window.scrollTo(0,0);tourOwed()}
+ACT.signOutAsk=()=>sheet(`<h3>Sign out of Range?</h3><div class="scroll"><p style="margin:0">Your tests, sessions and routines are saved to your account${SBU&&SBU.email?` (<b>${esc(SBU.email)}</b>)`:""}. They're removed from this phone and come back when you sign in.</p></div>
+  <div style="display:grid;gap:8px"><button class="btn danger" data-act="signOutGo">Sign out</button><button class="btn sec" data-act="closeSheet">Cancel</button></div>`);
+ACT.signOutGo=()=>{const b=$("[data-act=signOutGo]");if(b){b.disabled=true;b.textContent="Signing out…"}ACT.sbOut().finally(()=>{const x=$("[data-act=signOutGo]");if(x){x.disabled=false;x.textContent="Sign out"}})};
 // signing out saves to the account first, then this phone forgets the person's data (it comes back when they sign in again)
 ACT.sbOut=async()=>{clearTimeout(sbTimer);let saved=true;try{await sbPush()}catch(e){saved=false}
   if(!saved&&!confirm("Couldn't save your latest changes to your account (no connection?). Sign out anyway? Changes since your last save will be lost from this phone."))return;
@@ -5557,7 +5561,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="97014919";
+<script>window.RANGE_BUILD="42744005";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
