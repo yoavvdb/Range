@@ -2042,36 +2042,36 @@ SCREENS.home=()=>{
     ${S.scores?"":`<div class="banner" data-tour="test"><div><h3>Find your weak spots</h3><div class="muted" style="font-size:calc(14px * var(--ts));margin-top:4px">A 10-minute test so every session fits your body.</div></div><button class="btn" data-act="openTest">${testDraft()?"Resume my test":"Test my mobility"}</button></div>`}
   </div>`;
 };
-// the cards loop: a copy of the last card sits before the first and a copy of the first after the last, so Activate
-// opens centred with a card peeking on each side, and swiping past either end lands on the real card at the other end
+// the cards loop: copies of the last two cards sit before the first and of the first two after the last, so Activate
+// opens centred with a card peeking on each side. Whenever the row comes to rest on a copy it moves one lap to the real
+// card; with two copies on each side a quick second swipe still has room and never hits the end of the row
 function homeCards(){const card=(k,clone)=>{const v=KINDS[k];return drawPart("card "+k,()=>`
     <button class="pcard ${v.g}${clone?" clone":""}" data-act="startKind" data-kind="${k}" aria-label="${v.n}"${clone?' aria-hidden="true" tabindex="-1"':""}>
       <div class="art">${fig(v.pose,null,{anim:true})}</div>
       <h2>${v.n}</h2>
     </button>`)};
-  return card(HOME_KINDS[HOME_KINDS.length-1],1)+HOME_KINDS.map(k=>card(k)).join("")+card(HOME_KINDS[0],1)}
+  const N=HOME_KINDS.length;return HOME_KINDS.slice(N-HOME_PAD).map(k=>card(k,1)).join("")+HOME_KINDS.map(k=>card(k)).join("")+HOME_KINDS.slice(0,HOME_PAD).map(k=>card(k,1)).join("")}
+const HOME_PAD=2;
 AFTER.home=()=>{
-  const car=$("#car");if(!car)return;const N=HOME_KINDS.length;
+  const car=$("#car");if(!car)return;const N=HOME_KINDS.length,K=HOME_PAD;
   const pos=el=>{const r=el.getBoundingClientRect(),c=car.getBoundingClientRect();return car.scrollLeft+(r.left+r.width/2)-(c.left+c.width/2)};
   const go=i=>{car.scrollLeft=pos(car.children[i])};
   const near=()=>{const c=car.getBoundingClientRect(),m=c.left+c.width/2;let i=0,best=1e9;[...car.children].forEach((el,k)=>{const r=el.getBoundingClientRect(),d=Math.abs(r.left+r.width/2-m);if(d<best){best=d;i=k}});return i};
-  go(1);
+  go(K);
   // open on Activate: if a late layout change (the web font arriving, the 3D figures sizing) moves the row before
   // you've touched it, put it back
-  const home=()=>{if(!car._touched&&car.isConnected&&Math.abs(car.scrollLeft-pos(car.children[1]))>1)go(1)};
+  const home=()=>{if(!car._touched&&car.isConnected&&Math.abs(car.scrollLeft-pos(car.children[K]))>1)go(K)};
   car.addEventListener("touchstart",()=>{car._touched=1},{passive:true,once:true});
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>requestAnimationFrame(home));
   setTimeout(home,700);car._home=home;
-  // once the row comes to rest on a copy, jump to the real card. Touch events can't say when that is: once a swipe
-  // turns into a scroll, the browser (iOS included) may never send touchend or touchcancel. So the jump waits for the
-  // row to stop moving: scrollend where it exists, otherwise a short pause in scroll events. Snapping is switched off
-  // for the jump so WebKit doesn't pull the row back to the copy it was resting on.
+  // once the row comes to rest on a copy, move one lap to the real card. Touch events can't say when that is: once a
+  // swipe turns into a scroll, the browser (iOS included) may never send touchend or touchcancel. So it waits for the
+  // row to stop: scrollend where it exists, otherwise a short pause in scroll events. A lap is a whole number of cards,
+  // so the row stays on a snap point and nothing on screen changes.
   let settle=0;
-  // the jump moves by exactly one lap (copy to the real card), keeping any offset, so the row looks the same before and after
-  const jump=(from,to)=>{car.style.scrollSnapType="none";car.scrollLeft+=pos(car.children[to])-pos(car.children[from]);requestAnimationFrame(()=>requestAnimationFrame(()=>{car.style.scrollSnapType=""}))};
-  const wrap=()=>{if(!car.isConnected)return;const i=near();if(i===0)jump(0,N);else if(i===N+1)jump(N+1,1)};
-  car.addEventListener("scrollend",()=>{clearTimeout(settle);settle=setTimeout(wrap,30)});
-  car.addEventListener("scroll",()=>{const i=near(),real=(i-1+N)%N;document.querySelectorAll("#cardots i").forEach((d,k)=>d.classList.toggle("on",k===real));
+  const wrap=()=>{if(!car.isConnected)return;const i=near(),to=i<K?i+N:i>=K+N?i-N:i;if(to!==i)car.scrollLeft+=pos(car.children[to])-pos(car.children[i])};
+  car.addEventListener("scrollend",()=>{clearTimeout(settle);settle=setTimeout(wrap,20)});
+  car.addEventListener("scroll",()=>{const i=near(),real=(i-K+N)%N;document.querySelectorAll("#cardots i").forEach((d,k)=>d.classList.toggle("on",k===real));
     clearTimeout(settle);settle=setTimeout(wrap,160)},{passive:true});
 };
 ACT.startKind=d=>{
