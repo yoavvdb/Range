@@ -5462,7 +5462,8 @@ function gateBoot(){
   sbBoot().then(()=>{clearTimeout(t);gateReady=true;
     if(SBU){if(!S.onboarded&&!usedRange(S)&&!TOUR&&!rec)obStart();else{if(!S.onboarded){S.onboarded=true;save()}tourOwed()}}
     else if(!SB_OFFLINE)gateShow("in");else{render();tourOwed()}})}
-if(API)acctBoot();else{rbRestore();render();if(testDraft())try{ACT.openTest()}catch(e){}gateBoot()}
+// the app always opens on Today: a test left half-way is kept and offered as "Resume my test", never reopened on its own
+if(API)acctBoot();else{rbRestore();render();gateBoot()}
 // launch screen: the logo reveal plays with nothing else running; then the 3D figures load behind it, and it lifts
 // once they're drawn (at least 3.1s, at most 7s), so the home screen appears complete with no jump
 (()=>{const sp=document.getElementById("splash");if(!sp)return;
@@ -5478,7 +5479,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="35935661";
+<script>window.RANGE_BUILD="90223978";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
