@@ -655,11 +655,11 @@ function textScale(){try{const ios=/iP(hone|ad|od)/.test(navigator.userAgent)||(
   if(!fs)return;const ts=Math.min(1.6,Math.max(.88,fs/17));document.documentElement.style.setProperty("--ts",ts.toFixed(3));document.documentElement.toggleAttribute("data-bigtext",ts>1.2)}catch(e){}}
 textScale();document.addEventListener("visibilitychange",()=>{if(!document.hidden)textScale()});
 /* ================= data ================= */
-const AREAS=[{k:"shoulders",n:"Shoulders"},{k:"overhead",n:"Overhead"},{k:"thoracic",n:"T-spine"},{k:"hips",n:"Hips"},{k:"posterior",n:"Post. chain"},{k:"ankles",n:"Ankles"}];
+const AREAS=[{k:"shoulders",n:"Shoulders"},{k:"overhead",n:"Overhead"},{k:"thoracic",n:"T-Spine"},{k:"hips",n:"Hips"},{k:"posterior",n:"Post. Chain"},{k:"ankles",n:"Ankles"}];
 const AN=Object.fromEntries(AREAS.map(a=>[a.k,a.n]));
 const FLOW=["ankles","posterior","hips","thoracic","shoulders","overhead"];
-const ZONES={neck:"Neck & traps",shoulders:"Shoulders",chest:"Chest",upperback:"Upper back",lats:"Lats",biceps:"Biceps",triceps:"Triceps",forearm:"Forearms & wrists",core:"Abs",obliques:"Obliques",lowback:"Lower back",hipflex:"Hip flexors",glutes:"Glutes",adductors:"Adductors",quads:"Quads",hamstrings:"Hamstrings",calves:"Calves",shins:"Shins",ankles:"Ankles",feet:"Feet"};
-const EQUIP=[{k:"band",n:"Band"},{k:"pipe",n:"PVC pipe"},{k:"plate",n:"Plate"},{k:"roller",n:"Foam roller"},{k:"wall",n:"Wall"},{k:"bench",n:"Bench / box"},{k:"ball",n:"Massage ball"},{k:"ghd",n:"GHD"},{k:"bar",n:"Pull-up bar / rings"}];
+const ZONES={neck:"Neck & Traps",shoulders:"Shoulders",chest:"Chest",upperback:"Upper Back",lats:"Lats",biceps:"Biceps",triceps:"Triceps",forearm:"Forearms & Wrists",core:"Abs",obliques:"Obliques",lowback:"Lower Back",hipflex:"Hip Flexors",glutes:"Glutes",adductors:"Adductors",quads:"Quads",hamstrings:"Hamstrings",calves:"Calves",shins:"Shins",ankles:"Ankles",feet:"Feet"};
+const EQUIP=[{k:"band",n:"Band"},{k:"pipe",n:"PVC Pipe"},{k:"plate",n:"Plate"},{k:"roller",n:"Foam Roller"},{k:"wall",n:"Wall"},{k:"bench",n:"Bench / Box"},{k:"ball",n:"Massage Ball"},{k:"ghd",n:"GHD"},{k:"bar",n:"Pull-Up Bar / Rings"}];
 
 /* Stick-figure poses, side view, 240×160 frame, floor at y=142.
    Joint order: head, neck, mid-spine, pelvis, near elbow, near hand, far elbow, far hand, near knee, near foot, far knee, far foot. A↔B is the movement loop. */
@@ -830,7 +830,7 @@ function errToast(){
   if(document.getElementById("errToast"))return;
   const d=document.createElement("div");d.id="errToast";d.setAttribute("role","alert");
   d.style.cssText="position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:9999;background:#2A1A1C;color:#F7D6D3;border:1px solid #6B2E2E;border-radius:12px;padding:12px 14px;font:14px/1.4 system-ui;display:grid;gap:8px";
-  d.innerHTML='<b>Something went wrong.</b><span>Your data is safe. Copy the details and send them to Claude so it can be fixed.</span><span style="display:flex;gap:8px"><button id="errCopy" style="flex:1;padding:10px;border-radius:10px;background:#F07167;color:#1b0d0e;font-weight:700">Copy details</button><button id="errClose" style="padding:10px 14px;border-radius:10px;background:#3a2427;color:#F7D6D3">Close</button></span>';
+  d.innerHTML='<b>Something went wrong.</b><span>Your data is safe. Copy the details and send them to Claude so it can be fixed.</span><span style="display:flex;gap:8px"><button id="errCopy" style="flex:1;padding:10px;border-radius:10px;background:#F07167;color:#1b0d0e;font-weight:700">Copy Details</button><button id="errClose" style="padding:10px 14px;border-radius:10px;background:#3a2427;color:#F7D6D3">Close</button></span>';
   document.body.appendChild(d);
   d.querySelector("#errClose").onclick=()=>d.remove();
   d.querySelector("#errCopy").onclick=async()=>{const t=localStorage.getItem("range-errors")||"";try{await navigator.clipboard.writeText(t);d.querySelector("#errCopy").textContent="Copied"}catch(_){prompt("Copy this:",t)}};
@@ -1838,7 +1838,7 @@ const KINDS={
  activate:{n:"Activate",sub:"Before training",g:"g-activate",pose:"squat"},
  recover:{n:"Recover",sub:"After training",g:"g-recover",pose:"pigeon"},
  daily:{n:"Daily",sub:"At home",g:"g-daily",pose:"s9090"},
- target:{n:"Target",sub:"Per body zone",g:"g-target",pose:"child"},
+ target:{n:"Target",sub:"Per Body Zone",g:"g-target",pose:"child"},
  library:{n:"Library",sub:"Every exercise",g:"g-library",pose:"crossBody"},
  rebuild:{n:"Rebuild",sub:"Pain-guided rehab",g:"g-rebuild",pose:"r_birddog"},
 };
@@ -2035,12 +2035,12 @@ function greeting(){const h=new Date().getHours();return h<5?"Good evening":h<12
 function streak(){const days=new Set(S.sessions.map(s=>dayKey(s.at)));let n=0,d=new Date();if(!days.has(dayKey(d)))d.setDate(d.getDate()-1);while(days.has(dayKey(d))){n++;d.setDate(d.getDate()-1)}return n}
 SCREENS.home=()=>{
   const sc=scores(),ov=overall(sc),lv=level(ov);
-  return `<div class="hdr">${SBU?`<button data-act="signOutAsk" aria-label="Sign out">${ic("signout")}</button>`:"<span></span>"}<div class="brand">Range<b>.</b></div><span></span></div>
+  return `<div class="hdr">${SBU?`<button data-act="signOutAsk" aria-label="Sign Out">${ic("signout")}</button>`:"<span></span>"}<div class="brand">Range<b>.</b></div><span></span></div>
   <div class="greet"><h1>${greeting()}</h1><button class="streak" data-act="tab" data-t="profile" data-tour="streak" aria-label="${streak()} day streak">${ic("flame","fill")}<b>${streak()}</b></button></div>
   <div class="carousel${S.scores?"":" short"}" id="car" data-tour="cards">${homeCards()}</div>
   <div class="dots" id="cardots">${HOME_KINDS.map((_,i)=>`<i class="${i?"":"on"}"></i>`).join("")}</div>
   <div class="stack">
-    ${S.scores?"":`<div class="banner" data-tour="test"><div><h3>Find your weak spots</h3><div class="muted" style="font-size:calc(14px * var(--ts));margin-top:4px">A 10-minute test so every session fits your body.</div></div><button class="btn" data-act="openTest">${testDraft()?"Resume my test":"Test my mobility"}</button></div>`}
+    ${S.scores?"":`<div class="banner" data-tour="test"><div><h3>Find Your Weak Spots</h3><div class="muted" style="font-size:calc(14px * var(--ts));margin-top:4px">A 10-minute test so every session fits your body.</div></div><button class="btn" data-act="openTest">${testDraft()?"Resume My Test":"Test My Mobility"}</button></div>`}
   </div>`;
 };
 // the cards loop: copies of the last two cards sit before the first and of the first two after the last, so Activate
@@ -2098,9 +2098,9 @@ SCREENS.sport=p=>{
   <h1>${kd.n}</h1>
   <div class="sports">
     ${S.sports.map(k=>SPI[k]).filter(Boolean).map(s=>`<button class="scard ${s.g}" data-act="pickSport" data-s="${s.k}"><div class="art">${fig(s.pose)}</div><b>${s.n}</b></button>`).join("")}
-    <button class="scard addsport" data-act="sportsSheet">${ic("plus")}Add sport</button>
+    <button class="scard addsport" data-act="sportsSheet">${ic("plus")}Add Sport</button>
   </div>
-  <button class="zcard g-target" data-act="pickZone"><div><b style="font-size:calc(18px * var(--ts));font-weight:800;font-stretch:112%">Per body zone</b><div class="muted" style="font-size:calc(13px * var(--ts))">Target one specific area</div></div><div>${fig("child")}</div></button>
+  <button class="zcard g-target" data-act="pickZone"><div><b style="font-size:calc(18px * var(--ts));font-weight:800;font-stretch:112%">Per Body Zone</b><div class="muted" style="font-size:calc(13px * var(--ts))">Target One Specific Area</div></div><div>${fig("child")}</div></button>
   </div>`;
 };
 ACT.pickSport=d=>startWizard({kind:stack[stack.length-1].p.kind,sport:d.s});
@@ -2113,8 +2113,8 @@ SCREENS.daily=()=>`${hdr()}
   <div class="stack" style="padding-top:4px">
   <h1>Daily</h1>
   <button class="dcard g-daily" data-act="dailyGo"><div class="art">${fig("s9090",null,{anim:true})}</div><b>Personalized</b></button>
-  <button class="dcard g-target" data-act="pickZone"><div class="art">${fig("child")}</div><b>Per body zone</b></button>
-  <div class="stack" style="gap:10px;margin-top:6px"><h3>Classic flows</h3>
+  <button class="dcard g-target" data-act="pickZone"><div class="art">${fig("child")}</div><b>Per Body Zone</b></button>
+  <div class="stack" style="gap:10px;margin-top:6px"><h3>Classic Flows</h3>
    <div class="hscroll flows" data-tour="flows">${FLOWS.map((f,i)=>{const m=Math.max(1,Math.round(flowItems(f).reduce((t,it)=>t+itemSecs(it),0)/60));
     return`<button class="flowcard ${["g-recover","g-activate","g-rebuild","g-target","g-daily"][i%5]}" data-act="flowStart" data-k="${f.k}"><div class="art">${fig(f.pose||"s9090")}</div><b>${f.n}</b><small>${m} min</small></button>`}).join("")}</div></div>
   </div>`;
@@ -2133,7 +2133,7 @@ function startWizard(o){
 // which workout movements this session warms up for (Activate) or releases after (Recover)
 function forLine(){if(!(W.kind==="activate"||W.kind==="recover")||!W.moves.length||STEPS[W.kind][W.step]==="moves")return"";const m=W.moves.slice(0,3),more=W.moves.length-m.length;
   const list=m.join(", ").replace(/, ([^,]+)$/,more?", $1":" and $1")+(more?` +${more}`:"");
-  return`<span style="font-size:calc(14px * var(--ts));font-weight:600;line-height:1.3">${W.kind==="activate"?"Warm-up for":"Release after"} ${esc(list)}</span>`}
+  return`<span style="font-size:calc(14px * var(--ts));font-weight:600;line-height:1.3">${W.kind==="activate"?"Warm-up for":"Release After"} ${esc(list)}</span>`}
 function wizHead(){
   const kd=KINDS[W.kind],sp=W.sport?SPI[W.sport]:null;
   const title=W.from?W.from:sp?sp.n:W.kind==="target"&&W.zone?AN[W.zone]:kd.sub;
@@ -2147,24 +2147,24 @@ SCREENS.wizard=()=>{
   if(step==="moves"){
     const sp=W.sport?SPI[W.sport]:null;
     const sugg=(sp?sp.m:Object.keys(MOVES)).filter(m=>!W.moves.includes(m)).slice(0,8);
-    body=`<div class="stephead x3"><span class="bub">${ic("move")}</span><div><h3>${W.kind==="recover"?"Release after":"Warm up for"}</h3>${W.from?`<p>${esc(W.from)}</p>`:""}</div>${W.moves.length>1?`<button class="link" data-act="clearMoves">Clear</button>`:""}</div>
+    body=`<div class="stephead x3"><span class="bub">${ic("move")}</span><div><h3>${W.kind==="recover"?"Release After":"Warm Up For"}</h3>${W.from?`<p>${esc(W.from)}</p>`:""}</div>${W.moves.length>1?`<button class="link" data-act="clearMoves">Clear</button>`:""}</div>
     ${W.moves.length?`<div class="mlist">${W.moves.map(m=>`<div><span>${esc(m)}</span><button data-act="rmMove" data-m="${esc(m)}" aria-label="Remove ${esc(m)}">${ic("x")}</button></div>`).join("")}</div>`:`<p class="muted" style="margin:0">Add at least one movement you're training to continue.</p>`}
     ${sugg.length?`<div class="stack" style="gap:8px"><span class="eyebrow">Add</span><div class="chipset">${sugg.map(m=>`<button class="chip" data-act="addMove" data-m="${esc(m)}">${ic("plus")}${esc(m)}</button>`).join("")}</div></div>`:""}`;
-    cta=`<button class="btn sec" data-act="moveSheet">${ic("plus")}Add movement</button><button class="btn" data-act="wNext" ${W.moves.length?"":"disabled"}>Next</button>`;
+    cta=`<button class="btn sec" data-act="moveSheet">${ic("plus")}Add Movement</button><button class="btn" data-act="wNext" ${W.moves.length?"":"disabled"}>Next</button>`;
   }
   if(step==="time"){
-    body=`<div class="stephead"><span class="bub">${ic("clock")}</span><div><h3>Your available time</h3></div></div>
+    body=`<div class="stephead"><span class="bub">${ic("clock")}</span><div><h3>Your Available Time</h3></div></div>
     <div class="stack" style="gap:10px">${[3,10,15,20].map(m=>`<button class="opt ${W.minutes===m?"on":""}" data-act="pickTime" data-m="${m}"><span>${m} min</span>${m===3?'<span class="tag">Quick reset</span>':""}</button>`).join("")}</div>`;
     cta=`<button class="btn" data-act="wNext" ${W.minutes?"":"disabled"}>Next</button>`;
   }
   if(step==="equip"){
-    body=`<div class="stephead"><span class="bub">${ic("equip")}</span><div><h3>Your gear</h3><p>Turn off what you don't have today</p></div></div>
+    body=`<div class="stephead"><span class="bub">${ic("equip")}</span><div><h3>Your Gear</h3><p>Turn off what you don't have today</p></div></div>
     <div class="equip">${EQUIP.map(e=>`<button class="eq ${W.equip.includes(e.k)?"on":""}" data-act="togEq" data-e="${e.k}" aria-pressed="${W.equip.includes(e.k)}"><span>${ic(e.k)}</span>${e.n}</button>`).join("")}</div>`;
     cta=`<button class="btn" data-act="wNext">Next</button>`;
   }
   if(step==="zone"){
     const sc=scores();
-    body=`<div class="stephead"><span class="bub">${ic("target")}</span><div><h3>Choose a body zone</h3><p>Your score for each zone is shown on the right.</p></div></div>
+    body=`<div class="stephead"><span class="bub">${ic("target")}</span><div><h3>Choose a Body Zone</h3><p>Your score for each zone is shown on the right.</p></div></div>
     <div class="stack" style="gap:10px">${AREAS.map(a=>{const l=level(sc[a.k]);return`<button class="opt ${W.zone===a.k?"on":""}" data-act="pickArea" data-a="${a.k}"><span>${a.n}</span><span class="${l.c}" style="font-weight:700;font-variant-numeric:tabular-nums">${sc[a.k]}</span></button>`}).join("")}</div>`;
     cta=`<button class="btn" data-act="wNext" ${W.zone?"":"disabled"}>Next</button>`;
   }
@@ -2172,7 +2172,7 @@ SCREENS.wizard=()=>{
     const rows=[];
     if(W.kind==="activate"||W.kind==="recover")rows.push(["move","Your workout movements",W.moves.join(", "),"moves"]);
     if(W.kind==="target")rows.push(["target","Your body zone",AN[W.zone],"zone"]);
-    rows.push(["clock","Your available time",W.minutes+" min","time"]);
+    rows.push(["clock","Your Available Time",W.minutes+" min","time"]);
     const eqn=EQUIP.filter(e=>W.equip.includes(e.k)).map(e=>e.n);
     rows.push(["equip","Your equipment",eqn.length?eqn.join(", "):"None","equip"]);
     rows.push(["target","Your mobility focus",mobilityFocus().map(k=>AN[k]).join(", "),null]);
@@ -2181,8 +2181,8 @@ SCREENS.wizard=()=>{
     ${rbNote(W.plan.warn)}
     ${W.plan.excluded&&!W.plan.warn?`<p class="muted safeln" style="margin:0;font-size:calc(13px * var(--ts))">${ic("check")} Safe for your ${esc(W.plan.excluded.toLowerCase().replace(/ \(.*\)$/,""))}</p>`:""}
     <div class="preview">${W.plan.items.length?(()=>{let n=0;return(W.plan.blocks||[{name:"",items:W.plan.items}]).map((b,bi)=>`${b.name?`<p class="blk">${esc(b.name)} <span>${Math.round(b.items.reduce((t,it)=>t+itemSecs(it),0)/60)||"<1"} min</span></p>`:""}${b.items.map((it,ii)=>{const ex=LIBI[it.id];n++;return`<div class="ed"><span>${n}</span><span>${esc(ex.n)}</span><span class="rt"><span>${it.dose?esc(doseText(it).split(" · ")[0]):fmt(it.hold)+(ex.sides?" ×2":"")}</span><span class="pe"><button data-act="wSwap" data-b="${bi}" data-i="${ii}" aria-label="Swap ${esc(ex.n)}">${ic("reset")}</button><button data-act="wRm" data-b="${bi}" data-i="${ii}" aria-label="Remove ${esc(ex.n)}">${ic("x")}</button></span></span></div>`}).join("")}`).join("")})():`<div><span></span><span class="muted">No stretches match this equipment and time. Add equipment or pick more time.</span><span></span></div>`}</div>
-    <button class="btn sec" data-act="wAdd">${ic("plus","")} Add exercise</button></div>`;
-    cta=`<button class="btn" id="goBtn" data-act="letsGo" ${W.plan.items.length?"":"disabled"}>${W.plan.items.length?"Start":"Nothing to play"}</button>`;
+    <button class="btn sec" data-act="wAdd">${ic("plus","")} Add Exercise</button></div>`;
+    cta=`<button class="btn" id="goBtn" data-act="letsGo" ${W.plan.items.length?"":"disabled"}>${W.plan.items.length?"Start":"Nothing to Play"}</button>`;
   }
   return hdr(`<button data-act="info" aria-label="About this protocol">${ic("info")}</button>`)+`<div class="stack" style="padding-top:4px">${wizHead()}${body}</div><div class="bottomcta">${cta}</div>`;
 };
@@ -2202,7 +2202,7 @@ ACT.clearMoves=()=>{W.moves=[];render()};
 ACT.rmMove=d=>{W.moves=W.moves.filter(m=>m!==d.m);render()};
 /* editing the chosen exercises on the summary */
 function wSync(){const p=W.plan;p.blocks=(p.blocks||[{name:"",items:p.items}]).filter(b=>b.items.length);p.items=p.blocks.flatMap(b=>b.items);p.secs=p.items.reduce((t,it)=>t+itemSecs(it),0);const y=scrollY;render();scrollTo(0,y);
-  document.querySelectorAll("#sumrows .srow").forEach(r=>r.classList.add("done"));const g=$("#goBtn");if(g){g.disabled=!p.items.length;g.textContent=p.items.length?"Start":"Nothing to play"}}
+  document.querySelectorAll("#sumrows .srow").forEach(r=>r.classList.add("done"));const g=$("#goBtn");if(g){g.disabled=!p.items.length;g.textContent=p.items.length?"Start":"Nothing to Play"}}
 ACT.wRm=d=>{const b=W.plan.blocks?W.plan.blocks[+d.b]:{items:W.plan.items};b.items.splice(+d.i,1);wSync()};
 function wSwapOptions(it){const ex=LIBI[it.id],ov=e=>e.z.filter(z=>ex.z.includes(z)).length,have=new Set(W.plan.items.map(x=>x.id));
   return LIB.filter(e=>e.id!==ex.id&&!!e.rehab===!!ex.rehab&&!e.custom&&(e.a===ex.a||ov(e)>=2)&&ov(e)>0&&e.eq.every(q=>W.equip.includes(q))&&!have.has(e.id)&&!rbAvoids(e.id))
@@ -2212,7 +2212,7 @@ ACT.wSwap=d=>{const b=W.plan.blocks?W.plan.blocks[+d.b]:{items:W.plan.items},it=
 ACT.wSwapTo=d=>{const{b,i}=W._sw||{},blk=W.plan.blocks?W.plan.blocks[b]:{items:W.plan.items},old=blk.items[i],e=LIBI[d.id];if(!old||!e)return;
   S.swapped=S.swapped||{};S.swapped[old.id]=(S.swapped[old.id]||0)+1;save();
   blk.items[i]=old.dose?{...old,id:e.id,why:"Your pick."}:{id:e.id,hold:W.kind==="recover"?Math.max(60,e.hold||60):old.hold||e.hold,why:"Your pick."};closeSheet();wSync()};
-ACT.wAdd=()=>{sheet(`<h3>Add an exercise</h3><label class="search" style="box-shadow:none">${ic("search")}<input id="wq" placeholder="Search the library" autocomplete="off" aria-label="Search exercises"></label><div class="scroll" id="wres"></div><button class="btn sec" data-act="closeSheet">Done</button>`);
+ACT.wAdd=()=>{sheet(`<h3>Add an Exercise</h3><label class="search" style="box-shadow:none">${ic("search")}<input id="wq" placeholder="Search the library" autocomplete="off" aria-label="Search exercises"></label><div class="scroll" id="wres"></div><button class="btn sec" data-act="closeSheet">Done</button>`);
   const q=$("#wq");const draw=()=>{const ql=q.value.trim().toLowerCase(),have=new Set(W.plan.items.map(x=>x.id));
     $("#wres").innerHTML=`<div class="rxlist">${LIB.filter(e=>!e.custom&&!have.has(e.id)&&!rbAvoids(e.id)&&e.eq.every(x=>W.equip.includes(x))&&(!ql||e.n.toLowerCase().includes(ql)||(ZONES[e.z[0]]||"").toLowerCase().includes(ql))).slice(0,30).map(e=>`<button class="rx" data-act="wAddPick" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><span><b>${esc(e.n)}</b><small>${e.rehab?RCAT[e.a]+" · Strength":AN[e.a]+" · Stretch"}</small></span></button>`).join("")}</div>`};
   q.addEventListener("input",draw);draw();setTimeout(()=>q.focus(),50)};
@@ -2224,7 +2224,7 @@ ACT.whySheet=()=>{
   const{need,parts}=W.plan,mx=Math.max(...Object.values(need))||1;
   const C=W.kind==="target"?{}:{weak:["Low test score","var(--warn)"],demand:[W.kind==="recover"?"Session you're recovering from":W.kind==="activate"?"Today's movements":"",  "var(--accent)"],load:["Load in the last 3 days","var(--bad)"],next:["Next session","#8F98FF"]};
   const keys=Object.keys(C).filter(k=>C[k][0]&&AREAS.some(a=>(parts[a.k]||{})[k]>0));
-  sheet(`<h3>How Range picked these</h3><div class="scroll">
+  sheet(`<h3>How Range Picked These</h3><div class="scroll">
    <p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">${W.kind==="target"?`All the time goes to ${AN[W.zone]}. Range picks the stretches there that you haven't done recently and that fit your equipment.`:"Each body area gets a need score from the signals below. Your time is split by those scores. Then Range picks the best stretch in each area for your goal, your equipment and the exact muscles your movements use, swapping out anything you did in the last 4 days."}</p>
    ${keys.length?`<div class="legend">${keys.map(k=>`<span><i style="background:${C[k][1]}"></i>${C[k][0]}</span>`).join("")}</div>
    <ul class="needbars">${AREAS.slice().sort((a,b)=>need[b.k]-need[a.k]).map(a=>{const p=parts[a.k]||{};const minutes=W.plan.items.filter(it=>LIBI[it.id].a===a.k).length;return`<li><span>${a.n}</span><span class="nb">${keys.map(k=>p[k]>0?`<i style="width:${(p[k]/mx*100).toFixed(1)}%;background:${C[k][1]}"></i>`:"").join("")}</span><b>${minutes?minutes+" ×":"–"}</b></li>`}).join("")}</ul>
@@ -2246,10 +2246,10 @@ ACT.info=()=>sheet(`<h2>${KINDS[W.kind].n}</h2><div class="scroll"><p class="mut
 
 /* movement search sheet */
 let tmpMoves=[];
-ACT.moveSheet=()=>{tmpMoves=W.moves.slice();sheet(`<h3>Search for your workout movements</h3>
+ACT.moveSheet=()=>{tmpMoves=W.moves.slice();sheet(`<h3>Search for Your Workout Movements</h3>
   <label class="search">${ic("search")}<input id="mq" placeholder="Squat, snatch, running…" autocomplete="off" aria-label="Search movements"></label>
   <div class="scroll"><div id="mres" class="res"></div><div class="stack" style="gap:8px"><span class="eyebrow">Selected movements</span><div id="msel" class="stack" style="gap:8px"></div></div></div>
-  <button class="btn" data-act="saveMoves">Save movements</button>`);
+  <button class="btn" data-act="saveMoves">Save Movements</button>`);
   const q=$("#mq");q.addEventListener("input",drawMoveSheet);drawMoveSheet();setTimeout(()=>q.focus(),50);
 };
 function drawMoveSheet(){
@@ -2283,7 +2283,7 @@ ACT.closeSheet=closeSheet;
 ACT.scrim=(d,el,e)=>{if(e.target===el)closeSheet()};
 
 /* sports sheet */
-ACT.sportsSheet=()=>{sheet(`<h3>My sports</h3><div class="scroll">${SPORTS.map(s=>`<button class="toggle" data-act="togSport" data-s="${s.k}"><span>${s.n}</span><span class="sw ${S.sports.includes(s.k)?"on":""}"></span></button>`).join("")}</div><button class="btn" data-act="sportsDone">Done</button>`)};
+ACT.sportsSheet=()=>{sheet(`<h3>My Sports</h3><div class="scroll">${SPORTS.map(s=>`<button class="toggle" data-act="togSport" data-s="${s.k}"><span>${s.n}</span><span class="sw ${S.sports.includes(s.k)?"on":""}"></span></button>`).join("")}</div><button class="btn" data-act="sportsDone">Done</button>`)};
 ACT.togSport=(d,el)=>{const i=S.sports.indexOf(d.s);if(i>=0){if(S.sports.length>1)S.sports.splice(i,1)}else S.sports.push(d.s);save();el.querySelector(".sw").classList.toggle("on",S.sports.includes(d.s))};
 ACT.sportsDone=()=>{closeSheet();render()};
 
@@ -2435,23 +2435,23 @@ function swapOptions(it){const ex=LIBI[it.id],ov=e=>e.z.filter(z=>ex.z.includes(
   return LIB.filter(e=>e.id!==ex.id&&!!e.rehab===!!ex.rehab&&!e.custom&&(e.a===ex.a||ov(e)>=2)&&ov(e)>0&&e.eq.every(q=>S.equip.includes(q))&&!P.items.some(x=>x.id===e.id)&&(!S.rehab||!rehabHooks().x.has(e.id)))
    .sort((a,b)=>ov(b)-ov(a)+((S.swapped||{})[a.id]||0)*.5-((S.swapped||{})[b.id]||0)*.5).slice(0,6)}
 ACT.pSwap=()=>{const i=P.segs[P.si].i,it=P.items[i],opts=swapOptions(it);
-  sheet(`<h3>Swap ${esc(LIBI[it.id].n)}</h3><div class="scroll"><div class="rxlist">${opts.length?opts.map(e=>`<button class="rx" data-act="pSwapTo" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><span><b>${esc(e.n)}</b><small>${esc(e.stim)}</small></span></button>`).join(""):`<p class="muted" style="margin:0">No alternative with your equipment. Add equipment in Profile to see more.</p>`}</div></div><button class="btn sec" data-act="closeSheetP">Keep this one</button>`,true)};
+  sheet(`<h3>Swap ${esc(LIBI[it.id].n)}</h3><div class="scroll"><div class="rxlist">${opts.length?opts.map(e=>`<button class="rx" data-act="pSwapTo" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><span><b>${esc(e.n)}</b><small>${esc(e.stim)}</small></span></button>`).join(""):`<p class="muted" style="margin:0">No alternative with your equipment. Add equipment in Profile to see more.</p>`}</div></div><button class="btn sec" data-act="closeSheetP">Keep This One</button>`,true)};
 ACT.pSwapTo=d=>{const i=P.segs[P.si].i,old=P.items[i],e=LIBI[d.id];
   S.swapped=S.swapped||{};S.swapped[old.id]=(S.swapped[old.id]||0)+1;save();
   P.items[i]=old.dose?{...old,id:e.id}:{...old,id:e.id,hold:old.hold||e.hold};
   P.segs=[];P.items.forEach((x,k)=>P.segs.push(...segsFor(x,k)));closeSheetP();jumpTo(i)};
-ACT.pSettings=()=>{sheet(`<h3>Player settings</h3><div class="scroll">
-  <button class="toggle" data-act="setTog" data-k="sound"><span>Sound cues<br><small class="muted">Beeps for the last 3 seconds and each new hold</small></span><span class="sw ${S.settings.sound?"on":""}"></span></button>
-  <button class="toggle" data-act="setTog" data-k="voice"><span>Voice coach<br><small class="muted">Reads out the next stretch and side switches</small></span><span class="sw ${S.settings.voice?"on":""}"></span></button>
+ACT.pSettings=()=>{sheet(`<h3>Player Settings</h3><div class="scroll">
+  <button class="toggle" data-act="setTog" data-k="sound"><span>Sound Cues<br><small class="muted">Beeps for the last 3 seconds and each new hold</small></span><span class="sw ${S.settings.sound?"on":""}"></span></button>
+  <button class="toggle" data-act="setTog" data-k="voice"><span>Voice Coach<br><small class="muted">Reads out the next stretch and side switches</small></span><span class="sw ${S.settings.voice?"on":""}"></span></button>
   <button class="toggle" data-act="setTog" data-k="easy"><span>Start in Easy Mode<br><small class="muted">Easier variations and 25% shorter holds</small></span><span class="sw ${S.settings.easy?"on":""}"></span></button>
   </div><button class="btn sec" data-act="closeSheetP">Close</button>`,true)};
 ACT.pMenu=()=>{const ce=P&&LIBI[P.items[P.segs[P.si].i].id];sheet(`<h3>Session</h3><div class="scroll">
   ${ce?`<a class="btn sec" href="${vidUrl(ce)}" target="_blank" rel="noopener">Watch a video: ${esc(ce.n)}</a>`:""}
-  <button class="btn sec" data-act="pSwap">Swap this exercise</button>
-  <button class="btn sec" data-act="pRestart">Restart session</button>
-  <button class="btn sec" data-act="pEndSave">End and save progress</button>
-  <button class="btn sec" style="color:var(--bad)" data-act="pDiscard">End without saving</button></div>
-  <button class="btn" data-act="closeSheetP">Keep going</button>`,true)};
+  <button class="btn sec" data-act="pSwap">Swap This Exercise</button>
+  <button class="btn sec" data-act="pRestart">Restart Session</button>
+  <button class="btn sec" data-act="pEndSave">End and Save Progress</button>
+  <button class="btn sec" style="color:var(--bad)" data-act="pDiscard">End Without Saving</button></div>
+  <button class="btn" data-act="closeSheetP">Keep Going</button>`,true)};
 ACT.pExit=()=>ACT.pMenu();
 const endFromSheet=()=>{if(P)P.resumeAfterSheet=false;closeSheetP()};
 ACT.pRestart=()=>{endFromSheet();P.si=0;P.curI=-1;P.running=false;P.started=false;P.activeMs=0;enterSeg()};
@@ -2524,10 +2524,10 @@ ACT.doneHome=()=>{$("#layer").innerHTML="";document.body.style.overflow="";stack
 let libQ="",libA="",libMode="muscle",libM="";
 // Anytime flows: fixed routines for moments in the day, the same every time (no test or workout needed)
 const FLOWS=[
- {k:"desk",n:"Desk break",sub:"Undo sitting",pose:"crossBody",items:[["e1_uptrap",30],["t4",40],["e2_sidebend",30],["h6",30],["e1_clasp",30],["g1_neckroll",30]]},
- {k:"wake",n:"Wake up",sub:"Morning",pose:"lunge",items:[["t4",45],["wgs",30],["h7",60],["t1",30],["inch",45],["e2_standquad",30]]},
- {k:"travel",n:"After sitting",sub:"Drive or flight",pose:"kneel",items:[["h6",40],["p1",40],["t4",40],["e2_standquad",30],["a2",30],["g1_kneecirc",30]]},
- {k:"night",n:"Wind down",sub:"Before bed",pose:"child",items:[["o5",45],["h2",60],["e2_twist",45],["b_butterfly",45],["d_legsup",90],["r_breath",120]]},
+ {k:"desk",n:"Desk Break",sub:"Undo sitting",pose:"crossBody",items:[["e1_uptrap",30],["t4",40],["e2_sidebend",30],["h6",30],["e1_clasp",30],["g1_neckroll",30]]},
+ {k:"wake",n:"Wake Up",sub:"Morning",pose:"lunge",items:[["t4",45],["wgs",30],["h7",60],["t1",30],["inch",45],["e2_standquad",30]]},
+ {k:"travel",n:"After Sitting",sub:"Drive or flight",pose:"kneel",items:[["h6",40],["p1",40],["t4",40],["e2_standquad",30],["a2",30],["g1_kneecirc",30]]},
+ {k:"night",n:"Wind Down",sub:"Before bed",pose:"child",items:[["o5",45],["h2",60],["e2_twist",45],["b_butterfly",45],["d_legsup",90],["r_breath",120]]},
 ];
 const flowItems=f=>{const taken=new Set(f.items.map(([id])=>id)),out=[];
   f.items.forEach(([id,t])=>{const e=LIBI[id];if(!e||!e.eq.every(q=>S.equip.includes(q)))return;
@@ -2570,7 +2570,7 @@ function parseRoutine(str){
 let RT_IN=null;
 function offerRoutine(r){RT_IN=r;sheet(`<h3>Add “${esc(r.name)}”?</h3><div class="scroll"><p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">A routine someone shared with you · ${r.items.length} exercise${r.items.length===1?"":"s"}</p>
   <div class="preview">${r.items.map((it,i)=>`<div><span>${i+1}</span><span>${esc((r.own.find(e=>e.id===it.id)||LIBI[it.id]).n)}</span><span>${esc(doseText(it))}</span></div>`).join("")}</div>${r.notes?`<p style="margin:0;font-size:calc(14px * var(--ts))">${esc(r.notes)}</p>`:""}</div>
-  <div style="display:grid;gap:8px"><button class="btn" data-act="routineAdd">Add to my routines</button><button class="btn sec" data-act="closeSheet">Not now</button></div>`)}
+  <div style="display:grid;gap:8px"><button class="btn" data-act="routineAdd">Add to My Routines</button><button class="btn sec" data-act="closeSheet">Not Now</button></div>`)}
 ACT.routineAdd=()=>{const r=RT_IN;if(!r)return;const map={};
   // the sender's own exercises join yours under a fresh id unless you already have the same one
   r.own.forEach(e=>{const mine=S.myEx.find(m=>m.n===e.n);if(mine){map[e.id]=mine.id;return}const id="mx"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);const x={id,n:e.n,fig:e.fig,c:e.c};S.myEx.push(x);regMyEx(x);map[e.id]=id});
@@ -2578,23 +2578,23 @@ ACT.routineAdd=()=>{const r=RT_IN;if(!r)return;const map={};
   RT_IN=null;save();closeSheet();stack=[{name:"home",p:{}},{name:"library",p:{}}];render();scrollTo(0,0)};
 ACT.routinePaste=async()=>{let t="";try{t=await navigator.clipboard.readText()}catch(e){}
   const r=parseRoutine(t);if(r)return offerRoutine(r);
-  sheet(`<h3>Add a shared routine</h3><div class="scroll"><p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Paste the link someone sent you.</p><textarea id="rtLink" class="field" rows="4" style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px;font-size:calc(13px * var(--ts))"></textarea><p id="rtMsg" class="c-bad" style="margin:0;font-size:calc(14px * var(--ts))"></p></div>
+  sheet(`<h3>Add a Shared Routine</h3><div class="scroll"><p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Paste the link someone sent you.</p><textarea id="rtLink" class="field" rows="4" style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px;font-size:calc(13px * var(--ts))"></textarea><p id="rtMsg" class="c-bad" style="margin:0;font-size:calc(14px * var(--ts))"></p></div>
    <div style="display:grid;gap:8px"><button class="btn" data-act="routinePasteGo">Continue</button><button class="btn sec" data-act="closeSheet">Cancel</button></div>`)};
 ACT.routinePasteGo=()=>{const r=parseRoutine($("#rtLink").value);if(r){closeSheet();offerRoutine(r)}else $("#rtMsg").textContent="That doesn't look like a Range routine link."};
-const routinesPanel=()=>{const rs=myRoutines();return`<div class="stack" style="gap:8px" data-tour="routines"><div style="display:flex;justify-content:space-between;align-items:center"><span class="eyebrow">My routines</span><span style="display:flex;gap:14px;align-items:center"><button class="link" data-act="routinePaste">Paste a link</button><button class="link" data-act="routineNew">${ic("plus","")} New</button></span></div>
+const routinesPanel=()=>{const rs=myRoutines();return`<div class="stack" style="gap:8px" data-tour="routines"><div style="display:flex;justify-content:space-between;align-items:center"><span class="eyebrow">My Routines</span><span style="display:flex;gap:14px;align-items:center"><button class="link" data-act="routinePaste">Paste a Link</button><button class="link" data-act="routineNew">${ic("plus","")} New</button></span></div>
   ${rs.length?rs.map(p=>{const m=Math.max(1,Math.round(rtItems(p).reduce((t,it)=>t+itemSecs(it),0)/60));return`<div class="panel rtcard">
    <div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><h3>${esc(p.name)}</h3><button class="link" data-act="myEdit" data-id="${p.id}">Edit</button></div>
    <p class="muted" style="margin:0;font-size:calc(13px * var(--ts))">${p.items.length} exercise${p.items.length===1?"":"s"} · about ${m} min${p.from?` · ${esc(p.from)}`:""}</p>
    <p style="margin:0;font-size:calc(14px * var(--ts))">${p.items.map(it=>LIBI[it.id]).filter(Boolean).map(e=>esc(e.n)).join(" · ")}</p>
-   <div class="frow"><button class="btn" data-act="routineStart" data-id="${p.id}">${icf("play")}Start</button><button class="btn sec" data-act="routineShare" data-id="${p.id}">Share</button></div></div>`}).join(""):`<button class="panel" data-act="routineNew" style="text-align:left"><b>Build your own routine</b><span class="muted" style="font-size:calc(14px * var(--ts))">Pick exercises from the library, set holds or reps, then share it with a link.</span></button>`}</div>`};
+   <div class="frow"><button class="btn" data-act="routineStart" data-id="${p.id}">${icf("play")}Start</button><button class="btn sec" data-act="routineShare" data-id="${p.id}">Share</button></div></div>`}).join(""):`<button class="panel" data-act="routineNew" style="text-align:left"><b>Build Your Own Routine</b><span class="muted" style="font-size:calc(14px * var(--ts))">Pick exercises from the library, set holds or reps, then share it with a link.</span></button>`}</div>`};
 SCREENS.library=()=>`${stack.length>1?hdr():`<div class="hdr" style="grid-template-columns:1fr"><div class="brand">Range<b>.</b></div></div>`}
   <div class="stack" style="padding-top:8px">
   <h1>Library</h1>
   ${libQ?"":routinesPanel()}
   <label class="search" style="box-shadow:none">${ic("search")}<input id="lq" placeholder="Search ${LIB.filter(e=>!e.custom).length} exercises or a muscle" value="${esc(libQ)}" autocomplete="off" aria-label="Search exercises"></label>
-  <div class="seg" style="grid-template-columns:1fr 1fr">${[["muscle","By muscle"],["area","By area"]].map(([k,n])=>`<button class="${libMode===k?"on":""}" data-act="libMode" data-k="${k}">${n}</button>`).join("")}</div>
+  <div class="seg" style="grid-template-columns:1fr 1fr">${[["muscle","By Muscle"],["area","By Area"]].map(([k,n])=>`<button class="${libMode===k?"on":""}" data-act="libMode" data-k="${k}">${n}</button>`).join("")}</div>
   ${libMode==="area"?`<div class="hscroll">${[["","All"],...AREAS.map(a=>[a.k,a.n]),["rehab","Strength & rehab"]].map(([k,n])=>`<button class="chip ${libA===k?"on":""}" data-act="libArea" data-a="${k}">${n}</button>`).join("")}</div>`:
-   libM?`<div style="display:flex;align-items:center;gap:10px"><button class="link" data-act="libMuscle" data-m="">${ic("back")} All muscles</button></div>`:""}
+   libM?`<div style="display:flex;align-items:center;gap:10px"><button class="link" data-act="libMuscle" data-m="">${ic("back")} All Muscles</button></div>`:""}
   <div id="lib"></div></div>`;
 const libCard=e=>`<button class="lcard" data-act="openEx" data-id="${e.id}"><div class="art">${fig(e.fig||e.id,null,{zones:e.z,sides:!!e.sides,mode:exMode(e)})}</div><div class="t"><b>${esc(e.n)}</b>${rbAvoids(e.id)?`<small class="c-warn">Avoid for now (Rebuild)</small>`:""}<small>${e.rehab?`${RCAT[e.a]} · Strength`:`${AN[e.a]} · ${fmt(e.hold)}${e.sides?" each side":""} · ${e.roll?"Rolling":e.dyn?"Active":"Passive"}`}</small></div></button>`;
 function drawLib(){
@@ -2635,7 +2635,7 @@ SCREENS.exercise=p=>{const e=LIBI[p.id];return hdr()+`<div class="stack" style="
    ${e.eq.length?`<div><span class="eyebrow">Equipment</span><div class="chipset" style="margin-top:6px">${e.eq.map(k=>`<span class="chip">${ic(k)}${EQUIP.find(x=>x.k===k).n}</span>`).join("")}</div></div>`:""}</div>
   <a class="btn sec" href="${vidUrl(e)}" target="_blank" rel="noopener">${icf("play")}Watch a video of it</a>
   ${e.z.length?`<div class="panel"><span class="eyebrow">Targeted areas</span><div class="ztags">${e.z.map(z=>`<span>${ZONES[z]}</span>`).join("")}</div>${bodyMap(e.z)}</div>`:""}
-  </div><div class="bottomcta"><button class="btn" data-act="tryEx" data-id="${e.id}">${icf("play")}Try it now</button></div>`};
+  </div><div class="bottomcta"><button class="btn" data-act="tryEx" data-id="${e.id}">${icf("play")}Try It Now</button></div>`};
 // a real person doing it, for when the figure isn't enough (opens a video search, nothing is embedded)
 const vidUrl=e=>`https://www.youtube.com/results?search_query=${encodeURIComponent(`${e.n} ${e.rehab?"exercise":"stretch"} how to`)}`;
 function defaultDose(id){for(const R of Object.values(REGIONS))for(const phs of Object.values(R.phasesBy||{}))for(const ph of phs)for(const[i,d]of ph.items)if(i===id)return d;return{k:"hold",sets:1,secs:30}}
@@ -2645,7 +2645,7 @@ ACT.tryEx=d=>{const e=LIBI[d.id];openPlayer([e.rehab?{id:e.id,dose:defaultDose(e
    Method follows "Rebuilding Milo" (Horschig & Sonthana, 2021): find what triggers the pain, classify it by
    movement instead of by scan, calm it down, then rebuild capacity in stages (isometrics -> slow strength ->
    back to performance), checking the response 24 hours later. Doses cross-checked against current research
-   (see the "How Range works" sheet for sources). All text is written for Range, not copied from the book. */
+   (see the "How Range Works" sheet for sources). All text is written for Range, not copied from the book. */
 const RCAT={core:"Core & back",hipr:"Hips",knee:"Knees",shoul:"Shoulders",elbow:"Elbow & grip",calf:"Calves & Achilles"};
 
 FIGS.r_bwsquat={...FIGS.r_boxsquat,props:[]};
@@ -3349,7 +3349,7 @@ const BIG3_A=[["t4",D_.rep(1,6,3)],["r_curlup",D_.pyr([6,4,2])],["r_sideplank",D
 const BIG3_B=[["t4",D_.rep(1,6,3)],["r_curlup",D_.pyr([3,2,1])],["r_sideplank",D_.pyr([3,2,1],1)],["r_birddog",D_.pyr([3,2,1],1)]];
 
 const REGIONS={
- back:{n:"Low back",fig:"r_birddog",
+ back:{n:"Low Back",fig:"r_birddog",
   urgent:["Numbness around the groin, genitals or inner thighs","New trouble controlling your bladder or bowels","Weakness in a leg that keeps getting worse"],
   doctor:["The pain started with a fall, crash or other big impact","Fever, unexplained weight loss, or a history of cancer","Constant pain that doesn't change with position, including at night","Pain shooting down the leg with numbness or pins and needles"],
   test:{n:"Your worst everyday movement",how:"Do the movement that bothers you most (for example bending to pick up a sock) and rate it."},
@@ -3373,7 +3373,7 @@ const REGIONS={
    {n:"Rebuild control",goal:"Keep the spine still while the hips do the work.",min:14,freq:"Daily. The Big Three can be split into two shorter sessions",items:[...BIG3_B,["r_hinge",D_.reps(3,10,{note:"3-second hold at the bottom"})],["r_goblethold",D_.rep(2,5,5)],["r_pallof",D_.reps(3,10,{sides:1})],["r_slbridge",D_.rep(2,10,5,1)],["r_walk",D_.time(900)]],exit:"Bodyweight hinge, squat and the heel drop all pain-free."},
    {n:"Back to the bar",goal:"Return to lifting with the new control.",min:14,freq:"3–4 times a week alongside light technique work",items:[...BIG3_B,["r_row",D_.reps(3,10,{note:"3-second hold at the top"})],["r_slrdl",D_.reps(3,10,{sides:1})]],exit:"Start barbell lifts at about half your old working weights. Add roughly 10% a week while next-morning pain stays the same or lower.",last:true},
   ]},
- knee:{n:"Front of the knee",fig:"r_spanish",
+ knee:{n:"Front of the Knee",fig:"r_spanish",
   urgent:["You can't put any weight on the leg"],
   doctor:["The knee locks, catches or gives way","It swelled up a lot after an injury","Numbness, tingling or throbbing behind the knee","It hurts at rest, not just when you load it"],
   test:{n:"Single-leg squat",how:"Do a slow single-leg squat on the painful leg (on a small slope if you have one) and rate the pain."},
@@ -3403,7 +3403,7 @@ const REGIONS={
   },
   phasesAlias:{mobility:"control"}, // a stiff ankle or hip: knee control, with the ankle and hip holds below added to phase 1
   extraBy:{mobility:[["a1",{k:"hold",sets:2,secs:40,sides:true}],["a6",{k:"hold",sets:2,secs:40,sides:true}],["h8",{k:"hold",sets:1,secs:45,sides:true}]]}},
- hip:{n:"Hip & groin",fig:"r_slrdl",
+ hip:{n:"Hip & Groin",fig:"r_slrdl",
   urgent:["New bladder or bowel problems with the pain"],
   doctor:["The hip catches, locks or clicks painfully","Pain shoots down the thigh","The leg gives way","Groin pain for months that rest and exercise haven't changed"],
   test:{n:"Your painful movement",how:"Do the movement that bothers your hip most (deep squat, single-leg stance or lunge) and rate it."},
@@ -3473,7 +3473,7 @@ const REGIONS={
    lateral:[{n:"Isometric holds",goal:"Calm the tendon.",min:7,freq:"Daily",items:[["r_wristiso",D_.hold(5,40)],["r_scappull",D_.reps(2,8)]],exit:"Holds pain-free by the third rep."},{n:"Slow strength",goal:"Load through range.",min:14,freq:"Every other day",items:[["r_wristcurl",D_.reps(3,15,{tempo:[3,0,3]})],["r_farmer",D_.hold(3,40)],["r_ser",D_.reps(3,15,{sides:1})]],exit:"Grip test at 2/10 or lower."},{n:"Back to grip",goal:"Overhand grip strength and normal pulling.",min:14,freq:"3 times a week",items:[["r_rackhold",D_.hold(3,20)],["r_farmer",D_.hold(3,45)]],exit:"Pulling volume back to normal. Add about 10% a week.",last:true}],
    medial:[{n:"Isometric holds",goal:"Calm the tendon (palm up).",min:7,freq:"Daily",items:[["r_wristiso",D_.hold(5,40)],["r_scappull",D_.reps(2,8)]],exit:"Holds pain-free by the third rep."},{n:"Slow strength",goal:"Load through range (palm up).",min:14,freq:"Every other day",items:[["r_wristcurl",D_.reps(3,15,{tempo:[3,0,3]})],["r_farmer",D_.hold(3,40)]],exit:"Grip test at 2/10 or lower."},{n:"Back to grip",goal:"Normal gripping and front rack.",min:14,freq:"3 times a week",items:[["r_rackhold",D_.hold(3,20)],["r_farmer",D_.hold(3,45)]],exit:"Training volume back to normal.",last:true}],
   }},
- achilles:{n:"Achilles & calf",fig:"r_calfraise",
+ achilles:{n:"Achilles & Calf",fig:"r_calfraise",
   urgent:["A sudden pop or the feeling of being kicked in the calf","You can't rise onto your toes on that leg"],
   doctor:["Big swelling or bruising around the heel","Pain at rest that wakes you at night"],
   test:{n:"Single-leg heel raises",how:"Do 10 single-leg heel raises on flat ground and rate the pain."},
@@ -3716,7 +3716,7 @@ const RB_PHASE_GATE={
   alt:"use straps, cut the pulling volume, or swap kipping for ring rows"},
 };
 // the Rebuild caution as one tappable line; the full advice opens underneath
-const rbNote=w=>w?`<details class="note-warn rbnote"><summary>Rebuild: lighten or swap today's lifts</summary><div style="margin-top:6px">${esc(w)}</div></details>`:"";
+const rbNote=w=>w?`<details class="note-warn rbnote"><summary>Rebuild: Lighten or Swap Today's Lifts</summary><div style="margin-top:6px">${esc(w)}</div></details>`:"";
 function rbPhaseWarn(moves,mw){if(!S.rehab)return"";const st=S.rehab,G=RB_PHASE_GATE[st.region],R=REGIONS[st.region];if(!G||!R)return"";
   const phs=rbPhases(R,st.cls);if(!phs||!phs.length)return"";const top=phs.length-1,need=m=>{const h=(mw&&mw[m]!=null?mw[m]:1)>=2,n=h?G.heavy:G.light;return n<0?top:Math.min(n,top)};
   const hit=(moves||[]).filter(m=>G.moves.includes(m)&&st.phase<need(m));if(!hit.length)return"";
@@ -4059,10 +4059,10 @@ function reentryFor(w){
   if(pcts.length){const top=Math.max(...pcts);return`top sets around ${Math.round((top-5)*2)/2}% instead of ${top}%. Stop the build when the bar slows.`}
   return"keep it to RPE 7: same movements, a little lighter, nothing to failure.";
 }
-ACT.breakRecover=()=>{const b=breakInfo(),n=nextSession();startWizard({kind:"activate",sport:S.sports[0]||"crossfit",moves:n?n.moves:[],from:"Back from a break"})};
+ACT.breakRecover=()=>{const b=breakInfo(),n=nextSession();startWizard({kind:"activate",sport:S.sports[0]||"crossfit",moves:n?n.moves:[],from:"Back from a Break"})};
 const breakPanel=()=>{const b=breakInfo();if(!b)return"";
-  return`<div class="panel"><h3>Back from a break</h3><p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">${b.gap} days off. Go about 5% lighter this week.</p>
-   <button class="btn sec" data-act="breakRecover">Longer warm-up</button></div>`};
+  return`<div class="panel"><h3>Back from a Break</h3><p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">${b.gap} days off. Go about 5% lighter this week.</p>
+   <button class="btn sec" data-act="breakRecover">Longer Warm-Up</button></div>`};
 const wRow=w=>{
   const up=!isPast(w),f=focusOf({kind:"activate",moves:w.moves,mw:moveWeights(w)});
   return `<div class="wrow"><div class="wd"><b>${dayLabel(w.date)}</b>${w.example?'<span class="pill">Example</span>':""}</div>
@@ -4078,8 +4078,8 @@ SCREENS.training=()=>{
   const sc=scores();
   return `<div class="hdr" style="grid-template-columns:1fr"><div class="brand">Range<b>.</b></div></div>
   <div class="stack" style="padding-top:8px">
-  <div style="display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap" data-tour="train-top"><h1>Training</h1><span style="display:flex;gap:16px;align-items:center;padding-bottom:4px">${S.training.length?`<button class="link" data-act="importW">Import</button>`:""}<button class="link" data-act="addW">${ic("plus","")} Add workout</button></span></div>
-  ${S.training.length?"":`<div class="banner" data-tour="bring"><div><h3>Bring in your workouts</h3><p class="muted" style="font-size:calc(14px * var(--ts));margin:6px 0 0">Add the workouts you train: type one in, paste it from any whiteboard, or import from SugarWOD. Range finds the movements, then prepares you for upcoming sessions and helps you recover from past ones.</p></div><button class="btn" data-act="addW">Add a workout</button><button class="btn sec" data-act="importW">Import from SugarWOD</button><button class="btn sec" data-act="exampleWeek">Try with an example week</button></div>`}
+  <div style="display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap" data-tour="train-top"><h1>Training</h1><span style="display:flex;gap:16px;align-items:center;padding-bottom:4px">${S.training.length?`<button class="link" data-act="importW">Import</button>`:""}<button class="link" data-act="addW">${ic("plus","")} Add Workout</button></span></div>
+  ${S.training.length?"":`<div class="banner" data-tour="bring"><div><h3>Bring In Your Workouts</h3><p class="muted" style="font-size:calc(14px * var(--ts));margin:6px 0 0">Add the workouts you train: type one in, paste it from any whiteboard, or import from SugarWOD. Range finds the movements, then prepares you for upcoming sessions and helps you recover from past ones.</p></div><button class="btn" data-act="addW">Add a Workout</button><button class="btn sec" data-act="importW">Import from SugarWOD</button><button class="btn sec" data-act="exampleWeek">Try with an Example Week</button></div>`}
   ${sugarRow()}
   ${breakPanel()}
   ${nx?`<div class="panel"><span class="eyebrow">Next session · ${dayLabel(nx.date)}</span><h3 class="clamp2">${esc(wTitle(nx))}</h3>
@@ -4101,7 +4101,7 @@ ACT.editW=d=>openWSheet(S.training.find(w=>w.id===d.id));
 function openWSheet(w){
   TR={id:w?w.id:null,added:[],removed:[],auto:[],example:w?!!w.example:false};
   if(w){TR.auto=parseMoves(w.text);TR.added=w.moves.filter(m=>!TR.auto.includes(m));TR.removed=TR.auto.filter(m=>!w.moves.includes(m))}
-  sheet(`<h3>${w?"Edit workout":"Add a workout"}</h3>
+  sheet(`<h3>${w?"Edit Workout":"Add a Workout"}</h3>
   <div class="scroll">
     <div class="frow" style="grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:12px"><label class="field" style="flex:1"><span class="eyebrow">Date</span><input type="date" id="wdate" value="${w?w.date:todayIso()}"></label>
     <label class="field" style="flex:1.4"><span class="eyebrow">Name (optional)</span><input id="wtitle" placeholder="e.g. Fran" value="${w?esc(w.title||""):""}" autocomplete="off"></label></div>
@@ -4109,7 +4109,7 @@ function openWSheet(w){
     <div class="stack" style="gap:8px"><span class="eyebrow">Movements found · tap to remove</span><div id="wmoves" class="chipset"></div></div>
     <div class="stack" style="gap:8px"><span class="eyebrow">Missing one?</span><label class="search" style="box-shadow:none">${ic("search")}<input id="wq" placeholder="Search movements" autocomplete="off" aria-label="Search movements"></label><div id="wres" class="res"></div></div>
   </div>
-  <div style="display:grid;gap:8px"><button class="btn" data-act="trSave">${w?"Save changes":"Save workout"}</button>${w?`<button class="btn sec" style="color:var(--bad)" data-act="trDel">Delete workout</button>`:""}</div>`);
+  <div style="display:grid;gap:8px"><button class="btn" data-act="trSave">${w?"Save Changes":"Save Workout"}</button>${w?`<button class="btn sec" style="color:var(--bad)" data-act="trDel">Delete Workout</button>`:""}</div>`);
   $("#wtext").addEventListener("input",e=>{TR.auto=parseMoves(e.target.value);drawWMoves()});
   $("#wq").addEventListener("input",drawWRes);
   drawWMoves();
@@ -4227,7 +4227,7 @@ async function autoSync(force){
 }
 const agoText=t=>{if(!t)return"never";const m=Math.round((Date.now()-new Date(t))/6e4);return m<2?"just now":m<60?`${m} min ago`:m<1440?`${Math.round(m/60)} h ago`:`${Math.round(m/1440)} d ago`};
 ACT.syncKey=()=>{const sy=S.sync||{},tr=sy.tracks||[];if(!tr.length)return;
-  sheet(`<h3>Your SugarWOD track</h3><div class="scroll"><div class="stack" style="gap:10px">${tr.map(t=>`<button class="opt ${t===sy.track?"on":""}" data-act="syncTrack" data-t="${esc(t)}"><span>${esc(t)}</span><span class="radio"></span></button>`).join("")}</div></div>`)};
+  sheet(`<h3>Your SugarWOD Track</h3><div class="scroll"><div class="stack" style="gap:10px">${tr.map(t=>`<button class="opt ${t===sy.track?"on":""}" data-act="syncTrack" data-t="${esc(t)}"><span>${esc(t)}</span><span class="radio"></span></button>`).join("")}</div></div>`)};
 ACT.syncTrack=async d=>{if(d.t===(S.sync||{}).track){closeSheet();return}
   S.sync={...(S.sync||{}),track:d.t,checked:0};S.training=S.training.filter(w=>w.source!=="sugarwod-public");save();closeSheet();SYNCING=true;render();
   try{await autoSync(true)}finally{SYNCING=false;render()}
@@ -4238,7 +4238,7 @@ function toast(msg){const old=document.getElementById("toast");if(old)old.remove
   try{d.animate([{opacity:0,transform:"translate(-50%,12px)"},{opacity:1,transform:"translate(-50%,0)"}],{duration:300,easing:"cubic-bezier(.23,1,.32,1)"})}catch(e){}setTimeout(()=>{try{d.animate([{opacity:1},{opacity:0}],{duration:250}).onfinish=()=>d.remove()}catch(e){d.remove()}},2800)}
 // Sync button: spins while it works, then says what happened for a few seconds
 let SYNCING=false,syncDone=0;
-const syncBtn=()=>SYNCING?`<button class="syncbtn busy" disabled aria-live="polite">${ic("sync")}${SYNCING==="sugarwod"?"Reading SugarWOD…":"Syncing…"}</button>`:Date.now()-syncDone<4000?`<button class="syncbtn ok" data-act="syncNow">${ic("check")}${(S.sync||{}).error?"Check the message":"Up to date"}</button>`:`<button class="syncbtn" data-act="syncNow">${ic("sync")}Sync now</button>`;
+const syncBtn=()=>SYNCING?`<button class="syncbtn busy" disabled aria-live="polite">${ic("sync")}${SYNCING==="sugarwod"?"Reading SugarWOD…":"Syncing…"}</button>`:Date.now()-syncDone<4000?`<button class="syncbtn ok" data-act="syncNow">${ic("check")}${(S.sync||{}).error?"Check the Message":"Up to Date"}</button>`:`<button class="syncbtn" data-act="syncNow">${ic("sync")}Sync Now</button>`;
 // with GitHub backup set up (its token on this device), Sync now also asks GitHub to read SugarWOD right away,
 // then waits up to ~3 min for the fresh file; otherwise it picks up the latest hourly file
 async function kickGithubSync(){if(API||!BK||!BK.token||!BK.repo)return false;
@@ -4328,9 +4328,9 @@ ACT.pushSetup=async()=>{
   }catch(e){msg.textContent="This phone couldn't subscribe. On iPhone, open Range from the home screen icon (iOS 16.4 or later)."}
 };
 const notifPanel=()=>`<div class="panel"><h3>Notifications</h3>
-  <button class="toggle" data-act="notifTog"><span>Remind me to recover when I log a score</span><span class="sw ${notifyOn()?"on":""}"></span></button>
+  <button class="toggle" data-act="notifTog"><span>Remind Me to Recover When I Log a Score</span><span class="sw ${notifyOn()?"on":""}"></span></button>
   ${notifyOn()?`<p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">${API?"Range checks for new scores when you open it. Connect this phone to also get reminders while Range is closed.":"Range checks your SugarWOD sync when you open it. For reminders while it's closed, connect this phone to the GitHub sync once."}</p>
-  <div class="frow"><button class="btn sec" style="flex:1" data-act="pushSetup">Connect this phone</button><button class="btn sec" style="flex:1" data-act="notifTest">Send a test</button></div>
+  <div class="frow"><button class="btn sec" style="flex:1" data-act="pushSetup">Connect This Phone</button><button class="btn sec" style="flex:1" data-act="notifTest">Send a Test</button></div>
   <textarea id="subBox" class="field" rows="3" hidden readonly style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px;font-size:calc(12px * var(--ts))"></textarea>`:""}
   <p id="ntMsg" class="muted" style="margin:0;font-size:calc(13px * var(--ts))" aria-live="polite"></p></div>`;
 
@@ -4362,8 +4362,8 @@ function drawTS(){
    ${t.side&&!TS.both&&TS.order.length>1?`<div class="tsides">${TS.order.map(k=>`<span class="${st===k?"on":TS[k]!=null?"done":""}">${SIDE_N[k]}${TS[k]!=null?` · ${TS[k]}/10`:""}</span>`).join("")}</div>`:""}
    ${st==="done"?`<p style="margin:0">${TS.order.length<2?`${SIDE_N[TS.order[0]]} side: ${TS[TS.order[0]]}/10.`:`Right ${TS.R}/10 · Left ${TS.L}/10. ${TS.R===TS.L?"Same on both sides.":`The ${TS.R>TS.L?"right":"left"} side is worse.`}`}</p>`:
     `<p class="muted" style="margin:0">${esc(t.how||"")}${sd?` <b>${TS.order.length<2?`Your ${SIDE_N[sd].toLowerCase()} side.`:sd===TS.order[0]?`${SIDE_N[sd]} side first.`:`Now the ${SIDE_N[sd].toLowerCase()} side.`}</b>`:""}</p>${painGrid("tsPick",st==="one"?TS.one:null)}`}
-   ${t.choose&&st!=="done"?`<button class="link" style="justify-self:start" data-act="tsBoth">${TS.both?"Test each side separately":"My movement uses both legs (squat)"}</button>`:""}
-  </div><div style="display:grid;gap:8px"><button class="btn" data-act="tsGo" ${done?"":"disabled"}>Start session</button>${t.optional?`<button class="btn sec" data-act="tsSkip">Skip the test</button>`:""}</div>`);
+   ${t.choose&&st!=="done"?`<button class="link" style="justify-self:start" data-act="tsBoth">${TS.both?"Test Each Side Separately":"My Movement Uses Both Legs (Squat)"}</button>`:""}
+  </div><div style="display:grid;gap:8px"><button class="btn" data-act="tsGo" ${done?"":"disabled"}>Start Session</button>${t.optional?`<button class="btn sec" data-act="tsSkip">Skip the Test</button>`:""}</div>`);
 }
 ACT.tsPick=d=>{const v=+d.v;if(TS.step==="R"||TS.step==="L"){TS[TS.step]=v;TS.step=TS.order[TS.order.indexOf(TS.step)+1]||"done"}else TS.one=v;drawTS()};
 ACT.tsBoth=()=>{TS.both=!TS.both;TS.step=TS.both?"one":TS.order[0];TS.R=TS.L=TS.one=null;drawTS()};
@@ -4477,7 +4477,7 @@ function rbProgress(){
   const earliest=new Date(Date.now()+wait*dayMs);
   return{ph,phs,days,min:ph.min,streak,wait,earliest,last:!!ph.last,timeOk:days>=ph.min,painOk:streak>=3};
 }
-ACT.rbForce=()=>sheet(`<h3>Move on early?</h3><div class="scroll"><p class="muted" style="margin:0">Only if your physiotherapist has cleared you. Moving on before the pain settles is the most common reason rehab stalls.</p></div><div style="display:grid;gap:8px"><button class="btn" data-act="rbForceYes">My physio cleared me</button><button class="btn sec" data-act="closeSheet">Stay in this phase</button></div>`);
+ACT.rbForce=()=>sheet(`<h3>Move on early?</h3><div class="scroll"><p class="muted" style="margin:0">Only if your physiotherapist has cleared you. Moving on before the pain settles is the most common reason rehab stalls.</p></div><div style="display:grid;gap:8px"><button class="btn" data-act="rbForceYes">My Physio Cleared Me</button><button class="btn sec" data-act="closeSheet">Stay in This Phase</button></div>`);
 ACT.rbForceYes=()=>{closeSheet();ACT.rbNext()};
 function spark(logs){
   if(logs.length<2)return"";
@@ -4503,29 +4503,29 @@ function rbTodayPane(st,R,phs,ph,stt,items){
       <div class="chipset rbmin" role="group" aria-label="Session length">${[10,15,20,30].map(m=>`<button class="chip ${mins===m?"on":""}" data-act="rbMin" data-m="${m}" aria-pressed="${mins===m}">${m}</button>`).join("")}</div></div>
     <div class="dcell focus"><span class="dt">Pain</span><div class="fic" style="${lp!=null?`color:${painCol(lp)};box-shadow:inset 0 0 0 2px ${painCol(lp)}`:""}"><b class="fpain">${lp!=null?lp:"–"}</b></div><small class="muted">${lp!=null?"/ 10":"No sessions yet"}</small></div>
   </div>
-  ${tone?`<div class="panel status"><span class="eyebrow ${tone}">${{back:"Back off",stuck:"Get it checked",ready:"Ready to progress",done:"Program complete"}[stt.k]}</span><div>${esc(stt.t)}</div>${stt.k==="ready"?`<button class="btn" data-act="rbNext">Move to phase ${st.phase+2}</button>`:""}</div>`:""}
+  ${tone?`<div class="panel status"><span class="eyebrow ${tone}">${{back:"Back off",stuck:"Get it checked",ready:"Ready to progress",done:"Program complete"}[stt.k]}</span><div>${esc(stt.t)}</div>${stt.k==="ready"?`<button class="btn" data-act="rbNext">Move to Phase ${st.phase+2}</button>`:""}</div>`:""}
   <div class="stack" style="gap:8px"><div style="display:flex;justify-content:space-between;align-items:baseline"><h3>Session</h3><span class="muted" style="font-size:calc(13px * var(--ts))">${mins} min</span></div>
     <div class="hscroll rxrow">${items.map(it=>{const e=LIBI[it.id];return`<button class="rxm" data-act="openEx" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><b>${esc(e.n)}</b><small>${esc(doseText(it))}</small></button>`}).join("")}</div></div>`}
 function rbPlanPane(st,R,C,phs,ph){
   const g=rbProgress(),bar=(v,m)=>`<span class="tr"><i style="width:${Math.min(100,v/m*100)}%;background:${v>=m?"var(--good)":"var(--accent)"}"></i></span>`;
   return`<div class="panel steps2">${phs.map((p,i)=>`<div class="stp ${i<st.phase?"done":i===st.phase?"on":""}"><span class="sn">${i<st.phase?ic("check"):i+1}</span><div><b>${esc(p.n)}</b><small>${p.min}+ d · ${esc(p.freq)}</small>${i===st.phase?`<p>${esc(p.goal)}</p>`:""}</div></div>`).join("")}</div>
-  ${ph.last?"":`<div class="panel"><h3>Unlock phase ${st.phase+2}</h3>
+  ${ph.last?"":`<div class="panel"><h3>Unlock Phase ${st.phase+2}</h3>
     <ul class="bars gates">
      <li><span>${g.timeOk?"✓ ":""}Time</span>${bar(g.days,g.min)}<b>${Math.min(g.days,g.min)}/${g.min} d</b></li>
      <li><span>${g.painOk?"✓ ":""}Pain ≤${PAIN_OK}</span>${bar(g.streak,3)}<b>${g.streak}/3</b></li>
     </ul>
     <p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">${esc(ph.exit)}</p>
-    ${g.timeOk&&g.painOk?"":`<button class="link muted" style="justify-self:start" data-act="rbForce">My physio cleared me</button>`}</div>`}
+    ${g.timeOk&&g.painOk?"":`<button class="link muted" style="justify-self:start" data-act="rbForce">My Physio Cleared Me</button>`}</div>`}
   <div class="panel acc"><details><summary>Do</summary><ul class="tick">${C.habits.map(h=>`<li>${esc(h)}</li>`).join("")}</ul></details>
     <details><summary>Avoid</summary><ul class="cross">${C.avoid.map(h=>`<li>${esc(h)}</li>`).join("")}</ul>${(st.notes||[]).map(n=>`<div class="note-warn">${esc(n)}</div>`).join("")}</details>
-    <details><summary>See a physio if</summary><ul class="cross">${[...R.urgent,...R.doctor,"Pain is getting worse week to week","There's no real change after 3 weeks"].map(h=>`<li>${esc(h)}</li>`).join("")}</ul></details></div>
+    <details><summary>See a Physio If</summary><ul class="cross">${[...R.urgent,...R.doctor,"Pain is getting worse week to week","There's no real change after 3 weeks"].map(h=>`<li>${esc(h)}</li>`).join("")}</ul></details></div>
   ${myProtosPanel()}`}
 function rbChart(st){
   const logs=(st.logs||[]).map(l=>({at:l.at,v:l.testR!=null?Math.max(l.testR,l.testL):l.testPain}));
-  if(!logs.length)return`<div class="panel chartp"><span class="dt">Pain before each session</span><p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Your line appears after the first session.</p></div>`;
+  if(!logs.length)return`<div class="panel chartp"><span class="dt">Pain Before Each Session</span><p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Your line appears after the first session.</p></div>`;
   const W=320,H=190,L=30,R=14,T=26,B=28,lo=0,hi=10,t0=logs[0].at,t1=logs[logs.length-1].at,xs=at=>logs.length===1||t1===t0?(L+W-R)/2:L+(at-t0)/(t1-t0)*(W-L-R),ys=v=>T+(1-(v-lo)/(hi-lo))*(H-T-B);
   const pts=logs.map(x=>[xs(x.at),ys(x.v)]),line=smoothPath(pts),area=pts.length>1?`${line}L${pts[pts.length-1][0].toFixed(1)} ${H-B}L${pts[0][0].toFixed(1)} ${H-B}Z`:"",last=logs[logs.length-1].v,col=painCol(last),dt=at=>new Date(at).toLocaleDateString(undefined,{month:"short",day:"numeric"}),delta=logs.length>1?last-logs[0].v:null;
-  return`<div class="panel chartp"><span class="dt">Pain before each session</span><div class="cval"><b style="color:${col}">${last}</b><span class="muted">/ 10</span>${delta!=null?`<span class="${delta<0?"c-good":delta>0?"c-bad":"muted"}">${delta>0?"+":""}${delta} since ${dt(t0)}</span>`:""}</div>
+  return`<div class="panel chartp"><span class="dt">Pain Before Each Session</span><div class="cval"><b style="color:${col}">${last}</b><span class="muted">/ 10</span>${delta!=null?`<span class="${delta<0?"c-good":delta>0?"c-bad":"muted"}">${delta>0?"+":""}${delta} since ${dt(t0)}</span>`:""}</div>
    <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Pain over ${logs.length} session${logs.length===1?"":"s"}, latest ${last} out of 10">
     <defs><linearGradient id="cg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".3"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
     ${[0,5,10].map(v=>`<line x1="${L}" x2="${W-R}" y1="${ys(v).toFixed(1)}" y2="${ys(v).toFixed(1)}" stroke="var(--line)" stroke-dasharray="3 4"/><text x="${L-6}" y="${(ys(v)+4).toFixed(1)}" text-anchor="end" class="cax">${v}</text>`).join("")}
@@ -4555,7 +4555,7 @@ SCREENS.rebuild=()=>{
   </div>`};
 ACT.rbTab=d=>{const a=RB_TABS.findIndex(t=>t[0]===RB_TAB),b=RB_TABS.findIndex(t=>t[0]===d.p);if(a===b||b<0)return;RB_TAB=d.p;RB_ANIM=true;render();window.scrollTo(0,0);
   if(!REDUCED){const el=$("#pane");try{el&&el.animate([{opacity:0,transform:`translateX(${(b>a?1:-1)*36}px)`},{opacity:1,transform:"none"}],{duration:380,easing:"cubic-bezier(.32,.72,0,1)"})}catch(e){}}};
-ACT.rbMenu=()=>{const st=S.rehab;if(!st)return;sheet(`<h3>${esc(REGIONS[st.region].n)}</h3><div style="display:grid;gap:8px"><button class="btn sec" data-act="rbRedo">Redo the screen</button><button class="btn sec" style="color:var(--bad)" data-act="rbEndFromMenu">End program</button></div>`)};
+ACT.rbMenu=()=>{const st=S.rehab;if(!st)return;sheet(`<h3>${esc(REGIONS[st.region].n)}</h3><div style="display:grid;gap:8px"><button class="btn sec" data-act="rbRedo">Redo the Screen</button><button class="btn sec" style="color:var(--bad)" data-act="rbEndFromMenu">End Program</button></div>`)};
 ACT.rbRedo=()=>{closeSheet();ACT.rbPick({r:S.rehab.region})};
 ACT.rbEndFromMenu=()=>{closeSheet();ACT.rbEnd()};
 let RB=null;
@@ -4567,7 +4567,7 @@ SCREENS.rbflags=()=>{
    <div class="flags">${R.urgent.map((t,i)=>`<button class="flag ${RB.flags.has("u"+i)?"on":""} urgent" data-act="rbFlag" data-k="u${i}" aria-pressed="${RB.flags.has("u"+i)}"><span class="box"></span>${esc(t)}</button>`).join("")}
    ${R.doctor.map((t,i)=>`<button class="flag ${RB.flags.has("d"+i)?"on":""}" data-act="rbFlag" data-k="d${i}" aria-pressed="${RB.flags.has("d"+i)}"><span class="box"></span>${esc(t)}</button>`).join("")}</div>
    ${urgent?`<div class="note-urgent"><b>Get medical help today.</b> These signs need a doctor or emergency department now, not an exercise program.</div>`:doc?`<div class="note-warn"><b>Get this checked first.</b> See a physiotherapist or doctor before starting. If they've cleared you for exercise, you can continue.</div>`:""}
-  </div><div class="bottomcta">${urgent?`<button class="btn sec" data-act="back">Back</button>`:doc?`<button class="btn" data-act="rbGoScreen">I've been checked, continue</button>`:`<button class="btn sec" data-act="rbGoScreen">None of these apply</button>`}</div>`;
+  </div><div class="bottomcta">${urgent?`<button class="btn sec" data-act="back">Back</button>`:doc?`<button class="btn" data-act="rbGoScreen">I've Been Checked, Continue</button>`:`<button class="btn sec" data-act="rbGoScreen">None of These Apply</button>`}</div>`;
 };
 ACT.rbFlag=d=>{RB.flags.has(d.k)?RB.flags.delete(d.k):RB.flags.add(d.k);render()};
 ACT.rbGoScreen=()=>{RB.step=0;RB.first=S.rehab&&S.rehab.region===RB.r&&S.rehab.side==="left"?"L":"R";RB.sub=RB.first;RB.ans=[];go("rbscreen",{})};
@@ -4609,14 +4609,14 @@ SCREENS.rbresult=()=>{
    <p style="margin:0">${esc(C.why)}</p>
    ${res.clear?"":`<div class="note-warn">No clear pattern came out of the screen. This is the closest match. If the plan doesn't help within 2 weeks, see a physiotherapist.</div>`}
    ${notes.map(n=>`<div class="note-warn">${esc(n)}</div>`).join("")}
-   <div class="panel"><h3>The plan</h3>${phs.map((p,i)=>`<div class="phrow"><span class="n">${i+1}</span><span><b>${esc(p.n)}</b><small>${esc(p.goal)} At least ${p.min} days.</small></span></div>`).join("")}</div>
-   <div class="panel"><h3>For now, do</h3><ul class="tick">${C.habits.map(h=>`<li>${esc(h)}</li>`).join("")}</ul><h3>For now, avoid</h3><ul class="cross">${C.avoid.map(h=>`<li>${esc(h)}</li>`).join("")}</ul></div>
-  </div><div class="bottomcta"><button class="btn" data-act="rbBegin">Start this program</button></div>`;
+   <div class="panel"><h3>The Plan</h3>${phs.map((p,i)=>`<div class="phrow"><span class="n">${i+1}</span><span><b>${esc(p.n)}</b><small>${esc(p.goal)} At least ${p.min} days.</small></span></div>`).join("")}</div>
+   <div class="panel"><h3>For Now, Do</h3><ul class="tick">${C.habits.map(h=>`<li>${esc(h)}</li>`).join("")}</ul><h3>For Now, Avoid</h3><ul class="cross">${C.avoid.map(h=>`<li>${esc(h)}</li>`).join("")}</ul></div>
+  </div><div class="bottomcta"><button class="btn" data-act="rbBegin">Start This Program</button></div>`;
 };
 ACT.rbMin=d=>{if(!S.rehab)return;S.rehab.minutes=+d.m;save();render()};
 ACT.rbBegin=()=>{const now=Date.now();delete S.rbDraft;S.rehab={region:RB.r,cls:RB.result.cls,side:RB.result.side||null,votes:RB.result.votes||{},minutes:(S.rehab&&S.rehab.minutes)||20,phase:0,started:now,phaseStart:now,logs:[],notes:RB.result.notes};save();stack=[{name:"rebuild",p:{}}];render();scrollTo(0,0)};
 ACT.rbNext=()=>{S.rehab.phase++;S.rehab.phaseStart=Date.now();save();render()};
-ACT.rbEnd=()=>sheet(`<h3>End this program?</h3><div class="scroll"><p class="muted" style="margin:0">Your pain log for this program will be deleted.</p></div><div style="display:grid;gap:8px"><button class="btn" style="background:var(--bad)" data-act="rbEndYes">End program</button><button class="btn sec" data-act="closeSheet">Keep going</button></div>`);
+ACT.rbEnd=()=>sheet(`<h3>End this program?</h3><div class="scroll"><p class="muted" style="margin:0">Your pain log for this program will be deleted.</p></div><div style="display:grid;gap:8px"><button class="btn" style="background:var(--bad)" data-act="rbEndYes">End Program</button><button class="btn sec" data-act="closeSheet">Keep Going</button></div>`);
 ACT.rbEndYes=()=>{S.rehab=null;save();closeSheet();render()};
 let rbPain=null;
 ACT.rbStart=()=>{const st=S.rehab,R=REGIONS[st.region];testSheet({...R.test,affected:st.side},t=>{const ph=rbPhases(R,st.cls)[st.phase];openPlayer(rbItems(),{kind:"rehab",title:`${R.n} · ${ph.n}`,...t})})};
@@ -4658,8 +4658,8 @@ SCREENS.myproto=()=>{
   const inp=(id,v,ph,extra="")=>`<input id="${id}" class="field" value="${esc(v||"")}" placeholder="${esc(ph)}" autocomplete="off" ${extra} style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:12px">`;
   const num=(id,v,lab)=>`<label class="edn"><span>${lab}</span><input id="${id}" type="number" inputmode="numeric" min="1" value="${v}"></label>`;
   return hdr()+`<div class="stack" style="padding-top:4px">
-   ${ED.kind==="routine"?`<span class="eyebrow">Library · My routine</span><h1>${ED.id?"Edit routine":"New routine"}</h1>
-   <div class="panel">${inp("edName",ED.name,"Name, e.g. Pre-snatch warm-up")}</div>`:`<span class="eyebrow">Rebuild · My protocol</span><h1>${ED.id?"Edit protocol":"Add your physio's protocol"}</h1>
+   ${ED.kind==="routine"?`<span class="eyebrow">Library · My routine</span><h1>${ED.id?"Edit Routine":"New Routine"}</h1>
+   <div class="panel">${inp("edName",ED.name,"Name, e.g. Pre-snatch warm-up")}</div>`:`<span class="eyebrow">Rebuild · My protocol</span><h1>${ED.id?"Edit Protocol":"Add Your Physio's Protocol"}</h1>
    <div class="panel">${inp("edName",ED.name,"Name, e.g. Right knee, week 1–3")}${inp("edFrom",ED.from,"Given by (physio, date)")}
     ${inp("edFreq",ED.freq,"How often")}<div class="chipset">${["Daily","Every other day","3× a week","Before training"].map(f=>`<button class="chip" data-act="edFreq" data-f="${f}">${f}</button>`).join("")}</div></div>`}
    <div class="stack" style="gap:8px"><span class="eyebrow">Exercises · in order</span>
@@ -4670,13 +4670,13 @@ SCREENS.myproto=()=>{
      <div class="ednums">${num("edSets"+i,d.sets||1,"Sets")}${d.k!=="hold"?num("edReps"+i,d.reps||10,"Reps"):""}${d.k!=="reps"?num("edSecs"+i,d.secs||30,"Seconds"):""}</div>
      <button class="toggle" data-act="edSides" data-i="${i}"><span>Each side (right, then left)</span><span class="sw ${d.sides?"on":""}"></span></button>
      ${inp("edNote"+i,d.note,"Notes: tempo, weight, band colour…")}</div>`}).join(""):`<p class="muted" style="margin:0">No exercises yet.</p>`}
-   <button class="btn sec" data-act="edAdd">${ic("plus","")} Add exercise</button></div>
+   <button class="btn sec" data-act="edAdd">${ic("plus","")} Add Exercise</button></div>
    ${ED.kind==="routine"?"":`<div class="panel"><h3>Test movement <span class="muted" style="font-weight:400;font-size:calc(14px * var(--ts))">(optional)</span></h3>
     <p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">A movement you rate for pain before each session, so Range can show your trend.</p>
     ${inp("edTestN",ED.test.n,"e.g. Single-leg squat")}${inp("edTestHow",ED.test.how,"How to do it")}
     <button class="toggle" data-act="edTestSide"><span>Test each side (right, then left)</span><span class="sw ${ED.test.side?"on":""}"></span></button>
-    <button class="toggle" data-act="edTestFig"><span>Demo figure</span><span class="muted">${ED.test.fig?esc((LIBI[ED.test.fig]||{n:"Chosen"}).n):"None"} ›</span></button></div>`}
-   <div class="panel"><h3>${ED.kind==="routine"?"Notes":"Notes from your physio"}</h3><textarea id="edNotes" class="field" rows="3" placeholder="${ED.kind==="routine"?"When to do it, what to focus on…":"Pain rules, what to avoid, when to progress…"}" style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px">${esc(ED.notes||"")}</textarea></div>
+    <button class="toggle" data-act="edTestFig"><span>Demo Figure</span><span class="muted">${ED.test.fig?esc((LIBI[ED.test.fig]||{n:"Chosen"}).n):"None"} ›</span></button></div>`}
+   <div class="panel"><h3>${ED.kind==="routine"?"Notes":"Notes from Your Physio"}</h3><textarea id="edNotes" class="field" rows="3" placeholder="${ED.kind==="routine"?"When to do it, what to focus on…":"Pain rules, what to avoid, when to progress…"}" style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px">${esc(ED.notes||"")}</textarea></div>
    <p id="edMsg" class="c-bad" style="margin:0;font-size:calc(14px * var(--ts))" aria-live="polite"></p>
    ${ED.id?`<button class="btn sec" style="color:var(--bad)" data-act="edDel">Delete ${ED.kind==="routine"?"routine":"protocol"}</button>`:""}
   </div><div class="bottomcta"><button class="btn" data-act="edSave">Save ${ED.kind==="routine"?"routine":"protocol"}</button></div>`;
@@ -4691,24 +4691,24 @@ ACT.edTestSide=()=>{readEd();ED.test.side=!ED.test.side;edRe()};
 ACT.edTestFig=()=>{readEd();lookSheet("edTestFigPick",true)};
 ACT.edTestFigPick=d=>{ED.test.fig=d.f||null;closeSheet();edRe()};
 function lookSheet(act,none){sheet(`<h3>Which demo looks most like it?</h3><div class="scroll"><div class="looks">${none?`<button data-act="${act}" data-f=""><span class="muted">None</span></button>`:""}${LOOKS.map(f=>`<button data-act="${act}" data-f="${f}">${fig(f,null,{t:.8})}<small>${esc((LIBI[f]||{n:""}).n)}</small></button>`).join("")}</div></div><button class="btn sec" data-act="closeSheet">Cancel</button>`)}
-ACT.edAdd=()=>{readEd();sheet(`<h3>Add an exercise</h3><label class="search" style="box-shadow:none">${ic("search")}<input id="exq" placeholder="Search the library" autocomplete="off" aria-label="Search exercises"></label><div class="scroll" id="exres"></div><button class="btn sec" data-act="closeSheet">Done</button>`);
+ACT.edAdd=()=>{readEd();sheet(`<h3>Add an Exercise</h3><label class="search" style="box-shadow:none">${ic("search")}<input id="exq" placeholder="Search the library" autocomplete="off" aria-label="Search exercises"></label><div class="scroll" id="exres"></div><button class="btn sec" data-act="closeSheet">Done</button>`);
   const q=$("#exq");q.addEventListener("input",drawExRes);drawExRes();setTimeout(()=>q.focus(),50)};
 function drawExRes(){
   const q=($("#exq").value||"").trim(),ql=q.toLowerCase();
   const list=LIB.filter(e=>!ql||e.n.toLowerCase().includes(ql)).slice(0,40);
-  $("#exres").innerHTML=`${q?`<button class="rx" data-act="edCustom" data-n="${esc(q)}"><span class="th" style="display:grid;place-items:center">${ic("plus","")}</span><span><b>Add “${esc(q)}”</b><small>As my own exercise, with a demo you choose</small></span></button>`:`<button class="rx" data-act="edCustom" data-n=""><span class="th" style="display:grid;place-items:center">${ic("plus","")}</span><span><b>My own exercise</b><small>Not in the library? Type its name above or tap here</small></span></button>`}
-   ${list.map(e=>`<button class="rx" data-act="edPick" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><span><b>${esc(e.n)}</b><small>${e.custom?"My exercise":e.rehab?RCAT[e.a]+" · Strength":AN[e.a]+" · Stretch"}</small></span></button>`).join("")}`;
+  $("#exres").innerHTML=`${q?`<button class="rx" data-act="edCustom" data-n="${esc(q)}"><span class="th" style="display:grid;place-items:center">${ic("plus","")}</span><span><b>Add “${esc(q)}”</b><small>As my own exercise, with a demo you choose</small></span></button>`:`<button class="rx" data-act="edCustom" data-n=""><span class="th" style="display:grid;place-items:center">${ic("plus","")}</span><span><b>My Own Exercise</b><small>Not in the library? Type its name above or tap here</small></span></button>`}
+   ${list.map(e=>`<button class="rx" data-act="edPick" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><span><b>${esc(e.n)}</b><small>${e.custom?"My Exercise":e.rehab?RCAT[e.a]+" · Strength":AN[e.a]+" · Stretch"}</small></span></button>`).join("")}`;
 }
 ACT.edPick=d=>{ED.items.push({id:d.id,dose:newDose(d.id)});closeSheet();edRe()};
 let CX=null;
 ACT.edCustom=d=>{CX={n:d.n||"",fig:null,c:""};drawCx()};
-function drawCx(){sheet(`<h3>My own exercise</h3><div class="scroll stack" style="gap:10px">
+function drawCx(){sheet(`<h3>My Own Exercise</h3><div class="scroll stack" style="gap:10px">
   <input id="cxName" class="field" value="${esc(CX.n)}" placeholder="Exercise name" style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:12px">
   <textarea id="cxCues" class="field" rows="3" placeholder="How to do it, one cue per line" style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px">${esc(CX.c)}</textarea>
   <span class="eyebrow">Demo · the closest match</span>
   <div class="looks">${LOOKS.map(f=>`<button class="${CX.fig===f?"on":""}" data-act="cxFig" data-f="${f}">${fig(f,null,{t:.8})}<small>${esc((LIBI[f]||{n:""}).n)}</small></button>`).join("")}</div>
   <p id="cxMsg" class="c-bad" style="margin:0;font-size:calc(14px * var(--ts))"></p></div>
-  <div style="display:grid;gap:8px"><button class="btn" data-act="cxSave">Add exercise</button><button class="btn sec" data-act="closeSheet">Cancel</button></div>`)}
+  <div style="display:grid;gap:8px"><button class="btn" data-act="cxSave">Add Exercise</button><button class="btn sec" data-act="closeSheet">Cancel</button></div>`)}
 const cxRead=()=>{CX.n=$("#cxName").value.trim();CX.c=$("#cxCues").value};
 ACT.cxFig=d=>{cxRead();CX.fig=d.f;const sc=$(".sheet .scroll").scrollTop;drawCx();$(".sheet .scroll").scrollTop=sc};
 ACT.cxSave=()=>{cxRead();if(!CX.n){$("#cxMsg").textContent="Give it a name.";return}
@@ -4720,7 +4720,7 @@ ACT.edSave=()=>{readEd();
   if(ED.id){const i=S.myProtocols.findIndex(x=>x.id===ED.id);S.myProtocols[i]={...S.myProtocols[i],...ED}}
   else S.myProtocols.push({...ED,id:"p"+Date.now().toString(36),created:Date.now(),logs:[]});
   const home=ED.kind==="routine"?"library":"rebuild";save();ED=null;stack=home==="library"?[{name:"home",p:{}},{name:"library",p:{}}]:[{name:home,p:{}}];render();scrollTo(0,0)};
-ACT.edDel=()=>sheet(`<h3>Delete this ${ED.kind==="routine"?"routine":"protocol"}?</h3><div class="scroll"><p class="muted" style="margin:0">${ED.kind==="routine"?"Links you already shared keep working.":"Its pain log is deleted too."}</p></div><div style="display:grid;gap:8px"><button class="btn" style="background:var(--bad)" data-act="edDelYes">Delete</button><button class="btn sec" data-act="closeSheet">Keep it</button></div>`);
+ACT.edDel=()=>sheet(`<h3>Delete this ${ED.kind==="routine"?"routine":"protocol"}?</h3><div class="scroll"><p class="muted" style="margin:0">${ED.kind==="routine"?"Links you already shared keep working.":"Its pain log is deleted too."}</p></div><div style="display:grid;gap:8px"><button class="btn" style="background:var(--bad)" data-act="edDelYes">Delete</button><button class="btn sec" data-act="closeSheet">Keep It</button></div>`);
 ACT.edDelYes=()=>{const home=ED.kind==="routine"?"library":"rebuild";S.myProtocols=S.myProtocols.filter(x=>x.id!==ED.id);save();ED=null;closeSheet();stack=home==="library"?[{name:"home",p:{}},{name:"library",p:{}}]:[{name:home,p:{}}];render()};
 ACT.myStart=d=>{const p=S.myProtocols.find(x=>x.id===d.id);if(!p)return;
   const run=t=>openPlayer(p.items.filter(it=>LIBI[it.id]).map(it=>({id:it.id,dose:it.dose})),{kind:"rehab",title:p.name,proto:p.id,...t});
@@ -4763,31 +4763,31 @@ function dashPane(sc){
   const foc=mobilityFocus(sc),sp=SPI[(S.sports||[])[0]]||{n:"Your sport"};
   const last=S.tests[S.tests.length-1],left=last?30-Math.floor((Date.now()-last.at)/864e5):0;
   return`<div class="dgrid">
-    <div class="dcell time"><span class="dt">Mobility time</span><div class="dsub">Total</div><b class="dbig">${fmtTime(mins)}</b><div class="mbar" role="img" aria-label="${Math.round(pct)}% of the way to ${next} hours"><i style="width:${pct}%"></i></div><div class="dnext"><span>Next</span><b>${next}h</b></div></div>
-    ${S.scores?`<button class="dcell score" data-act="scoreSheet" data-tour="score" aria-label="Mobility score ${ov}%, details"><span class="dt">Mobility score</span>
+    <div class="dcell time"><span class="dt">Mobility Time</span><div class="dsub">Total</div><b class="dbig">${fmtTime(mins)}</b><div class="mbar" role="img" aria-label="${Math.round(pct)}% of the way to ${next} hours"><i style="width:${pct}%"></i></div><div class="dnext"><span>Next</span><b>${next}h</b></div></div>
+    ${S.scores?`<button class="dcell score" data-act="scoreSheet" data-tour="score" aria-label="Mobility score ${ov}%, details"><span class="dt">Mobility Score</span>
       <div class="ringwrap">${ringSvg(ov,lv.v)}<span class="rnum"><b class="ringnum">${ov}</b><small>%</small></span></div>
       <div class="vbars" aria-hidden="true">${AREAS.map(a=>{const v=sc[a.k];return`<span class="vb"><i style="height:${Math.max(4,v)}%;background:${level(v).v}"></i></span>`}).join("")}</div></button>`
-    :`<button class="dcell score none" data-act="openTest" data-tour="score" aria-label="No mobility score yet. Take the test"><span class="dt">Mobility score</span>
+    :`<button class="dcell score none" data-act="openTest" data-tour="score" aria-label="No mobility score yet. Take the test"><span class="dt">Mobility Score</span>
       <div class="ringwrap">${ringSvg(0,"transparent")}<span class="rnum"><b class="ringnum">–</b></span></div>
       <p class="muted">Take the 10-minute test to see your score.</p></button>`}
-    <div class="dcell focus"><span class="dt">Mobility focus</span><div class="fic">${ic("target")}</div><small class="muted">${esc(sp.n)}</small><div class="fnames">${foc.map(k=>`<b>${AN[k]}</b>`).join("")}</div></div>
+    <div class="dcell focus"><span class="dt">Mobility Focus</span><div class="fic">${ic("target")}</div><small class="muted">${esc(sp.n)}</small><div class="fnames">${foc.map(k=>`<b>${AN[k]}</b>`).join("")}</div></div>
   </div>
-  ${S.scores&&left>0?`<p class="muted dtest">Tested ${new Date(last.at).toLocaleDateString(undefined,{month:"short",day:"numeric"})}. Next in ${left} day${left===1?"":"s"}.<button class="link" data-act="openTest">Retest</button></p>`:`<button class="btn" data-act="openTest">${testDraft()?"Resume my test":"Test my mobility"}</button>`}
+  ${S.scores&&left>0?`<p class="muted dtest">Tested ${new Date(last.at).toLocaleDateString(undefined,{month:"short",day:"numeric"})}. Next in ${left} day${left===1?"":"s"}.<button class="link" data-act="openTest">Retest</button></p>`:`<button class="btn" data-act="openTest">${testDraft()?"Resume My Test":"Test My Mobility"}</button>`}
   ${(()=>{const ks=(S.sports||[]).filter(k=>SPORT_NEEDS[k]);if(!ks.length||!S.scores)return"";
     const pri=sportPriority(sc),weakest=AREAS.slice().sort((x,y)=>sc[x.k]-sc[y.k])[0].k;
-    return`<div class="panel"><h3>Mobility levels</h3>
+    return`<div class="panel"><h3>Mobility Levels</h3>
     ${ks.map(k=>{const r=sportLevel(k,sc),l=level(r.level);return`<div class="slv"><div><b>${SPI[k].n}</b><small class="muted">${r.lim?`Held back most by ${AN[r.lim]}`:"No area holding you back"}</small></div><span class="pill ${l.c}">${r.level}</span></div>`}).join("")}
 </div>`})()}
   ${loadPanel()}`}
-function equipPane(){return`<div class="panel" data-tour="sports"><div style="display:flex;justify-content:space-between;align-items:center"><h3>My sports</h3><button class="link" data-act="sportsSheet">Edit</button></div>
+function equipPane(){return`<div class="panel" data-tour="sports"><div style="display:flex;justify-content:space-between;align-items:center"><h3>My Sports</h3><button class="link" data-act="sportsSheet">Edit</button></div>
     <div class="chipset">${S.sports.map(k=>`<span class="chip">${SPI[k].n}</span>`).join("")}</div></div>
-  <div class="panel" data-tour="equip"><h3>My equipment</h3><div class="chipset">${EQUIP.map(e=>`<button class="chip ${S.equip.includes(e.k)?"on":""}" data-act="profEq" data-e="${e.k}">${ic(e.k)}${e.n}</button>`).join("")}</div></div>`}
+  <div class="panel" data-tour="equip"><h3>My Equipment</h3><div class="chipset">${EQUIP.map(e=>`<button class="chip ${S.equip.includes(e.k)?"on":""}" data-act="profEq" data-e="${e.k}">${ic(e.k)}${e.n}</button>`).join("")}</div></div>`}
 function progPane(sc){const wk=Date.now()-7*864e5;return`${testChart()}<div class="stats3">
     <div class="tile"><span class="eyebrow">Streak</span><b>${streak()}</b></div>
     <div class="tile"><span class="eyebrow">Min / week</span><b>${S.sessions.filter(s=>s.at>=wk).reduce((t,s)=>t+s.mins,0)}</b></div>
     <div class="tile"><span class="eyebrow">Sessions</span><b>${S.sessions.length}</b></div>
   </div>
-  <div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline"><h3>This week by area</h3><span class="muted" style="font-size:calc(12px * var(--ts))">10 min per area</span></div>
+  <div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline"><h3>This Week by Area</h3><span class="muted" style="font-size:calc(12px * var(--ts))">10 min per area</span></div>
     <ul class="bars">${(()=>{const w=weekAreaSecs();return AREAS.map(a=>{const m=(w[a.k]||0)/60,pc=m/10*100,col=pc>=100?"var(--good)":pc>=35?"var(--accent)":"var(--warn)";return`<li><span>${a.n}</span><span class="tr"><i style="width:${Math.min(100,pc)}%;background:${col}"></i></span><b>${m<.05?"0":m.toFixed(1)} min</b></li>`}).join("")})()}</ul>
     <p class="muted" style="margin:0;font-size:calc(13px * var(--ts));display:flex;justify-content:space-between"><span>Total</span><b style="color:var(--ink)">${S.sessions.filter(x=>x.at>=wk).reduce((t,x)=>t+x.mins,0)} min</b></p></div>
 `}
@@ -4807,7 +4807,7 @@ function testChart(){
   const col=level(pts0[pts0.length-1].v).v,mid=Math.round((lo+hi)/2),dt=at=>new Date(at).toLocaleDateString(undefined,{month:"short",day:"numeric"});
   const delta=pts0.length>1?pts0[pts0.length-1].v-pts0[0].v:null,name=PROG_METRIC==="overall"?"Overall":AN[PROG_METRIC];
   const label=pts0.length<=6;
-  return`<div class="panel chartp"><div class="chead"><div><span class="dt">Mobility score</span><div class="cval"><b>${pts0[pts0.length-1].v}</b>${delta!=null?`<span class="${delta>0?"c-good":delta<0?"c-bad":"muted"}">${delta>0?"+":""}${delta} since ${dt(t0)}</span>`:`<span class="muted">First test</span>`}</div></div></div>
+  return`<div class="panel chartp"><div class="chead"><div><span class="dt">Mobility Score</span><div class="cval"><b>${pts0[pts0.length-1].v}</b>${delta!=null?`<span class="${delta>0?"c-good":delta<0?"c-bad":"muted"}">${delta>0?"+":""}${delta} since ${dt(t0)}</span>`:`<span class="muted">First test</span>`}</div></div></div>
     <div class="hscroll cchips">${[["overall","Overall"],...AREAS.map(a=>[a.k,a.n])].map(([k,n])=>`<button class="chip ${PROG_METRIC===k?"on":""}" data-act="progMetric" data-m="${k}">${n}</button>`).join("")}</div>
     <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${name} score over ${pts0.length} test${pts0.length===1?"":"s"}, from ${pts0[0].v} to ${pts0[pts0.length-1].v}">
       <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${col}" stop-opacity=".32"/><stop offset="1" stop-color="${col}" stop-opacity="0"/></linearGradient></defs>
@@ -4823,7 +4823,7 @@ SCREENS.profile=()=>{
   const sc=scores(),sy=S.sync||{};
   return`<div class="hdr"><span></span><span></span><button data-act="settings" aria-label="Settings" data-tour="gear">${ic("gear")}</button></div>
   <div class="stack" style="padding-top:4px">
-  <div class="phead"><button class="avatar" data-act="nameSheet" aria-label="Your name">${esc(userName()[0]||"A").toUpperCase()}</button>
+  <div class="phead"><button class="avatar" data-act="nameSheet" aria-label="Your Name">${esc(userName()[0]||"A").toUpperCase()}</button>
     <div class="pwho"><button class="pname" data-act="nameSheet">${esc(userName())}</button>${sy.track?`<button class="pprog" data-act="syncKey" data-tour="program"><i class="pdot"></i>${esc(sy.track)}</button>`:""}</div></div>
   <div class="pseg" role="tablist"><i class="plens" style="--pi:${PROF_TABS.findIndex(t=>t[0]===PROF_TAB)}"></i>${PROF_TABS.map(([k,n])=>`<button role="tab" aria-selected="${k===PROF_TAB}" class="${k===PROF_TAB?"on":""}" data-act="profTab" data-p="${k}">${n}</button>`).join("")}</div>
   <div id="pane" class="stack">${PROF_TAB==="dash"?dashPane(sc):PROF_TAB==="equip"?equipPane():progPane(sc)}</div>
@@ -4831,23 +4831,23 @@ SCREENS.profile=()=>{
 ACT.profTab=d=>{const a=PROF_TABS.findIndex(t=>t[0]===PROF_TAB),b=PROF_TABS.findIndex(t=>t[0]===d.p);if(a===b||b<0)return;PROF_TAB=d.p;PROF_ANIM=true;render();window.scrollTo(0,0);
   if(!REDUCED){const el=$("#pane");try{el&&el.animate([{opacity:0,transform:`translateX(${(b>a?1:-1)*36}px)`},{opacity:1,transform:"none"}],{duration:380,easing:"cubic-bezier(.32,.72,0,1)"})}catch(e){}}};
 ACT.settings=()=>go("settings");
-ACT.nameSheet=()=>sheet(`<h3>Your name</h3><div class="scroll"><label class="field"><span class="eyebrow">Name</span><input id="uname" value="${esc(S.name||"")}" placeholder="${esc(userName())}" maxlength="24" autocomplete="off"></label></div><div style="display:grid;gap:8px"><button class="btn" data-act="nameSave">Save</button></div>`);
+ACT.nameSheet=()=>sheet(`<h3>Your Name</h3><div class="scroll"><label class="field"><span class="eyebrow">Name</span><input id="uname" value="${esc(S.name||"")}" placeholder="${esc(userName())}" maxlength="24" autocomplete="off"></label></div><div style="display:grid;gap:8px"><button class="btn" data-act="nameSave">Save</button></div>`);
 ACT.nameSave=()=>{const v=($("#uname").value||"").trim();if(v)S.name=v;else delete S.name;save();closeSheet();render()};
 ACT.scoreSheet=()=>{const sc=scores(),ov=overall(sc),lv=level(ov),last=S.tests[S.tests.length-1],left=last?30-Math.floor((Date.now()-last.at)/864e5):0;
-  sheet(`<h3>Mobility score</h3><div class="scroll">
+  sheet(`<h3>Mobility Score</h3><div class="scroll">
     <div class="score"><b>${ov}</b><span class="pill ${lv.c}">${lv.t}</span></div>${radar(sc)}
     <ul class="bars">${AREAS.map(a=>{const v=sc[a.k],l=level(v);return`<li><span>${a.n}</span><span class="tr"><i style="width:${v}%;background:${l.v}"></i></span><b>${v}</b></li>`}).join("")}</ul>
     ${(()=>{const prev=S.tests.length>1?S.tests[S.tests.length-2].scores:null;if(!prev||!S.scores)return"";const ch=AREAS.map(a=>[a,sc[a.k]-(prev[a.k]??sc[a.k])]).filter(([,d])=>d);
       return ch.length?`<p style="margin:0;font-size:calc(13px * var(--ts))"><span class="muted">Since your previous test:</span> ${ch.map(([a,d])=>`${a.n} <b class="${d>0?"c-good":"c-bad"}">${d>0?"+":""}${d}</b>`).join(" · ")}</p>`:""})()}</div>
-    <button class="btn ${last&&left>0?"sec":""}" data-act="scoreTest">${last&&left>0?"Retest early":testDraft()?"Resume my test":"Test my mobility"}</button>`)};
+    <button class="btn ${last&&left>0?"sec":""}" data-act="scoreTest">${last&&left>0?"Retest Early":testDraft()?"Resume My Test":"Test My Mobility"}</button>`)};
 ACT.scoreTest=()=>{closeSheet();ACT.openTest()};
 SCREENS.settings=()=>`${hdr()}
   <div class="stack" style="padding-top:4px">
   <h1>Settings</h1>
   ${sugarRow()}
   <div class="panel"><h3>Player</h3>
-    <button class="toggle" data-act="setTog" data-k="sound"><span>Sound cues</span><span class="sw ${S.settings.sound?"on":""}"></span></button>
-    <button class="toggle" data-act="setTog" data-k="voice"><span>Voice coach</span><span class="sw ${S.settings.voice?"on":""}"></span></button>
+    <button class="toggle" data-act="setTog" data-k="sound"><span>Sound Cues</span><span class="sw ${S.settings.sound?"on":""}"></span></button>
+    <button class="toggle" data-act="setTog" data-k="voice"><span>Voice Coach</span><span class="sw ${S.settings.voice?"on":""}"></span></button>
     <button class="toggle" data-act="setTog" data-k="easy"><span>Start in Easy Mode</span><span class="sw ${S.settings.easy?"on":""}"></span></button>
     <div class="toggle" style="flex-direction:column;align-items:stretch;gap:10px"><span>Demo style</span><span class="chipset">${[["illustrated","Illustrated"],["anatomy","Anatomy"],["mannequin","Mannequin"],["gymkit","Gym kit"],["xray","X-ray"]].map(([k,n])=>`<button class="chip ${(S.settings.figStyle||"gymkit")===k?"on":""}" data-act="setFig" data-v="${k}">${n}</button>`).join("")}</span></div>
     <button class="toggle" data-act="set3d"><span>3D demos <small class="muted">(drag to turn)</small></span><span class="sw ${S.settings.fig3d!==false?"on":""}"></span></button>
@@ -4855,14 +4855,14 @@ SCREENS.settings=()=>`${hdr()}
   </div>
   ${API?acctPanel():sbPanel()}
   ${notifPanel()}
-  ${API?"":`<div class="panel"><h3>Your data</h3><p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Move it to another phone by hand: copy it here and paste it in Range there.</p>
-    <div class="frow"><button class="btn sec" style="flex:1" data-act="copyData">Copy my data</button><button class="btn sec" style="flex:1" data-act="pasteData">Paste data</button></div>
+  ${API?"":`<div class="panel"><h3>Your Data</h3><p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Move it to another phone by hand: copy it here and paste it in Range there.</p>
+    <div class="frow"><button class="btn sec" style="flex:1" data-act="copyData">Copy My Data</button><button class="btn sec" style="flex:1" data-act="pasteData">Paste Data</button></div>
     <p id="dataMsg" class="muted" style="margin:0;font-size:calc(13px * var(--ts))" aria-live="polite"></p><textarea id="dataBox" class="field" rows="3" hidden style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px"></textarea>
     <details class="adv" ${BK?"open":""}><summary>Advanced</summary><div class="stack" style="gap:10px;padding-top:10px">${bkRow()}</div></details></div>`}
-  <button class="panel navrow" data-act="howItWorks"><span><b>How Range works</b></span><span class="chev">${ic("back")}</span></button>
-  <button class="panel navrow" data-act="tourStart" data-tour="tour-btn"><span><b>Show the app tour</b></span><span class="chev">${ic("back")}</span></button>
+  <button class="panel navrow" data-act="howItWorks"><span><b>How Range Works</b></span><span class="chev">${ic("back")}</span></button>
+  <button class="panel navrow" data-act="tourStart" data-tour="tour-btn"><span><b>Show the App Tour</b></span><span class="chev">${ic("back")}</span></button>
   </div>`;
-ACT.howItWorks=()=>sheet(`<h3>How Range works</h3><div class="scroll evid">
+ACT.howItWorks=()=>sheet(`<h3>How Range Works</h3><div class="scroll evid">
  <p><b>Mobility sessions</b> split your time by need: your test scores, what today's movements require, what you trained in the last 3 days and what's coming up. Each area starts with a static stretch and ends with an active drill that uses the new range, so it carries into your lifts.</p>
  <p><b>Dose.</b> Before training, static holds stay at 30 seconds or less per muscle inside a dynamic warm-up, which has little to no effect on strength or power. Flexibility gains level off at about 4 minutes per session and 10 minutes per area per week. Strength training builds range about as well as stretching does, and unlike stretching it reduces injuries.</p>
  <p><b>Rebuild programs</b> follow the method in <i>Rebuilding Milo</i>: find what triggers the pain, classify it by movement rather than by scan, calm it down, then rebuild in stages. Tendons get heavy isometric holds first, then heavy slow resistance (4 sets of 15 down to 4 sets of 6 at a 3-1-3 tempo over several weeks), then springy work. Back programs use McGill's Big Three with walking.</p>
@@ -4923,7 +4923,7 @@ function drawTest(){
     <div class="panel"><span class="eyebrow">Right vs left</span>${lr.map(q=>{const r=tScore(q,T.ans[q.id+"R"]),l=tScore(q,T.ans[q.id+"L"]),s=r<l?"R":l<r?"L":"";
       return`<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0"><span>${q.t}</span><span class="muted">Right ${r} · Left ${l}${s?` · <b style="color:var(--ink)">${SIDE_N[s]} is tighter</b>`:" · even"}</span></div>`}).join("")}
       <p class="muted" style="margin:6px 0 0;font-size:calc(13px * var(--ts))">Each check is scored on its tighter side, and areas with several checks average them. One-sided stretches give the tighter side 50% more time.</p></div></div>
-    <div class="bottomcta"><button class="btn" data-act="testSave">Save my scores</button><button class="link muted" style="justify-self:center;padding:4px 12px" data-act="testDiscard">Discard results</button></div></div></div>`;
+    <div class="bottomcta"><button class="btn" data-act="testSave">Save My Scores</button><button class="link muted" style="justify-self:center;padding:4px 12px" data-act="testDiscard">Discard Results</button></div></div></div>`;
     return;
   }
   const st=TSTEPS[T.i],q=st.q,sd=st.sd,key=tKey(st),av=q.multi?(T.ans[key]??0):T.ans[key],pk=testPoseKey(q,av),sub=x=>x.replace(/\{s\}/g,sd==="L"?"left":"right").replace(/\{o\}/g,sd==="L"?"right":"left"),how=sub(q.how);
@@ -4939,7 +4939,7 @@ function drawTest(){
     <div class="stack" style="gap:8px">${q.multi?q.multi.map((o,k)=>`<button class="opt ${(T.ans[key]??0)>>k&1?"on":""}" data-act="testTick" data-k="${k}" aria-pressed="${!!((T.ans[key]??0)>>k&1)}"><span>${sub(o)}</span><span class="tick">${ic("check")}</span></button>`).join("")+`<p class="muted" style="margin:0;font-size:calc(13px * var(--ts))">None of them? That's fine, just continue.</p>`:q.o.map((o,k)=>`<button class="opt ${T.ans[key]===k?"on":""}" data-act="testPick" data-k="${k}"><span>${sub(o)}</span><span class="radio"></span></button>`).join("")}</div>
     <div aria-hidden="true" style="height:28px"></div>
    </div>
-   <div class="bottomcta"><button class="btn" data-act="testNext" ${T.ans[key]==null&&!q.multi?"disabled":""}>${T.i===TSTEPS.length-1?"See my results":sd==="R"?"Now the left side":"Next test"}</button></div>
+   <div class="bottomcta"><button class="btn" data-act="testNext" ${T.ans[key]==null&&!q.multi?"disabled":""}>${T.i===TSTEPS.length-1?"See My Results":sd==="R"?"Now the Left Side":"Next Test"}</button></div>
   </div></div>`;
   $(".full").scrollTop=keepY;
 }
@@ -5013,22 +5013,22 @@ document.addEventListener("visibilitychange",()=>{if(document.visibilityState===
 // ask the browser not to clear Range's storage when space is low (home-screen apps usually get this)
 try{if(navigator.storage&&navigator.storage.persist&&!API)navigator.storage.persist()}catch(e){}
 function bkRow(){
-  if(!BK)return`<p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Range keeps your data on this phone. Back it up to your GitHub repository so updates, a new app address or a new phone never lose it.</p><button class="btn sec" data-act="bkSetup">Set up backup</button>`;
+  if(!BK)return`<p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Range keeps your data on this phone. Back it up to your GitHub repository so updates, a new app address or a new phone never lose it.</p><button class="btn sec" data-act="bkSetup">Set Up Backup</button>`;
   return`<div style="font-size:calc(14px * var(--ts))"><span class="${BK.err?"c-bad":"c-good"}">Backup ${BK.err?"needs attention":"on"}</span> · ${esc(BK.repo)}${BK.last?` · last saved ${agoText(BK.last)}`:""}</div>${BK.err?`<div class="c-bad" style="font-size:calc(13px * var(--ts))">${esc(BK.err)}</div>`:""}
-    <div class="frow"><button class="btn sec" style="flex:1" data-act="bkNow">Back up now</button><button class="btn sec" style="flex:1" data-act="bkSetup">Backup settings</button></div>`;
+    <div class="frow"><button class="btn sec" style="flex:1" data-act="bkNow">Back Up Now</button><button class="btn sec" style="flex:1" data-act="bkSetup">Backup Settings</button></div>`;
 }
 ACT.bkSetup=()=>sheet(`<h3>Back up to GitHub</h3><div class="scroll"><form id="bkF" class="stack" style="gap:10px" onsubmit="return false">
   <p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Your data is encrypted with your passphrase before it leaves this phone. Without the passphrase the file is unreadable, even in a public repository.</p>
   <label class="field"><span class="eyebrow">Repository (username/name)</span><input name="repo" placeholder="yourname/range" autocapitalize="none" spellcheck="false" value="${esc(BK?BK.repo:"")}"></label>
   <label class="field"><span class="eyebrow">GitHub token</span><input name="token" type="password" autocomplete="off" placeholder="${BK?"(saved, leave empty to keep)":"github_pat_…"}"></label>
-  <details><summary class="muted" style="font-size:calc(13px * var(--ts))">How to create the token</summary><ol class="steps" style="font-size:calc(13px * var(--ts))">
+  <details><summary class="muted" style="font-size:calc(13px * var(--ts))">How to Create the Token</summary><ol class="steps" style="font-size:calc(13px * var(--ts))">
     <li>On github.com: your picture → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.</li>
     <li>Repository access: Only select repositories → your Range repository.</li>
     <li>Permissions → Repository permissions → Contents: Read and write. Expiration: up to a year.</li>
     <li>Generate, copy it, and paste it here. It stays on this phone only.</li></ol></details>
   <label class="field"><span class="eyebrow">Passphrase</span><input name="pass" type="password" autocomplete="off" placeholder="${BK?"Saved · leave empty to keep":"Choose a passphrase"}"><small class="muted" style="font-size:calc(12px * var(--ts))">Use the same passphrase as your sync key so you only remember one. You need it to restore.</small></label>
   <p id="bkMsg" style="margin:0;font-size:calc(14px * var(--ts))" aria-live="polite"></p></form></div>
-  <div style="display:grid;gap:8px"><button class="btn" data-act="bkSave">Save and back up this phone</button><button class="btn sec" data-act="bkRestore">Restore my data from the backup</button>${BK?`<button class="link" style="color:var(--bad)" data-act="bkOff">Turn backup off on this phone</button>`:""}</div>`);
+  <div style="display:grid;gap:8px"><button class="btn" data-act="bkSave">Save and Back Up This Phone</button><button class="btn sec" data-act="bkRestore">Restore My Data from the Backup</button>${BK?`<button class="link" style="color:var(--bad)" data-act="bkOff">Turn Backup Off on This Phone</button>`:""}</div>`);
 function bkForm(){const f=$("#bkF");const repo=f.repo.value.trim().replace(/^https?:\/\/github\.com\//,"").replace(/\.git$/,"").replace(/\/$/,""),token=f.token.value.trim()||(BK&&BK.token)||"",pass=f.pass.value||(BK&&BK.pass)||(S.sync&&S.sync.key)||"";
   if(!/^[\w.-]+\/[\w.-]+$/.test(repo))throw new Error("Enter the repository as username/name, e.g. yoav/range.");
   if(!token)throw new Error("Paste your GitHub token.");if(pass.length<8)throw new Error("Use a passphrase of at least 8 characters.");return{repo,token,pass}}
@@ -5082,23 +5082,23 @@ async function acctPull(force){
 async function refreshConns(){try{CONNS=(await api("GET","/connections")).connections}catch(e){CONNS=CONNS||[]}const top=stack[stack.length-1].name;if(top==="training"||top==="profile")render()}
 const connStatus=c=>c.status==="ok"?{c:"c-good",t:"on"}:c.status==="auth_failed"?{c:"c-bad",t:"login rejected"}:c.status==="error"?{c:"c-bad",t:"needs attention"}:{c:"",t:"connecting"};
 function connPanel(){
-  if(CONNS===null)return`<div class="panel"><span class="eyebrow">Connected platforms</span><div class="muted" style="font-size:calc(14px * var(--ts))">Loading…</div></div>`;
-  if(!CONNS.length)return`<div class="panel"><span class="eyebrow">Connect your gym</span><div style="font-size:calc(14px * var(--ts))">Connect SugarWOD and your gym's programming and your scores arrive here every hour. Range then prepares you for what's coming and helps you recover from what you did.</div><button class="btn" data-act="connAdd">Connect a platform</button></div>`;
-  return`<div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span class="eyebrow">Connected platforms</span><button class="link" data-act="conns">Manage</button></div>
+  if(CONNS===null)return`<div class="panel"><span class="eyebrow">Connected Platforms</span><div class="muted" style="font-size:calc(14px * var(--ts))">Loading…</div></div>`;
+  if(!CONNS.length)return`<div class="panel"><span class="eyebrow">Connect your gym</span><div style="font-size:calc(14px * var(--ts))">Connect SugarWOD and your gym's programming and your scores arrive here every hour. Range then prepares you for what's coming and helps you recover from what you did.</div><button class="btn" data-act="connAdd">Connect a Platform</button></div>`;
+  return`<div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span class="eyebrow">Connected Platforms</span><button class="link" data-act="conns">Manage</button></div>
     ${CONNS.map(c=>{const st=connStatus(c);return`<div style="display:flex;justify-content:space-between;gap:10px;font-size:calc(14px * var(--ts))"><span><b>${esc(c.name)}</b>${c.info&&c.info.track?` · ${esc(c.info.track)}`:""}</span><span class="${st.c}">${st.t}${c.lastSync?` · ${agoText(c.lastSync)}`:""}</span></div>${c.error&&c.status!=="ok"?`<div class="muted" style="font-size:calc(13px * var(--ts))">${esc(c.error)}</div>`:""}`}).join("")}
     <span style="justify-self:start">${syncBtn()}</span></div>`;
 }
 ACT.conns=()=>{
-  sheet(`<h3>Connected platforms</h3><div class="scroll"><div class="stack" style="gap:10px">${(CONNS||[]).map(c=>{const st=connStatus(c);return`<div class="panel" style="gap:8px">
+  sheet(`<h3>Connected Platforms</h3><div class="scroll"><div class="stack" style="gap:10px">${(CONNS||[]).map(c=>{const st=connStatus(c);return`<div class="panel" style="gap:8px">
     <div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(c.name)}</b><span class="${st.c}" style="font-size:calc(13px * var(--ts))">${st.t}</span></div>
     <div class="muted" style="font-size:calc(13px * var(--ts))">${esc(c.label||"")}${c.info&&c.info.track?` · program ${esc(c.info.track)}`:""}${c.lastSync?` · synced ${agoText(c.lastSync)}`:""}</div>
     ${c.error&&c.status!=="ok"?`<div class="c-bad" style="font-size:calc(13px * var(--ts))">${esc(c.error)}</div>`:""}
-    <div class="frow"><button class="btn sec" style="flex:1" data-act="connSync" data-id="${c.id}">Sync now</button><button class="btn sec" style="flex:1" data-act="connForm" data-p="${c.provider}" data-id="${c.id}">Update login</button></div>
-    <button class="link" style="justify-self:start;color:var(--bad)" data-act="connDel" data-id="${c.id}">Remove and delete the stored login</button></div>`}).join("")}
-    <p id="cMsg" class="muted" style="margin:0;font-size:calc(13px * var(--ts))" aria-live="polite"></p></div></div><button class="btn" data-act="connAdd">Connect another platform</button>`);
+    <div class="frow"><button class="btn sec" style="flex:1" data-act="connSync" data-id="${c.id}">Sync Now</button><button class="btn sec" style="flex:1" data-act="connForm" data-p="${c.provider}" data-id="${c.id}">Update Login</button></div>
+    <button class="link" style="justify-self:start;color:var(--bad)" data-act="connDel" data-id="${c.id}">Remove and Delete the Stored Login</button></div>`}).join("")}
+    <p id="cMsg" class="muted" style="margin:0;font-size:calc(13px * var(--ts))" aria-live="polite"></p></div></div><button class="btn" data-act="connAdd">Connect Another Platform</button>`);
 };
 ACT.connAdd=async()=>{
-  sheet(`<h3>Connect a platform</h3><div class="scroll"><p class="muted" style="margin:0">Loading…</p></div>`);
+  sheet(`<h3>Connect a Platform</h3><div class="scroll"><p class="muted" style="margin:0">Loading…</p></div>`);
   try{PROVIDERS=PROVIDERS||(await api("GET","/providers")).providers}catch(e){$(".sheet .scroll").innerHTML=`<p class="c-bad">${esc(e.message)}</p>`;return}
   $(".sheet .scroll").innerHTML=`<div class="stack" style="gap:8px">${PROVIDERS.map(p=>p.available?`<button class="opt" data-act="connForm" data-p="${p.id}"><span><b>${esc(p.name)}</b><br><small class="muted">${esc(p.blurb)}</small></span></button>`
     :`<div class="opt" style="opacity:.55;cursor:default"><span><b>${esc(p.name)}</b> <small>· coming</small><br><small class="muted">${esc(p.blurb)}</small></span></div>`).join("")}</div>`;
@@ -5109,7 +5109,7 @@ ACT.connForm=async d=>{
   sheet(`<h3>${d.id?"Update":"Connect"} ${esc(p.name)}</h3><div class="scroll"><form id="cForm" class="stack" style="gap:10px" onsubmit="return false">
     ${p.fields.map(f=>`<label class="field"><span class="eyebrow">${esc(f.label)}</span><input name="${f.key}" type="${f.type==="password"?"password":f.type==="email"?"email":"text"}" autocomplete="off" ${f.required?"required":""}></label>`).join("")}
     <p class="muted" style="margin:0;font-size:calc(13px * var(--ts))">${esc(p.consent)}</p><p id="cMsg" style="margin:0;font-size:calc(14px * var(--ts))" aria-live="polite"></p></form></div>
-    <button class="btn" data-act="connSave" data-p="${p.id}" ${d.id?`data-id="${d.id}"`:""}>${d.id?"Save and sync":"Connect"}</button>`);
+    <button class="btn" data-act="connSave" data-p="${p.id}" ${d.id?`data-id="${d.id}"`:""}>${d.id?"Save and Sync":"Connect"}</button>`);
 };
 ACT.connSave=async d=>{
   const f=$("#cForm"),fields=Object.fromEntries([...f.querySelectorAll("input")].map(i=>[i.name,i.value])),msg=$("#cMsg"),btn=$("[data-act=connSave]");
@@ -5124,25 +5124,25 @@ ACT.connSave=async d=>{
 ACT.connSync=async d=>{const m=$("#cMsg");if(m)m.textContent="Syncing…";try{const r=await api("POST",`/connections/${d.id}/sync`);if(m)m.textContent=r.result.ok?`Synced ${r.result.count} days.`:r.result.error;await refreshConns();acctPull(true)}catch(e){if(m)m.textContent=e.message}};
 ACT.connDel=async d=>{if(!confirm("Remove this connection? Its stored login and synced workouts are deleted from Range."))return;try{await api("DELETE","/connections/"+d.id);S.training=S.training.filter(w=>w.source!=="sugarwod-auto");save();await refreshConns();acctPull(true);closeSheet();render()}catch(e){const m=$("#cMsg");if(m)m.textContent=e.message}};
 function acctPanel(){return`<div class="panel" data-tour="account"><h3>Account</h3><div style="font-size:calc(14px * var(--ts))">Signed in as <b>${esc(ACCOUNT?ACCOUNT.email:"")}</b>. Your data is saved to your account and follows you to every device.</div>
-  <div class="frow"><button class="btn sec" style="flex:1" data-act="conns">Connected platforms</button><button class="btn sec" style="flex:1" data-act="signOut">Sign out</button></div>
-  <button class="link" style="justify-self:start;color:var(--bad)" data-act="delAcct">Delete my account</button></div>`}
+  <div class="frow"><button class="btn sec" style="flex:1" data-act="conns">Connected Platforms</button><button class="btn sec" style="flex:1" data-act="signOut">Sign Out</button></div>
+  <button class="link" style="justify-self:start;color:var(--bad)" data-act="delAcct">Delete My Account</button></div>`}
 ACT.signOut=async()=>{try{await api("POST","/auth/logout")}catch(e){}ACCOUNT=null;CONNS=null;const keep=S.settings;S=JSON.parse(S_FRESH);S.settings=keep;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}authScreen("in")};
-ACT.delAcct=()=>sheet(`<h3>Delete your account</h3><div class="scroll"><p style="margin:0">This permanently deletes your Range account, your data, and every connected login stored for you. It can't be undone.</p>
+ACT.delAcct=()=>sheet(`<h3>Delete Your Account</h3><div class="scroll"><p style="margin:0">This permanently deletes your Range account, your data, and every connected login stored for you. It can't be undone.</p>
   <label class="field"><span class="eyebrow">Your Range password</span><input id="daPw" type="password" autocomplete="current-password"></label><p id="daMsg" class="c-bad" style="margin:0;font-size:calc(14px * var(--ts))"></p></div>
-  <button class="btn" style="background:var(--bad)" data-act="delAcctGo">Delete everything</button>`);
+  <button class="btn" style="background:var(--bad)" data-act="delAcctGo">Delete Everything</button>`);
 ACT.delAcctGo=async()=>{try{await api("DELETE","/me",{password:$("#daPw").value});ACCOUNT=null;CONNS=null;S=JSON.parse(S_FRESH);try{localStorage.removeItem(KEY)}catch(e){}closeSheet();authScreen("up")}catch(e){$("#daMsg").textContent=e.message}};
 function authScreen(mode){
   document.body.style.overflow="hidden";
   $("#layer").innerHTML=`<div class="full"><div class="inner"><div class="hdr" style="grid-template-columns:1fr"><div class="brand" style="text-align:center">Range<b>.</b></div></div>
    <form id="auth" class="stack" style="align-content:start" onsubmit="return false">
-    <h1>${mode==="up"?"Create your account":"Welcome back"}</h1>
+    <h1>${mode==="up"?"Create Your Account":"Welcome Back"}</h1>
     <p class="muted" style="margin:0">${mode==="up"?"Mobility and recovery built around your actual training. Connect your gym's app and Range keeps up with you.":"Sign in to your Range account."}</p>
     <label class="field"><span class="eyebrow">Username or email</span><input name="email" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
     <label class="field"><span class="eyebrow">Password${mode==="up"?" (at least 10 characters)":""}</span><input name="password" type="password" autocomplete="${mode==="up"?"new-password":"current-password"}" required></label>
     <p id="auMsg" class="c-bad" style="margin:0;font-size:calc(14px * var(--ts))" aria-live="polite"></p>
    </form>
-   <div class="bottomcta"><button class="btn" data-act="authGo" data-m="${mode}">${mode==="up"?"Create account":"Sign in"}</button>
-    <button class="btn sec" data-act="authSwitch" data-m="${mode==="up"?"in":"up"}">${mode==="up"?"I already have an account":"Create an account"}</button></div></div></div>`;
+   <div class="bottomcta"><button class="btn" data-act="authGo" data-m="${mode}">${mode==="up"?"Create Account":"Sign In"}</button>
+    <button class="btn sec" data-act="authSwitch" data-m="${mode==="up"?"in":"up"}">${mode==="up"?"I Already Have an Account":"Create an Account"}</button></div></div></div>`;
 }
 ACT.authSwitch=d=>authScreen(d.m);
 ACT.authGo=async d=>{
@@ -5171,9 +5171,9 @@ ACT.copyData=async()=>{
   try{await navigator.clipboard.writeText(txt);msg.textContent="Copied. Open Range where you want the data, go to Profile → Paste data."}
   catch(e){const ta=$("#dataBox");ta.value=txt;ta.hidden=false;ta.select();msg.textContent="Your browser blocked copying. Select all the text in the box and copy it."}
 };
-ACT.pasteData=()=>{sheet(`<h3>Paste data</h3><div class="scroll"><p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Paste the data you copied from Range on another device. This replaces what's here.</p>
+ACT.pasteData=()=>{sheet(`<h3>Paste Data</h3><div class="scroll"><p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Paste the data you copied from Range on another device. This replaces what's here.</p>
   <label class="field"><span class="eyebrow">Range data</span><textarea id="pasteBox" rows="6" placeholder='{"format":"range-backup/1", …}'></textarea></label><p id="pasteMsg" class="muted" style="margin:0;font-size:calc(14px * var(--ts))"></p></div>
-  <button class="btn" data-act="applyPaste">Replace my data</button>`)};
+  <button class="btn" data-act="applyPaste">Replace My Data</button>`)};
 ACT.applyPaste=()=>{
   try{const j=JSON.parse($("#pasteBox").value);if(j.format!=="range-backup/1"||!j.data)throw 0;
     S=Object.assign(S,j.data);save();closeSheet();render()}
@@ -5243,10 +5243,10 @@ async function sbBoot(){try{await sbLoad()}catch(e){SB_OFFLINE=true;return}
   catch(e){if(sbNet(e))SB_OFFLINE=true;sbErr=sbNice(e)||"Account sync failed."}}
 function sbPanel(){
   if(SBU)return`<div class="panel" data-tour="account"><h3>Account</h3><div style="font-size:calc(14px * var(--ts))">Signed in as <b>${esc(SBU.email||"")}</b>. Your Range data is saved to your account and follows you to any device.</div>${sbErr?`<div class="c-bad" style="font-size:calc(13px * var(--ts))">${esc(sbErr)}</div>`:""}
-    <div class="frow"><button class="btn sec" style="flex:1" data-act="sbSyncNow">Save now</button><button class="btn sec" style="flex:1" data-act="sbOut">Sign out</button></div>
-    <button class="link" style="justify-self:start;color:var(--bad)" data-act="sbDel">Delete my account</button></div>`;
+    <div class="frow"><button class="btn sec" style="flex:1" data-act="sbSyncNow">Save Now</button><button class="btn sec" style="flex:1" data-act="sbOut">Sign Out</button></div>
+    <button class="link" style="justify-self:start;color:var(--bad)" data-act="sbDel">Delete My Account</button></div>`;
   return`<div class="panel" data-tour="account"><h3>Account</h3><div class="muted" style="font-size:calc(14px * var(--ts))">Create a free account to keep your tests, sessions and routines safe and use Range on any device.</div>
-    <div class="frow"><button class="btn" style="flex:1" data-act="sbAuth" data-m="up">Create account</button><button class="btn sec" style="flex:1" data-act="sbAuth" data-m="in">Sign in</button></div></div>`}
+    <div class="frow"><button class="btn" style="flex:1" data-act="sbAuth" data-m="up">Create Account</button><button class="btn sec" style="flex:1" data-act="sbAuth" data-m="in">Sign In</button></div></div>`}
 // account errors in plain words, never the raw server text
 function sbNice(e){const m=String(e&&(e.message||e.error_description||e.msg)||e||""),st=e&&e.status;
   if(/user_data|schema cache/i.test(m))return"You're signed in, but the account storage isn't set up yet. Try again in a minute.";
@@ -5261,11 +5261,11 @@ function sbNice(e){const m=String(e&&(e.message||e.error_description||e.msg)||e|
   if(/failed to fetch|network|load failed|timeout|offline/i.test(m))return"Couldn't reach the server. Check your connection and try again.";
   if(/signups? not allowed|disabled/i.test(m))return"New accounts are paused right now. Please try again later.";
   return"Something went wrong. Please try again in a minute."}
-ACT.sbNewPw=()=>sheet(`<h3>Set a new password</h3><div class="scroll"><label class="field"><span class="eyebrow">New password (at least 8 characters)</span><input id="sbPw" type="password" autocomplete="new-password"></label><p id="sbMsg" style="margin:0;font-size:calc(14px * var(--ts))"></p></div><button class="btn" data-act="sbSetPw">Save password</button>`);
+ACT.sbNewPw=()=>sheet(`<h3>Set a New Password</h3><div class="scroll"><label class="field"><span class="eyebrow">New password (at least 8 characters)</span><input id="sbPw" type="password" autocomplete="new-password"></label><p id="sbMsg" style="margin:0;font-size:calc(14px * var(--ts))"></p></div><button class="btn" data-act="sbSetPw">Save Password</button>`);
 ACT.sbSetPw=async()=>{const pw=$("#sbPw").value,msg=$("#sbMsg");if(pw.length<8){msg.className="c-bad";msg.textContent="Use at least 8 characters.";return}
   const{error}=await SB.auth.updateUser({password:pw});if(error){msg.className="c-bad";msg.textContent=sbNice(error);return}closeSheet();await sbBoot();render()};
 ACT.sbSyncNow=async()=>{try{await sbPush();sbErr=""}catch(e){sbErr="Couldn't save to your account. "+sbNice(e)}render()};
-ACT.sbDel=()=>sheet(`<h3>Delete your account</h3><div class="scroll"><p style="margin:0">This permanently deletes your Range account and everything saved to it: tests, sessions, workouts, Rebuild programs and routines. Your data is also removed from this phone. This can't be undone.</p><p id="sbMsg" class="c-bad" style="margin:0;font-size:calc(14px * var(--ts))"></p></div><button class="btn" style="background:var(--bad)" data-act="sbDelGo">Delete my account</button><button class="btn sec" data-act="closeSheet">Cancel</button>`);
+ACT.sbDel=()=>sheet(`<h3>Delete Your Account</h3><div class="scroll"><p style="margin:0">This permanently deletes your Range account and everything saved to it: tests, sessions, workouts, Rebuild programs and routines. Your data is also removed from this phone. This can't be undone.</p><p id="sbMsg" class="c-bad" style="margin:0;font-size:calc(14px * var(--ts))"></p></div><button class="btn" style="background:var(--bad)" data-act="sbDelGo">Delete My Account</button><button class="btn sec" data-act="closeSheet">Cancel</button>`);
 ACT.sbDelGo=async()=>{const{error}=await SB.rpc("delete_my_account");if(error){$("#sbMsg").textContent=sbNice(error);return}try{await SB.auth.signOut()}catch(e){}SBU=null;sbErr="";TOUR&&tourEnd(true);
   wipeLocal();syncKeyDrop();try{localStorage.removeItem("range-last-email")}catch(e){}closeSheet();stack=[{name:"home",p:{}}];render();GATE=null;gateShow("up")};
 /* ================= front page, first-run setup and the app tour =================
@@ -5287,25 +5287,25 @@ function gateShow(m){closeSheet();GATE={m:m||(lastEmail()||usedRange(S)?"in":"up
 function gateDraw(keep){const g=gateHost(),G=GATE;
   const f=$("#sbF"),typed=f&&{email:f.email.value,password:f.password.value};
   if(G.step==="check"){g.innerHTML=`<div class="inner gate"><div class="ghero sm">${RANGE_MARK}<div class="gword">Range<b>.</b></div></div>
-    <div class="stack" style="align-content:start;gap:12px"><span class="eyebrow">One more step</span><h1>Check your email</h1>
+    <div class="stack" style="align-content:start;gap:12px"><span class="eyebrow">One more step</span><h1>Check Your Email</h1>
      <p style="margin:0">We sent a link to <b>${esc(G.email)}</b>. Tap it to confirm your account, then come back here.</p>
      <p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Not there after a minute? Look in spam or promotions.</p><p id="sbMsg" style="margin:0;font-size:calc(14px * var(--ts))" aria-live="polite"></p></div>
-    <div class="bottomcta"><button class="btn" data-act="gateConfirmed">I've confirmed, sign me in</button><button class="btn sec" data-act="gateResend">Send the email again</button>
-     <button class="link muted" style="justify-self:center;padding:4px 12px" data-act="gateMode" data-m="up">Use a different email</button></div></div>`;return}
+    <div class="bottomcta"><button class="btn" data-act="gateConfirmed">I've Confirmed, Sign Me In</button><button class="btn sec" data-act="gateResend">Send the Email Again</button>
+     <button class="link muted" style="justify-self:center;padding:4px 12px" data-act="gateMode" data-m="up">Use a Different Email</button></div></div>`;return}
   const up=G.m==="up",off=G.net||navigator.onLine===false;
   g.innerHTML=`<div class="inner gate"><div class="ghero">${RANGE_MARK}<div class="gword">Range<b>.</b></div><p class="gtag">Warm-ups and recovery built from the workout you're actually doing.</p></div>
    <form id="sbF" class="stack" style="align-content:start;gap:12px" onsubmit="return false" novalidate>
     <div class="oauth"><button type="button" class="obtn apple" data-act="sbOAuth" data-p="apple"><svg viewBox="0 0 384 512" aria-hidden="true"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>Continue with Apple</button>
      <button type="button" class="obtn google" data-act="sbOAuth" data-p="google"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Continue with Google</button></div>
     <div class="ordiv">or with email</div>
-    <div class="seg" style="grid-template-columns:1fr 1fr" role="tablist" aria-label="Account"><button type="button" role="tab" aria-selected="${up}" class="${up?"on":""}" data-act="gateMode" data-m="up">Create account</button><button type="button" role="tab" aria-selected="${!up}" class="${up?"":"on"}" data-act="gateMode" data-m="in">Sign in</button></div>
+    <div class="seg" style="grid-template-columns:1fr 1fr" role="tablist" aria-label="Account"><button type="button" role="tab" aria-selected="${up}" class="${up?"on":""}" data-act="gateMode" data-m="up">Create Account</button><button type="button" role="tab" aria-selected="${!up}" class="${up?"":"on"}" data-act="gateMode" data-m="in">Sign In</button></div>
     <label class="field"><span class="eyebrow">Email</span><input name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" value="${esc(G.email||"")}"></label>
     <label class="field"><span class="eyebrow">Password${up?" · at least 8 characters":""}</span><input name="password" type="password" autocomplete="${up?"new-password":"current-password"}" enterkeyhint="go"></label>
     <p id="sbMsg" style="margin:0;font-size:calc(14px * var(--ts));min-height:1.45em" aria-live="polite"></p>
-    ${up?"":`<button type="button" class="link" style="justify-self:start;margin-top:-6px" data-act="sbForgot">Forgot your password?</button>`}
+    ${up?"":`<button type="button" class="link" style="justify-self:start;margin-top:-6px" data-act="sbForgot">Forgot Your Password?</button>`}
    </form>
-   <div class="bottomcta">${off?`<div class="gnote">${ic("sync")}<span>You're offline. Use Range with this phone's data and sign in later.</span></div><button class="btn sec" data-act="gateOffline">Continue offline</button>`:""}
-    <button class="btn" data-act="sbGo">${up?"Create account":"Sign in"}</button>
+   <div class="bottomcta">${off?`<div class="gnote">${ic("sync")}<span>You're offline. Use Range with this phone's data and sign in later.</span></div><button class="btn sec" data-act="gateOffline">Continue Offline</button>`:""}
+    <button class="btn" data-act="sbGo">${up?"Create Account":"Sign In"}</button>
     <p class="muted" style="margin:0;font-size:calc(12px * var(--ts));text-align:center">Free. Your tests, sessions and routines follow you to any device.</p></div></div>`;
   const nf=$("#sbF");if(keep&&typed){nf.email.value=typed.email;nf.password.value=typed.password}
   nf.password.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();ACT.sbGo()}});
@@ -5370,9 +5370,9 @@ function afterIn(){
   if(!S.onboarded&&usedRange(S)){S.onboarded=true;save()} // used Range before accounts, or on another device
   if(!S.onboarded){obStart();return}
   gateClose();stack=[{name:"home",p:{}}];render();window.scrollTo(0,0);tourOwed()}
-ACT.signOutAsk=()=>sheet(`<h3>Sign out of Range?</h3><div class="scroll"><p style="margin:0">Your tests, sessions and routines are saved to your account${SBU&&SBU.email?` (<b>${esc(SBU.email)}</b>)`:""}. They're removed from this phone and come back when you sign in.</p></div>
-  <div style="display:grid;gap:8px"><button class="btn danger" data-act="signOutGo">Sign out</button><button class="btn sec" data-act="closeSheet">Cancel</button></div>`);
-ACT.signOutGo=()=>{const b=$("[data-act=signOutGo]");if(b){b.disabled=true;b.textContent="Signing out…"}ACT.sbOut().finally(()=>{const x=$("[data-act=signOutGo]");if(x){x.disabled=false;x.textContent="Sign out"}})};
+ACT.signOutAsk=()=>sheet(`<h3>Sign Out of Range?</h3><div class="scroll"><p style="margin:0">Your tests, sessions and routines are saved to your account${SBU&&SBU.email?` (<b>${esc(SBU.email)}</b>)`:""}. They're removed from this phone and come back when you sign in.</p></div>
+  <div style="display:grid;gap:8px"><button class="btn danger" data-act="signOutGo">Sign Out</button><button class="btn sec" data-act="closeSheet">Cancel</button></div>`);
+ACT.signOutGo=()=>{const b=$("[data-act=signOutGo]");if(b){b.disabled=true;b.textContent="Signing out…"}ACT.sbOut().finally(()=>{const x=$("[data-act=signOutGo]");if(x){x.disabled=false;x.textContent="Sign Out"}})};
 // signing out saves to the account first, then this phone forgets the person's data (it comes back when they sign in again)
 ACT.sbOut=async()=>{clearTimeout(sbTimer);let saved=true;try{await sbPush()}catch(e){saved=false}
   if(!saved&&!confirm("Couldn't save your latest changes to your account (no connection?). Sign out anyway? Changes since your last save will be lost from this phone."))return;
@@ -5393,15 +5393,15 @@ function obDraw(){const g=gateHost(),o=GATE.ob,i=o.i;
   else if(i===1){body=`<div class="stack" style="align-content:start;gap:12px"><span class="eyebrow">Step 2 of 3 · Equipment</span><h1>What can you use?</h1>
      <p class="muted" style="margin:0">Tap what you have at home or at your gym. Sessions only use these, and the floor is always included.</p>
      <div class="chipset obeq">${EQUIP.map(e=>`<button class="chip ${o.equip.includes(e.k)?"on":""}" data-act="obEq" data-e="${e.k}" aria-pressed="${o.equip.includes(e.k)}">${ic(e.k)}${e.n}</button>`).join("")}</div></div>`;
-    cta=`<button class="btn" data-act="obNext">${o.equip.length?"Continue":"Continue with no equipment"}</button>`}
-  else{body=`<div class="stack" style="align-content:start;gap:12px"><span class="eyebrow">Step 3 of 3 · Your starting point</span><h1>Find your weak spots</h1>
+    cta=`<button class="btn" data-act="obNext">${o.equip.length?"Continue":"Continue with No Equipment"}</button>`}
+  else{body=`<div class="stack" style="align-content:start;gap:12px"><span class="eyebrow">Step 3 of 3 · Your starting point</span><h1>Find Your Weak Spots</h1>
      <p class="muted" style="margin:0">The mobility test is ${TSTEPS.length} quick checks across 6 areas. Every session then spends the most time where you need it.</p>
      <div class="obtest">${fig("squat")}</div>
      <ul class="obl"><li>${ic("check")}About 10 minutes</li><li>${ic("check")}A wall and a bench or bed</li><li>${ic("check")}Retest monthly to see your progress</li></ul></div>`;
-    cta=`<button class="btn" data-act="obDone" data-t="1">Take the 10-min mobility test now</button><button class="btn sec" data-act="obDone" data-t="0">Later — start with an example profile</button>`}
+    cta=`<button class="btn" data-act="obDone" data-t="1">Take the 10-Minute Mobility Test Now</button><button class="btn sec" data-act="obDone" data-t="0">Later — Start with an Example Profile</button>`}
   g.innerHTML=`<div class="inner">${head}${body}<div class="bottomcta">${cta}</div></div>`;g.scrollTop=0}
 ACT.obSport=(d,el)=>{const o=GATE.ob,k=o.sports.indexOf(d.s);if(k>=0)o.sports.splice(k,1);else o.sports.push(d.s);const on=o.sports.includes(d.s);el.classList.toggle("on",on);el.setAttribute("aria-pressed",on);$("[data-act=obNext]").disabled=!o.sports.length;obKeep()};
-ACT.obEq=(d,el)=>{const o=GATE.ob,k=o.equip.indexOf(d.e);if(k>=0)o.equip.splice(k,1);else o.equip.push(d.e);const on=o.equip.includes(d.e);el.classList.toggle("on",on);el.setAttribute("aria-pressed",on);$("[data-act=obNext]").textContent=o.equip.length?"Continue":"Continue with no equipment";obKeep()};
+ACT.obEq=(d,el)=>{const o=GATE.ob,k=o.equip.indexOf(d.e);if(k>=0)o.equip.splice(k,1);else o.equip.push(d.e);const on=o.equip.includes(d.e);el.classList.toggle("on",on);el.setAttribute("aria-pressed",on);$("[data-act=obNext]").textContent=o.equip.length?"Continue":"Continue with No Equipment";obKeep()};
 ACT.obNext=()=>{const o=GATE.ob;if(o.i===0)o.setS=true;if(o.i===1)o.setE=true;o.i++;obKeep();obDraw()};
 ACT.obBack=()=>{const o=GATE.ob;if(o.i>0){o.i--;obKeep();obDraw()}};
 // skipping a step keeps what's there now (CrossFit and every piece of equipment); you can change both in Profile
@@ -5471,7 +5471,7 @@ function tourPlace(){if(!TOUR||TOUR.i<0)return;const st=TOUR.steps[TOUR.i],n=TOU
   // the visible part of the page: on iPhone the layout viewport can be wider than the screen, so use the visual viewport
   const vv=window.visualViewport,vx=vv?vv.offsetLeft:0,vy=vv?vv.offsetTop:0,vw=vv?vv.width:document.documentElement.clientWidth,vh=vv?vv.height:innerHeight;
   const tw=Math.min(448,vw-32);Object.assign(tip.style,{left:(vx+(vw-tw)/2)+"px",width:tw+"px"});
-  if(tip.dataset.i!==String(TOUR.i)){tip.dataset.i=TOUR.i;tip.innerHTML=`<div class="tth"><span class="eyebrow">${TOUR.i+1} of ${n}</span>${last?"":`<button class="link muted" data-act="tourSkip">Skip tour</button>`}</div>
+  if(tip.dataset.i!==String(TOUR.i)){tip.dataset.i=TOUR.i;tip.innerHTML=`<div class="tth"><span class="eyebrow">${TOUR.i+1} of ${n}</span>${last?"":`<button class="link muted" data-act="tourSkip">Skip Tour</button>`}</div>
     <h3>${tval(st.t)}</h3><p>${tval(st.d)}</p>
     <div class="frow"><button class="btn sec" data-act="tourBack" ${TOUR.i?"":"disabled"}>Back</button><button class="btn" data-act="tourNext">${last?"Done":"Next"}</button></div>`}
   const tb=$("#tabbar"),tbr=!st.demo&&!tb.hidden&&tb.getBoundingClientRect(),hdr=st.demo?null:tq("#screen .hdr"),hb=hdr?hdr.getBoundingClientRect().bottom:0,sc=st.demo&&tq("#layer .full");
@@ -5507,7 +5507,7 @@ function tourEnd(quiet){if(!TOUR)return;removeEventListener("resize",TOUR.onR);r
   tdemoClose();TOUR.root.remove();TOUR=null;document.body.classList.remove("touring");S.tourDone=true;delete S.tourPending;save();if(quiet)return;stack=[{name:"home",p:{}}];render();window.scrollTo(0,0)}
 // a small line on Today while the account can't be reached
 const offNote=()=>API||!(SB_OFFLINE||(!SBU&&GATE_SKIPPED))?"":SBU||sbHasSession()?`<div class="gnote">${ic("sync")}<span>Offline. Your changes save to your account when you're back online.</span></div>`
-  :`<div class="gnote">${ic("sync")}<span>Offline — sign in later.</span><button class="link" data-act="sbAuth" data-m="in">Sign in</button></div>`;
+  :`<div class="gnote">${ic("sync")}<span>Offline — sign in later.</span><button class="link" data-act="sbAuth" data-m="in">Sign In</button></div>`;
 
 function gateBoot(){
   if(NOGATE){gateReady=true;if(sbHasSession())sbBoot();return}
@@ -5518,7 +5518,7 @@ function gateBoot(){
   sbBoot().then(()=>{clearTimeout(t);gateReady=true;
     if(SBU){if(!S.onboarded&&!usedRange(S)&&!TOUR&&!rec)obStart();else{if(!S.onboarded){S.onboarded=true;save()}tourOwed()}}
     else if(!SB_OFFLINE)gateShow("in");else{render();tourOwed()}})}
-// the app always opens on Today: a test left half-way is kept and offered as "Resume my test", never reopened on its own
+// the app always opens on Today: a test left half-way is kept and offered as "Resume My Test", never reopened on its own
 if(API)acctBoot();else{rbRestore();render();gateBoot()}
 // launch screen: the logo reveal plays with nothing else running; then the 3D figures load behind it, and it lifts
 // once they're drawn (at least 3.1s, at most 7s), so the home screen appears complete with no jump
