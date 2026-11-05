@@ -31,6 +31,7 @@
 <style>
 /* Layout: phone-app column (max 480px) — home carousel, step-by-step protocol builder, full-screen guided player. Deliberately dark-only, like a gym-floor app. */
 :root{
+  --ts:1; /* text scale: follows the iPhone's Text Size setting (set at launch) */
   /* fitribe palette: coal and ash, bone text, amber for state, ember/orange/tan/sand for the cards */
   --bg:#0D0B09;--surface:#1B1815;--surface2:#26221D;--line:#34302A;
   --ink:#EDE4D6;--muted:#A2978A;--accent:#F6B43A;--accent-ink:#1B1206;--accent-soft:#2E2414;
@@ -51,7 +52,7 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 [hidden]{display:none!important}
 html,body{height:100%;margin:0}
-body{background:var(--bg);color:var(--ink);font-family:var(--f);font-size:15px;line-height:1.45}
+body{background:var(--bg);color:var(--ink);font-family:var(--f);font-size:calc(15px * var(--ts));line-height:1.45}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
 button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
@@ -59,10 +60,10 @@ button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px so
 #app{max-width:480px;margin:0 auto;min-height:100%;padding-inline:16px;padding-block:0 96px;position:relative}
 #app.sub{padding-bottom:32px}
 h1,h2,h3{margin:0;font-weight:800;font-stretch:112%;letter-spacing:-.01em;line-height:1.08;text-wrap:balance}
-h1{font-size:30px}h2{font-size:23px}h3{font-size:17px}
-.eyebrow{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:calc(30px * var(--ts))}h2{font-size:calc(23px * var(--ts))}h3{font-size:calc(17px * var(--ts))}
+.eyebrow{font-size:calc(11px * var(--ts));font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .muted{color:var(--muted)}
-.brand{font-weight:800;font-stretch:125%;font-size:17px;letter-spacing:.14em;text-transform:uppercase}
+.brand{font-weight:800;font-stretch:125%;font-size:calc(17px * var(--ts));letter-spacing:.14em;text-transform:uppercase}
 .brand b{color:var(--accent)}
 .hdr{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;height:56px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:6;margin-inline:-16px;padding-inline:16px;border-bottom:1px solid transparent;transition:border-color .2s}
 /* cover the strip behind the phone's status bar too, so content never shows above the header */
@@ -71,14 +72,14 @@ body.scrolled .hdr{border-bottom-color:var(--line)}
 .hdr .brand{text-align:center}
 .hdr button{width:44px;height:44px;display:grid;place-items:center;border-radius:50%}
 .stack{display:grid;gap:16px}
-a.btn{text-decoration:none}.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;border-radius:12px;font-weight:700;font-size:15px;background:var(--accent);color:var(--accent-ink)}
+a.btn{text-decoration:none}.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;border-radius:12px;font-weight:700;font-size:calc(15px * var(--ts));background:var(--accent);color:var(--accent-ink)}
 .btn.sec{background:var(--surface2);color:var(--ink)}
 .btn:disabled{background:color-mix(in srgb,var(--accent) 22%,var(--surface2));color:color-mix(in srgb,var(--ink) 45%,transparent);cursor:not-allowed}
 .clamp2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.syncbtn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:14px;border:1px solid rgba(246,180,58,.35);transition:transform .12s}.syncbtn:active{transform:scale(.95)}.syncbtn .ic{width:16px;height:16px}.syncbtn.busy .ic{animation:spin .9s linear infinite}.syncbtn.ok{background:transparent}
+.syncbtn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:calc(14px * var(--ts));border:1px solid rgba(246,180,58,.35);transition:transform .12s}.syncbtn:active{transform:scale(.95)}.syncbtn .ic{width:16px;height:16px}.syncbtn.busy .ic{animation:spin .9s linear infinite}.syncbtn.ok{background:transparent}
 @keyframes spin{to{transform:rotate(360deg)}}
-.link{color:var(--accent);font-weight:700;font-size:14px;display:inline-flex;align-items:center;gap:4px;vertical-align:middle}.link .ic{width:18px;height:18px;flex:none}
-.pill{display:inline-flex;align-items:center;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:99px;background:var(--surface2)}
+.link{color:var(--accent);font-weight:700;font-size:calc(14px * var(--ts));display:inline-flex;align-items:center;gap:4px;vertical-align:middle}.link .ic{width:18px;height:18px;flex:none}
+.pill{display:inline-flex;align-items:center;font-size:calc(11px * var(--ts));font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:99px;background:var(--surface2)}
 .c-bad{color:var(--bad)}.c-warn{color:var(--warn)}.c-good{color:var(--good)}.c-top{color:var(--accent)}
 /* figure */
 .fig{display:block;width:100%;height:auto}
@@ -105,9 +106,9 @@ img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;o
 .carousel::-webkit-scrollbar{display:none}
 .pcard{scroll-snap-align:start;position:relative;height:clamp(290px,44vh,380px);border-radius:20px;overflow:hidden;text-align:center;display:grid;align-content:end;padding:22px;isolation:isolate}
 .pcard .art{position:absolute;inset:0;z-index:-1;display:grid;place-items:center;padding:6% 6% 36%}
-.pcard .go{display:inline-flex;align-items:center;gap:6px;margin:12px auto 0;padding:7px 16px;border-radius:999px;background:rgba(255,255,255,.14);font-size:13px;font-weight:700}
-.pcard h2{font-size:30px}
-.pcard p{margin:4px 0 0;font-size:14px;opacity:.85}
+.pcard .go{display:inline-flex;align-items:center;gap:6px;margin:12px auto 0;padding:7px 16px;border-radius:999px;background:rgba(255,255,255,.14);font-size:calc(13px * var(--ts));font-weight:700}
+.pcard h2{font-size:calc(30px * var(--ts))}
+.pcard p{margin:4px 0 0;font-size:calc(14px * var(--ts));opacity:.85}
 .g-activate{background:linear-gradient(165deg,#1C4A4A 0%,#11262A 55%,#0E1418 100%)}
 .g-recover{background:linear-gradient(165deg,#2B2F5E 0%,#191C35 55%,#0F1119 100%)}
 .g-daily{background:linear-gradient(165deg,#5A4636 0%,#30261F 55%,#15110F 100%)}
@@ -119,104 +120,104 @@ img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;o
 .dots i.on{width:18px;background:var(--ink)}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .tile{background:var(--surface);border-radius:14px;padding:14px;display:grid;gap:4px;text-align:left}
-.tile b{font-size:30px;font-weight:800;font-stretch:112%;font-variant-numeric:tabular-nums;line-height:1}
+.tile b{font-size:calc(30px * var(--ts));font-weight:800;font-stretch:112%;font-variant-numeric:tabular-nums;line-height:1}
 .banner{background:var(--accent-soft);border-radius:14px;padding:14px 16px;display:grid;gap:10px}
 /* tabbar */
 /* training */
 .wlist{display:grid}
 .wres{display:grid;gap:1px}.wrow .wt .wres small{color:var(--ink)}.wrow .wt .wres small.muted{color:var(--muted)}
 .wrow{display:grid;grid-template-columns:66px 1fr auto;gap:10px;align-items:start;padding:12px 0;border-bottom:1px solid var(--line)}
-.wrow .wd{display:grid;gap:4px;font-size:13px;justify-items:start}
+.wrow .wd{display:grid;gap:4px;font-size:calc(13px * var(--ts));justify-items:start}
 .wrow .wt{display:grid;gap:6px;text-align:left;min-width:0}
-.wrow .wt small{color:var(--muted);font-size:12px}
+.wrow .wt small{color:var(--muted);font-size:calc(12px * var(--ts))}
 .wrow .wa{display:grid;gap:8px;justify-items:end}
-.mchip{font-size:11px;font-weight:600;padding:3px 7px;border-radius:6px;background:var(--surface2)}
+.mchip{font-size:calc(11px * var(--ts));font-weight:600;padding:3px 7px;border-radius:6px;background:var(--surface2)}
 .chipset .mchip{white-space:nowrap}
 .field{display:grid;gap:6px;min-width:0}
 .field input,.field textarea{width:100%;background:var(--surface2);border:0;border-radius:10px;padding:11px 12px;color:var(--ink);font:inherit;resize:vertical}.field input{min-height:44px;-webkit-appearance:none;appearance:none}.field input[type=date]{display:block;min-width:0;max-width:100%}
 .frow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
 .nexttiles{display:grid;gap:10px}
 .ntile{background:var(--surface);border-radius:14px;padding:14px;display:grid;gap:6px;text-align:left}
-.ntile b{font-size:16px;font-weight:800;font-stretch:112%;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.ntile .go{justify-self:start;margin-top:4px;padding:6px 14px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:13px}
+.ntile b{font-size:calc(16px * var(--ts));font-weight:800;font-stretch:112%;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ntile .go{justify-self:start;margin-top:4px;padding:6px 14px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:calc(13px * var(--ts))}
 #tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(100%,480px);background:var(--bg);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);padding:8px 16px calc(env(safe-area-inset-bottom,0px) + 8px);z-index:10}
-#tabbar button{display:grid;justify-items:center;gap:2px;font-size:11px;font-weight:700;color:var(--muted);padding:4px}
+#tabbar button{display:grid;justify-items:center;gap:2px;font-size:calc(11px * var(--ts));font-weight:700;color:var(--muted);padding:4px}
 #tabbar button[aria-current="page"]{color:var(--accent)}
 #tabbar .ic{width:26px;height:26px}
 /* sport select */
 .sports{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .scard{position:relative;border-radius:16px;overflow:hidden;aspect-ratio:3/4;display:grid;align-content:end;padding:14px;text-align:left;isolation:isolate}
 .scard .art{position:absolute;inset:0;z-index:-1;padding:10% 6% 34%;display:grid;place-items:center}
-.scard b{font-size:18px;font-weight:800;font-stretch:112%}
-.addsport{border:1.5px dashed var(--line);display:grid;place-items:center;align-content:center;gap:6px;color:var(--muted);font-weight:700;font-size:14px}
+.scard b{font-size:calc(18px * var(--ts));font-weight:800;font-stretch:112%}
+.addsport{border:1.5px dashed var(--line);display:grid;place-items:center;align-content:center;gap:6px;color:var(--muted);font-weight:700;font-size:calc(14px * var(--ts))}
 .zcard{border-radius:16px;overflow:hidden;display:grid;grid-template-columns:1fr 120px;align-items:center;padding:16px;text-align:left;gap:8px}
 /* wizard */
 .whead{background:var(--surface);border-radius:16px;overflow:hidden}
 .whead .hero{position:relative;height:120px;display:grid;align-content:end;padding:12px 14px;isolation:isolate}
 .whead .hero .art{position:absolute;inset:0;z-index:-1;display:grid;justify-items:end;padding:6px 10px 0 40%}
-.whead .hero b{font-size:21px;font-weight:800;font-stretch:112%;line-height:1.1}
+.whead .hero b{font-size:calc(21px * var(--ts));font-weight:800;font-stretch:112%;line-height:1.1}
 /* the title keeps to the left, the figure to the right, so they never overlap */
 .whead .hero{min-height:120px;height:auto;padding-right:40%}.whead .hero .art{left:auto;width:40%;padding:6px 8px 0 0}.whead .hero b{overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.adapt{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px;font-size:13px}
+.adapt{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 14px;font-size:calc(13px * var(--ts))}
 .adapt .chips{display:flex;gap:6px}
-.adapt .chips{gap:10px}.adapt .ach{display:grid;justify-items:center;gap:3px}.adapt .ach small{font-size:10px;font-weight:700;color:var(--muted)}.adapt .ach.on small{color:var(--ink)}
+.adapt .chips{gap:10px}.adapt .ach{display:grid;justify-items:center;gap:3px}.adapt .ach small{font-size:calc(10px * var(--ts));font-weight:700;color:var(--muted)}.adapt .ach.on small{color:var(--ink)}
 .adapt .ach>span{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--surface2);color:var(--muted)}
 .adapt .ach.on>span{background:var(--accent);color:var(--accent-ink)}
 .adapt .chips .ic{width:17px;height:17px}
 .stephead{display:grid;grid-template-columns:36px 1fr;gap:10px;align-items:start}
 .stephead .bub{width:36px;height:36px;border-radius:50%;background:var(--surface2);display:grid;place-items:center;color:var(--muted)}
 .stephead .bub .ic{width:18px;height:18px}
-.stephead p{margin:2px 0 0;color:var(--muted);font-size:14px}
+.stephead p{margin:2px 0 0;color:var(--muted);font-size:calc(14px * var(--ts))}
 .stephead h3{min-height:36px;display:flex;align-items:center}
 .mlist{display:grid}
 .mlist div{display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid var(--line);font-weight:600}
 .mlist button{width:32px;height:32px;display:grid;place-items:center;color:var(--muted)}
 .chipset{display:flex;flex-wrap:wrap;gap:8px}
-.chip{padding:8px 12px;border-radius:99px;background:var(--surface2);font-size:13px;font-weight:600;display:inline-flex;gap:6px;align-items:center}
+.chip{padding:8px 12px;border-radius:99px;background:var(--surface2);font-size:calc(13px * var(--ts));font-weight:600;display:inline-flex;gap:6px;align-items:center}
 .chip .ic{width:15px;height:15px}
 .chip.on{background:var(--accent-soft);color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent)}
 .opt{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:54px;padding:0 16px;border-radius:12px;background:var(--surface);font-weight:600;text-align:left;box-shadow:inset 0 0 0 1.5px transparent}
 .opt.on{box-shadow:inset 0 0 0 1.5px var(--accent);background:color-mix(in srgb,var(--accent) 8%,var(--surface))}
 .opt .radio{width:20px;height:20px;border-radius:50%;border:2px solid var(--muted);flex:none}.opt.on .radio{border:6px solid var(--accent)}
 .opt .tick{margin-left:12px;width:22px;height:22px;border-radius:6px;border:2px solid var(--muted);flex:none;display:grid;place-items:center;color:transparent}.opt .tick svg{width:15px;height:15px}.opt.on .tick{background:var(--accent);border-color:var(--accent);color:var(--bg)}
-.opt .tag{color:var(--accent);font-size:12px;font-weight:700}
+.opt .tag{color:var(--accent);font-size:calc(12px * var(--ts));font-weight:700}
 .equip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.eq{display:grid;justify-items:center;gap:8px;font-size:13px;font-weight:600}
+.eq{display:grid;justify-items:center;gap:8px;font-size:calc(13px * var(--ts));font-weight:600}
 .eq span{width:100%;aspect-ratio:1;border-radius:16px;display:grid;place-items:center;background:var(--surface);color:var(--muted);box-shadow:inset 0 0 0 1.5px var(--line)}
 .eq span .ic{width:34px;height:34px;stroke-width:1.5}
 .eq.on span{color:var(--ink);box-shadow:inset 0 0 0 2px var(--accent)}
-.eq span{position:relative}.eq.on span{background:color-mix(in srgb,var(--accent) 10%,var(--surface))}.eq.on span::after{content:"✓";position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:12px;font-weight:800;display:grid;place-items:center}.eq:not(.on) span{opacity:.6}
+.eq span{position:relative}.eq.on span{background:color-mix(in srgb,var(--accent) 10%,var(--surface))}.eq.on span::after{content:"✓";position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-size:calc(12px * var(--ts));font-weight:800;display:grid;place-items:center}.eq:not(.on) span{opacity:.6}
 .eq:not(.on){color:var(--muted)}
 .sumrows{background:var(--surface);border-radius:16px;padding:6px 14px}
 .srow{display:grid;grid-template-columns:34px 1fr 24px;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);text-align:left;width:100%}
 .srow:last-child{border-bottom:0}
 .srow .bub{width:34px;height:34px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
 .srow .bub .ic{width:17px;height:17px}
-.srow small{display:block;color:var(--muted);font-size:12px}
+.srow small{display:block;color:var(--muted);font-size:calc(12px * var(--ts))}
 .srow .ok{color:var(--accent);opacity:0;transition:opacity .25s}
 .srow.done .ok{opacity:1}
 .srow .val{transition:opacity .25s}
 .srow:not(.done) .val{opacity:0}
 .preview{display:grid}
-.preview div{display:grid;grid-template-columns:24px 1fr auto;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.preview div{display:grid;grid-template-columns:24px 1fr auto;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:calc(14px * var(--ts))}
 .preview span:first-child,.preview span:last-child{color:var(--muted);font-variant-numeric:tabular-nums}
-.preview .blk{margin:10px 0 2px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);display:flex;justify-content:space-between;border:0}
+.preview .blk{margin:10px 0 2px;font-size:calc(11px * var(--ts));font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);display:flex;justify-content:space-between;border:0}
 .preview .blk span{color:var(--muted)}
 .preview .rt{display:flex;flex-direction:column;align-items:flex-end;gap:6px}.preview .pe{display:flex;gap:4px}.preview .pe button{width:32px;height:32px;display:grid;place-items:center;border-radius:8px;background:var(--surface2);color:var(--muted)}.preview .pe .ic{width:15px;height:15px}
-.preview .why{display:block;color:var(--muted);font-size:12px;line-height:1.35;margin-top:2px}
-.whybox{background:var(--accent-soft);border-radius:10px;padding:8px 10px;font-size:13px;display:grid;gap:2px}
+.preview .why{display:block;color:var(--muted);font-size:calc(12px * var(--ts));line-height:1.35;margin-top:2px}
+.whybox{background:var(--accent-soft);border-radius:10px;padding:8px 10px;font-size:calc(13px * var(--ts));display:grid;gap:2px}
 .whybox .eyebrow{color:var(--accent)}
-.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:calc(12px * var(--ts));color:var(--muted)}
 .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
 .needbars{list-style:none;margin:0;padding:0;display:grid;gap:9px}
-.needbars li{display:grid;grid-template-columns:90px 1fr 34px;gap:10px;align-items:center;font-size:13px}
-.mvcredit{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:13px}
+.needbars li{display:grid;grid-template-columns:90px 1fr 34px;gap:10px;align-items:center;font-size:calc(13px * var(--ts))}
+.mvcredit{list-style:none;margin:0;padding:0;display:grid;gap:8px;font-size:calc(13px * var(--ts))}
 .mvcredit li{display:grid;gap:2px}
 .needbars .nb{display:flex;height:10px;border-radius:5px;background:var(--line);overflow:hidden}
-.needbars b{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);font-size:12px}
-.evid p{margin:0;font-size:14px;line-height:1.5}
-.src{margin:0;padding-left:18px;display:grid;gap:6px;font-size:12px;color:var(--muted)}
-.steps{margin:0;padding-left:20px;display:grid;gap:6px;font-size:14px;color:var(--muted)}
+.needbars b{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);font-size:calc(12px * var(--ts))}
+.evid p{margin:0;font-size:calc(14px * var(--ts));line-height:1.5}
+.src{margin:0;padding-left:18px;display:grid;gap:6px;font-size:calc(12px * var(--ts));color:var(--muted)}
+.steps{margin:0;padding-left:20px;display:grid;gap:6px;font-size:calc(14px * var(--ts));color:var(--muted)}
 .steps b{color:var(--ink)}
 .sheet a,.panel a{color:var(--accent);font-weight:700}
 .bottomcta{position:sticky;bottom:0;z-index:3;margin-top:8px;padding:28px 0 calc(env(safe-area-inset-bottom,0px) + 12px);background:linear-gradient(to top,var(--bg) calc(100% - 26px),transparent);display:grid;gap:10px}
@@ -231,9 +232,9 @@ img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;o
 .res button{text-align:left;padding:12px 2px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
 .res small{color:var(--muted)}
 .selchip{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:12px;box-shadow:inset 0 0 0 1.5px var(--accent);font-weight:600}
-.fcard{flex:none;width:150px;min-height:92px;border-radius:14px;padding:14px;display:grid;align-content:end;gap:2px;text-align:left;color:#fff}.fcard b{font-size:16px;font-weight:800}.fcard small{font-size:12px;opacity:.85}
-.slv{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}.slv>div{display:grid;gap:2px}.slv small{font-size:12px}.slv .pill{font-size:14px;min-width:44px;text-align:center}
-.navrow{display:flex;justify-content:space-between;align-items:center;text-align:left;width:100%}.navrow>span:first-child{display:grid;gap:2px}.navrow small{font-size:13px}.navrow .chev{transform:rotate(180deg);display:inline-grid;color:var(--muted)}
+.fcard{flex:none;width:150px;min-height:92px;border-radius:14px;padding:14px;display:grid;align-content:end;gap:2px;text-align:left;color:#fff}.fcard b{font-size:calc(16px * var(--ts));font-weight:800}.fcard small{font-size:calc(12px * var(--ts));opacity:.85}
+.slv{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}.slv>div{display:grid;gap:2px}.slv small{font-size:calc(12px * var(--ts))}.slv .pill{font-size:calc(14px * var(--ts));min-width:44px;text-align:center}
+.navrow{display:flex;justify-content:space-between;align-items:center;text-align:left;width:100%}.navrow>span:first-child{display:grid;gap:2px}.navrow small{font-size:calc(13px * var(--ts))}.navrow .chev{transform:rotate(180deg);display:inline-grid;color:var(--muted)}
 .panel>.toggle:last-child{border-bottom:0}
 .toggle{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);width:100%;text-align:left}
 .sw{width:44px;height:26px;border-radius:13px;background:var(--line);position:relative;flex:none;transition:background .2s}
@@ -251,7 +252,7 @@ img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;o
 .stage{position:relative;background:var(--stage);aspect-ratio:240/150;max-height:34vh;width:100%;cursor:pointer;overflow:hidden}
 .stage .fig{height:100%;width:auto;margin:0 auto}
 .stage .ov{position:absolute;inset:0;display:flex;justify-content:center;align-items:center;gap:48px;background:rgba(0,0,0,.45)}
-.stage .ov button{display:grid;justify-items:center;gap:4px;font-size:13px;font-weight:700}
+.stage .ov button{display:grid;justify-items:center;gap:4px;font-size:calc(13px * var(--ts));font-weight:700}
 .stage .ov .ic{width:40px;height:40px}
 .stage.tall,.detailstage.tall{aspect-ratio:4/5;max-height:56vh}
 /* exercise pages: every figure spans the full column width; a standing pose only gets more height */
@@ -260,35 +261,35 @@ img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;o
 .stage.tall{max-height:min(56vh,calc(100vh - 420px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)));max-height:min(56dvh,calc(100dvh - 420px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)));min-height:170px}.tall canvas.fig.f3{aspect-ratio:auto}.tall svg.fig{width:100%;height:100%}.stage #pfig{position:absolute;inset:0;display:grid;place-items:center;overflow:hidden}.detailstage{position:relative}
 .dov{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:flex-end;gap:8px;padding:10px;pointer-events:none}
 .dinfo{display:grid;gap:2px;background:rgba(13,16,21,.86);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#fff;border-radius:10px;padding:5px 9px;max-width:66%}
-.dinfo .dk{display:none}.dinfo b{font-size:12px;line-height:1.2}
-.dchips{display:flex;flex-wrap:wrap;gap:4px}.dchips i{font-style:normal;font-size:10px;font-weight:700;padding:2px 6px;border-radius:6px;background:rgba(246,180,58,.24);color:#FFE9C2}
+.dinfo .dk{display:none}.dinfo b{font-size:calc(12px * var(--ts));line-height:1.2}
+.dchips{display:flex;flex-wrap:wrap;gap:4px}.dchips i{font-style:normal;font-size:calc(10px * var(--ts));font-weight:700;padding:2px 6px;border-radius:6px;background:rgba(246,180,58,.24);color:#FFE9C2}
 .dmap{width:58px;background:rgba(13,16,21,.86);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-radius:10px;padding:4px}.dmap .bm{width:100%;height:auto;display:block}.dmap .bm text{display:none}
-.stage .sidetag{position:absolute;left:12px;top:10px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#F6B43A;background:rgba(13,16,21,.86);padding:4px 8px;border-radius:6px}
+.stage .sidetag{position:absolute;left:12px;top:10px;font-size:calc(11px * var(--ts));font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#F6B43A;background:rgba(13,16,21,.86);padding:4px 8px;border-radius:6px}
 .ptitle{text-align:center;padding:14px 16px 10px}
-.ptitle h2{font-size:21px}
-.ptitle .meta{font-size:13px;color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums}
+.ptitle h2{font-size:calc(21px * var(--ts))}
+.ptitle .meta{font-size:calc(13px * var(--ts));color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums}
 .pcards{display:grid;grid-auto-flow:column;grid-auto-columns:calc(100% - 44px);gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding-inline:16px;scroll-padding-inline:16px;scrollbar-width:none;min-height:0}
 .pcards::-webkit-scrollbar{display:none}
 .icard{scroll-snap-align:start;background:var(--surface);border-radius:16px;padding:14px 16px 22px;overflow:auto;min-height:0;display:grid;gap:10px;align-content:start;-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(to bottom,#000 calc(100% - 22px),transparent)}
-.icard ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:14px}
-.icard .morecue{position:sticky;bottom:-22px;display:none;justify-content:center;align-items:end;margin:-10px -16px -22px;padding:26px 0 8px;background:linear-gradient(to bottom,transparent,var(--surface) 55%);color:var(--accent);font-size:12px;font-weight:700;pointer-events:none}
+.icard ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:calc(14px * var(--ts))}
+.icard .morecue{position:sticky;bottom:-22px;display:none;justify-content:center;align-items:end;margin:-10px -16px -22px;padding:26px 0 8px;background:linear-gradient(to bottom,transparent,var(--surface) 55%);color:var(--accent);font-size:calc(12px * var(--ts));font-weight:700;pointer-events:none}
 .icard.more{-webkit-mask-image:none;mask-image:none}.icard.more .morecue{display:inline-flex}
 @media (max-height:700px){.stage.tall{max-height:calc(100vh - 450px);max-height:calc(100dvh - 450px)}}
 .icard ul li::marker{color:var(--accent)}
-.icard .easy{background:var(--accent-soft);color:var(--ink);border-radius:10px;padding:8px 10px;font-size:13px}
+.icard .easy{background:var(--accent-soft);color:var(--ink);border-radius:10px;padding:8px 10px;font-size:calc(13px * var(--ts))}
 .bm{display:block;width:100%;max-width:230px;margin:0 auto}
 .bm .s{fill:#232934;stroke:#3A4250;stroke-width:1}
 .bm .z.on{fill:var(--accent);stroke:var(--accent)}
 .bm text{fill:var(--muted);font:700 9px var(--f);letter-spacing:.1em;text-transform:uppercase}
 .ztags{display:flex;flex-wrap:wrap;gap:6px}
-.ztags span{font-size:12px;font-weight:700;color:var(--accent);background:var(--accent-soft);padding:3px 8px;border-radius:6px}
+.ztags span{font-size:calc(12px * var(--ts));font-weight:700;color:var(--accent);background:var(--accent-soft);padding:3px 8px;border-radius:6px}
 .pctrl{display:grid;grid-template-columns:56px 1fr auto 1fr 56px;align-items:center;justify-items:center;padding:12px 12px 14px}
 .pctrl .sm{width:48px;height:48px;display:grid;place-items:center;color:var(--ink)}
-.pctrl .easybtn{font-size:11px;font-weight:700;line-height:1.1;text-align:center;color:var(--ink);width:56px;height:44px;border:1px solid var(--line);border-radius:12px}
+.pctrl .easybtn{font-size:calc(11px * var(--ts));font-weight:700;line-height:1.1;text-align:center;color:var(--ink);width:56px;height:44px;border:1px solid var(--line);border-radius:12px}
 .pctrl .easybtn.on{color:var(--accent);background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 55%,transparent)}
 .ringbtn{width:86px;height:86px;position:relative;display:grid;place-items:center;border-radius:50%;background:var(--accent-soft);color:var(--accent)}
 .ringbtn svg.r{position:absolute;inset:0;transform:rotate(-90deg)}
-.ringbtn .num{font-size:30px;font-weight:800;font-stretch:112%;font-variant-numeric:tabular-nums}
+.ringbtn .num{font-size:calc(30px * var(--ts));font-weight:800;font-stretch:112%;font-variant-numeric:tabular-nums}
 .ringbtn .ic{width:30px;height:30px}
 .r .bg{fill:none;stroke:var(--line);stroke-width:4}
 .r .fg{fill:none;stroke:var(--accent);stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset .2s linear}
@@ -301,27 +302,27 @@ img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;o
 .lcard{background:var(--surface);border-radius:14px;overflow:hidden;text-align:left;display:grid;align-content:start}
 .lcard .art{background:var(--stage);aspect-ratio:240/150}
 .lcard div.t{padding:10px 12px 12px;display:grid;gap:2px}
-.lcard b{font-size:14px;line-height:1.25}
-.lcard small{color:var(--muted);font-size:12px}
+.lcard b{font-size:calc(14px * var(--ts));line-height:1.25}
+.lcard small{color:var(--muted);font-size:calc(12px * var(--ts))}
 .hscroll{display:flex;gap:8px;overflow-x:auto;margin-inline:-16px;padding-inline:16px;scrollbar-width:none}
 .hscroll::-webkit-scrollbar{display:none}
 .hscroll .chip{flex:none}
 .detailstage{background:var(--stage);border-radius:16px;overflow:hidden}
-.adv{border-top:1px solid var(--line);padding-top:10px}.adv summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--muted);list-style:none;display:flex;justify-content:space-between}.adv summary::-webkit-details-marker{display:none}.adv summary::after{content:"+";font-weight:700}.adv[open] summary::after{content:"–"}
+.adv{border-top:1px solid var(--line);padding-top:10px}.adv summary{cursor:pointer;font-weight:600;font-size:calc(14px * var(--ts));color:var(--muted);list-style:none;display:flex;justify-content:space-between}.adv summary::-webkit-details-marker{display:none}.adv summary::after{content:"+";font-weight:700}.adv[open] summary::after{content:"–"}
 .panel{background:var(--surface);border-radius:16px;padding:16px;display:grid;gap:12px;min-width:0}
 /* profile */
 .score{display:flex;align-items:baseline;gap:10px}
-.score b{font-size:64px;font-weight:800;font-stretch:112%;line-height:.9;font-variant-numeric:tabular-nums}
+.score b{font-size:calc(64px * var(--ts));font-weight:800;font-stretch:112%;line-height:.9;font-variant-numeric:tabular-nums}
 .radar{display:block;width:100%;max-width:300px;margin:0 auto}
 .radar text{fill:var(--muted);font:700 10px var(--f);letter-spacing:.08em;text-transform:uppercase}
 .bars{display:grid;gap:8px;list-style:none;margin:0;padding:0}
-.bars li{display:grid;grid-template-columns:96px 1fr 30px;gap:10px;align-items:center;font-size:13px}
+.bars li{display:grid;grid-template-columns:96px 1fr 30px;gap:10px;align-items:center;font-size:calc(13px * var(--ts))}
 .bars .tr{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
 .bars .tr i{display:block;height:100%;border-radius:3px}
 .bars b{text-align:right;font-variant-numeric:tabular-nums}
 .stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .hist{display:grid}
-.hist div{display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.hist div{display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);font-size:calc(14px * var(--ts))}
 .hist small{color:var(--muted)}
 /* test + done overlays */
 .full{position:fixed;inset:0;z-index:35;background:var(--bg);overflow:auto}
@@ -329,85 +330,88 @@ img.fig.f3,canvas.fig.f3{display:block;width:100%;height:auto;aspect-ratio:1.6;o
 .full .hdr{top:0;height:calc(56px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px)}.full .hdr::before{display:none}
 .full .inner{max-width:480px;margin:0 auto;padding:0 16px calc(env(safe-area-inset-bottom,0px) + 16px);min-height:100%;display:grid;grid-template-rows:auto 1fr auto;gap:16px}
 .tprog{display:flex;gap:4px}.tprog i{flex:1;height:3px;border-radius:2px;background:var(--line)}.tprog i.on{background:var(--accent)}
-.big{font-size:72px;font-weight:800;font-stretch:115%;line-height:.9;font-variant-numeric:tabular-nums}
+.big{font-size:calc(72px * var(--ts));font-weight:800;font-stretch:115%;line-height:.9;font-variant-numeric:tabular-nums}
 .feel{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-.feel button{padding:12px 2px;border-radius:10px;background:var(--surface2);border:1px solid var(--line);font-size:13px;font-weight:700;min-height:44px}
+.feel button{padding:12px 2px;border-radius:10px;background:var(--surface2);border:1px solid var(--line);font-size:calc(13px * var(--ts));font-weight:700;min-height:44px}
 .feel button.on{background:var(--accent);color:var(--accent-ink)}
 /* rebuild */
-.tsfig{position:relative;background:var(--stage);border-radius:14px;display:grid;place-items:center;padding:6px}.tsfig svg{width:100%;max-width:300px;height:auto}.tsfig.mir .fig,.tsstage.mir .fig{transform:scaleX(-1)}.tsstage{position:relative}.tsis{margin:-4px 0 0;font-size:13px;line-height:1.3;padding:6px 10px;border-radius:10px;background:var(--surface2);color:var(--ink);justify-self:start}.rtgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}.rtpos{display:grid;gap:2px;background:var(--surface2);border-radius:12px;padding:8px}.rtfig{background:var(--stage);border-radius:10px;overflow:hidden}.rtfig .fig{width:100%;height:auto;max-height:120px;display:block}.tsstage>.pill{position:absolute;top:10px;left:10px;z-index:2}.tsfig .pill{position:absolute;top:8px;left:8px}
-.tsides{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tsides span{text-align:center;padding:2px 0 7px;border-bottom:3px solid var(--line);font-size:13px;font-weight:600;color:var(--muted);letter-spacing:.02em}.tsides span.on{border-color:var(--accent);color:var(--ink)}.tsides span.done{color:var(--ink);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
-.tsides.tsw button{width:100%;position:relative;text-align:center;padding:8px;border-radius:10px;background:var(--surface2);border:1px solid var(--line);font:inherit;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer}.tsides.tsw button.on{background:var(--accent);border-color:var(--accent);color:var(--bg)}.tsides.tsw button.done{color:var(--ink)}
+.tsfig{position:relative;background:var(--stage);border-radius:14px;display:grid;place-items:center;padding:6px}.tsfig svg{width:100%;max-width:300px;height:auto}.tsfig.mir .fig,.tsstage.mir .fig{transform:scaleX(-1)}.tsstage{position:relative}.tsis{margin:-4px 0 0;font-size:calc(13px * var(--ts));line-height:1.3;padding:6px 10px;border-radius:10px;background:var(--surface2);color:var(--ink);justify-self:start}.rtgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}.rtpos{display:grid;gap:2px;background:var(--surface2);border-radius:12px;padding:8px}.rtfig{background:var(--stage);border-radius:10px;overflow:hidden}.rtfig .fig{width:100%;height:auto;max-height:120px;display:block}.tsstage>.pill{position:absolute;top:10px;left:10px;z-index:2}.tsfig .pill{position:absolute;top:8px;left:8px}
+.tsides{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tsides span{text-align:center;padding:2px 0 7px;border-bottom:3px solid var(--line);font-size:calc(13px * var(--ts));font-weight:600;color:var(--muted);letter-spacing:.02em}.tsides span.on{border-color:var(--accent);color:var(--ink)}.tsides span.done{color:var(--ink);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.tsides.tsw button{width:100%;position:relative;text-align:center;padding:8px;border-radius:10px;background:var(--surface2);border:1px solid var(--line);font:inherit;font-size:calc(14px * var(--ts));font-weight:600;color:var(--muted);cursor:pointer}.tsides.tsw button.on{background:var(--accent);border-color:var(--accent);color:var(--bg)}.tsides.tsw button.done{color:var(--ink)}
 textarea{font:inherit}.edex{gap:10px}.edhead{display:grid;grid-template-columns:72px 1fr auto;gap:10px;align-items:center}.edhead .th{width:72px;height:auto;background:var(--stage);border-radius:10px;display:block}.edhead .th svg{width:72px;height:auto;display:block}.edbtns{display:flex;gap:12px}
-.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--surface2);border-radius:10px;padding:3px}.seg button{padding:8px 4px;border-radius:8px;font-size:13px;font-weight:600;color:var(--muted)}.seg button.on{background:var(--accent-soft);color:var(--accent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 45%,transparent)}
-.ednums{display:flex;gap:8px}.edn{display:grid;gap:4px;flex:1;font-size:12px;color:var(--muted)}.edn input{width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px;font-size:16px;font-variant-numeric:tabular-nums}
-.looks{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.looks button{display:grid;gap:2px;justify-items:center;padding:6px;border-radius:10px;background:var(--stage);min-height:60px;box-shadow:inset 0 0 0 2px transparent}.looks button.on{box-shadow:inset 0 0 0 2px var(--accent)}.looks svg{width:100%;height:auto}.looks small{font-size:11px;color:var(--muted);text-align:center;line-height:1.2}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--surface2);border-radius:10px;padding:3px}.seg button{padding:8px 4px;border-radius:8px;font-size:calc(13px * var(--ts));font-weight:600;color:var(--muted)}.seg button.on{background:var(--accent-soft);color:var(--accent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 45%,transparent)}
+.ednums{display:flex;gap:8px}.edn{display:grid;gap:4px;flex:1;font-size:calc(12px * var(--ts));color:var(--muted)}.edn input{width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px;font-size:calc(16px * var(--ts));font-variant-numeric:tabular-nums}
+.looks{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.looks button{display:grid;gap:2px;justify-items:center;padding:6px;border-radius:10px;background:var(--stage);min-height:60px;box-shadow:inset 0 0 0 2px transparent}.looks button.on{box-shadow:inset 0 0 0 2px var(--accent)}.looks svg{width:100%;height:auto}.looks small{font-size:calc(11px * var(--ts));color:var(--muted);text-align:center;line-height:1.2}
 .ph small{opacity:.6;font-weight:500;margin-left:4px}.gates li{grid-template-columns:150px 1fr 44px}
-.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.mtile{display:grid;gap:2px;justify-items:center;align-content:start;grid-template-rows:auto minmax(2.5em,auto) auto;text-align:center;background:var(--surface);border-radius:14px;padding:8px 6px 10px}.mtile .bm{width:100%;max-width:120px;height:auto}.mtile .bm text{display:none}.mtile b{font-size:13px;line-height:1.2;align-self:center;text-wrap:balance}.mtile small{color:var(--muted);font-size:11px}
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.mtile{display:grid;gap:2px;justify-items:center;align-content:start;grid-template-rows:auto minmax(2.5em,auto) auto;text-align:center;background:var(--surface);border-radius:14px;padding:8px 6px 10px}.mtile .bm{width:100%;max-width:120px;height:auto}.mtile .bm text{display:none}.mtile b{font-size:calc(13px * var(--ts));line-height:1.2;align-self:center;text-wrap:balance}.mtile small{color:var(--muted);font-size:calc(11px * var(--ts))}
 .painrow{display:grid;grid-template-columns:repeat(11,1fr);gap:4px}
 .pain{min-height:42px;border-radius:8px;background:var(--surface2);font-weight:800;font-variant-numeric:tabular-nums}
 .pain.on.plo{background:var(--good);color:#06150E}.pain.on.pmid{background:var(--warn);color:#1A1205}.pain.on.phi{background:var(--bad);color:#1A0606}
-.painlbl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.painlbl{display:flex;justify-content:space-between;font-size:calc(11px * var(--ts));color:var(--muted)}
 .phases{display:flex;gap:6px;flex-wrap:wrap}
-.ph{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:5px 10px 5px 5px;border-radius:99px;background:var(--surface);color:var(--muted)}
-.ph span{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--surface2);font-size:11px}
+.ph{display:flex;align-items:center;gap:6px;font-size:calc(12px * var(--ts));font-weight:700;padding:5px 10px 5px 5px;border-radius:99px;background:var(--surface);color:var(--muted)}
+.ph span{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--surface2);font-size:calc(11px * var(--ts))}
 .ph.on{color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--accent)}.ph.on span{background:var(--accent);color:var(--accent-ink)}
 .ph.done span{background:var(--accent-soft);color:var(--accent)}
 .rxlist{display:grid}
 .rx{display:grid;grid-template-columns:72px 1fr;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);text-align:left}
 .rx:last-child{border-bottom:0}
 .rx .th{background:var(--stage);border-radius:8px;overflow:hidden;display:block}
-.rx small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
-.tick,.cross{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:14px}
+.rx small{display:block;color:var(--muted);font-size:calc(12px * var(--ts));margin-top:2px}
+.tick,.cross{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:calc(14px * var(--ts))}
 .tick li,.cross li{padding-left:22px;position:relative}
 .tick li::before{content:"";position:absolute;left:4px;top:5px;width:9px;height:5px;border-left:2px solid var(--good);border-bottom:2px solid var(--good);transform:rotate(-45deg)}
 .cross li::before,.cross li::after{content:"";position:absolute;left:4px;top:9px;width:11px;height:2px;background:var(--bad);transform:rotate(45deg)}
 .cross li::after{transform:rotate(-45deg)}
-.note-warn{background:color-mix(in srgb,var(--warn) 16%,transparent);border-left:3px solid var(--warn);border-radius:8px;padding:10px 12px;font-size:14px}
-.note-urgent{background:color-mix(in srgb,var(--bad) 18%,transparent);border-left:3px solid var(--bad);border-radius:8px;padding:10px 12px;font-size:14px}
+.note-warn{background:color-mix(in srgb,var(--warn) 16%,transparent);border-left:3px solid var(--warn);border-radius:8px;padding:10px 12px;font-size:calc(14px * var(--ts))}
+.note-urgent{background:color-mix(in srgb,var(--bad) 18%,transparent);border-left:3px solid var(--bad);border-radius:8px;padding:10px 12px;font-size:calc(14px * var(--ts))}
 .flags{display:grid;gap:8px}
-.flag{display:grid;grid-template-columns:22px 1fr;gap:12px;align-items:center;text-align:left;padding:12px 14px;border-radius:12px;background:var(--surface);font-size:14px}
+.flag{display:grid;grid-template-columns:22px 1fr;gap:12px;align-items:center;text-align:left;padding:12px 14px;border-radius:12px;background:var(--surface);font-size:calc(14px * var(--ts))}
 .flag .box{width:20px;height:20px;border-radius:6px;box-shadow:inset 0 0 0 2px var(--line)}
 .flag.on .box{background:var(--warn);box-shadow:none}.flag.urgent.on .box{background:var(--bad)}
 .flag.urgent{box-shadow:inset 3px 0 0 color-mix(in srgb,var(--bad) 70%,transparent)}
 .phrow{display:grid;grid-template-columns:28px 1fr;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
 .phrow:last-child{border-bottom:0}
-.phrow .n{width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:800;font-size:13px}
-.phrow small{display:block;color:var(--muted);font-size:13px}
+.phrow .n{width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:800;font-size:calc(13px * var(--ts))}
+.phrow small{display:block;color:var(--muted);font-size:calc(13px * var(--ts))}
 .spark{width:100%;height:auto;display:block}
 .spark .sl{stroke:var(--good);stroke-dasharray:3 3;opacity:.6}.spark .st{fill:var(--good);font:700 9px var(--f)}
 .spark .sp{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-linejoin:round}.spark .sd{fill:var(--accent)}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .status .c-bad,.status .c-good,.status .c-top{letter-spacing:.12em}
-#tabbar button{font-size:10px}
+#tabbar button{font-size:calc(10px * var(--ts))}
 /* launch screen: the icon's range arc sweeps open while the figure reaches overhead, then fades into the app */
 /* front page (sign in), first run and the app tour */
 #gate{z-index:50;background:radial-gradient(120% 55% at 50% 0%,#3A2410 0%,var(--bg) 62%) var(--bg)}
 #gate .inner{padding-top:env(safe-area-inset-top,0px)}
 .gate .ghero{display:grid;justify-items:center;text-align:center;gap:10px;padding:clamp(20px,6vh,56px) 0 4px}
 .gate .ghero.sm{padding-top:clamp(16px,4vh,40px)}.gate .ghero.sm .gmark{width:64px;height:64px}
+/* short iPhones (SE, mini): a compact header so the whole form, Forgot your password included, fits above the button */
+@media (max-height:760px){.gate .ghero:not(.sm){grid-template-columns:auto auto;align-items:center;justify-content:center;gap:12px;padding:16px 0 4px}.gate .ghero:not(.sm) .gmark{width:44px}.gate .ghero:not(.sm) .gtag{display:none}}
+:root[data-bigtext] .gate .ghero:not(.sm){grid-template-columns:auto auto;align-items:center;justify-content:center;gap:12px;padding:16px 0 4px}:root[data-bigtext] .gate .ghero:not(.sm) .gmark{width:44px}:root[data-bigtext] .gate .ghero:not(.sm) .gtag{display:none}
 .gmark{width:clamp(72px,13vh,104px);height:auto}
-.gword{font-weight:800;font-stretch:125%;font-size:24px;letter-spacing:.32em;text-transform:uppercase;margin-right:-.32em}.gword b{color:var(--accent)}
+.gword{font-weight:800;font-stretch:125%;font-size:calc(24px * var(--ts));letter-spacing:.32em;text-transform:uppercase;margin-right:-.32em}.gword b{color:var(--accent)}
 .oauth{display:grid;gap:10px}
-.obtn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:50px;border-radius:14px;font-size:16px;font-weight:600;letter-spacing:-.01em;width:100%}
+.obtn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:50px;border-radius:14px;font-size:calc(16px * var(--ts));font-weight:600;letter-spacing:-.01em;width:100%}
 .obtn svg{width:19px;height:19px;flex:none}.obtn:disabled{opacity:.55}
 .obtn.apple{background:#fff;color:#000}.obtn.apple svg{fill:#000;margin-top:-2px}
 .obtn.google{background:#131314;color:#E3E3E3;border:1px solid #8E918F}
-.ordiv{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:13px;margin:2px 0}.ordiv::before,.ordiv::after{content:"";flex:1;height:1px;background:var(--line)}
-.gtag{margin:0;color:var(--muted);font-size:15px;max-width:30ch;text-wrap:balance}
-.gnote{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted);background:var(--surface);border-radius:10px;padding:8px 12px}.gnote .ic{width:16px;height:16px;flex:none}.gnote span{flex:1}
+.ordiv{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:calc(13px * var(--ts));margin:2px 0}.ordiv::before,.ordiv::after{content:"";flex:1;height:1px;background:var(--line)}
+.gtag{margin:0;color:var(--muted);font-size:calc(15px * var(--ts));max-width:30ch;text-wrap:balance}
+.gnote{display:flex;gap:8px;align-items:center;font-size:calc(13px * var(--ts));color:var(--muted);background:var(--surface);border-radius:10px;padding:8px 12px}.gnote .ic{width:16px;height:16px;flex:none}.gnote span{flex:1}
 .obgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.obgrid .opt{min-height:50px;padding:0 12px}
-.obeq .chip{padding:10px 14px;font-size:14px}
+.obeq .chip{padding:10px 14px;font-size:calc(14px * var(--ts))}
 .obtest{background:var(--stage);border-radius:14px;display:grid;place-items:center;overflow:hidden;padding:8px}.obtest svg{height:clamp(100px,20vh,180px);width:auto;max-width:100%;display:block}
 .obtest img.f3,.obtest canvas.f3{height:clamp(100px,22vh,190px);width:auto;max-width:100%}
 @media (max-height:760px){.obtest{padding:4px}.obtest img.f3,.obtest canvas.f3,.obtest svg{height:clamp(90px,17vh,150px)}}
-.obl{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:14px}.obl li{display:flex;gap:8px;align-items:center}.obl .ic{width:18px;height:18px;color:var(--accent)}
+.obl{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:calc(14px * var(--ts))}.obl li{display:flex;gap:8px;align-items:center}.obl .ic{width:18px;height:18px;color:var(--accent)}
 #tour{position:fixed;inset:0;z-index:70;touch-action:none}
 body.touring #screen{padding-bottom:70vh}
 #tour .tdim{position:absolute;inset:0;width:100%;height:100%}#tour .tdim path{fill:rgba(4,7,11,.76)}
 #tour .tring{position:fixed;border-radius:12px;box-shadow:0 0 0 2px var(--accent),0 0 18px rgba(246,180,58,.3);pointer-events:none}
 #tour .ttip{position:fixed;left:16px;width:calc(100% - 32px);max-width:448px;background:var(--surface2);border-radius:14px;padding:14px 16px;display:grid;gap:6px;box-shadow:0 12px 32px rgba(0,0,0,.55);transition:top .25s ease}
-#tour .ttip p{margin:0;font-size:14px;color:var(--ink);opacity:.86}
-#tour .tth{display:flex;justify-content:space-between;align-items:center;gap:10px}#tour .tth .link{font-size:13px;padding:4px 0}
+#tour .ttip p{margin:0;font-size:calc(14px * var(--ts));color:var(--ink);opacity:.86}
+#tour .tth{display:flex;justify-content:space-between;align-items:center;gap:10px}#tour .tth .link{font-size:calc(13px * var(--ts));padding:4px 0}
 #tour .frow{display:flex;gap:8px;margin-top:6px}#tour .frow .btn{min-height:44px;flex:1}
 #splash{position:fixed;inset:0;z-index:100;background:radial-gradient(120% 70% at 50% 42%,#2A1A0C 0%,var(--bg) 62%);display:grid;place-items:center;transition:opacity .45s ease .22s,visibility 0s .7s;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);overflow:hidden}
 #splash.out{opacity:0;visibility:hidden}
@@ -432,8 +436,8 @@ body.touring #screen{padding-bottom:70vh}
 #splash .dot{fill:var(--ink)}
 #splash .fig{stroke:var(--ink);fill:none;stroke-width:14;stroke-linecap:round;stroke-linejoin:round}
 #splash .word,#splash .tag{will-change:opacity,transform,filter;backface-visibility:hidden;opacity:0;filter:blur(10px);transform:translate3d(0,8px,0)}
-#splash .word{font-weight:800;font-stretch:125%;font-size:26px;letter-spacing:.32em;text-transform:uppercase;color:var(--ink);animation:splFocus .75s cubic-bezier(.22,1,.36,1) 2.2s forwards;margin-right:-.32em}#splash .word b{color:var(--accent)}
-#splash .tag{font-size:13px;color:var(--muted);letter-spacing:.06em;animation:splFocus .75s cubic-bezier(.22,1,.36,1) 2.45s forwards;margin-top:-8px}
+#splash .word{font-weight:800;font-stretch:125%;font-size:calc(26px * var(--ts));letter-spacing:.32em;text-transform:uppercase;color:var(--ink);animation:splFocus .75s cubic-bezier(.22,1,.36,1) 2.2s forwards;margin-right:-.32em}#splash .word b{color:var(--accent)}
+#splash .tag{font-size:calc(13px * var(--ts));color:var(--muted);letter-spacing:.06em;animation:splFocus .75s cubic-bezier(.22,1,.36,1) 2.45s forwards;margin-top:-8px}
 @keyframes splFade{from{opacity:0}to{opacity:1}}
 @keyframes splDraw{to{stroke-dashoffset:0}}
 @keyframes splNode{to{opacity:1;transform:scale(1)}}
@@ -452,12 +456,12 @@ body.touring #screen{padding-bottom:70vh}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 
 /* ===== design pass: chalk & plates. Rubber-floor graphite base, chalk actions, bumper-plate colours per flow, teal only for state ===== */
-h1{font-size:34px;font-stretch:118%;letter-spacing:-.025em}#app.sub h1,.full h1{font-size:28px;font-stretch:110%;letter-spacing:-.02em}h2{letter-spacing:-.02em}
-.eyebrow{font-size:13px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--muted)}
-.pill{letter-spacing:.02em;text-transform:none;font-size:12px}
-.preview .blk{letter-spacing:0;text-transform:none;font-size:13px;font-weight:700}
-.radar text,.bm text{letter-spacing:.02em;text-transform:none;font-size:11px;font-weight:600}
-.stage .sidetag{letter-spacing:.02em;text-transform:none;font-size:12px}
+h1{font-size:calc(34px * var(--ts));font-stretch:118%;letter-spacing:-.025em}#app.sub h1,.full h1{font-size:calc(28px * var(--ts));font-stretch:110%;letter-spacing:-.02em}h2{letter-spacing:-.02em}
+.eyebrow{font-size:calc(13px * var(--ts));font-weight:600;letter-spacing:0;text-transform:none;color:var(--muted)}
+.pill{letter-spacing:.02em;text-transform:none;font-size:calc(12px * var(--ts))}
+.preview .blk{letter-spacing:0;text-transform:none;font-size:calc(13px * var(--ts));font-weight:700}
+.radar text,.bm text{letter-spacing:.02em;text-transform:none;font-size:calc(11px * var(--ts));font-weight:600}
+.stage .sidetag{letter-spacing:.02em;text-transform:none;font-size:calc(12px * var(--ts))}
 .status .c-bad,.status .c-good,.status .c-top{letter-spacing:0}
 /* action vs state: the main button is a chalk slab; teal is reserved for what is selected or in progress */
 .btn{background:var(--chalk);color:var(--chalk-ink);border-radius:var(--r-ctl);font-weight:800;letter-spacing:-.005em;box-shadow:inset 0 -2px 0 rgba(0,0,0,.12)}
@@ -469,18 +473,18 @@ h1{font-size:34px;font-stretch:118%;letter-spacing:-.025em}#app.sub h1,.full h1{
 .tile,.ntile,.banner,.icard{border-radius:var(--r-panel);box-shadow:inset 0 1px 0 rgba(255,255,255,.045)}
 .lcard{border-radius:16px}
 .opt,.search,.selchip,.flag{border-radius:var(--r-ctl)}
-.tile b{font-size:34px;font-stretch:118%}
+.tile b{font-size:calc(34px * var(--ts));font-stretch:118%}
 .score b{font-stretch:118%;letter-spacing:-.03em}
 /* 44pt touch targets: text links keep their look but get a full-height hit area */
 .link{min-height:44px;padding:0 2px}
-.chip{min-height:40px;padding:9px 14px}
-.seg button{min-height:40px}
+.chip{min-height:44px;padding:9px 14px}
+.seg button{min-height:44px}
 /* home: each flow card is a bumper plate, coloured like competition plates, with ring grooves and a hub behind the figure */
 .pcard{border-radius:var(--r-hero);color:#fff}
 .pcard::before{content:"";position:absolute;z-index:-2;left:50%;top:40%;width:118%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;
   background:radial-gradient(circle,rgba(0,0,0,.22) 0 7%,rgba(255,255,255,.10) 7% 7.8%,transparent 7.8% 30%,rgba(0,0,0,.10) 30% 31%,transparent 31% 46%,rgba(0,0,0,.12) 46% 47.2%,transparent 47.2%);pointer-events:none}
-.pcard h2{font-size:34px;font-stretch:118%}
-.pcard .go{background:var(--chalk);color:var(--chalk-ink);padding:9px 20px;font-size:14px;font-weight:800;min-height:40px}
+.pcard h2{font-size:calc(34px * var(--ts));font-stretch:118%}
+.pcard .go{background:var(--chalk);color:var(--chalk-ink);padding:9px 20px;font-size:calc(14px * var(--ts));font-weight:800;min-height:40px}
 .g-activate{background:var(--p-red)}
 .g-recover{background:var(--p-blue)}
 .g-daily{background:var(--p-green)}
@@ -506,13 +510,13 @@ h1{font-size:34px;font-stretch:118%;letter-spacing:-.025em}#app.sub h1,.full h1{
 #tabbar button[aria-current="page"] .ic{color:var(--accent)}
 .ringbtn{background:var(--chalk);color:var(--chalk-ink)}
 .ringbtn .num{color:var(--chalk-ink)}
-.rbnote{font-size:13px}.rbnote summary{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center;min-height:24px}.rbnote summary::-webkit-details-marker{display:none}.rbnote summary::after{content:"+";font-weight:800;margin-left:8px}.rbnote[open] summary::after{content:"−"}
+.rbnote{font-size:calc(13px * var(--ts))}.rbnote summary{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center;min-height:24px}.rbnote summary::-webkit-details-marker{display:none}.rbnote summary::after{content:"+";font-weight:800;margin-left:8px}.rbnote[open] summary::after{content:"−"}
 .safeln .ic{width:14px;height:14px;vertical-align:-2px;color:var(--good)}
 
 /* ===== native feel (mobile-native + Apple HIG + motion audit) ===== */
 html{-webkit-text-size-adjust:100%;overscroll-behavior:none}body{overscroll-behavior:none}
 /* iOS zooms into any input under 16px and never zooms back out */
-input,textarea,select{font-size:16px!important}
+input,textarea,select{font-size:max(16px,calc(16px * var(--ts)))!important}
 /* controls: no 300ms tap wait, no text selection or callout on long-press (content text stays selectable) */
 button,a,[data-act],.chip,.opt{touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 /* press feedback the moment a finger lands, on everything pressable, not just the main buttons */
@@ -521,7 +525,7 @@ button,a,[data-act],.chip,.opt{touch-action:manipulation;-webkit-user-select:non
 .opt:active,.chip:active,.flag:active,.eq:active span{transform:scale(.98)}
 #tabbar button:active .ic{transform:scale(.9)}#tabbar .ic{transition:transform 120ms var(--ease-out)}
 /* HIG: 11pt is the smallest text */
-#tabbar button{font-size:11px}.dchips i{font-size:11px}
+#tabbar button{font-size:calc(11px * var(--ts))}.dchips i{font-size:calc(11px * var(--ts))}
 /* sheets rise from the bottom with the iOS drawer curve and can be dragged down to close */
 .scrim{animation:scrimIn 220ms ease-out both}
 .sheet{animation:sheetIn 380ms var(--ease-drawer) both;touch-action:none;will-change:transform}
@@ -539,8 +543,8 @@ button,a,[data-act],.chip,.opt{touch-action:manipulation;-webkit-user-select:non
 /* ===== Today: greeting with the streak flame on the right ===== */
 .greet{display:flex;justify-content:space-between;align-items:center;gap:12px}
 /* always one line: the wide font arrives after first paint and used to wrap "Good afternoon" onto two lines, pushing the page down */
-.greet h1{white-space:nowrap;min-width:0;font-size:min(34px,calc((100vw - 112px) / 8.9))}
-.streak{display:inline-flex;align-items:center;gap:5px;min-height:44px;padding:0 4px 0 8px;font-size:22px;font-weight:800;font-stretch:112%;font-variant-numeric:tabular-nums}
+.greet h1{white-space:nowrap;min-width:0;font-size:min(calc(34px * var(--ts)),calc((100vw - 112px) / 8.9))}
+.streak{display:inline-flex;align-items:center;gap:5px;min-height:44px;padding:0 4px 0 8px;font-size:calc(22px * var(--ts));font-weight:800;font-stretch:112%;font-variant-numeric:tabular-nums}
 .streak .ic{width:24px;height:24px;color:#F28B15}
 .streak b{font-weight:800}
 /* ===== glass tab bar: a floating capsule over the content, the current tab sits under a glass lens that slides between icons ===== */
@@ -559,7 +563,7 @@ button,a,[data-act],.chip,.opt{touch-action:manipulation;-webkit-user-select:non
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){#tabbar{background:rgba(30,31,35,.96)}}
 @media (prefers-reduced-transparency:reduce){#tabbar{background:#1E1F23;-webkit-backdrop-filter:none;backdrop-filter:none}}
 #app{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 104px)}
-.stephead.x3{grid-template-columns:36px 1fr auto;align-items:center}.stephead.x3 p{margin:2px 0 0;color:var(--muted);font-size:14px}
+.stephead.x3{grid-template-columns:36px 1fr auto;align-items:center}.stephead.x3 p{margin:2px 0 0;color:var(--muted);font-size:calc(14px * var(--ts))}
 
 /* ===== GOWOD-style: tall centred cards with the next ones peeking, Daily as its own screen, the score counts up ===== */
 /* each card is the full content box and the side padding is equal, so the first card's centred snap position is scroll 0.
@@ -567,19 +571,21 @@ button,a,[data-act],.chip,.opt{touch-action:manipulation;-webkit-user-select:non
    second card whenever the layout changed at launch.) */
 .carousel{grid-auto-columns:100%;scroll-snap-type:x mandatory;padding-inline:16.4%;scroll-padding-inline:0;margin-inline:-16px}
 .carousel .pcard{scroll-snap-align:center;height:clamp(360px,60vh,560px);padding:26px}
+.carousel.short .pcard{height:clamp(300px,calc(100svh - 420px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)),560px)}
 .pcard .art{padding:8% 6% 26%}
-.pcard h2{font-size:36px;margin-bottom:6px}
+.carousel .pcard{container-type:inline-size}.carousel .pcard h2{font-size:min(calc(36px * var(--ts)),16cqi)}
+.pcard h2{font-size:calc(36px * var(--ts));margin-bottom:6px}
 .pcard::before{top:42%}
 #screen{background:var(--bg)}
 .dcard{position:relative;display:grid;align-content:end;text-align:left;height:150px;border-radius:var(--r-panel);padding:16px 18px;overflow:hidden;isolation:isolate;color:#fff}
 .dcard.g-target,.flowcard.g-target,.flowcard.g-rebuild{color:#17181A}
 .dcard .art{position:absolute;inset:0 0 0 42%;z-index:-1;display:grid;place-items:center;padding:8px}
-.dcard b{font-size:22px;font-weight:800;font-stretch:112%;letter-spacing:-.01em}
-.dcard:first-of-type{height:200px}.dcard:first-of-type b{font-size:26px}
+.dcard b{font-size:calc(22px * var(--ts));font-weight:800;font-stretch:112%;letter-spacing:-.01em}
+.dcard:first-of-type{height:200px}.dcard:first-of-type b{font-size:calc(26px * var(--ts))}
 .hscroll.flows{gap:10px;padding-bottom:4px;scroll-snap-type:x mandatory;scroll-padding-inline:16px}
 .flowcard{flex:none;width:72%;max-width:300px;height:170px;scroll-snap-align:start;position:relative;display:grid;align-content:end;gap:1px;text-align:left;border-radius:var(--r-panel);padding:14px 16px;overflow:hidden;isolation:isolate;color:#fff}
 .flowcard .art{position:absolute;inset:0 0 34% 0;z-index:-1;display:grid;place-items:center;padding:6px}
-.flowcard b{font-size:19px;font-weight:800;font-stretch:112%}.flowcard small{font-size:13px;opacity:.8}
+.flowcard b{font-size:calc(19px * var(--ts));font-weight:800;font-stretch:112%}.flowcard small{font-size:calc(13px * var(--ts));opacity:.8}
 .flowcard,.dcard{transition:transform 160ms var(--ease-out)}.flowcard:active,.dcard:active{transform:scale(.97)}
 .bars .tr i{transform-origin:left center}
 
@@ -591,55 +597,57 @@ button,a,[data-act],.chip,.opt{touch-action:manipulation;-webkit-user-select:non
 
 /* ===== Profile: who you are, the program you follow, and a dashboard in three slides ===== */
 .phead{display:flex;align-items:center;gap:14px;padding:6px 0 2px}
-.avatar{width:56px;height:56px;border-radius:50%;background:var(--surface2);box-shadow:inset 0 0 0 1px var(--line);display:grid;place-items:center;font-size:24px;font-weight:800;font-stretch:112%;color:var(--accent);flex:none}
+.avatar{width:56px;height:56px;border-radius:50%;background:var(--surface2);box-shadow:inset 0 0 0 1px var(--line);display:grid;place-items:center;font-size:calc(24px * var(--ts));font-weight:800;font-stretch:112%;color:var(--accent);flex:none}
 .pwho{display:grid;gap:2px;min-width:0}
-.pname{text-align:left;font-size:26px;font-weight:800;font-stretch:112%;letter-spacing:-.02em;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:34px}
-.pprog{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:600;color:var(--muted);min-height:36px;text-align:left}
+.tabtop{height:calc(env(safe-area-inset-top,0px) + 12px)}
+.dcell.score.none p{margin:0;font-size:calc(13px * var(--ts));line-height:1.35;text-align:center}
+.pname{text-align:left;font-size:calc(26px * var(--ts));font-weight:800;font-stretch:112%;letter-spacing:-.02em;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:44px}
+.pprog{display:inline-flex;align-items:center;gap:8px;font-size:calc(15px * var(--ts));font-weight:600;color:var(--muted);min-height:36px;text-align:left}
 .pdot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px rgba(246,180,58,.2);flex:none}
 .pseg{position:relative;display:grid;grid-template-columns:repeat(3,1fr);padding:4px;border-radius:18px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
-.pseg button{position:relative;z-index:1;min-height:44px;border-radius:14px;font-size:14px;font-weight:700;color:var(--muted);transition:color 200ms ease}
+.pseg button{position:relative;z-index:1;min-height:44px;border-radius:14px;font-size:calc(14px * min(var(--ts),1.15));font-weight:700;color:var(--muted);transition:color 200ms ease}
 .pseg button.on{color:var(--chalk)}
 .plens{position:absolute;z-index:0;top:4px;bottom:4px;left:4px;width:calc((100% - 8px)/3);border-radius:14px;transform:translateX(calc(var(--pi,0) * 100%));transition:transform 420ms var(--ease-drawer);background:var(--surface2);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08),inset 0 1px 0 rgba(255,255,255,.1)}
 .dgrid{display:grid;grid-template-columns:1fr 1.12fr;grid-template-rows:auto 1fr;gap:10px}
 .dcell{background:var(--surface);border-radius:var(--r-panel);padding:14px;display:grid;align-content:start;gap:6px;text-align:left;min-width:0;box-shadow:inset 0 0 0 1px rgba(255,255,255,.04),inset 0 1px 0 rgba(255,255,255,.05)}
 .dcell.time{grid-column:1;grid-row:1}.dcell.focus{grid-column:1;grid-row:2;justify-items:center;text-align:center;align-content:center;gap:10px}.dcell.score{grid-column:2;grid-row:1/3;justify-items:center;align-content:start;gap:14px;transition:transform 160ms var(--ease-out)}
 .dcell.score:active{transform:scale(.98)}
-.dt{font-size:14px;font-weight:700;justify-self:start}
-.dsub{font-size:15px;color:var(--muted);margin-top:6px}
-.dbig{font-size:34px;font-weight:800;font-stretch:112%;letter-spacing:-.02em;color:var(--accent);line-height:1;font-variant-numeric:tabular-nums}
+.dt{font-size:calc(14px * var(--ts));font-weight:700;justify-self:start}
+.dsub{font-size:calc(15px * var(--ts));color:var(--muted);margin-top:6px}
+.dbig{font-size:calc(34px * var(--ts));font-weight:800;font-stretch:112%;letter-spacing:-.02em;color:var(--accent);line-height:1;font-variant-numeric:tabular-nums}
 .mbar{height:14px;border-radius:7px;margin-top:8px;background:repeating-linear-gradient(90deg,var(--line) 0 2px,transparent 2px 5px);overflow:hidden;position:relative}
 .mbar i{display:block;height:100%;border-radius:7px;background:linear-gradient(90deg,#E5481A,#F6B43A)}
-.dnext{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--muted);margin-top:2px}.dnext b{color:var(--ink);font-size:14px}
+.dnext{display:flex;justify-content:space-between;align-items:baseline;font-size:calc(12px * var(--ts));color:var(--muted);margin-top:2px}.dnext b{color:var(--ink);font-size:calc(14px * var(--ts))}
 .ringwrap{position:relative;width:min(100%,150px);aspect-ratio:1;margin-top:6px}.ring{width:100%;height:100%;display:block}
-.rnum{position:absolute;inset:0;display:grid;place-content:center;grid-auto-flow:column;align-items:baseline;gap:2px}.rnum b{font-size:40px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}.rnum small{font-size:16px;font-weight:600}
+.rnum{position:absolute;inset:0;display:grid;place-content:center;grid-auto-flow:column;align-items:baseline;gap:2px}.rnum b{font-size:calc(40px * var(--ts));font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}.rnum small{font-size:calc(16px * var(--ts));font-weight:600}
 .vbars{display:flex;justify-content:space-between;gap:6px;width:100%;height:130px;padding:0 6px}
 .vb{flex:1;height:100%;border-radius:4px;background:var(--line);position:relative;overflow:hidden;max-width:8px;margin-inline:auto}.vb i{position:absolute;left:0;right:0;bottom:0;border-radius:4px;transform-origin:bottom}
 .fic{width:64px;height:64px;border-radius:50%;background:var(--surface2);box-shadow:inset 0 0 0 1px var(--line);display:grid;place-items:center;color:var(--ink)}.fic .ic{width:30px;height:30px}
-.fnames{display:grid;gap:2px}.fnames b{font-size:17px;font-weight:700}
-.dtest{display:flex;align-items:center;justify-content:space-between;margin:0;font-size:13px}
-#screen .stack>.panel h3{font-size:18px}
+.fnames{display:grid;gap:2px}.fnames b{font-size:calc(17px * var(--ts));font-weight:700}
+.dtest{display:flex;align-items:center;justify-content:space-between;margin:0;font-size:calc(13px * var(--ts))}
+#screen .stack>.panel h3{font-size:calc(18px * var(--ts))}
 @media (prefers-reduced-motion:reduce){.plens{transition:none}}
 .bars li{grid-template-columns:96px 1fr 62px}.bars b{white-space:nowrap;text-align:right}
 body.touring .carousel .pcard{height:clamp(220px,32vh,320px)}
 
 .chartp{gap:10px}.chead{display:flex;justify-content:space-between;align-items:flex-start}
-.cval{display:flex;align-items:baseline;gap:10px;margin-top:2px}.cval b{font-size:40px;font-weight:800;font-stretch:112%;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}.cval span{font-size:14px;font-weight:600}
+.cval{display:flex;align-items:baseline;gap:10px;margin-top:2px}.cval b{font-size:calc(40px * var(--ts));font-weight:800;font-stretch:112%;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}.cval span{font-size:calc(14px * var(--ts));font-weight:600}
 .cchips{padding-block:2px}
 .chart{width:100%;height:auto;display:block;overflow:visible}.chart .cax{fill:var(--muted);font:600 11px var(--f)}.chart .cval2{fill:var(--ink);font:700 12px var(--f);font-variant-numeric:tabular-nums}
 .chart .cdot{transition:r .2s}
-#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 92px);z-index:60;max-width:min(92vw,420px);padding:12px 16px;border-radius:16px;font-size:14px;font-weight:600;text-align:center;color:var(--ink);background:rgba(38,34,29,.92);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:0 8px 24px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.08)}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 92px);z-index:60;max-width:min(92vw,420px);padding:12px 16px;border-radius:16px;font-size:calc(14px * var(--ts));font-weight:600;text-align:center;color:var(--ink);background:rgba(38,34,29,.92);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:0 8px 24px rgba(0,0,0,.4),inset 0 0 0 1px rgba(255,255,255,.08)}
 /* ===== Rebuild dashboard ===== */
 .rbgo{position:relative;border:0;background:none;padding:0;width:min(100%,150px);aspect-ratio:1;display:block;margin-top:6px;transition:transform 160ms var(--ease-out)}.rbgo:active{transform:scale(.95)}
 .rbgo .rnum .ic{width:48px;height:48px;color:var(--chalk)}
-.rbmeta{display:flex;align-items:baseline;gap:6px}.rbmeta b{font-size:26px;font-weight:800;font-stretch:112%}.rbmeta span{font-size:14px;color:var(--muted)}
+.rbmeta{display:flex;align-items:baseline;gap:6px}.rbmeta b{font-size:calc(26px * var(--ts));font-weight:800;font-stretch:112%}.rbmeta span{font-size:calc(14px * var(--ts));color:var(--muted)}
 .rbmin{display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%}.rbmin .chip{justify-content:center;padding:9px 0}
-.fpain{font-size:28px;font-weight:800;font-stretch:112%;font-variant-numeric:tabular-nums}.dcell.focus .fic{width:72px;height:72px}
-.rxrow{gap:10px;padding-bottom:4px}.rxm{flex:none;width:132px;display:grid;gap:3px;text-align:left;align-content:start}.rxm .th{display:block;background:var(--stage);border-radius:14px;overflow:hidden}.rxm b{font-size:13px;line-height:1.25}.rxm small{font-size:12px;color:var(--muted)}
+.fpain{font-size:calc(28px * var(--ts));font-weight:800;font-stretch:112%;font-variant-numeric:tabular-nums}.dcell.focus .fic{width:72px;height:72px}
+.rxrow{gap:10px;padding-bottom:4px}.rxm{flex:none;width:132px;display:grid;gap:3px;text-align:left;align-content:start}.rxm .th{display:block;background:var(--stage);border-radius:14px;overflow:hidden}.rxm b{font-size:calc(13px * var(--ts));line-height:1.25}.rxm small{font-size:calc(12px * var(--ts));color:var(--muted)}
 .steps2{gap:0;padding-block:6px}.stp{display:grid;grid-template-columns:34px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);opacity:.62}.stp:last-child{border-bottom:0}.stp.on,.stp.done{opacity:1}
-.stp .sn{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:14px;background:var(--surface2);color:var(--muted)}.stp .sn .ic{width:16px;height:16px}
+.stp .sn{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:calc(14px * var(--ts));background:var(--surface2);color:var(--muted)}.stp .sn .ic{width:16px;height:16px}
 .stp.on .sn{background:var(--accent);color:var(--accent-ink)}.stp.done .sn{background:var(--accent-soft);color:var(--accent)}
-.stp b{display:block;font-size:16px}.stp small{display:block;color:var(--muted);font-size:13px}.stp p{margin:6px 0 0;font-size:14px}
-.acc details{border-bottom:1px solid var(--line);padding:2px 0}.acc details:last-child{border-bottom:0}.acc summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;min-height:48px;font-weight:700;font-size:16px}.acc summary::-webkit-details-marker{display:none}.acc summary::after{content:"+";font-weight:800;color:var(--muted)}.acc details[open] summary::after{content:"−"}.acc details>ul,.acc details>div{margin:0 0 12px}
+.stp b{display:block;font-size:calc(16px * var(--ts))}.stp small{display:block;color:var(--muted);font-size:calc(13px * var(--ts))}.stp p{margin:6px 0 0;font-size:calc(14px * var(--ts))}
+.acc details{border-bottom:1px solid var(--line);padding:2px 0}.acc details:last-child{border-bottom:0}.acc summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;min-height:48px;font-weight:700;font-size:calc(16px * var(--ts))}.acc summary::-webkit-details-marker{display:none}.acc summary::after{content:"+";font-weight:800;color:var(--muted)}.acc details[open] summary::after{content:"−"}.acc details>ul,.acc details>div{margin:0 0 12px}
 </style>
 
 <div id="splash" aria-hidden="true"><i class="grid"></i><div class="spl">
@@ -663,6 +671,14 @@ body.touring .carousel .pcard{height:clamp(220px,32vh,320px)}
 <div id="layer"></div>
 
 <script>
+// Dynamic Type: iOS sizes the system "body" text style from Settings > Display > Text Size (17pt by default).
+// Every text size in the app is multiplied by --ts, so the app's text grows and shrinks with it. Capped so the cards
+// and tab bar keep their shape; iPhone and iPad only, as desktop Safari reports its own, smaller body size.
+function textScale(){try{const ios=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  if(!ios||!CSS.supports("font","-apple-system-body"))return;const p=document.createElement("span");p.style.cssText="position:absolute;visibility:hidden;font:-apple-system-body";p.textContent="A";
+  document.documentElement.appendChild(p);const fs=parseFloat(getComputedStyle(p).fontSize);p.remove();
+  if(!fs)return;const ts=Math.min(1.6,Math.max(.88,fs/17));document.documentElement.style.setProperty("--ts",ts.toFixed(3));document.documentElement.toggleAttribute("data-bigtext",ts>1.2)}catch(e){}}
+textScale();document.addEventListener("visibilitychange",()=>{if(!document.hidden)textScale()});
 /* ================= data ================= */
 const AREAS=[{k:"shoulders",n:"Shoulders"},{k:"overhead",n:"Overhead"},{k:"thoracic",n:"T-spine"},{k:"hips",n:"Hips"},{k:"posterior",n:"Post. chain"},{k:"ankles",n:"Ankles"}];
 const AN=Object.fromEntries(AREAS.map(a=>[a.k,a.n]));
@@ -2030,7 +2046,7 @@ AFTER.profile=()=>{const on=document.querySelector(".cchips .chip.on");if(on&&on
   if(!PROF_ANIM||REDUCED||TOUR){PROF_ANIM=false;return}PROF_ANIM=false;dashAnim()};
 AFTER.rebuild=()=>{if(!RB_ANIM||REDUCED||TOUR){RB_ANIM=false;return}RB_ANIM=false;dashAnim()};
 function dashAnim(){
-  const b=document.querySelector(".ringnum");if(b){const to=+b.textContent||0,t0=performance.now(),D=900;
+  const b=document.querySelector(".ringnum");if(b&&!b.closest(".none")){const to=+b.textContent||0,t0=performance.now(),D=900;
     const step=t=>{const k=Math.min(1,(t-t0)/D),e=1-Math.pow(1-k,3);b.textContent=Math.round(to*e);if(k<1)requestAnimationFrame(step)};b.textContent="0";requestAnimationFrame(step)}
   const rf=document.querySelector(".rfg");if(rf){const o=rf.getAttribute("stroke-dashoffset"),c=rf.getAttribute("stroke-dasharray");try{rf.animate([{strokeDashoffset:c},{strokeDashoffset:o}],{duration:1000,easing:"cubic-bezier(.23,1,.32,1)"})}catch(e){}}
   document.querySelectorAll(".vb i").forEach((i,n)=>{try{i.animate([{transform:"scaleY(0)"},{transform:"none"}],{duration:800,delay:120+n*60,easing:"cubic-bezier(.23,1,.32,1)",fill:"backwards"})}catch(e){}});
@@ -2046,25 +2062,39 @@ SCREENS.home=()=>{
   const sc=scores(),ov=overall(sc),lv=level(ov);
   return `<div class="hdr" style="grid-template-columns:1fr"><div class="brand">Range<b>.</b></div></div>
   <div class="greet"><h1>${greeting()}</h1><button class="streak" data-act="tab" data-t="profile" data-tour="streak" aria-label="${streak()} day streak">${ic("flame","fill")}<b>${streak()}</b></button></div>
-  <div class="carousel" id="car" data-tour="cards">${HOME_KINDS.map(k=>[k,KINDS[k]]).map(([k,v])=>drawPart("card "+k,()=>`
-    <button class="pcard ${v.g}" data-act="startKind" data-kind="${k}" aria-label="${v.n}">
-      <div class="art">${fig(v.pose,null,{anim:true})}</div>
-      <h2>${v.n}</h2>
-    </button>`)).join("")}</div>
+  <div class="carousel${S.scores?"":" short"}" id="car" data-tour="cards">${homeCards()}</div>
   <div class="dots" id="cardots">${HOME_KINDS.map((_,i)=>`<i class="${i?"":"on"}"></i>`).join("")}</div>
   <div class="stack">
-    ${S.scores?"":`<div class="banner" data-tour="test"><div><h3>Find your weak spots</h3><div class="muted" style="font-size:14px;margin-top:4px">A 10-minute test so every session fits your body.</div></div><button class="btn" data-act="openTest">${testDraft()?"Resume my test":"Test my mobility"}</button></div>`}
+    ${S.scores?"":`<div class="banner" data-tour="test"><div><h3>Find your weak spots</h3><div class="muted" style="font-size:calc(14px * var(--ts));margin-top:4px">A 10-minute test so every session fits your body.</div></div><button class="btn" data-act="openTest">${testDraft()?"Resume my test":"Test my mobility"}</button></div>`}
   </div>`;
 };
+// the cards loop: a copy of the last card sits before the first and a copy of the first after the last, so Activate
+// opens centred with a card peeking on each side, and swiping past either end lands on the real card at the other end
+function homeCards(){const card=(k,clone)=>{const v=KINDS[k];return drawPart("card "+k,()=>`
+    <button class="pcard ${v.g}${clone?" clone":""}" data-act="startKind" data-kind="${k}" aria-label="${v.n}"${clone?' aria-hidden="true" tabindex="-1"':""}>
+      <div class="art">${fig(v.pose,null,{anim:true})}</div>
+      <h2>${v.n}</h2>
+    </button>`)};
+  return card(HOME_KINDS[HOME_KINDS.length-1],1)+HOME_KINDS.map(k=>card(k)).join("")+card(HOME_KINDS[0],1)}
 AFTER.home=()=>{
-  const car=$("#car");if(!car)return;
-  // open on the first card: if a late layout change (the web font arriving, the 3D figures sizing) moves the carousel
-  // before you've touched it, put it back
-  const home=()=>{if(!car._touched&&car.isConnected&&car.scrollLeft)car.scrollLeft=0};
+  const car=$("#car");if(!car)return;const N=HOME_KINDS.length;
+  const pos=el=>{const r=el.getBoundingClientRect(),c=car.getBoundingClientRect();return car.scrollLeft+(r.left+r.width/2)-(c.left+c.width/2)};
+  const go=i=>{car.scrollLeft=pos(car.children[i])};
+  const near=()=>{const c=car.getBoundingClientRect(),m=c.left+c.width/2;let i=0,best=1e9;[...car.children].forEach((el,k)=>{const r=el.getBoundingClientRect(),d=Math.abs(r.left+r.width/2-m);if(d<best){best=d;i=k}});return i};
+  go(1);
+  // open on Activate: if a late layout change (the web font arriving, the 3D figures sizing) moves the row before
+  // you've touched it, put it back
+  const home=()=>{if(!car._touched&&car.isConnected&&Math.abs(car.scrollLeft-pos(car.children[1]))>1)go(1)};
   car.addEventListener("touchstart",()=>{car._touched=1},{passive:true,once:true});
   if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>requestAnimationFrame(home));
   setTimeout(home,700);car._home=home;
-  car.addEventListener("scroll",()=>{const c=car.scrollLeft+car.clientWidth/2;let i=0,best=1e9;[...car.children].forEach((el,k)=>{const d=Math.abs(el.offsetLeft+el.offsetWidth/2-c);if(d<best){best=d;i=k}});document.querySelectorAll("#cardots i").forEach((d,k)=>d.classList.toggle("on",k===i))},{passive:true});
+  let held=false,settle=0;
+  const wrap=()=>{if(held||!car.isConnected)return;const i=near();if(i===0)go(N);else if(i===N+1)go(1)};
+  car.addEventListener("touchstart",()=>{held=true},{passive:true});
+  car.addEventListener("touchend",()=>{held=false;clearTimeout(settle);settle=setTimeout(wrap,160)},{passive:true});
+  car.addEventListener("scrollend",wrap);
+  car.addEventListener("scroll",()=>{const i=near(),real=(i-1+N)%N;document.querySelectorAll("#cardots i").forEach((d,k)=>d.classList.toggle("on",k===real));
+    clearTimeout(settle);settle=setTimeout(wrap,160)},{passive:true});
 };
 ACT.startKind=d=>{
   const k=d.kind;
@@ -2091,7 +2121,7 @@ SCREENS.sport=p=>{
     ${S.sports.map(k=>SPI[k]).filter(Boolean).map(s=>`<button class="scard ${s.g}" data-act="pickSport" data-s="${s.k}"><div class="art">${fig(s.pose)}</div><b>${s.n}</b></button>`).join("")}
     <button class="scard addsport" data-act="sportsSheet">${ic("plus")}Add sport</button>
   </div>
-  <button class="zcard g-target" data-act="pickZone"><div><b style="font-size:18px;font-weight:800;font-stretch:112%">Per body zone</b><div class="muted" style="font-size:13px">Target one specific area</div></div><div>${fig("child")}</div></button>
+  <button class="zcard g-target" data-act="pickZone"><div><b style="font-size:calc(18px * var(--ts));font-weight:800;font-stretch:112%">Per body zone</b><div class="muted" style="font-size:calc(13px * var(--ts))">Target one specific area</div></div><div>${fig("child")}</div></button>
   </div>`;
 };
 ACT.pickSport=d=>startWizard({kind:stack[stack.length-1].p.kind,sport:d.s});
@@ -2124,13 +2154,13 @@ function startWizard(o){
 // which workout movements this session warms up for (Activate) or releases after (Recover)
 function forLine(){if(!(W.kind==="activate"||W.kind==="recover")||!W.moves.length||STEPS[W.kind][W.step]==="moves")return"";const m=W.moves.slice(0,3),more=W.moves.length-m.length;
   const list=m.join(", ").replace(/, ([^,]+)$/,more?", $1":" and $1")+(more?` +${more}`:"");
-  return`<span style="font-size:14px;font-weight:600;line-height:1.3">${W.kind==="activate"?"Warm-up for":"Release after"} ${esc(list)}</span>`}
+  return`<span style="font-size:calc(14px * var(--ts));font-weight:600;line-height:1.3">${W.kind==="activate"?"Warm-up for":"Release after"} ${esc(list)}</span>`}
 function wizHead(){
   const kd=KINDS[W.kind],sp=W.sport?SPI[W.sport]:null;
   const title=W.from?W.from:sp?sp.n:W.kind==="target"&&W.zone?AN[W.zone]:kd.sub;
   const steps=STEPS[W.kind].filter(s=>s!=="summary");
   const sum=STEPS[W.kind][W.step]==="summary"&&W.plan;
-  return `<div class="whead"><div class="hero ${kd.g}"><div class="art">${fig(sp?sp.pose:kd.pose)}</div><b>${esc(W.kind==="target"&&W.zone?AN[W.zone]:kd.n)}</b>${forLine()}${sum?`<span style="font-size:14px;font-weight:600;opacity:.85">${Math.max(1,Math.round(W.plan.secs/60))} min · ${W.plan.items.length} exercises</span>`:""}</div></div>`;
+  return `<div class="whead"><div class="hero ${kd.g}"><div class="art">${fig(sp?sp.pose:kd.pose)}</div><b>${esc(W.kind==="target"&&W.zone?AN[W.zone]:kd.n)}</b>${forLine()}${sum?`<span style="font-size:calc(14px * var(--ts));font-weight:600;opacity:.85">${Math.max(1,Math.round(W.plan.secs/60))} min · ${W.plan.items.length} exercises</span>`:""}</div></div>`;
 }
 SCREENS.wizard=()=>{
   const step=STEPS[W.kind][W.step];
@@ -2139,7 +2169,7 @@ SCREENS.wizard=()=>{
     const sp=W.sport?SPI[W.sport]:null;
     const sugg=(sp?sp.m:Object.keys(MOVES)).filter(m=>!W.moves.includes(m)).slice(0,8);
     body=`<div class="stephead x3"><span class="bub">${ic("move")}</span><div><h3>${W.kind==="recover"?"Release after":"Warm up for"}</h3>${W.from?`<p>${esc(W.from)}</p>`:""}</div>${W.moves.length>1?`<button class="link" data-act="clearMoves">Clear</button>`:""}</div>
-    ${W.moves.length?`<div class="mlist">${W.moves.map(m=>`<div><span>${esc(m)}</span><button data-act="rmMove" data-m="${esc(m)}" aria-label="Remove ${esc(m)}">${ic("x")}</button></div>`).join("")}</div>`:`<p class="muted" style="margin:0">Add what you're training.</p>`}
+    ${W.moves.length?`<div class="mlist">${W.moves.map(m=>`<div><span>${esc(m)}</span><button data-act="rmMove" data-m="${esc(m)}" aria-label="Remove ${esc(m)}">${ic("x")}</button></div>`).join("")}</div>`:`<p class="muted" style="margin:0">Add at least one movement you're training to continue.</p>`}
     ${sugg.length?`<div class="stack" style="gap:8px"><span class="eyebrow">Add</span><div class="chipset">${sugg.map(m=>`<button class="chip" data-act="addMove" data-m="${esc(m)}">${ic("plus")}${esc(m)}</button>`).join("")}</div></div>`:""}`;
     cta=`<button class="btn sec" data-act="moveSheet">${ic("plus")}Add movement</button><button class="btn" data-act="wNext" ${W.moves.length?"":"disabled"}>Next</button>`;
   }
@@ -2170,7 +2200,7 @@ SCREENS.wizard=()=>{
     if(!W.plan)W.plan=buildPlan(W);
     body=`<div class="stack" style="gap:6px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="chipset">${W.kind==="target"?`<button class="chip" data-act="wGoto" data-s="zone">${ic("target")}${esc(AN[W.zone])}</button>`:""}<button class="chip" data-act="wGoto" data-s="time">${ic("clock")}${W.minutes} min</button><button class="chip" data-act="wGoto" data-s="equip" aria-label="Equipment">${ic("equip")}Kit</button></span><span style="display:flex;gap:14px"><button class="link" data-act="whySheet">Why?</button><button class="link" data-act="reshuffle">Shuffle</button></span></div>
     ${rbNote(W.plan.warn)}
-    ${W.plan.excluded&&!W.plan.warn?`<p class="muted safeln" style="margin:0;font-size:13px">${ic("check")} Safe for your ${esc(W.plan.excluded.toLowerCase().replace(/ \(.*\)$/,""))}</p>`:""}
+    ${W.plan.excluded&&!W.plan.warn?`<p class="muted safeln" style="margin:0;font-size:calc(13px * var(--ts))">${ic("check")} Safe for your ${esc(W.plan.excluded.toLowerCase().replace(/ \(.*\)$/,""))}</p>`:""}
     <div class="preview">${W.plan.items.length?(()=>{let n=0;return(W.plan.blocks||[{name:"",items:W.plan.items}]).map((b,bi)=>`${b.name?`<p class="blk">${esc(b.name)} <span>${Math.round(b.items.reduce((t,it)=>t+itemSecs(it),0)/60)||"<1"} min</span></p>`:""}${b.items.map((it,ii)=>{const ex=LIBI[it.id];n++;return`<div class="ed"><span>${n}</span><span>${esc(ex.n)}</span><span class="rt"><span>${it.dose?esc(doseText(it).split(" · ")[0]):fmt(it.hold)+(ex.sides?" ×2":"")}</span><span class="pe"><button data-act="wSwap" data-b="${bi}" data-i="${ii}" aria-label="Swap ${esc(ex.n)}">${ic("reset")}</button><button data-act="wRm" data-b="${bi}" data-i="${ii}" aria-label="Remove ${esc(ex.n)}">${ic("x")}</button></span></span></div>`}).join("")}`).join("")})():`<div><span></span><span class="muted">No stretches match this equipment and time. Add equipment or pick more time.</span><span></span></div>`}</div>
     <button class="btn sec" data-act="wAdd">${ic("plus","")} Add exercise</button></div>`;
     cta=`<button class="btn" id="goBtn" data-act="letsGo" ${W.plan.items.length?"":"disabled"}>${W.plan.items.length?"Start":"Nothing to play"}</button>`;
@@ -2216,13 +2246,13 @@ ACT.whySheet=()=>{
   const C=W.kind==="target"?{}:{weak:["Low test score","var(--warn)"],demand:[W.kind==="recover"?"Session you're recovering from":W.kind==="activate"?"Today's movements":"",  "var(--accent)"],load:["Load in the last 3 days","var(--bad)"],next:["Next session","#8F98FF"]};
   const keys=Object.keys(C).filter(k=>C[k][0]&&AREAS.some(a=>(parts[a.k]||{})[k]>0));
   sheet(`<h3>How Range picked these</h3><div class="scroll">
-   <p class="muted" style="margin:0;font-size:14px">${W.kind==="target"?`All the time goes to ${AN[W.zone]}. Range picks the stretches there that you haven't done recently and that fit your equipment.`:"Each body area gets a need score from the signals below. Your time is split by those scores. Then Range picks the best stretch in each area for your goal, your equipment and the exact muscles your movements use, swapping out anything you did in the last 4 days."}</p>
+   <p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">${W.kind==="target"?`All the time goes to ${AN[W.zone]}. Range picks the stretches there that you haven't done recently and that fit your equipment.`:"Each body area gets a need score from the signals below. Your time is split by those scores. Then Range picks the best stretch in each area for your goal, your equipment and the exact muscles your movements use, swapping out anything you did in the last 4 days."}</p>
    ${keys.length?`<div class="legend">${keys.map(k=>`<span><i style="background:${C[k][1]}"></i>${C[k][0]}</span>`).join("")}</div>
    <ul class="needbars">${AREAS.slice().sort((a,b)=>need[b.k]-need[a.k]).map(a=>{const p=parts[a.k]||{};const minutes=W.plan.items.filter(it=>LIBI[it.id].a===a.k).length;return`<li><span>${a.n}</span><span class="nb">${keys.map(k=>p[k]>0?`<i style="width:${(p[k]/mx*100).toFixed(1)}%;background:${C[k][1]}"></i>`:"").join("")}</span><b>${minutes?minutes+" ×":"–"}</b></li>`}).join("")}</ul>
-   <p class="muted" style="margin:0;font-size:12px">The number on the right is how many exercises that area got.${AREAS.some(a=>(parts[a.k]||{}).pen>0)?" Areas you already stretched in the last 2 days get a little less time.":""}</p>`:""}
+   <p class="muted" style="margin:0;font-size:calc(12px * var(--ts))">The number on the right is how many exercises that area got.${AREAS.some(a=>(parts[a.k]||{}).pen>0)?" Areas you already stretched in the last 2 days get a little less time.":""}</p>`:""}
    ${(W.plan.credit=planCredit(W.plan.items,W.kind==="target"||W.kind==="daily"?[]:W.moves))&&Object.keys(W.plan.credit).length?`<div class="stack" style="gap:6px"><span class="eyebrow">${W.kind==="recover"?"What each movement worked":"What each movement needs"}</span>
     <ul class="mvcredit">${Object.entries(W.plan.credit).map(([m,ids])=>`<li><b>${esc(m)}</b><span class="muted">${(MOVE_ZONES[m]||[]).slice(0,3).map(z=>ZONES[z].toLowerCase()).join(", ")}</span><span>${ids.length?ids.map(id=>esc(LIBI[id].n)).join(", "):`<i class="muted">Lightly loaded. No exercise of its own at this length</i>`}</span></li>`).join("")}</ul></div>`:""}
-   <div class="stack" style="gap:6px"><span class="eyebrow">Session structure</span><p class="muted" style="margin:0;font-size:14px">${{
+   <div class="stack" style="gap:6px"><span class="eyebrow">Session structure</span><p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">${{
     activate:"One body region at a time, starting with the muscles your workout leans on most (hips & legs, shoulders, back, then calves and wrists). Rehab warm-up first if your Rebuild program has one. In each region: roll, then mobilise with dynamic drills for the positions your lifts need. A short static hold (30 s, one per area) only where your test shows you're tight and the session uses that muscle, so you keep your strength. Once every area is warm, Activate comes last: brace the core and switch on the muscles your lifts rely on, floor first and standing last. Finish by rehearsing the main lift's position (for example a PVC overhead squat before snatches).",
     recover:"One body region at a time, starting with the muscles the session loaded most (hips & legs, shoulders, back, then calves and wrists). In each region: release with the roller or ball first, then long passive holds, from standing down to the floor.",
     daily:"One body region at a time (hips & legs, shoulders, back, then calves and wrists): rolling first, then mobility for your weakest areas, capped at about 10 minutes of static stretching per area per week. Strength at end range comes last, once every area is warm. Loaded range work improves mobility as much as stretching and also lowers injury risk.",
@@ -2248,7 +2278,7 @@ function drawMoveSheet(){
   const all=Object.keys(MOVES).filter(m=>!tmpMoves.includes(m));
   const list=q?all.filter(m=>m.toLowerCase().includes(q)).slice(0,8):(W.sport?SPI[W.sport].m.filter(m=>!tmpMoves.includes(m)).slice(0,6):[]);
   $("#mres").innerHTML=(q&&!list.length)?`<p class="muted" style="margin:0">No movement matches "${esc(q)}". Try a shorter word.</p>`:list.map(m=>{const d=MOVES[m];const top=Object.entries(d).sort((a,b)=>b[1]-a[1]).slice(0,2).map(x=>AN[x[0]]).join(", ");return`<button data-act="tmpAdd" data-m="${esc(m)}"><span>${esc(m)}<br><small>${top}</small></span>${ic("plus")}</button>`}).join("");
-  $("#msel").innerHTML=tmpMoves.length?tmpMoves.map(m=>`<div class="selchip"><span>${esc(m)}</span><button data-act="tmpRm" data-m="${esc(m)}" aria-label="Remove ${esc(m)}">${ic("x")}</button></div>`).join(""):`<span class="muted" style="font-size:14px">None yet</span>`;
+  $("#msel").innerHTML=tmpMoves.length?tmpMoves.map(m=>`<div class="selchip"><span>${esc(m)}</span><button data-act="tmpRm" data-m="${esc(m)}" aria-label="Remove ${esc(m)}">${ic("x")}</button></div>`).join(""):`<span class="muted" style="font-size:calc(14px * var(--ts))">None yet</span>`;
 }
 ACT.tmpAdd=d=>{tmpMoves.push(d.m);$("#mq").value="";drawMoveSheet();$("#mq").focus()};
 ACT.tmpRm=d=>{tmpMoves=tmpMoves.filter(m=>m!==d.m);drawMoveSheet()};
@@ -2371,7 +2401,7 @@ function moreCue(){document.querySelectorAll("#pcards .icard").forEach(c=>{const
 function drawP(){
   const s=P.segs[P.si];
   const arc=$("#parc");arc.classList.toggle("ready",s.type==="ready");
-  if(s.type==="set"){arc.setAttribute("stroke-dashoffset","0");$("#pcore").innerHTML=P.started?`<span style="display:grid;justify-items:center;line-height:1"><span class="num">${s.reps}</span><small style="font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">reps</small></span>`:icf("play");drawBar(s);animPaused=!P.running;return}
+  if(s.type==="set"){arc.setAttribute("stroke-dashoffset","0");$("#pcore").innerHTML=P.started?`<span style="display:grid;justify-items:center;line-height:1"><span class="num">${s.reps}</span><small style="font-size:calc(9px * var(--ts));font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">reps</small></span>`:icf("play");drawBar(s);animPaused=!P.running;return}
   arc.setAttribute("stroke-dashoffset",(245*(1-(P.total-P.remaining)/P.total)).toFixed(1));
   $("#pcore").innerHTML=P.running||P.started&&P.remaining<P.total-0.2?`<span class="num">${Math.max(0,Math.ceil(P.remaining))}</span>`:icf("play");
   if(!P.running&&P.started)$("#pcore").innerHTML=icf("play");
@@ -2480,13 +2510,13 @@ function finishSession(complete){
     <div class="hdr" style="grid-template-columns:1fr"><div class="brand" style="text-align:center">Range<b>.</b></div></div>
     <div class="stack" style="align-content:start;padding-top:12px">
       <span class="eyebrow">${complete?"Session complete":"Session ended"}</span>
-      <h1 class="clamp2" style="font-size:28px">${esc(P.meta.title)}</h1>
+      <h1 class="clamp2" style="font-size:calc(28px * var(--ts))">${esc(P.meta.title)}</h1>
       <div class="tiles"><div class="tile"><span class="eyebrow">Minutes</span><b>${rec.mins}</b></div><div class="tile"><span class="eyebrow">Exercises</span><b>${doneCount}</b></div></div>
-      ${isRehab&&doneCount>0?`<div class="panel"><span class="eyebrow">Highest pain during the session</span>${painGrid("rbSessionPain",null)}<p id="rbAfter" class="muted" style="margin:0;font-size:14px" aria-live="polite">Tomorrow morning, check your test movement again. If it's worse, Range will tell you to back off.</p></div>`:""}
+      ${isRehab&&doneCount>0?`<div class="panel"><span class="eyebrow">Highest pain during the session</span>${painGrid("rbSessionPain",null)}<p id="rbAfter" class="muted" style="margin:0;font-size:calc(14px * var(--ts))" aria-live="polite">Tomorrow morning, check your test movement again. If it's worse, Range will tell you to back off.</p></div>`:""}
       ${canRetest?`<div class="panel"><span class="eyebrow">Optional · did it help?</span>
-        <div style="font-size:14px">Quick check, like in your mobility test (not a workout). Do each position for a few seconds:</div>
+        <div style="font-size:calc(14px * var(--ts))">Quick check, like in your mobility test (not a workout). Do each position for a few seconds:</div>
         <div class="rtgrid">${rchk.map(c=>`<div class="rtpos"><div class="rtfig">${fig(c.fig,null,{t:1,mode:"static",zones:AREA_ZONES[c.k]})}</div><b>${esc(c.n)}</b><small class="muted">${esc(c.how)}</small></div>`).join("")}</div>
-        <div style="font-size:14px">Compared with before the session, it feels:</div><div class="feel" style="grid-template-columns:repeat(3,1fr)">${["Worse","Same","Better"].map((f,i)=>`<button data-act="retest" data-v="${i-1}">${f}</button>`).join("")}</div><p class="muted" style="margin:0;font-size:12px">Range uses your answer to pick the stretches that work best for you. Skip it if you like.</p></div>`:""}
+        <div style="font-size:calc(14px * var(--ts))">Compared with before the session, it feels:</div><div class="feel" style="grid-template-columns:repeat(3,1fr)">${["Worse","Same","Better"].map((f,i)=>`<button data-act="retest" data-v="${i-1}">${f}</button>`).join("")}</div><p class="muted" style="margin:0;font-size:calc(12px * var(--ts))">Range uses your answer to pick the stretches that work best for you. Skip it if you like.</p></div>`:""}
       <div class="panel"><span class="eyebrow">Areas you worked</span><div class="ztags">${zones.map(z=>`<span>${ZONES[z]}</span>`).join("")}</div>${bodyMap(zones)}</div>
       ${meaningful&&!isRehab?`<div class="stack" style="gap:8px"><span class="eyebrow">How do you feel now?</span><div class="feel">${["Stiff","Tight","OK","Loose","Great"].map((f,i)=>`<button data-act="feel" data-f="${i}">${f}</button>`).join("")}</div></div>`:`<p class="muted" style="margin:0">Sessions under 20 seconds aren't saved to your log.</p>`}
     </div>
@@ -2546,7 +2576,7 @@ function routineLink(p){
 ACT.routineShare=async d=>{const p=S.myProtocols.find(x=>x.id===d.id);if(!p)return;const url=routineLink(p);
   if(navigator.share){try{await navigator.share({title:`Range routine: ${p.name}`,text:`My mobility routine “${p.name}” (${p.items.length} exercises). Open it in Range:`,url});return}catch(e){if(e&&e.name==="AbortError")return}}
   let ok=false;try{await navigator.clipboard.writeText(url);ok=true}catch(e){}
-  sheet(`<h3>Share “${esc(p.name)}”</h3><div class="scroll"><p class="muted" style="margin:0;font-size:14px">${ok?"Link copied. ":""}Anyone who opens it can add the routine to their Range.</p><textarea class="field" rows="4" readonly style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px;font-size:12px" onclick="this.select()">${esc(url)}</textarea></div><button class="btn sec" data-act="closeSheet">Done</button>`)};
+  sheet(`<h3>Share “${esc(p.name)}”</h3><div class="scroll"><p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">${ok?"Link copied. ":""}Anyone who opens it can add the routine to their Range.</p><textarea class="field" rows="4" readonly style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px;font-size:calc(12px * var(--ts))" onclick="this.select()">${esc(url)}</textarea></div><button class="btn sec" data-act="closeSheet">Done</button>`)};
 // read a shared routine (untrusted): keep only known exercises or the sender's own ones, with sane doses
 function parseRoutine(str){
   const m=String(str||"").match(/#r=([A-Za-z0-9_-]{8,})/);if(!m)return null;
@@ -2559,8 +2589,8 @@ function parseRoutine(str){
   return items.length?{name:cl(d.n,60)||"Shared routine",notes:cl(d.no,500),items,own}:null;
 }
 let RT_IN=null;
-function offerRoutine(r){RT_IN=r;sheet(`<h3>Add “${esc(r.name)}”?</h3><div class="scroll"><p class="muted" style="margin:0;font-size:14px">A routine someone shared with you · ${r.items.length} exercise${r.items.length===1?"":"s"}</p>
-  <div class="preview">${r.items.map((it,i)=>`<div><span>${i+1}</span><span>${esc((r.own.find(e=>e.id===it.id)||LIBI[it.id]).n)}</span><span>${esc(doseText(it))}</span></div>`).join("")}</div>${r.notes?`<p style="margin:0;font-size:14px">${esc(r.notes)}</p>`:""}</div>
+function offerRoutine(r){RT_IN=r;sheet(`<h3>Add “${esc(r.name)}”?</h3><div class="scroll"><p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">A routine someone shared with you · ${r.items.length} exercise${r.items.length===1?"":"s"}</p>
+  <div class="preview">${r.items.map((it,i)=>`<div><span>${i+1}</span><span>${esc((r.own.find(e=>e.id===it.id)||LIBI[it.id]).n)}</span><span>${esc(doseText(it))}</span></div>`).join("")}</div>${r.notes?`<p style="margin:0;font-size:calc(14px * var(--ts))">${esc(r.notes)}</p>`:""}</div>
   <div style="display:grid;gap:8px"><button class="btn" data-act="routineAdd">Add to my routines</button><button class="btn sec" data-act="closeSheet">Not now</button></div>`)}
 ACT.routineAdd=()=>{const r=RT_IN;if(!r)return;const map={};
   // the sender's own exercises join yours under a fresh id unless you already have the same one
@@ -2569,15 +2599,15 @@ ACT.routineAdd=()=>{const r=RT_IN;if(!r)return;const map={};
   RT_IN=null;save();closeSheet();stack=[{name:"home",p:{}},{name:"library",p:{}}];render();scrollTo(0,0)};
 ACT.routinePaste=async()=>{let t="";try{t=await navigator.clipboard.readText()}catch(e){}
   const r=parseRoutine(t);if(r)return offerRoutine(r);
-  sheet(`<h3>Add a shared routine</h3><div class="scroll"><p class="muted" style="margin:0;font-size:14px">Paste the link someone sent you.</p><textarea id="rtLink" class="field" rows="4" style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px;font-size:13px"></textarea><p id="rtMsg" class="c-bad" style="margin:0;font-size:14px"></p></div>
+  sheet(`<h3>Add a shared routine</h3><div class="scroll"><p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Paste the link someone sent you.</p><textarea id="rtLink" class="field" rows="4" style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px;font-size:calc(13px * var(--ts))"></textarea><p id="rtMsg" class="c-bad" style="margin:0;font-size:calc(14px * var(--ts))"></p></div>
    <div style="display:grid;gap:8px"><button class="btn" data-act="routinePasteGo">Continue</button><button class="btn sec" data-act="closeSheet">Cancel</button></div>`)};
 ACT.routinePasteGo=()=>{const r=parseRoutine($("#rtLink").value);if(r){closeSheet();offerRoutine(r)}else $("#rtMsg").textContent="That doesn't look like a Range routine link."};
 const routinesPanel=()=>{const rs=myRoutines();return`<div class="stack" style="gap:8px" data-tour="routines"><div style="display:flex;justify-content:space-between;align-items:center"><span class="eyebrow">My routines</span><span style="display:flex;gap:14px;align-items:center"><button class="link" data-act="routinePaste">Paste a link</button><button class="link" data-act="routineNew">${ic("plus","")} New</button></span></div>
   ${rs.length?rs.map(p=>{const m=Math.max(1,Math.round(rtItems(p).reduce((t,it)=>t+itemSecs(it),0)/60));return`<div class="panel rtcard">
    <div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><h3>${esc(p.name)}</h3><button class="link" data-act="myEdit" data-id="${p.id}">Edit</button></div>
-   <p class="muted" style="margin:0;font-size:13px">${p.items.length} exercise${p.items.length===1?"":"s"} · about ${m} min${p.from?` · ${esc(p.from)}`:""}</p>
-   <p style="margin:0;font-size:14px">${p.items.map(it=>LIBI[it.id]).filter(Boolean).map(e=>esc(e.n)).join(" · ")}</p>
-   <div class="frow"><button class="btn" data-act="routineStart" data-id="${p.id}">${icf("play")}Start</button><button class="btn sec" data-act="routineShare" data-id="${p.id}">Share</button></div></div>`}).join(""):`<button class="panel" data-act="routineNew" style="text-align:left"><b>Build your own routine</b><span class="muted" style="font-size:14px">Pick exercises from the library, set holds or reps, then share it with a link.</span></button>`}</div>`};
+   <p class="muted" style="margin:0;font-size:calc(13px * var(--ts))">${p.items.length} exercise${p.items.length===1?"":"s"} · about ${m} min${p.from?` · ${esc(p.from)}`:""}</p>
+   <p style="margin:0;font-size:calc(14px * var(--ts))">${p.items.map(it=>LIBI[it.id]).filter(Boolean).map(e=>esc(e.n)).join(" · ")}</p>
+   <div class="frow"><button class="btn" data-act="routineStart" data-id="${p.id}">${icf("play")}Start</button><button class="btn sec" data-act="routineShare" data-id="${p.id}">Share</button></div></div>`}).join(""):`<button class="panel" data-act="routineNew" style="text-align:left"><b>Build your own routine</b><span class="muted" style="font-size:calc(14px * var(--ts))">Pick exercises from the library, set holds or reps, then share it with a link.</span></button>`}</div>`};
 SCREENS.library=()=>`${stack.length>1?hdr():`<div class="hdr" style="grid-template-columns:1fr"><div class="brand">Range<b>.</b></div></div>`}
   <div class="stack" style="padding-top:8px">
   <h1>Library</h1>
@@ -2619,7 +2649,7 @@ ACT.openEx=d=>go("exercise",{id:d.id});
 SCREENS.exercise=p=>{const e=LIBI[p.id];return hdr()+`<div class="stack" style="padding-top:4px">
   <div class="detailstage${innerWidth<700&&tallPose(e.fig||e.id)?" tall":""}">${fig(e.fig||e.id,null,{anim:true,zones:e.z,sides:!!e.sides,mode:exMode(e)})}<div class="dov">${demoInfo(e,null)}</div></div>
   <div><h1>${esc(e.n)}</h1><div class="muted" style="margin-top:4px">${e.rehab?`${RCAT[e.a]} · Strength & rehab`:`${AN[e.a]} · ${fmt(e.hold)}${e.sides?" each side":""} · ${exKind(e)}`}</div></div>
-  ${rbAvoids(e.id)?`<div class="note-warn" style="font-size:14px">Your Rebuild program for ${esc(rehabHooks().name)} says to avoid this for now. Range leaves it out of your sessions and flows until the program ends.</div>`:""}
+  ${rbAvoids(e.id)?`<div class="note-warn" style="font-size:calc(14px * var(--ts))">Your Rebuild program for ${esc(rehabHooks().name)} says to avoid this for now. Range leaves it out of your sessions and flows until the program ends.</div>`:""}
   <div class="panel"><div><span class="eyebrow">What you should feel</span><div style="margin-top:4px">${esc(e.stim)}</div></div>
    <div><span class="eyebrow">Instructions</span><ul style="margin:6px 0 0;padding-left:18px;display:grid;gap:6px">${e.c.map(c=>`<li>${esc(c)}</li>`).join("")}</ul></div>
    ${e.easy?`<div><span class="eyebrow">Easier option</span><div style="margin-top:4px">${esc(e.easy)}</div></div>`:""}
@@ -4052,7 +4082,7 @@ function reentryFor(w){
 }
 ACT.breakRecover=()=>{const b=breakInfo(),n=nextSession();startWizard({kind:"activate",sport:S.sports[0]||"crossfit",moves:n?n.moves:[],from:"Back from a break"})};
 const breakPanel=()=>{const b=breakInfo();if(!b)return"";
-  return`<div class="panel"><h3>Back from a break</h3><p class="muted" style="margin:0;font-size:14px">${b.gap} days off. Go about 5% lighter this week.</p>
+  return`<div class="panel"><h3>Back from a break</h3><p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">${b.gap} days off. Go about 5% lighter this week.</p>
    <button class="btn sec" data-act="breakRecover">Longer warm-up</button></div>`};
 const wRow=w=>{
   const up=!isPast(w),f=focusOf({kind:"activate",moves:w.moves,mw:moveWeights(w)});
@@ -4070,11 +4100,11 @@ SCREENS.training=()=>{
   return `<div class="hdr" style="grid-template-columns:1fr"><div class="brand">Range<b>.</b></div></div>
   <div class="stack" style="padding-top:8px">
   <div style="display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap" data-tour="train-top"><h1>Training</h1><span style="display:flex;gap:16px;align-items:center;padding-bottom:4px">${S.training.length?`<button class="link" data-act="importW">Import</button>`:""}<button class="link" data-act="addW">${ic("plus","")} Add workout</button></span></div>
-  ${S.training.length?"":`<div class="banner" data-tour="bring"><div><h3>Bring in your workouts</h3><p class="muted" style="font-size:14px;margin:6px 0 0">Add the workouts you train: type one in, paste it from any whiteboard, or import from SugarWOD. Range finds the movements, then prepares you for upcoming sessions and helps you recover from past ones.</p></div><button class="btn" data-act="addW">Add a workout</button><button class="btn sec" data-act="importW">Import from SugarWOD</button><button class="btn sec" data-act="exampleWeek">Try with an example week</button></div>`}
+  ${S.training.length?"":`<div class="banner" data-tour="bring"><div><h3>Bring in your workouts</h3><p class="muted" style="font-size:calc(14px * var(--ts));margin:6px 0 0">Add the workouts you train: type one in, paste it from any whiteboard, or import from SugarWOD. Range finds the movements, then prepares you for upcoming sessions and helps you recover from past ones.</p></div><button class="btn" data-act="addW">Add a workout</button><button class="btn sec" data-act="importW">Import from SugarWOD</button><button class="btn sec" data-act="exampleWeek">Try with an example week</button></div>`}
   ${sugarRow()}
   ${breakPanel()}
   ${nx?`<div class="panel"><span class="eyebrow">Next session · ${dayLabel(nx.date)}</span><h3 class="clamp2">${esc(wTitle(nx))}</h3>
-     ${nx.moves.length?"":`<p class="muted" style="margin:0;font-size:14px">Add movements so Range knows what to prepare.</p>`}
+     ${nx.moves.length?"":`<p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Add movements so Range knows what to prepare.</p>`}
      ${rbNote(rbWorkoutWarn(nx.moves,moveWeights(nx)))}
      <button class="btn" data-act="prepNext" ${nx.moves.length?"":"disabled"}>Prepare</button></div>`:""}
   ${rec.length?`<div class="panel"><span class="eyebrow">${recLabel(rec)}</span><h3>${esc(rec.map(wTitle).join(" + "))}</h3>
@@ -4106,8 +4136,8 @@ function openWSheet(w){
   drawWMoves();
 }
 const trMoves=()=>[...TR.auto.filter(m=>!TR.removed.includes(m)),...TR.added.filter(m=>!TR.auto.includes(m)||TR.removed.includes(m))].filter((m,i,a)=>a.indexOf(m)===i);
-function drawWMoves(){const ms=trMoves();$("#wmoves").innerHTML=ms.length?ms.map(m=>`<button class="chip on" data-act="trRm" data-m="${esc(m)}">${esc(m)}${ic("x")}</button>`).join(""):`<span class="muted" style="font-size:14px">Paste a workout and the movements show up here.</span>`;drawWRes()}
-function drawWRes(){const q=($("#wq").value||"").trim().toLowerCase();const ms=trMoves();$("#wres").innerHTML=q?Object.keys(MOVES).filter(m=>!ms.includes(m)&&m.toLowerCase().includes(q)).slice(0,5).map(m=>`<button data-act="trAdd" data-m="${esc(m)}"><span>${esc(m)}</span>${ic("plus")}</button>`).join("")||`<p class="muted" style="margin:0;font-size:14px">No movement matches "${esc(q)}".</p>`:""}
+function drawWMoves(){const ms=trMoves();$("#wmoves").innerHTML=ms.length?ms.map(m=>`<button class="chip on" data-act="trRm" data-m="${esc(m)}">${esc(m)}${ic("x")}</button>`).join(""):`<span class="muted" style="font-size:calc(14px * var(--ts))">Paste a workout and the movements show up here.</span>`;drawWRes()}
+function drawWRes(){const q=($("#wq").value||"").trim().toLowerCase();const ms=trMoves();$("#wres").innerHTML=q?Object.keys(MOVES).filter(m=>!ms.includes(m)&&m.toLowerCase().includes(q)).slice(0,5).map(m=>`<button data-act="trAdd" data-m="${esc(m)}"><span>${esc(m)}</span>${ic("plus")}</button>`).join("")||`<p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">No movement matches "${esc(q)}".</p>`:""}
 ACT.trRm=d=>{TR.added=TR.added.filter(m=>m!==d.m);if(TR.auto.includes(d.m)&&!TR.removed.includes(d.m))TR.removed.push(d.m);drawWMoves()};
 ACT.trAdd=d=>{TR.removed=TR.removed.filter(m=>m!==d.m);if(!TR.added.includes(d.m))TR.added.push(d.m);$("#wq").value="";drawWMoves()};
 ACT.trSave=()=>{
@@ -4247,10 +4277,10 @@ ACT.importW=()=>{sheet(`<h3>Import from SugarWOD</h3><div class="scroll">
     <li>Click <b>Export Workouts</b> on the right side of the page.</li>
     <li>SugarWOD emails you <b>workouts.csv</b>. Save it, then choose it below.</li>
    </ol></div>
-  <div class="stack" style="gap:6px"><b>Your gym's upcoming whiteboard</b><p class="muted" style="margin:0;font-size:14px">Run <b>sugarwod-sync export</b> on your computer and pick the <b>range-training.json</b> it writes.</p></div>
+  <div class="stack" style="gap:6px"><b>Your gym's upcoming whiteboard</b><p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Run <b>sugarwod-sync export</b> on your computer and pick the <b>range-training.json</b> it writes.</p></div>
   <label class="btn" for="impFile" style="cursor:pointer">Choose a file</label>
   <input type="file" id="impFile" accept=".csv,.json,text/csv,application/json" hidden>
-  <p id="impMsg" class="muted" style="margin:0;font-size:14px" aria-live="polite"></p>
+  <p id="impMsg" class="muted" style="margin:0;font-size:calc(14px * var(--ts))" aria-live="polite"></p>
   </div><button class="btn sec" data-act="closeImp">Done</button>`);
   $("#impFile").addEventListener("change",e=>{
     const f=e.target.files&&e.target.files[0];if(!f)return;
@@ -4320,10 +4350,10 @@ ACT.pushSetup=async()=>{
 };
 const notifPanel=()=>`<div class="panel"><h3>Notifications</h3>
   <button class="toggle" data-act="notifTog"><span>Remind me to recover when I log a score</span><span class="sw ${notifyOn()?"on":""}"></span></button>
-  ${notifyOn()?`<p class="muted" style="margin:0;font-size:14px">${API?"Range checks for new scores when you open it. Connect this phone to also get reminders while Range is closed.":"Range checks your SugarWOD sync when you open it. For reminders while it's closed, connect this phone to the GitHub sync once."}</p>
+  ${notifyOn()?`<p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">${API?"Range checks for new scores when you open it. Connect this phone to also get reminders while Range is closed.":"Range checks your SugarWOD sync when you open it. For reminders while it's closed, connect this phone to the GitHub sync once."}</p>
   <div class="frow"><button class="btn sec" style="flex:1" data-act="pushSetup">Connect this phone</button><button class="btn sec" style="flex:1" data-act="notifTest">Send a test</button></div>
-  <textarea id="subBox" class="field" rows="3" hidden readonly style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px;font-size:12px"></textarea>`:""}
-  <p id="ntMsg" class="muted" style="margin:0;font-size:13px" aria-live="polite"></p></div>`;
+  <textarea id="subBox" class="field" rows="3" hidden readonly style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px;font-size:calc(12px * var(--ts))"></textarea>`:""}
+  <p id="ntMsg" class="muted" style="margin:0;font-size:calc(13px * var(--ts))" aria-live="polite"></p></div>`;
 
 /* ---- test figures and sides ----
    Each self-screen and test gets a demo figure. One-sided tests run Right, then Left, never together,
@@ -4495,7 +4525,7 @@ function rbTodayPane(st,R,phs,ph,stt,items){
     <div class="dcell focus"><span class="dt">Pain</span><div class="fic" style="${lp!=null?`color:${painCol(lp)};box-shadow:inset 0 0 0 2px ${painCol(lp)}`:""}"><b class="fpain">${lp!=null?lp:"–"}</b></div><small class="muted">${lp!=null?"/ 10":"No sessions yet"}</small></div>
   </div>
   ${tone?`<div class="panel status"><span class="eyebrow ${tone}">${{back:"Back off",stuck:"Get it checked",ready:"Ready to progress",done:"Program complete"}[stt.k]}</span><div>${esc(stt.t)}</div>${stt.k==="ready"?`<button class="btn" data-act="rbNext">Move to phase ${st.phase+2}</button>`:""}</div>`:""}
-  <div class="stack" style="gap:8px"><div style="display:flex;justify-content:space-between;align-items:baseline"><h3>Session</h3><span class="muted" style="font-size:13px">${mins} min</span></div>
+  <div class="stack" style="gap:8px"><div style="display:flex;justify-content:space-between;align-items:baseline"><h3>Session</h3><span class="muted" style="font-size:calc(13px * var(--ts))">${mins} min</span></div>
     <div class="hscroll rxrow">${items.map(it=>{const e=LIBI[it.id];return`<button class="rxm" data-act="openEx" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><b>${esc(e.n)}</b><small>${esc(doseText(it))}</small></button>`}).join("")}</div></div>`}
 function rbPlanPane(st,R,C,phs,ph){
   const g=rbProgress(),bar=(v,m)=>`<span class="tr"><i style="width:${Math.min(100,v/m*100)}%;background:${v>=m?"var(--good)":"var(--accent)"}"></i></span>`;
@@ -4505,7 +4535,7 @@ function rbPlanPane(st,R,C,phs,ph){
      <li><span>${g.timeOk?"✓ ":""}Time</span>${bar(g.days,g.min)}<b>${Math.min(g.days,g.min)}/${g.min} d</b></li>
      <li><span>${g.painOk?"✓ ":""}Pain ≤${PAIN_OK}</span>${bar(g.streak,3)}<b>${g.streak}/3</b></li>
     </ul>
-    <p class="muted" style="margin:0;font-size:14px">${esc(ph.exit)}</p>
+    <p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">${esc(ph.exit)}</p>
     ${g.timeOk&&g.painOk?"":`<button class="link muted" style="justify-self:start" data-act="rbForce">My physio cleared me</button>`}</div>`}
   <div class="panel acc"><details><summary>Do</summary><ul class="tick">${C.habits.map(h=>`<li>${esc(h)}</li>`).join("")}</ul></details>
     <details><summary>Avoid</summary><ul class="cross">${C.avoid.map(h=>`<li>${esc(h)}</li>`).join("")}</ul>${(st.notes||[]).map(n=>`<div class="note-warn">${esc(n)}</div>`).join("")}</details>
@@ -4513,7 +4543,7 @@ function rbPlanPane(st,R,C,phs,ph){
   ${myProtosPanel()}`}
 function rbChart(st){
   const logs=(st.logs||[]).map(l=>({at:l.at,v:l.testR!=null?Math.max(l.testR,l.testL):l.testPain}));
-  if(!logs.length)return`<div class="panel chartp"><span class="dt">Pain before each session</span><p class="muted" style="margin:0;font-size:14px">Your line appears after the first session.</p></div>`;
+  if(!logs.length)return`<div class="panel chartp"><span class="dt">Pain before each session</span><p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Your line appears after the first session.</p></div>`;
   const W=320,H=190,L=30,R=14,T=26,B=28,lo=0,hi=10,t0=logs[0].at,t1=logs[logs.length-1].at,xs=at=>logs.length===1||t1===t0?(L+W-R)/2:L+(at-t0)/(t1-t0)*(W-L-R),ys=v=>T+(1-(v-lo)/(hi-lo))*(H-T-B);
   const pts=logs.map(x=>[xs(x.at),ys(x.v)]),line=smoothPath(pts),area=pts.length>1?`${line}L${pts[pts.length-1][0].toFixed(1)} ${H-B}L${pts[0][0].toFixed(1)} ${H-B}Z`:"",last=logs[logs.length-1].v,col=painCol(last),dt=at=>new Date(at).toLocaleDateString(undefined,{month:"short",day:"numeric"}),delta=logs.length>1?last-logs[0].v:null;
   return`<div class="panel chartp"><span class="dt">Pain before each session</span><div class="cval"><b style="color:${col}">${last}</b><span class="muted">/ 10</span>${delta!=null?`<span class="${delta<0?"c-good":delta>0?"c-bad":"muted"}">${delta>0?"+":""}${delta} since ${dt(t0)}</span>`:""}</div>
@@ -4532,12 +4562,12 @@ function rbProgPane(st,phs){const days=Math.floor((Date.now()-st.started)/dayMs)
     <div class="tile"><span class="eyebrow">Phase</span><b>${st.phase+1}/${phs.length}</b></div>
   </div>`}
 SCREENS.rebuild=()=>{
-  if(!S.rehab)return`<div class="hdr" style="grid-template-columns:1fr"><div class="brand">Range<b>.</b></div></div><div class="stack" style="padding-top:8px">
+  if(!S.rehab)return`<div class="tabtop" aria-hidden="true"></div><div class="stack" style="padding-top:8px">
    <h1>Rebuild</h1>
    <div class="sports" data-tour="rebuild">${Object.entries(REGIONS).map(([k,R])=>`<button class="scard g-${["a","b","c","d"][Object.keys(REGIONS).indexOf(k)%4]}" data-act="rbPick" data-r="${k}"><div class="art">${fig(R.fig,null,{t:.8})}</div><b>${R.n}</b></button>`).join("")}</div>
    ${myProtosPanel()}</div>`;
   const st=S.rehab,R=REGIONS[st.region],C=R.classes[st.cls],phs=rbPhases(R,st.cls),ph=phs[st.phase],stt=rbStatus(),items=rbItems();
-  return`<div class="hdr"><span></span><div class="brand">Range<b>.</b></div><button data-act="rbMenu" aria-label="Program options">${ic("dots")}</button></div>
+  return`<div class="hdr"><span></span><span></span><button data-act="rbMenu" aria-label="Program options">${ic("dots")}</button></div>
   <div class="stack" style="padding-top:4px">
   <div class="phead"><button class="avatar" data-act="rbMenu" aria-label="Program options">${ic("heart")}</button>
     <div class="pwho"><button class="pname" data-act="rbMenu">${esc(C.n)}</button><span class="pprog" style="cursor:default"><i class="pdot"></i>${esc(R.n)}${st.side&&st.side!=="both"?` · ${esc(st.side)}`:""}</span></div></div>
@@ -4573,7 +4603,7 @@ SCREENS.rbscreen=()=>{
    <h2>${esc(q.q)}</h2>
    ${q.side?`<div class="tsides">${[F,O].map(k=>`<span class="${sd===k?"on":(RB.ans[RB.step]||{})[k]!=null?"done":""}">${SIDE_N[k]}</span>`).join("")}</div><p style="margin:0"><b>${sd===F?`Test your ${SIDE_N[F].toLowerCase()} side first.`:`Now the ${SIDE_N[O].toLowerCase()} side.`}</b>${sd===F&&!RB.ans.some(a=>a&&typeof a==="object")?` <button class="link" data-act="rbFirst">My sore side is the ${SIDE_N[O].toLowerCase()}: start there</button>`:""}</p>`:q.seq?`<p style="margin:0"><b>Test the right side, then the left, then compare.</b></p>`:""}
    <div class="stack" style="gap:8px">${q.o.map((o,k)=>`<button class="opt ${cur===k?"on":""}" data-act="rbAns" data-k="${k}">${esc(o[0])}</button>`).join("")}</div>
-   <p class="muted" style="margin:0;font-size:13px">Stop any test that causes sharp pain. Pick the closest answer.</p></div>`;
+   <p class="muted" style="margin:0;font-size:calc(13px * var(--ts))">Stop any test that causes sharp pain. Pick the closest answer.</p></div>`;
 };
 ACT.rbAns=d=>{const R=REGIONS[RB.r],q=R.screens[RB.step];
   if(q.side){const F=RB.first||"R",sd=RB.sub||F;RB.ans[RB.step]={...(RB.ans[RB.step]||{}),[sd]:+d.k};if(sd===F){RB.sub=F==="R"?"L":"R";render();scrollTo(0,0);return}RB.sub=F}
@@ -4662,13 +4692,13 @@ SCREENS.myproto=()=>{
      <button class="toggle" data-act="edSides" data-i="${i}"><span>Each side (right, then left)</span><span class="sw ${d.sides?"on":""}"></span></button>
      ${inp("edNote"+i,d.note,"Notes: tempo, weight, band colour…")}</div>`}).join(""):`<p class="muted" style="margin:0">No exercises yet.</p>`}
    <button class="btn sec" data-act="edAdd">${ic("plus","")} Add exercise</button></div>
-   ${ED.kind==="routine"?"":`<div class="panel"><h3>Test movement <span class="muted" style="font-weight:400;font-size:14px">(optional)</span></h3>
-    <p class="muted" style="margin:0;font-size:14px">A movement you rate for pain before each session, so Range can show your trend.</p>
+   ${ED.kind==="routine"?"":`<div class="panel"><h3>Test movement <span class="muted" style="font-weight:400;font-size:calc(14px * var(--ts))">(optional)</span></h3>
+    <p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">A movement you rate for pain before each session, so Range can show your trend.</p>
     ${inp("edTestN",ED.test.n,"e.g. Single-leg squat")}${inp("edTestHow",ED.test.how,"How to do it")}
     <button class="toggle" data-act="edTestSide"><span>Test each side (right, then left)</span><span class="sw ${ED.test.side?"on":""}"></span></button>
     <button class="toggle" data-act="edTestFig"><span>Demo figure</span><span class="muted">${ED.test.fig?esc((LIBI[ED.test.fig]||{n:"Chosen"}).n):"None"} ›</span></button></div>`}
    <div class="panel"><h3>${ED.kind==="routine"?"Notes":"Notes from your physio"}</h3><textarea id="edNotes" class="field" rows="3" placeholder="${ED.kind==="routine"?"When to do it, what to focus on…":"Pain rules, what to avoid, when to progress…"}" style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px">${esc(ED.notes||"")}</textarea></div>
-   <p id="edMsg" class="c-bad" style="margin:0;font-size:14px" aria-live="polite"></p>
+   <p id="edMsg" class="c-bad" style="margin:0;font-size:calc(14px * var(--ts))" aria-live="polite"></p>
    ${ED.id?`<button class="btn sec" style="color:var(--bad)" data-act="edDel">Delete ${ED.kind==="routine"?"routine":"protocol"}</button>`:""}
   </div><div class="bottomcta"><button class="btn" data-act="edSave">Save ${ED.kind==="routine"?"routine":"protocol"}</button></div>`;
 };
@@ -4698,7 +4728,7 @@ function drawCx(){sheet(`<h3>My own exercise</h3><div class="scroll stack" style
   <textarea id="cxCues" class="field" rows="3" placeholder="How to do it, one cue per line" style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px">${esc(CX.c)}</textarea>
   <span class="eyebrow">Demo · the closest match</span>
   <div class="looks">${LOOKS.map(f=>`<button class="${CX.fig===f?"on":""}" data-act="cxFig" data-f="${f}">${fig(f,null,{t:.8})}<small>${esc((LIBI[f]||{n:""}).n)}</small></button>`).join("")}</div>
-  <p id="cxMsg" class="c-bad" style="margin:0;font-size:14px"></p></div>
+  <p id="cxMsg" class="c-bad" style="margin:0;font-size:calc(14px * var(--ts))"></p></div>
   <div style="display:grid;gap:8px"><button class="btn" data-act="cxSave">Add exercise</button><button class="btn sec" data-act="closeSheet">Cancel</button></div>`)}
 const cxRead=()=>{CX.n=$("#cxName").value.trim();CX.c=$("#cxCues").value};
 ACT.cxFig=d=>{cxRead();CX.fig=d.f;const sc=$(".sheet .scroll").scrollTop;drawCx();$(".sheet .scroll").scrollTop=sc};
@@ -4719,11 +4749,11 @@ ACT.myStart=d=>{const p=S.myProtocols.find(x=>x.id===d.id);if(!p)return;
 const myProtosPanel=()=>`<div class="stack" style="gap:8px"><div style="display:flex;justify-content:space-between;align-items:center"><span class="eyebrow">My protocols · from your physio</span><button class="link" data-act="myNew">${ic("plus","")} Add</button></div>
   ${S.myProtocols.some(p=>p.kind!=="routine")?S.myProtocols.filter(p=>p.kind!=="routine").map(p=>{const L=(p.logs||[]).slice(-1)[0];return`<div class="panel">
    <div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline"><h3>${esc(p.name)}</h3><button class="link" data-act="myEdit" data-id="${p.id}">Edit</button></div>
-   <p class="muted" style="margin:0;font-size:14px">${[p.from,p.freq,`${p.items.length} exercise${p.items.length===1?"":"s"}`].filter(Boolean).map(esc).join(" · ")}</p>
+   <p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">${[p.from,p.freq,`${p.items.length} exercise${p.items.length===1?"":"s"}`].filter(Boolean).map(esc).join(" · ")}</p>
    <div class="rxlist">${p.items.map(it=>{const e=LIBI[it.id];return e?`<button class="rx" data-act="openEx" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><span><b>${esc(e.n)}</b><small>${esc(doseText(it))}</small></span></button>`:""}).join("")}</div>
    ${p.notes?`<div class="note-warn">${esc(p.notes)}</div>`:""}
-   ${(p.logs||[]).length>1?spark(p.logs):L?`<p class="muted" style="margin:0;font-size:13px">Last session ${new Date(L.at).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})}${L.sessionPain!=null?` · pain ${L.sessionPain}/10`:""}</p>`:""}
-   <button class="btn" data-act="myStart" data-id="${p.id}">${icf("play")}Start</button></div>`}).join(""):`<button class="panel" data-act="myNew" style="text-align:left"><b>Got exercises from a physiotherapist?</b><span class="muted" style="font-size:14px">Add them here and Range guides you through them with demos, timers and a pain log.</span></button>`}</div>`;
+   ${(p.logs||[]).length>1?spark(p.logs):L?`<p class="muted" style="margin:0;font-size:calc(13px * var(--ts))">Last session ${new Date(L.at).toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"})}${L.sessionPain!=null?` · pain ${L.sessionPain}/10`:""}</p>`:""}
+   <button class="btn" data-act="myStart" data-id="${p.id}">${icf("play")}Start</button></div>`}).join(""):`<button class="panel" data-act="myNew" style="text-align:left"><b>Got exercises from a physiotherapist?</b><span class="muted" style="font-size:calc(14px * var(--ts))">Add them here and Range guides you through them with demos, timers and a pain log.</span></button>`}</div>`;
 
 /* ================= profile ================= */
 function radar(sc){
@@ -4739,10 +4769,10 @@ const KN={activate:"Activate",recover:"Recover",daily:"Daily",target:"Target",si
 function sugarRow(){const sy=S.sync||{};
   if(API)return connPanel();
   if(syncAvail!==true&&!sy.syncedAt)return"";
-  return`<div class="panel" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-block:12px"><button data-act="syncKey" style="display:grid;text-align:left;min-height:44px;align-content:center" aria-label="Choose your SugarWOD track"><span style="font-size:14px;font-weight:600">SugarWOD · ${esc(sy.track||"RX-Club")}</span><span class="${sy.error?"c-bad":"muted"}" style="font-size:12px">${sy.error?esc(sy.error):`Updated ${agoText(sy.syncedAt)}`}</span></button>${syncBtn()}</div>`}
+  return`<div class="panel" style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-block:12px"><button data-act="syncKey" style="display:grid;text-align:left;min-height:44px;align-content:center" aria-label="Choose your SugarWOD track"><span style="font-size:calc(14px * var(--ts));font-weight:600">SugarWOD · ${esc(sy.track||"RX-Club")}</span><span class="${sy.error?"c-bad":"muted"}" style="font-size:calc(12px * var(--ts))">${sy.error?esc(sy.error):`Updated ${agoText(sy.syncedAt)}`}</span></button>${syncBtn()}</div>`}
 // how hard each area worked in the last 3 days, from the synced workouts
 function loadPanel(){const load=recentLoad(),mx=Math.max(1,...Object.values(load));return S.training.length?`<div class="panel"><span class="eyebrow">Load from the last 3 days</span>
-     <ul class="bars">${AREAS.map(a=>{const v=load[a.k]/mx;const c=v>.66?"var(--bad)":v>.33?"var(--warn)":"var(--good)";return`<li><span>${a.n}</span><span class="tr"><i style="width:${Math.max(4,v*100)}%;background:${c}"></i></span><b style="font-size:11px;color:var(--muted)">${v>.66?"High":v>.33?"Mid":"Low"}</b></li>`}).join("")}</ul></div>`:""}
+     <ul class="bars">${AREAS.map(a=>{const v=load[a.k]/mx;const c=v>.66?"var(--bad)":v>.33?"var(--warn)":"var(--good)";return`<li><span>${a.n}</span><span class="tr"><i style="width:${Math.max(4,v*100)}%;background:${c}"></i></span><b style="font-size:calc(11px * var(--ts));color:var(--muted)">${v>.66?"High":v>.33?"Mid":"Low"}</b></li>`}).join("")}</ul></div>`:""}
 /* ================= Profile: a dashboard of three slides, settings behind the gear ================= */
 let PROF_TAB="dash";const PROF_TABS=[["dash","Dashboard"],["equip","Equipment"],["prog","Progress"]];
 const userName=()=>S.name||(SBU&&SBU.email?(e=>e?e[0].toUpperCase()+e.slice(1):"")(SBU.email.split("@")[0].split(/[+._-]/)[0]):"")||"Athlete";
@@ -4755,13 +4785,16 @@ function dashPane(sc){
   const last=S.tests[S.tests.length-1],left=last?30-Math.floor((Date.now()-last.at)/864e5):0;
   return`<div class="dgrid">
     <div class="dcell time"><span class="dt">Mobility time</span><div class="dsub">Total</div><b class="dbig">${fmtTime(mins)}</b><div class="mbar" role="img" aria-label="${Math.round(pct)}% of the way to ${next} hours"><i style="width:${pct}%"></i></div><div class="dnext"><span>Next</span><b>${next}h</b></div></div>
-    <button class="dcell score" data-act="scoreSheet" data-tour="score" aria-label="Mobility score ${ov}%, details"><span class="dt">Mobility score${S.scores?"":" · example"}</span>
+    ${S.scores?`<button class="dcell score" data-act="scoreSheet" data-tour="score" aria-label="Mobility score ${ov}%, details"><span class="dt">Mobility score</span>
       <div class="ringwrap">${ringSvg(ov,lv.v)}<span class="rnum"><b class="ringnum">${ov}</b><small>%</small></span></div>
-      <div class="vbars" aria-hidden="true">${AREAS.map(a=>{const v=sc[a.k];return`<span class="vb"><i style="height:${Math.max(4,v)}%;background:${level(v).v}"></i></span>`}).join("")}</div></button>
+      <div class="vbars" aria-hidden="true">${AREAS.map(a=>{const v=sc[a.k];return`<span class="vb"><i style="height:${Math.max(4,v)}%;background:${level(v).v}"></i></span>`}).join("")}</div></button>`
+    :`<button class="dcell score none" data-act="openTest" data-tour="score" aria-label="No mobility score yet. Take the test"><span class="dt">Mobility score</span>
+      <div class="ringwrap">${ringSvg(0,"transparent")}<span class="rnum"><b class="ringnum">–</b></span></div>
+      <p class="muted">Take the 10-minute test to see your score.</p></button>`}
     <div class="dcell focus"><span class="dt">Mobility focus</span><div class="fic">${ic("target")}</div><small class="muted">${esc(sp.n)}</small><div class="fnames">${foc.map(k=>`<b>${AN[k]}</b>`).join("")}</div></div>
   </div>
   ${S.scores&&left>0?`<p class="muted dtest">Tested ${new Date(last.at).toLocaleDateString(undefined,{month:"short",day:"numeric"})}. Next in ${left} day${left===1?"":"s"}.<button class="link" data-act="openTest">Retest</button></p>`:`<button class="btn" data-act="openTest">${testDraft()?"Resume my test":"Test my mobility"}</button>`}
-  ${(()=>{const ks=(S.sports||[]).filter(k=>SPORT_NEEDS[k]);if(!ks.length)return"";
+  ${(()=>{const ks=(S.sports||[]).filter(k=>SPORT_NEEDS[k]);if(!ks.length||!S.scores)return"";
     const pri=sportPriority(sc),weakest=AREAS.slice().sort((x,y)=>sc[x.k]-sc[y.k])[0].k;
     return`<div class="panel"><h3>Mobility levels</h3>
     ${ks.map(k=>{const r=sportLevel(k,sc),l=level(r.level);return`<div class="slv"><div><b>${SPI[k].n}</b><small class="muted">${r.lim?`Held back most by ${AN[r.lim]}`:"No area holding you back"}</small></div><span class="pill ${l.c}">${r.level}</span></div>`}).join("")}
@@ -4775,9 +4808,9 @@ function progPane(sc){const wk=Date.now()-7*864e5;return`${testChart()}<div clas
     <div class="tile"><span class="eyebrow">Min / week</span><b>${S.sessions.filter(s=>s.at>=wk).reduce((t,s)=>t+s.mins,0)}</b></div>
     <div class="tile"><span class="eyebrow">Sessions</span><b>${S.sessions.length}</b></div>
   </div>
-  <div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline"><h3>This week by area</h3><span class="muted" style="font-size:12px">10 min per area</span></div>
+  <div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline"><h3>This week by area</h3><span class="muted" style="font-size:calc(12px * var(--ts))">10 min per area</span></div>
     <ul class="bars">${(()=>{const w=weekAreaSecs();return AREAS.map(a=>{const m=(w[a.k]||0)/60,pc=m/10*100,col=pc>=100?"var(--good)":pc>=35?"var(--accent)":"var(--warn)";return`<li><span>${a.n}</span><span class="tr"><i style="width:${Math.min(100,pc)}%;background:${col}"></i></span><b>${m<.05?"0":m.toFixed(1)} min</b></li>`}).join("")})()}</ul>
-    <p class="muted" style="margin:0;font-size:13px;display:flex;justify-content:space-between"><span>Total</span><b style="color:var(--ink)">${S.sessions.filter(x=>x.at>=wk).reduce((t,x)=>t+x.mins,0)} min</b></p></div>
+    <p class="muted" style="margin:0;font-size:calc(13px * var(--ts));display:flex;justify-content:space-between"><span>Total</span><b style="color:var(--ink)">${S.sessions.filter(x=>x.at>=wk).reduce((t,x)=>t+x.mins,0)} min</b></p></div>
 `}
 
 // progress across your mobility tests: one line, overall or any single area
@@ -4805,11 +4838,11 @@ function testChart(){
       ${pts.map((q,i)=>{const last=i===pts.length-1;return`<circle cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="${last?5.5:4}" fill="${last?col:"var(--bg)"}" stroke="${col}" stroke-width="2.5" class="cdot"/>${label||last?`<text x="${q[0].toFixed(1)}" y="${(q[1]-11).toFixed(1)}" text-anchor="middle" class="cval2">${pts0[i].v}</text>`:""}`}).join("")}
       <text x="${pts.length===1?pts[0][0]:L}" y="${H-8}" text-anchor="${pts.length===1?"middle":"start"}" class="cax">${dt(t0)}</text>${pts.length>1?`<text x="${W-R}" y="${H-8}" text-anchor="end" class="cax">${dt(t1)}</text>`:""}
     </svg>
-    ${pts0.length===1?`<p class="muted" style="margin:0;font-size:13px;text-align:center">Retest in a month to see your line move.</p>`:""}</div>`}
+    ${pts0.length===1?`<p class="muted" style="margin:0;font-size:calc(13px * var(--ts));text-align:center">Retest in a month to see your line move.</p>`:""}</div>`}
 ACT.progMetric=d=>{PROG_METRIC=d.m;PROF_ANIM=true;render()};
 SCREENS.profile=()=>{
   const sc=scores(),sy=S.sync||{};
-  return`<div class="hdr"><span></span><div class="brand">Range<b>.</b></div><button data-act="settings" aria-label="Settings" data-tour="gear">${ic("gear")}</button></div>
+  return`<div class="hdr"><span></span><span></span><button data-act="settings" aria-label="Settings" data-tour="gear">${ic("gear")}</button></div>
   <div class="stack" style="padding-top:4px">
   <div class="phead"><button class="avatar" data-act="nameSheet" aria-label="Your name">${esc(userName()[0]||"A").toUpperCase()}</button>
     <div class="pwho"><button class="pname" data-act="nameSheet">${esc(userName())}</button>${sy.track?`<button class="pprog" data-act="syncKey" data-tour="program"><i class="pdot"></i>${esc(sy.track)}</button>`:""}</div></div>
@@ -4826,7 +4859,7 @@ ACT.scoreSheet=()=>{const sc=scores(),ov=overall(sc),lv=level(ov),last=S.tests[S
     <div class="score"><b>${ov}</b><span class="pill ${lv.c}">${lv.t}</span></div>${radar(sc)}
     <ul class="bars">${AREAS.map(a=>{const v=sc[a.k],l=level(v);return`<li><span>${a.n}</span><span class="tr"><i style="width:${v}%;background:${l.v}"></i></span><b>${v}</b></li>`}).join("")}</ul>
     ${(()=>{const prev=S.tests.length>1?S.tests[S.tests.length-2].scores:null;if(!prev||!S.scores)return"";const ch=AREAS.map(a=>[a,sc[a.k]-(prev[a.k]??sc[a.k])]).filter(([,d])=>d);
-      return ch.length?`<p style="margin:0;font-size:13px"><span class="muted">Since your previous test:</span> ${ch.map(([a,d])=>`${a.n} <b class="${d>0?"c-good":"c-bad"}">${d>0?"+":""}${d}</b>`).join(" · ")}</p>`:""})()}</div>
+      return ch.length?`<p style="margin:0;font-size:calc(13px * var(--ts))"><span class="muted">Since your previous test:</span> ${ch.map(([a,d])=>`${a.n} <b class="${d>0?"c-good":"c-bad"}">${d>0?"+":""}${d}</b>`).join(" · ")}</p>`:""})()}</div>
     <button class="btn ${last&&left>0?"sec":""}" data-act="scoreTest">${last&&left>0?"Retest early":testDraft()?"Resume my test":"Test my mobility"}</button>`)};
 ACT.scoreTest=()=>{closeSheet();ACT.openTest()};
 SCREENS.settings=()=>`${hdr()}
@@ -4843,9 +4876,9 @@ SCREENS.settings=()=>`${hdr()}
   </div>
   ${API?acctPanel():sbPanel()}
   ${notifPanel()}
-  ${API?"":`<div class="panel"><h3>Your data</h3><p class="muted" style="margin:0;font-size:14px">Move it to another phone by hand: copy it here and paste it in Range there.</p>
+  ${API?"":`<div class="panel"><h3>Your data</h3><p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Move it to another phone by hand: copy it here and paste it in Range there.</p>
     <div class="frow"><button class="btn sec" style="flex:1" data-act="copyData">Copy my data</button><button class="btn sec" style="flex:1" data-act="pasteData">Paste data</button></div>
-    <p id="dataMsg" class="muted" style="margin:0;font-size:13px" aria-live="polite"></p><textarea id="dataBox" class="field" rows="3" hidden style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px"></textarea>
+    <p id="dataMsg" class="muted" style="margin:0;font-size:calc(13px * var(--ts))" aria-live="polite"></p><textarea id="dataBox" class="field" rows="3" hidden style="width:100%;background:var(--surface2);color:var(--ink);border:0;border-radius:10px;padding:10px"></textarea>
     <details class="adv" ${BK?"open":""}><summary>Advanced</summary><div class="stack" style="gap:10px;padding-top:10px">${bkRow()}</div></details></div>`}
   <button class="panel navrow" data-act="howItWorks"><span><b>How Range works</b></span><span class="chev">${ic("back")}</span></button>
   <button class="panel navrow" data-act="tourStart" data-tour="tour-btn"><span><b>Show the app tour</b></span><span class="chev">${ic("back")}</span></button>
@@ -4907,10 +4940,10 @@ function drawTest(){
     <ul class="bars">${AREAS.map(a=>{const v=sc[a.k],l=level(v);return`<li><span>${a.n}</span><span class="tr"><i style="width:${v}%;background:${l.v}"></i></span><b>${v}</b></li>`}).join("")}</ul>
     <div class="panel"><span class="eyebrow">Hips, check by check</span>${TEST.filter(q=>(q.w||{[q.k]:1}).hips).map(q=>{const v=q.uni?Math.min(tScore(q,T.ans[q.id+"R"]),tScore(q,T.ans[q.id+"L"])):tScore(q,T.ans[q.id]),l=level(v);
       return`<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0"><span>${q.t}</span><b style="color:${l.v}">${v}</b></div>`}).join("")}
-      <p class="muted" style="margin:6px 0 0;font-size:13px">The squat counts less here, because tight ankles can hold it back too.</p></div>
+      <p class="muted" style="margin:6px 0 0;font-size:calc(13px * var(--ts))">The squat counts less here, because tight ankles can hold it back too.</p></div>
     <div class="panel"><span class="eyebrow">Right vs left</span>${lr.map(q=>{const r=tScore(q,T.ans[q.id+"R"]),l=tScore(q,T.ans[q.id+"L"]),s=r<l?"R":l<r?"L":"";
       return`<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0"><span>${q.t}</span><span class="muted">Right ${r} · Left ${l}${s?` · <b style="color:var(--ink)">${SIDE_N[s]} is tighter</b>`:" · even"}</span></div>`}).join("")}
-      <p class="muted" style="margin:6px 0 0;font-size:13px">Each check is scored on its tighter side, and areas with several checks average them. One-sided stretches give the tighter side 50% more time.</p></div></div>
+      <p class="muted" style="margin:6px 0 0;font-size:calc(13px * var(--ts))">Each check is scored on its tighter side, and areas with several checks average them. One-sided stretches give the tighter side 50% more time.</p></div></div>
     <div class="bottomcta"><button class="btn" data-act="testSave">Save my scores</button><button class="link muted" style="justify-self:center;padding:4px 12px" data-act="testDiscard">Discard results</button></div></div></div>`;
     return;
   }
@@ -4923,8 +4956,8 @@ function drawTest(){
     <div class="detailstage tsstage${sd==="L"?" mir":""}">${pk?fig(pk,null,{anim:true,mode:"static",zones:AREA_ZONES[q.k]}):fig(q.fig,null,{anim:true,zones:AREA_ZONES[q.k]})}${sd?`<span class="pill">${SIDE_N[sd]} side</span>`:""}</div>${pk?`<p class="tsis" aria-live="polite">This is: <b>${esc(q.multi?(av?q.mshort.map((m,k)=>m[(av>>k)&1]).join(" · "):`none of the three — ${q.mshort.map(m=>m[0]).join(", ")}`):sub(q.o[av]))}</b></p>`:""}
     ${sd?`<div class="tsides tsw" role="group" aria-label="Side">${["R","L"].map(k=>`<button class="${sd===k?"on":T.ans[q.id+k]!=null?"done":""}" data-act="testSide" data-k="${k}" aria-pressed="${sd===k}">${SIDE_N[k]}${T.ans[q.id+k]!=null&&sd!==k?" ✓":""}</button>`).join("")}</div><p style="margin:0"><b>${sd==="R"?"Test your right side first.":"Now the left side, the same way."}</b></p>`:""}
     <p class="muted" style="margin:0">${how}</p>
-    ${!TDEMO&&rbAvoids(q.fig)?`<div class="note-warn" style="font-size:13px">Your Rebuild program avoids this position for now. Go only as far as it stays pain-free (${PAIN_OK}/10 or less), or skip it: pick the first answer and continue.</div>`:""}
-    <div class="stack" style="gap:8px">${q.multi?q.multi.map((o,k)=>`<button class="opt ${(T.ans[key]??0)>>k&1?"on":""}" data-act="testTick" data-k="${k}" aria-pressed="${!!((T.ans[key]??0)>>k&1)}"><span>${sub(o)}</span><span class="tick">${ic("check")}</span></button>`).join("")+`<p class="muted" style="margin:0;font-size:13px">None of them? That's fine, just continue.</p>`:q.o.map((o,k)=>`<button class="opt ${T.ans[key]===k?"on":""}" data-act="testPick" data-k="${k}"><span>${sub(o)}</span><span class="radio"></span></button>`).join("")}</div>
+    ${!TDEMO&&rbAvoids(q.fig)?`<div class="note-warn" style="font-size:calc(13px * var(--ts))">Your Rebuild program avoids this position for now. Go only as far as it stays pain-free (${PAIN_OK}/10 or less), or skip it: pick the first answer and continue.</div>`:""}
+    <div class="stack" style="gap:8px">${q.multi?q.multi.map((o,k)=>`<button class="opt ${(T.ans[key]??0)>>k&1?"on":""}" data-act="testTick" data-k="${k}" aria-pressed="${!!((T.ans[key]??0)>>k&1)}"><span>${sub(o)}</span><span class="tick">${ic("check")}</span></button>`).join("")+`<p class="muted" style="margin:0;font-size:calc(13px * var(--ts))">None of them? That's fine, just continue.</p>`:q.o.map((o,k)=>`<button class="opt ${T.ans[key]===k?"on":""}" data-act="testPick" data-k="${k}"><span>${sub(o)}</span><span class="radio"></span></button>`).join("")}</div>
     <div aria-hidden="true" style="height:28px"></div>
    </div>
    <div class="bottomcta"><button class="btn" data-act="testNext" ${T.ans[key]==null&&!q.multi?"disabled":""}>${T.i===TSTEPS.length-1?"See my results":sd==="R"?"Now the left side":"Next test"}</button></div>
@@ -5001,21 +5034,21 @@ document.addEventListener("visibilitychange",()=>{if(document.visibilityState===
 // ask the browser not to clear Range's storage when space is low (home-screen apps usually get this)
 try{if(navigator.storage&&navigator.storage.persist&&!API)navigator.storage.persist()}catch(e){}
 function bkRow(){
-  if(!BK)return`<p class="muted" style="margin:0;font-size:14px">Range keeps your data on this phone. Back it up to your GitHub repository so updates, a new app address or a new phone never lose it.</p><button class="btn sec" data-act="bkSetup">Set up backup</button>`;
-  return`<div style="font-size:14px"><span class="${BK.err?"c-bad":"c-good"}">Backup ${BK.err?"needs attention":"on"}</span> · ${esc(BK.repo)}${BK.last?` · last saved ${agoText(BK.last)}`:""}</div>${BK.err?`<div class="c-bad" style="font-size:13px">${esc(BK.err)}</div>`:""}
+  if(!BK)return`<p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Range keeps your data on this phone. Back it up to your GitHub repository so updates, a new app address or a new phone never lose it.</p><button class="btn sec" data-act="bkSetup">Set up backup</button>`;
+  return`<div style="font-size:calc(14px * var(--ts))"><span class="${BK.err?"c-bad":"c-good"}">Backup ${BK.err?"needs attention":"on"}</span> · ${esc(BK.repo)}${BK.last?` · last saved ${agoText(BK.last)}`:""}</div>${BK.err?`<div class="c-bad" style="font-size:calc(13px * var(--ts))">${esc(BK.err)}</div>`:""}
     <div class="frow"><button class="btn sec" style="flex:1" data-act="bkNow">Back up now</button><button class="btn sec" style="flex:1" data-act="bkSetup">Backup settings</button></div>`;
 }
 ACT.bkSetup=()=>sheet(`<h3>Back up to GitHub</h3><div class="scroll"><form id="bkF" class="stack" style="gap:10px" onsubmit="return false">
-  <p class="muted" style="margin:0;font-size:14px">Your data is encrypted with your passphrase before it leaves this phone. Without the passphrase the file is unreadable, even in a public repository.</p>
+  <p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Your data is encrypted with your passphrase before it leaves this phone. Without the passphrase the file is unreadable, even in a public repository.</p>
   <label class="field"><span class="eyebrow">Repository (username/name)</span><input name="repo" placeholder="yourname/range" autocapitalize="none" spellcheck="false" value="${esc(BK?BK.repo:"")}"></label>
   <label class="field"><span class="eyebrow">GitHub token</span><input name="token" type="password" autocomplete="off" placeholder="${BK?"(saved, leave empty to keep)":"github_pat_…"}"></label>
-  <details><summary class="muted" style="font-size:13px">How to create the token</summary><ol class="steps" style="font-size:13px">
+  <details><summary class="muted" style="font-size:calc(13px * var(--ts))">How to create the token</summary><ol class="steps" style="font-size:calc(13px * var(--ts))">
     <li>On github.com: your picture → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token.</li>
     <li>Repository access: Only select repositories → your Range repository.</li>
     <li>Permissions → Repository permissions → Contents: Read and write. Expiration: up to a year.</li>
     <li>Generate, copy it, and paste it here. It stays on this phone only.</li></ol></details>
-  <label class="field"><span class="eyebrow">Passphrase</span><input name="pass" type="password" autocomplete="off" placeholder="${BK?"Saved · leave empty to keep":"Choose a passphrase"}"><small class="muted" style="font-size:12px">Use the same passphrase as your sync key so you only remember one. You need it to restore.</small></label>
-  <p id="bkMsg" style="margin:0;font-size:14px" aria-live="polite"></p></form></div>
+  <label class="field"><span class="eyebrow">Passphrase</span><input name="pass" type="password" autocomplete="off" placeholder="${BK?"Saved · leave empty to keep":"Choose a passphrase"}"><small class="muted" style="font-size:calc(12px * var(--ts))">Use the same passphrase as your sync key so you only remember one. You need it to restore.</small></label>
+  <p id="bkMsg" style="margin:0;font-size:calc(14px * var(--ts))" aria-live="polite"></p></form></div>
   <div style="display:grid;gap:8px"><button class="btn" data-act="bkSave">Save and back up this phone</button><button class="btn sec" data-act="bkRestore">Restore my data from the backup</button>${BK?`<button class="link" style="color:var(--bad)" data-act="bkOff">Turn backup off on this phone</button>`:""}</div>`);
 function bkForm(){const f=$("#bkF");const repo=f.repo.value.trim().replace(/^https?:\/\/github\.com\//,"").replace(/\.git$/,"").replace(/\/$/,""),token=f.token.value.trim()||(BK&&BK.token)||"",pass=f.pass.value||(BK&&BK.pass)||(S.sync&&S.sync.key)||"";
   if(!/^[\w.-]+\/[\w.-]+$/.test(repo))throw new Error("Enter the repository as username/name, e.g. yoav/range.");
@@ -5070,20 +5103,20 @@ async function acctPull(force){
 async function refreshConns(){try{CONNS=(await api("GET","/connections")).connections}catch(e){CONNS=CONNS||[]}const top=stack[stack.length-1].name;if(top==="training"||top==="profile")render()}
 const connStatus=c=>c.status==="ok"?{c:"c-good",t:"on"}:c.status==="auth_failed"?{c:"c-bad",t:"login rejected"}:c.status==="error"?{c:"c-bad",t:"needs attention"}:{c:"",t:"connecting"};
 function connPanel(){
-  if(CONNS===null)return`<div class="panel"><span class="eyebrow">Connected platforms</span><div class="muted" style="font-size:14px">Loading…</div></div>`;
-  if(!CONNS.length)return`<div class="panel"><span class="eyebrow">Connect your gym</span><div style="font-size:14px">Connect SugarWOD and your gym's programming and your scores arrive here every hour. Range then prepares you for what's coming and helps you recover from what you did.</div><button class="btn" data-act="connAdd">Connect a platform</button></div>`;
+  if(CONNS===null)return`<div class="panel"><span class="eyebrow">Connected platforms</span><div class="muted" style="font-size:calc(14px * var(--ts))">Loading…</div></div>`;
+  if(!CONNS.length)return`<div class="panel"><span class="eyebrow">Connect your gym</span><div style="font-size:calc(14px * var(--ts))">Connect SugarWOD and your gym's programming and your scores arrive here every hour. Range then prepares you for what's coming and helps you recover from what you did.</div><button class="btn" data-act="connAdd">Connect a platform</button></div>`;
   return`<div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span class="eyebrow">Connected platforms</span><button class="link" data-act="conns">Manage</button></div>
-    ${CONNS.map(c=>{const st=connStatus(c);return`<div style="display:flex;justify-content:space-between;gap:10px;font-size:14px"><span><b>${esc(c.name)}</b>${c.info&&c.info.track?` · ${esc(c.info.track)}`:""}</span><span class="${st.c}">${st.t}${c.lastSync?` · ${agoText(c.lastSync)}`:""}</span></div>${c.error&&c.status!=="ok"?`<div class="muted" style="font-size:13px">${esc(c.error)}</div>`:""}`}).join("")}
+    ${CONNS.map(c=>{const st=connStatus(c);return`<div style="display:flex;justify-content:space-between;gap:10px;font-size:calc(14px * var(--ts))"><span><b>${esc(c.name)}</b>${c.info&&c.info.track?` · ${esc(c.info.track)}`:""}</span><span class="${st.c}">${st.t}${c.lastSync?` · ${agoText(c.lastSync)}`:""}</span></div>${c.error&&c.status!=="ok"?`<div class="muted" style="font-size:calc(13px * var(--ts))">${esc(c.error)}</div>`:""}`}).join("")}
     <span style="justify-self:start">${syncBtn()}</span></div>`;
 }
 ACT.conns=()=>{
   sheet(`<h3>Connected platforms</h3><div class="scroll"><div class="stack" style="gap:10px">${(CONNS||[]).map(c=>{const st=connStatus(c);return`<div class="panel" style="gap:8px">
-    <div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(c.name)}</b><span class="${st.c}" style="font-size:13px">${st.t}</span></div>
-    <div class="muted" style="font-size:13px">${esc(c.label||"")}${c.info&&c.info.track?` · program ${esc(c.info.track)}`:""}${c.lastSync?` · synced ${agoText(c.lastSync)}`:""}</div>
-    ${c.error&&c.status!=="ok"?`<div class="c-bad" style="font-size:13px">${esc(c.error)}</div>`:""}
+    <div style="display:flex;justify-content:space-between;gap:8px"><b>${esc(c.name)}</b><span class="${st.c}" style="font-size:calc(13px * var(--ts))">${st.t}</span></div>
+    <div class="muted" style="font-size:calc(13px * var(--ts))">${esc(c.label||"")}${c.info&&c.info.track?` · program ${esc(c.info.track)}`:""}${c.lastSync?` · synced ${agoText(c.lastSync)}`:""}</div>
+    ${c.error&&c.status!=="ok"?`<div class="c-bad" style="font-size:calc(13px * var(--ts))">${esc(c.error)}</div>`:""}
     <div class="frow"><button class="btn sec" style="flex:1" data-act="connSync" data-id="${c.id}">Sync now</button><button class="btn sec" style="flex:1" data-act="connForm" data-p="${c.provider}" data-id="${c.id}">Update login</button></div>
     <button class="link" style="justify-self:start;color:var(--bad)" data-act="connDel" data-id="${c.id}">Remove and delete the stored login</button></div>`}).join("")}
-    <p id="cMsg" class="muted" style="margin:0;font-size:13px" aria-live="polite"></p></div></div><button class="btn" data-act="connAdd">Connect another platform</button>`);
+    <p id="cMsg" class="muted" style="margin:0;font-size:calc(13px * var(--ts))" aria-live="polite"></p></div></div><button class="btn" data-act="connAdd">Connect another platform</button>`);
 };
 ACT.connAdd=async()=>{
   sheet(`<h3>Connect a platform</h3><div class="scroll"><p class="muted" style="margin:0">Loading…</p></div>`);
@@ -5096,7 +5129,7 @@ ACT.connForm=async d=>{
   const p=PROVIDERS.find(x=>x.id===d.p);if(!p)return;
   sheet(`<h3>${d.id?"Update":"Connect"} ${esc(p.name)}</h3><div class="scroll"><form id="cForm" class="stack" style="gap:10px" onsubmit="return false">
     ${p.fields.map(f=>`<label class="field"><span class="eyebrow">${esc(f.label)}</span><input name="${f.key}" type="${f.type==="password"?"password":f.type==="email"?"email":"text"}" autocomplete="off" ${f.required?"required":""}></label>`).join("")}
-    <p class="muted" style="margin:0;font-size:13px">${esc(p.consent)}</p><p id="cMsg" style="margin:0;font-size:14px" aria-live="polite"></p></form></div>
+    <p class="muted" style="margin:0;font-size:calc(13px * var(--ts))">${esc(p.consent)}</p><p id="cMsg" style="margin:0;font-size:calc(14px * var(--ts))" aria-live="polite"></p></form></div>
     <button class="btn" data-act="connSave" data-p="${p.id}" ${d.id?`data-id="${d.id}"`:""}>${d.id?"Save and sync":"Connect"}</button>`);
 };
 ACT.connSave=async d=>{
@@ -5111,12 +5144,12 @@ ACT.connSave=async d=>{
 };
 ACT.connSync=async d=>{const m=$("#cMsg");if(m)m.textContent="Syncing…";try{const r=await api("POST",`/connections/${d.id}/sync`);if(m)m.textContent=r.result.ok?`Synced ${r.result.count} days.`:r.result.error;await refreshConns();acctPull(true)}catch(e){if(m)m.textContent=e.message}};
 ACT.connDel=async d=>{if(!confirm("Remove this connection? Its stored login and synced workouts are deleted from Range."))return;try{await api("DELETE","/connections/"+d.id);S.training=S.training.filter(w=>w.source!=="sugarwod-auto");save();await refreshConns();acctPull(true);closeSheet();render()}catch(e){const m=$("#cMsg");if(m)m.textContent=e.message}};
-function acctPanel(){return`<div class="panel" data-tour="account"><h3>Account</h3><div style="font-size:14px">Signed in as <b>${esc(ACCOUNT?ACCOUNT.email:"")}</b>. Your data is saved to your account and follows you to every device.</div>
+function acctPanel(){return`<div class="panel" data-tour="account"><h3>Account</h3><div style="font-size:calc(14px * var(--ts))">Signed in as <b>${esc(ACCOUNT?ACCOUNT.email:"")}</b>. Your data is saved to your account and follows you to every device.</div>
   <div class="frow"><button class="btn sec" style="flex:1" data-act="conns">Connected platforms</button><button class="btn sec" style="flex:1" data-act="signOut">Sign out</button></div>
   <button class="link" style="justify-self:start;color:var(--bad)" data-act="delAcct">Delete my account</button></div>`}
 ACT.signOut=async()=>{try{await api("POST","/auth/logout")}catch(e){}ACCOUNT=null;CONNS=null;const keep=S.settings;S=JSON.parse(S_FRESH);S.settings=keep;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}authScreen("in")};
 ACT.delAcct=()=>sheet(`<h3>Delete your account</h3><div class="scroll"><p style="margin:0">This permanently deletes your Range account, your data, and every connected login stored for you. It can't be undone.</p>
-  <label class="field"><span class="eyebrow">Your Range password</span><input id="daPw" type="password" autocomplete="current-password"></label><p id="daMsg" class="c-bad" style="margin:0;font-size:14px"></p></div>
+  <label class="field"><span class="eyebrow">Your Range password</span><input id="daPw" type="password" autocomplete="current-password"></label><p id="daMsg" class="c-bad" style="margin:0;font-size:calc(14px * var(--ts))"></p></div>
   <button class="btn" style="background:var(--bad)" data-act="delAcctGo">Delete everything</button>`);
 ACT.delAcctGo=async()=>{try{await api("DELETE","/me",{password:$("#daPw").value});ACCOUNT=null;CONNS=null;S=JSON.parse(S_FRESH);try{localStorage.removeItem(KEY)}catch(e){}closeSheet();authScreen("up")}catch(e){$("#daMsg").textContent=e.message}};
 function authScreen(mode){
@@ -5127,7 +5160,7 @@ function authScreen(mode){
     <p class="muted" style="margin:0">${mode==="up"?"Mobility and recovery built around your actual training. Connect your gym's app and Range keeps up with you.":"Sign in to your Range account."}</p>
     <label class="field"><span class="eyebrow">Username or email</span><input name="email" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required></label>
     <label class="field"><span class="eyebrow">Password${mode==="up"?" (at least 10 characters)":""}</span><input name="password" type="password" autocomplete="${mode==="up"?"new-password":"current-password"}" required></label>
-    <p id="auMsg" class="c-bad" style="margin:0;font-size:14px" aria-live="polite"></p>
+    <p id="auMsg" class="c-bad" style="margin:0;font-size:calc(14px * var(--ts))" aria-live="polite"></p>
    </form>
    <div class="bottomcta"><button class="btn" data-act="authGo" data-m="${mode}">${mode==="up"?"Create account":"Sign in"}</button>
     <button class="btn sec" data-act="authSwitch" data-m="${mode==="up"?"in":"up"}">${mode==="up"?"I already have an account":"Create an account"}</button></div></div></div>`;
@@ -5159,8 +5192,8 @@ ACT.copyData=async()=>{
   try{await navigator.clipboard.writeText(txt);msg.textContent="Copied. Open Range where you want the data, go to Profile → Paste data."}
   catch(e){const ta=$("#dataBox");ta.value=txt;ta.hidden=false;ta.select();msg.textContent="Your browser blocked copying. Select all the text in the box and copy it."}
 };
-ACT.pasteData=()=>{sheet(`<h3>Paste data</h3><div class="scroll"><p class="muted" style="margin:0;font-size:14px">Paste the data you copied from Range on another device. This replaces what's here.</p>
-  <label class="field"><span class="eyebrow">Range data</span><textarea id="pasteBox" rows="6" placeholder='{"format":"range-backup/1", …}'></textarea></label><p id="pasteMsg" class="muted" style="margin:0;font-size:14px"></p></div>
+ACT.pasteData=()=>{sheet(`<h3>Paste data</h3><div class="scroll"><p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Paste the data you copied from Range on another device. This replaces what's here.</p>
+  <label class="field"><span class="eyebrow">Range data</span><textarea id="pasteBox" rows="6" placeholder='{"format":"range-backup/1", …}'></textarea></label><p id="pasteMsg" class="muted" style="margin:0;font-size:calc(14px * var(--ts))"></p></div>
   <button class="btn" data-act="applyPaste">Replace my data</button>`)};
 ACT.applyPaste=()=>{
   try{const j=JSON.parse($("#pasteBox").value);if(j.format!=="range-backup/1"||!j.data)throw 0;
@@ -5230,10 +5263,10 @@ async function sbBoot(){try{await sbLoad()}catch(e){SB_OFFLINE=true;return}
     SBU=data.session&&data.session.user||null;if(SBU){SB_OFFLINE=false;try{if(SBU.email)localStorage.setItem("range-last-email",SBU.email)}catch(e){}await sbPull();render()}}
   catch(e){if(sbNet(e))SB_OFFLINE=true;sbErr=sbNice(e)||"Account sync failed."}}
 function sbPanel(){
-  if(SBU)return`<div class="panel" data-tour="account"><h3>Account</h3><div style="font-size:14px">Signed in as <b>${esc(SBU.email||"")}</b>. Your Range data is saved to your account and follows you to any device.</div>${sbErr?`<div class="c-bad" style="font-size:13px">${esc(sbErr)}</div>`:""}
+  if(SBU)return`<div class="panel" data-tour="account"><h3>Account</h3><div style="font-size:calc(14px * var(--ts))">Signed in as <b>${esc(SBU.email||"")}</b>. Your Range data is saved to your account and follows you to any device.</div>${sbErr?`<div class="c-bad" style="font-size:calc(13px * var(--ts))">${esc(sbErr)}</div>`:""}
     <div class="frow"><button class="btn sec" style="flex:1" data-act="sbSyncNow">Save now</button><button class="btn sec" style="flex:1" data-act="sbOut">Sign out</button></div>
     <button class="link" style="justify-self:start;color:var(--bad)" data-act="sbDel">Delete my account</button></div>`;
-  return`<div class="panel" data-tour="account"><h3>Account</h3><div class="muted" style="font-size:14px">Create a free account to keep your tests, sessions and routines safe and use Range on any device.</div>
+  return`<div class="panel" data-tour="account"><h3>Account</h3><div class="muted" style="font-size:calc(14px * var(--ts))">Create a free account to keep your tests, sessions and routines safe and use Range on any device.</div>
     <div class="frow"><button class="btn" style="flex:1" data-act="sbAuth" data-m="up">Create account</button><button class="btn sec" style="flex:1" data-act="sbAuth" data-m="in">Sign in</button></div></div>`}
 // account errors in plain words, never the raw server text
 function sbNice(e){const m=String(e&&(e.message||e.error_description||e.msg)||e||""),st=e&&e.status;
@@ -5249,11 +5282,11 @@ function sbNice(e){const m=String(e&&(e.message||e.error_description||e.msg)||e|
   if(/failed to fetch|network|load failed|timeout|offline/i.test(m))return"Couldn't reach the server. Check your connection and try again.";
   if(/signups? not allowed|disabled/i.test(m))return"New accounts are paused right now. Please try again later.";
   return"Something went wrong. Please try again in a minute."}
-ACT.sbNewPw=()=>sheet(`<h3>Set a new password</h3><div class="scroll"><label class="field"><span class="eyebrow">New password (at least 8 characters)</span><input id="sbPw" type="password" autocomplete="new-password"></label><p id="sbMsg" style="margin:0;font-size:14px"></p></div><button class="btn" data-act="sbSetPw">Save password</button>`);
+ACT.sbNewPw=()=>sheet(`<h3>Set a new password</h3><div class="scroll"><label class="field"><span class="eyebrow">New password (at least 8 characters)</span><input id="sbPw" type="password" autocomplete="new-password"></label><p id="sbMsg" style="margin:0;font-size:calc(14px * var(--ts))"></p></div><button class="btn" data-act="sbSetPw">Save password</button>`);
 ACT.sbSetPw=async()=>{const pw=$("#sbPw").value,msg=$("#sbMsg");if(pw.length<8){msg.className="c-bad";msg.textContent="Use at least 8 characters.";return}
   const{error}=await SB.auth.updateUser({password:pw});if(error){msg.className="c-bad";msg.textContent=sbNice(error);return}closeSheet();await sbBoot();render()};
 ACT.sbSyncNow=async()=>{try{await sbPush();sbErr=""}catch(e){sbErr="Couldn't save to your account. "+sbNice(e)}render()};
-ACT.sbDel=()=>sheet(`<h3>Delete your account</h3><div class="scroll"><p style="margin:0">This permanently deletes your Range account and everything saved to it: tests, sessions, workouts, Rebuild programs and routines. Your data is also removed from this phone. This can't be undone.</p><p id="sbMsg" class="c-bad" style="margin:0;font-size:14px"></p></div><button class="btn" style="background:var(--bad)" data-act="sbDelGo">Delete my account</button><button class="btn sec" data-act="closeSheet">Cancel</button>`);
+ACT.sbDel=()=>sheet(`<h3>Delete your account</h3><div class="scroll"><p style="margin:0">This permanently deletes your Range account and everything saved to it: tests, sessions, workouts, Rebuild programs and routines. Your data is also removed from this phone. This can't be undone.</p><p id="sbMsg" class="c-bad" style="margin:0;font-size:calc(14px * var(--ts))"></p></div><button class="btn" style="background:var(--bad)" data-act="sbDelGo">Delete my account</button><button class="btn sec" data-act="closeSheet">Cancel</button>`);
 ACT.sbDelGo=async()=>{const{error}=await SB.rpc("delete_my_account");if(error){$("#sbMsg").textContent=sbNice(error);return}try{await SB.auth.signOut()}catch(e){}SBU=null;sbErr="";TOUR&&tourEnd(true);
   wipeLocal();syncKeyDrop();try{localStorage.removeItem("range-last-email")}catch(e){}closeSheet();stack=[{name:"home",p:{}}];render();GATE=null;gateShow("up")};
 /* ================= front page, first-run setup and the app tour =================
@@ -5277,7 +5310,7 @@ function gateDraw(keep){const g=gateHost(),G=GATE;
   if(G.step==="check"){g.innerHTML=`<div class="inner gate"><div class="ghero sm">${RANGE_MARK}<div class="gword">Range<b>.</b></div></div>
     <div class="stack" style="align-content:start;gap:12px"><span class="eyebrow">One more step</span><h1>Check your email</h1>
      <p style="margin:0">We sent a link to <b>${esc(G.email)}</b>. Tap it to confirm your account, then come back here.</p>
-     <p class="muted" style="margin:0;font-size:14px">Not there after a minute? Look in spam or promotions.</p><p id="sbMsg" style="margin:0;font-size:14px" aria-live="polite"></p></div>
+     <p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Not there after a minute? Look in spam or promotions.</p><p id="sbMsg" style="margin:0;font-size:calc(14px * var(--ts))" aria-live="polite"></p></div>
     <div class="bottomcta"><button class="btn" data-act="gateConfirmed">I've confirmed, sign me in</button><button class="btn sec" data-act="gateResend">Send the email again</button>
      <button class="link muted" style="justify-self:center;padding:4px 12px" data-act="gateMode" data-m="up">Use a different email</button></div></div>`;return}
   const up=G.m==="up",off=G.net||navigator.onLine===false;
@@ -5289,12 +5322,12 @@ function gateDraw(keep){const g=gateHost(),G=GATE;
     <div class="seg" style="grid-template-columns:1fr 1fr" role="tablist" aria-label="Account"><button type="button" role="tab" aria-selected="${up}" class="${up?"on":""}" data-act="gateMode" data-m="up">Create account</button><button type="button" role="tab" aria-selected="${!up}" class="${up?"":"on"}" data-act="gateMode" data-m="in">Sign in</button></div>
     <label class="field"><span class="eyebrow">Email</span><input name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" value="${esc(G.email||"")}"></label>
     <label class="field"><span class="eyebrow">Password${up?" · at least 8 characters":""}</span><input name="password" type="password" autocomplete="${up?"new-password":"current-password"}" enterkeyhint="go"></label>
-    <p id="sbMsg" style="margin:0;font-size:14px;min-height:1.45em" aria-live="polite"></p>
+    <p id="sbMsg" style="margin:0;font-size:calc(14px * var(--ts));min-height:1.45em" aria-live="polite"></p>
     ${up?"":`<button type="button" class="link" style="justify-self:start;margin-top:-6px" data-act="sbForgot">Forgot your password?</button>`}
    </form>
    <div class="bottomcta">${off?`<div class="gnote">${ic("sync")}<span>You're offline. Use Range with this phone's data and sign in later.</span></div><button class="btn sec" data-act="gateOffline">Continue offline</button>`:""}
     <button class="btn" data-act="sbGo">${up?"Create account":"Sign in"}</button>
-    <p class="muted" style="margin:0;font-size:12px;text-align:center">Free. Your tests, sessions and routines follow you to any device.</p></div></div>`;
+    <p class="muted" style="margin:0;font-size:calc(12px * var(--ts));text-align:center">Free. Your tests, sessions and routines follow you to any device.</p></div></div>`;
   const nf=$("#sbF");if(keep&&typed){nf.email.value=typed.email;nf.password.value=typed.password}
   nf.password.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();ACT.sbGo()}});
   nf.email.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();nf.password.focus()}});
@@ -5410,7 +5443,7 @@ let TDEMO=null;
 const tdPick=()=>({[tKey(TSTEPS[0])]:2});
 const tq=s=>document.querySelector(s),tclose=(s,up)=>{const e=tq(s);return e&&e.closest(up)};
 const TOUR_STEPS=[
- {tab:"home",el:()=>tq("#car .pcard"),t:"Activate before training",d:()=>nextWorkout()?"A warm-up built from your next workout's movements and your scores. Swipe for Recover, Daily and Rebuild.":"A warm-up built for what you're about to train. Swipe for Recover, Daily and Rebuild."},
+ {tab:"home",el:()=>tq("#car .pcard:not(.clone)"),t:"Activate before training",d:()=>nextWorkout()?"A warm-up built from your next workout's movements and your scores. Swipe for Recover, Daily and Rebuild.":"A warm-up built for what you're about to train. Swipe for Recover, Daily and Rebuild."},
  {tab:"home",el:()=>tq("[data-tour=flows] .hscroll"),t:"Anytime flows",d:"Short routines for a desk break, the morning or bedtime. Tap one and press play."},
  {tab:"home",el:()=>tq("[data-tour=test]")||tq("[data-tour=streak]"),t:()=>S.scores?"Your streak":"Take the mobility test",d:()=>S.scores?"Days in a row with a session. Tap it for your mobility score.":"10 minutes, 18 quick checks. Every session then targets your weak spots. Until then Range uses an example profile."},
  {tab:"home",demo:()=>({}),el:()=>tq("#layer .tsstage"),t:"Inside the test",d:"Each check starts with a demo of exactly how to do it."},
@@ -5520,7 +5553,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="65758436";
+<script>window.RANGE_BUILD="84746322";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
