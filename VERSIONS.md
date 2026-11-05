@@ -41,3 +41,4 @@ GitHub Pages serves it again within a minute or two. The app source lives outsid
 | 2026-11-05 | `2026-11-05_circular-today.html` | Today cards go round and round in both directions | 1f9e2cd |
 | 2026-11-05 | `2026-11-05_smooth-loop.html` | Today loop stays smooth across a new lap, even with quick swipes | bf869b8 |
 | 2026-11-05 | `2026-11-05_sign-out-button.html` | Sign out button top left on Today, with a confirmation sheet | ae75920 |
+| 2026-11-05 | `2026-11-05_apple-title-case.html` | Apple title-style capitalization for buttons, titles, tabs and names | 56fe84b |
