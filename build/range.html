@@ -318,8 +318,6 @@ textarea{font:inherit}.edex{gap:10px}.edhead{display:grid;grid-template-columns:
 .looks{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.looks button{display:grid;gap:2px;justify-items:center;padding:6px;border-radius:10px;background:var(--stage);min-height:60px;box-shadow:inset 0 0 0 2px transparent}.looks button.on{box-shadow:inset 0 0 0 2px var(--accent)}.looks svg{width:100%;height:auto}.looks small{font-size:calc(11px * var(--ts));color:var(--muted);text-align:center;line-height:1.2}
 .ph small{opacity:.6;font-weight:500;margin-left:4px}.gates li{grid-template-columns:150px 1fr 44px}
 .mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.mtile{display:grid;gap:2px;justify-items:center;align-content:start;grid-template-rows:auto minmax(2.5em,auto) auto;text-align:center;background:var(--surface);border-radius:14px;padding:8px 6px 10px}.mtile .bm{width:100%;max-width:120px;height:auto}.mtile .bm text{display:none}.mtile b{font-size:calc(13px * var(--ts));line-height:1.2;align-self:center;text-wrap:balance}.mtile small{color:var(--muted);font-size:calc(11px * var(--ts))}
-.readycall{margin:0;padding:10px 12px;border-radius:12px;background:var(--surface2);font-size:calc(13px * var(--ts));line-height:1.4}
-.readycall.go b,.readycall.ok b{color:var(--good)}.readycall.easy b{color:var(--warn)}.readycall.rest b{color:var(--bad)}
 .aftercard{margin-top:14px;display:grid;gap:8px}.aftercard p{margin:0;font-size:calc(13px * var(--ts));line-height:1.4}
 .aftercard p.blk{margin:6px 0 0;font-size:calc(11px * var(--ts));font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}.aftercard p.blk span{color:var(--muted)}
 .ramp{display:grid;gap:2px;font-size:calc(13px * var(--ts))}.ramp>div{display:grid;grid-template-columns:5.5em 6.5em 4.5em 1fr;gap:8px;padding:6px 0;border-bottom:1px solid var(--line,rgba(127,127,127,.18))}
@@ -1956,11 +1954,14 @@ function analyze(o){
     if(o.kind==="target"){need[k]=k===o.zone?1:TARGET_SUPPORT[o.zone]&&TARGET_SUPPORT[o.zone][k]?.35:0;parts[k]={};return}
     // areas that already hit the weekly stretching target get less static time (more stretching won't add range)
     const p={weak:W.weak*Math.max(0,(95-sc[k])/95)*(.55+.45*sw[k]),demand:W.demand*(demand[k]||0)*(o.kind==="activate"&&sc[k]>=80?.6:1),load:W.load*(load[k]||0),next:W.next*(nextD[k]||0),pen:W.fresh*(str[k]||0)+(o.kind==="daily"&&(wk[k]||0)>=WEEK_TARGET?.2:0)};
-    parts[k]=p;need[k]=Math.max(.03,p.weak+p.demand+p.load+p.next-p.pen);
+    // an area you marked as sore today outweighs everything else in the session
+    p.sore=(o.sore||[]).includes(k)?1.2:0;
+    parts[k]=p;need[k]=Math.max(.03,p.weak+p.demand+p.load+p.next+p.sore-p.pen);
   });
   return{need,parts,ctx:{sc,nx}};
 }
-function focusOf(o){const{need,parts}=analyze(o);let f=AREAS.filter(a=>need[a.k]>.05).sort((x,y)=>need[y.k]-need[x.k]).slice(0,o.kind==="target"?1:2).map(a=>a.k);
+function focusOf(o){const sore=(o.sore||[]).slice(0,3);if(sore.length){const{need}=analyze(o);return[...sore,...AREAS.map(a=>a.k).filter(k=>!sore.includes(k)&&need[k]>.05).sort((x,y)=>need[y]-need[x])].slice(0,Math.max(2,sore.length))}
+  const{need,parts}=analyze(o);let f=AREAS.filter(a=>need[a.k]>.05).sort((x,y)=>need[y.k]-need[x.k]).slice(0,o.kind==="target"?1:2).map(a=>a.k);
   // before or after training the area the workout leans on hardest is always named (thrusters, wall balls and pull-ups: overhead),
   // even when two low scores elsewhere would otherwise fill the list
   if((o.kind==="activate"||o.kind==="recover")&&f.length===2){const d=AREAS.map(a=>a.k).sort((x,y)=>(parts[y].demand||0)-(parts[x].demand||0))[0];if((parts[d].demand||0)>0&&!f.includes(d))f=[f[0],d]}
@@ -1982,6 +1983,7 @@ function whyFor(ex,o,moves,ctx,parts,zd){
   if(o.kind==="target"){if(a===o.zone)bits.push(`you picked ${AN[a]}`);else{const zs=ex.z.filter(x=>(zd[x]||0)>0).map(x=>ZONES[x].toLowerCase()).slice(0,2);bits.push(`tight ${zs.join(" and ")||AN[a].toLowerCase()} ${zs.length===1&&!/s$/.test(zs[0])?"often limits":"often limit"} your ${AN[o.zone]}`)}}
   if(mv&&o.kind==="activate"){const pl=/ and /.test(mv);bits.push(z==="lowback"||z==="core"?`${mv} ${pl?"load":"loads"} your ${ZONES[z].toLowerCase()}, and moving it gently warms it up without stretching it before you brace`:`${mv} ${pl?"need":"needs"} range in your ${ZONES[z].toLowerCase()}`)}
   if(mv&&o.kind==="recover")bits.push(`${mv} worked your ${ZONES[z].toLowerCase()}`);
+  const sr=(o.sore||[]).includes(a)?a:(o.sore||[]).includes(sa)?sa:null;if(sr)bits.unshift(`you said your ${AN[sr]} ${/s$/.test(AN[sr])?"are":"is"} sore`);
   if(sc<65)bits.push(`your ${AN[sa]} score is ${sc}`);
   if((p.load||0)>.1&&o.kind!=="recover")bits.push(`your ${AN[a]} took heavy load in the last 3 days`);
   if((p.next||0)>.06&&ctx.nx)bits.push(`${wShort(ctx.nx)} is coming up`);
@@ -2155,20 +2157,11 @@ SCREENS.daily=()=>`${hdr()}
 ACT.dailyGo=()=>startWizard({kind:"daily"});
 /* ================= wizard ================= */
 let W=null;
-const STEPS={activate:["moves","ready","time","equip","summary"],recover:["moves","time","equip","summary"],daily:["time","equip","summary"],target:["zone","time","equip","summary"]};
-const STEPICON={moves:"move",ready:"heart",time:"clock",equip:"equip",zone:"target"},STEPCAP={moves:"Workout",ready:"Ready",time:"Time",equip:"Kit",zone:"Zone"};
-// 1-minute readiness check before training (Lifter Prep & Recovery Protocol, feel-good rules): four 1-5 ratings, 5 = best
-const READY_Q=[["sleep","Sleep","Poor","Great"],["sore","Muscles","Very sore","Fresh"],["stress","Stress","High","Calm"],["mot","Motivation","Low","High"]];
-const readyTotal=r=>r&&READY_Q.every(([k])=>r[k])?READY_Q.reduce((t,[k])=>t+r[k],0):null;
-// total of 20 -> what the session should do (common clinical practice, not a trial-derived cut-off)
-function readyCall(r){const t=readyTotal(r);if(t==null)return null;
-  return t>=16?{t,lvl:"go",n:"Ready to go",bar:"Go for your top sets as planned."}
-  :t>=11?{t,lvl:"ok",n:"Train as planned",bar:"Cap your top sets at what the ramp sets feel like: no grinding misses."}
-  :t>=6?{t,lvl:"easy",n:"Lighter day",bar:"Technique and volume at 70–75% today; a longer warm-up and mobility."}
-  :{t,lvl:"rest",n:"Recovery day",bar:"No barbell today: easy aerobic work and a mobility block."}}
+const STEPS={activate:["moves","sore","time","equip","summary"],recover:["moves","sore","time","equip","summary"],daily:["time","equip","summary"],target:["zone","time","equip","summary"]};
+const STEPICON={moves:"move",sore:"target",time:"clock",equip:"equip",zone:"target"},STEPCAP={moves:"Workout",sore:"Sore",time:"Time",equip:"Kit",zone:"Zone"};
 function startWizard(o){
   W={hist:[],kind:o.kind,mw:o.mw||null,sport:o.sport||null,moves:o.moves?o.moves.slice():[],from:o.from||null,minutes:null,equip:S.equip.slice(),zone:null,step:0,done:{},
-    ready:S.ready&&S.ready.day===todayIso()?{...S.ready.r}:{}};
+    sore:S.sore&&S.sore.day===todayIso()?S.sore.a.slice():[]};
   // Activate and Recover always open on the movements: today's workout is already filled in, and you can take some out
   // or add others to warm up (or release) for something else
   if(W.minutes==null)W.minutes=(S.lastMin||{})[W.kind]||null;
@@ -2196,12 +2189,10 @@ SCREENS.wizard=()=>{
     ${sugg.length?`<div class="stack" style="gap:8px"><span class="eyebrow">Add</span><div class="chipset">${sugg.map(m=>`<button class="chip" data-act="addMove" data-m="${esc(m)}">${ic("plus")}${esc(m)}</button>`).join("")}</div></div>`:""}`;
     cta=`<button class="btn sec" data-act="moveSheet">${ic("plus")}Add Movement</button><button class="btn" data-act="wNext" ${W.moves.length?"":"disabled"}>Next</button>`;
   }
-  if(step==="ready"){
-    const c=readyCall(W.ready);
-    body=`<div class="stephead"><span class="bub">${ic("heart")}</span><div><h3>How Do You Feel?</h3><p>Four quick ratings set today's warm-up and how hard to push</p></div></div>
-    <div class="stack" style="gap:14px">${READY_Q.map(([k,n,lo,hi])=>`<div class="stack" style="gap:6px"><span class="eyebrow">${n}</span><div class="painrow" style="grid-template-columns:repeat(5,1fr)">${[1,2,3,4,5].map(v=>`<button class="pain${W.ready[k]===v?" on":""} p${v<=2?"hi":v===3?"mid":"lo"}" data-act="pickReady" data-k="${k}" data-v="${v}" aria-label="${n} ${v} of 5">${v}</button>`).join("")}</div><div class="painlbl"><span>${lo}</span><span>${hi}</span></div></div>`).join("")}
-    ${c?`<p class="readycall ${c.lvl}"><b>${c.t}/20 · ${c.n}</b><br>${c.bar}</p>`:""}</div>`;
-    cta=`<button class="btn sec" data-act="skipReady">Skip</button><button class="btn" data-act="wNext" ${c?"":"disabled"}>Next</button>`;
+  if(step==="sore"){
+    body=`<div class="stephead"><span class="bub">${ic("target")}</span><div><h3>Anything Sore?</h3><p>Pick the areas to focus on today. They get more time in the session.</p></div></div>
+    <div class="stack" style="gap:10px">${AREAS.map(a=>`<button class="opt ${W.sore.includes(a.k)?"on":""}" data-act="togSore" data-a="${a.k}" aria-pressed="${W.sore.includes(a.k)}"><span>${a.n}</span>${W.sore.includes(a.k)?ic("check"):""}</button>`).join("")}</div>`;
+    cta=`<button class="btn" data-act="wNext">${W.sore.length?"Next":"Nothing Sore"}</button>`;
   }
   if(step==="time"){
     body=`<div class="stephead"><span class="bub">${ic("clock")}</span><div><h3>Your Available Time</h3></div></div>
@@ -2228,8 +2219,7 @@ SCREENS.wizard=()=>{
     rows.push(["equip","Your equipment",eqn.length?eqn.join(", "):"None","equip"]);
     rows.push(["target","Your mobility focus",mobilityFocus().map(k=>AN[k]).join(", "),null]);
     if(!W.plan)W.plan=buildPlan(W);
-    body=`<div class="stack" style="gap:6px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="chipset">${W.kind==="target"?`<button class="chip" data-act="wGoto" data-s="zone">${ic("target")}${esc(AN[W.zone])}</button>`:""}<button class="chip" data-act="wGoto" data-s="time">${ic("clock")}${W.minutes} min</button><button class="chip" data-act="wGoto" data-s="equip" aria-label="Equipment">${ic("equip")}Kit</button></span><span style="display:flex;gap:14px"><button class="link" data-act="whySheet">Why?</button><button class="link" data-act="reshuffle">Shuffle</button></span></div>
-    ${W.plan.ready?`<p class="readycall ${W.plan.ready.lvl}"><b>${W.plan.ready.t}/20 · ${W.plan.ready.n}</b>${W.plan.ready.lvl==="rest"?`<br>Easy aerobic work and mobility, no barbell today.<br><button class="link" data-act="readyRecover">Switch to a Daily mobility session</button>`:""}</p>`:""}
+    body=`<div class="stack" style="gap:6px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="chipset">${W.kind==="target"?`<button class="chip" data-act="wGoto" data-s="zone">${ic("target")}${esc(AN[W.zone])}</button>`:""}${W.sore&&W.sore.length?`<button class="chip" data-act="wGoto" data-s="sore">${ic("target")}${esc(W.sore.map(k=>AN[k]).join(", "))}</button>`:""}<button class="chip" data-act="wGoto" data-s="time">${ic("clock")}${W.minutes} min</button><button class="chip" data-act="wGoto" data-s="equip" aria-label="Equipment">${ic("equip")}Kit</button></span><span style="display:flex;gap:14px"><button class="link" data-act="whySheet">Why?</button><button class="link" data-act="reshuffle">Shuffle</button></span></div>
     ${rbNote(W.plan.warn)}
     ${W.plan.excluded&&!W.plan.warn?`<p class="muted safeln" style="margin:0;font-size:calc(13px * var(--ts))">${ic("check")} Safe for your ${esc(W.plan.excluded.toLowerCase().replace(/ \(.*\)$/,""))}</p>`:""}
     <div class="preview">${W.plan.items.length?(()=>{let n=0;return(W.plan.blocks||[{name:"",items:W.plan.items}]).map((b,bi)=>`${b.name?`<p class="blk">${esc(b.name)} <span>${Math.round(b.items.reduce((t,it)=>t+itemSecs(it),0)/60)||"<1"} min</span></p>`:""}${b.items.map((it,ii)=>{const ex=LIBI[it.id];n++;return`<div class="ed"><span>${n}</span><span>${esc(ex.n)}</span><span class="rt"><span>${it.dose?esc(doseText(it).split(" · ")[0]):fmt(it.hold)+(ex.sides?" ×2":"")}</span><span class="pe"><button data-act="wSwap" data-b="${bi}" data-i="${ii}" aria-label="Swap ${esc(ex.n)}">${ic("reset")}</button><button data-act="wRm" data-b="${bi}" data-i="${ii}" aria-label="Remove ${esc(ex.n)}">${ic("x")}</button></span></span></div>`}).join("")}`).join("")})():`<div><span></span><span class="muted">No stretches match this equipment and time. Add equipment or pick more time.</span><span></span></div>`}</div>
@@ -2242,11 +2232,8 @@ AFTER.wizard=()=>{
   if(STEPS[W.kind][W.step]!=="summary")return;
 
 };
-// what comes after the played routine: ramp sets and primers (Activate), recovery basics (Recover)
-function afterCards(p){let h="";const b=p&&p.bar;
-  if(b&&b.call&&b.call.lvl==="rest")return"";
-  if(b&&b.next.length)h+=`<div class="aftercard"><p class="blk">Before Each Next Movement <span>2–5 min</span></p>${b.next.map(n=>`<div class="primer"><b>${esc(n.move)}</b>${n.mob!=="—"?`<span>${esc(n.mob)}</span><span>${esc(n.ctl)}</span>`:""}<span>${esc(n.sets)}</span></div>`).join("")}
-    <p class="muted">Rested more than 10–15 min? 2 min of fast bike or jumps first, then the primer.</p></div>`;
+// what comes after the played routine: recovery basics (Recover)
+function afterCards(p){let h="";
   if(p&&p.tips)h+=`<div class="aftercard"><p class="blk">Later Today</p>${p.tips.map(([n,t])=>`<div class="primer"><b>${esc(n)}</b><span>${esc(t)}</span></div>`).join("")}</div>`;
   return h}
 function wRender(){render();window.scrollTo(0,0)}
@@ -2254,9 +2241,7 @@ ACT.wNext=()=>{const s=STEPS[W.kind][W.step];if(W.returnTo==null)W.hist.push(W.s
   W.step=W.returnTo!=null?W.returnTo:W.step+1;W.returnTo=null;wRender();push(1)};
 ACT.wGoto=d=>{W.returnTo=STEPS[W.kind].indexOf("summary");W.step=STEPS[W.kind].indexOf(d.s);wRender()};
 ACT.pickTime=d=>{W.minutes=+d.m;S.lastMin={...(S.lastMin||{}),[W.kind]:W.minutes};save();render();setTimeout(ACT.wNext,REDUCED?0:220)};
-ACT.pickReady=d=>{W.ready[d.k]=+d.v;if(readyTotal(W.ready)!=null){S.ready={day:todayIso(),r:{...W.ready}};save()}render()};
-ACT.skipReady=()=>{W.ready={};ACT.wNext()};
-ACT.readyRecover=()=>startWizard({kind:"daily"});
+ACT.togSore=d=>{const i=W.sore.indexOf(d.a);if(i>=0)W.sore.splice(i,1);else W.sore.push(d.a);S.sore={day:todayIso(),a:W.sore.slice()};save();render()};
 ACT.pickArea=d=>{W.zone=d.a;render();setTimeout(ACT.wNext,REDUCED?0:220)};
 ACT.togEq=d=>{const i=W.equip.indexOf(d.e);if(i>=0)W.equip.splice(i,1);else W.equip.push(d.e);render()};
 ACT.addMove=d=>{if(!W.moves.includes(d.m))W.moves.push(d.m);render()};
@@ -2301,7 +2286,7 @@ ACT.whySheet=()=>{
   </div><button class="btn sec" data-act="closeSheet">Close</button>`);
 };
 ACT.info=()=>sheet(`<h2>${KINDS[W.kind].n}</h2><div class="scroll"><p class="muted" style="margin:0">${{
-  activate:"A short, mostly active protocol to do right before training, built as Raise, Mobilise, Activate: a few minutes of easy cardio, then the joints your workout loads from the ankles up (weighted toward your lowest test scores), then the stabilisers your first movement relies on. Each later movement gets a 2–5 minute primer just before it. Your readiness check sets how hard to push.",
+  activate:"A short, mostly active protocol to do right before training, built as Raise, Mobilise, Activate: a few minutes of easy cardio, then the joints your workout loads from the ankles up (weighted toward your lowest test scores), then the stabilisers your first movement relies on. Areas you mark as sore get extra time.",
   recover:"Longer passive holds after training. It focuses on the areas your session loaded and skips anything that needs momentum. Sleep does more for recovery than anything else.",
   daily:"A general session for home. It spends most of its time on your lowest-scoring areas from the mobility test.",
   target:"Every stretch goes to one body zone. Use it when one area is holding back a lift."}[W.kind]}</p></div><button class="btn sec" data-act="closeSheet">Close</button>`);
@@ -3560,12 +3545,11 @@ REGIONS.back.phasesBy={flexion:REGIONS.back.phases,extension:REGIONS.back.phases
 
 /* ================= protocol planner =================
    Each protocol has a fixed structure taken from Rebuilding Milo and checked against the research:
-   ACTIVATE (before training, RAMP per the Lifter Prep & Recovery Protocol): readiness check (4 x 1-5), Raise (2-4 min easy cardio),
+   ACTIVATE (before training, RAMP per the Lifter Prep & Recovery Protocol): sore areas you pick, Raise (2-3 min easy cardio),
      rehab warm-up if a Rebuild program asks for one (isometrics before lifting)
      -> Mobilise: the joints today's movements need, dynamic first, static holds max 30 s and max 60 s per
         area (longer static holds before lifting cost strength and power)
      -> Activate: brace the core (McGill), then switch on the muscles movement 1 relies on.
-     -> After the routine: a primer before each later movement.
    RECOVER (after): region by region, biggest load first: release (roller / ball) for that region, then long
      passive holds for what you trained, winding down to the floor.
    DAILY: Mobility for your weakest areas (capped at ~10 min of static stretching per area per week, the
@@ -3836,38 +3820,11 @@ function regionOrder(items,kind,zd){
   rows.filter(x=>x.st==="end").forEach(x=>named(x,"Finish"));
   const blocks=[];out.forEach(x=>{const it=x.it;delete it._st;delete it._main;it.block=x.name;const last=blocks[blocks.length-1];if(last&&last.name===x.name)last.items.push(it);else blocks.push({name:x.name,items:[it]})});
   return blocks}
-// Lifter Prep & Recovery Protocol, sections 4 and 4b: the bar is the last and most important warm-up tool.
-// Ramp sets to the day's top set (load as % of that top set), then a short primer before each later movement.
 // after training: sleep and load first, the rest mainly changes how you feel (Dupuy 2018; cold water: Piñero 2024, Grgic 2022)
 const RECOVER_TIPS=[["Sleep","About 8 hours tonight. It's the recovery tool with the strongest evidence; after a short night, a 20–90 min early-afternoon nap helps."],
  ["Cold water","Skip ice baths within 4–6 h of strength work: cold blunts strength and muscle gains. Use them only when you must perform again within 24 h."],
  ["Soreness","Massage and foam rolling ease soreness best. Easy cardio on a rest day helps a little."],
  ["Every 4–6 weeks","A deload week: volume down 40–50%, moderate weights, more technique and mobility."]];
-const BARBELL=new Set(["Snatch","Power Snatch","Clean & Jerk","Squat Clean","Power Clean","Overhead Squat","Front Squat","Back Squat","Deadlift","Romanian Deadlift","Snatch Pull","Clean Pull","Strict Press","Push Press","Split Jerk","Push Jerk","Bench Press","Thruster"]);
-const RAMP_SETS=[["Empty bar","2–3 × 3–5","no rest","groove positions, check today's range"],["40–50%","3","60 s","speed and positions"],["60–65%","2–3","60–90 s","full-speed technique"],["75%","1–2","90 s","bar speed check"],["85%","1","2 min","last rehearsal"]];
-const PRIMERS=[
- {moves:["Snatch","Power Snatch","Overhead Squat"],n:"Snatch",mob:"PVC pass-throughs or an OHS pry",ctl:"Snatch-grip press behind the neck, 1×5",sets:"Muscle snatch + snatch balance, empty bar"},
- {moves:["Squat Clean","Power Clean"],n:"Clean",mob:"Front-rack lat stretch, 2×10 s",ctl:"Front squat hold, 2×10 s",sets:"Clean pull + front squat, empty bar"},
- {moves:["Clean & Jerk","Split Jerk","Push Jerk"],n:"Clean & jerk",mob:"Front-rack lat stretch, 2×10 s",ctl:"Split position hold, 2×10 s each leg",sets:"Clean pull + jerk dip-drive, empty bar"},
- {moves:["Front Squat","Back Squat"],n:"Squat",mob:"Ankle rocks or 90/90 switches",ctl:"Paused bodyweight squat, 3 s",sets:"2–3 ramp sets"},
- {moves:["Deadlift","Romanian Deadlift","Snatch Pull","Clean Pull"],n:"Pulls",mob:"Hamstring floss",ctl:"Hip hinge with a dowel on the spine",sets:"Empty-bar RDL, 1×5"},
- {moves:["Strict Press","Push Press","Bench Press"],n:"Press",mob:"Shoulder CARs",ctl:"Band pull-aparts, 1×15",sets:"2 light sets"},
- {moves:["Pull-up","Chest-to-bar Pull-up","Bar Muscle-up","Ring Muscle-up","Toes-to-bar","Rope Climb"],n:"Pulling gymnastics",mob:"Shoulder CARs",ctl:"Scap pull-ups + hollow/arch holds",sets:"3–5 kip swings, 1 easy set"},
- {moves:["Handstand Push-up","Handstand Walk"],n:"Handstands",mob:"Wrist rocks",ctl:"Pike push-up hold, a wall walk",sets:"20–30 s wall handstand"},
-];
-const primerOf=m=>PRIMERS.find(p=>p.moves.includes(m))||null;
-// what happens on the bar after the warm-up, and before each later movement: ordered moves, heavy strength parts get their own
-// primer, everything after the last heavy part is the workout itself (one slow round at 50-60% covers it)
-function barPlan(moves,mw,ready){
-  const heavy=m=>BARBELL.has(m)&&(!mw||mw[m]==null||mw[m]>=2),main=moves.filter(m=>!mw||(mw[m]??1)>=1);if(!main.length)return null;
-  const call=readyCall(ready),first=main[0],out={first,ramp:null,rehearse:null,next:[],call};
-  if(call&&call.lvl==="rest")return out;
-  if(heavy(first))out.ramp=RAMP_SETS;else out.rehearse=`One slow round of the workout at 50–60% pace before the clock starts.`;
-  const rest=main.slice(1),seen=new Set([primerOf(first)]),metcon=[];
-  rest.forEach(m=>{const p=primerOf(m);if(heavy(m)){if(seen.has(p)&&p)return;seen.add(p);out.next.push({move:m,mob:p?p.mob:"One drill for its main joint",ctl:p?p.ctl:"One control drill",sets:p?p.sets:"1–2 light sets"})}else metcon.push(m)});
-  if(metcon.length&&(heavy(first)||out.next.length)){const g=metcon.map(primerOf).find(p=>p&&!/Squat|Pulls|Press/.test(p.n));
-    out.next.push({move:metcon.length>2?metcon.slice(0,2).join(", ")+" +"+(metcon.length-2):metcon.join(" & "),mob:g?g.mob:"—",ctl:g?g.ctl:"—",sets:"One slow round at 50–60% pace"})}
-  return out}
 function buildPlan(o){
   const{need,parts,ctx}=analyze(o),flash=o.minutes===3,budget=o.minutes*60,moves=o.kind==="target"?[]:planMoves(o),zd=o.kind==="target"?targetZd(o.zone):normMap(zoneDemandOf(moves,o.mw));
   const hooks=rehabHooks(),state={used:new Set()},C={need,parts,ctx,flash,moves,zd};
@@ -3881,9 +3838,8 @@ function buildPlan(o){
   const preRehab=()=>{const cap=flash?60:Math.min(left*.3,300),mk=sh=>hooks.pre.map(([id,dose])=>({id,dose:sh?{...dose,sets:1}:dose,why:`Part of your ${hooks.name} program: isometric holds before training calm the area and let you lift with less pain.`}));
     const a=fit(mk(0),cap);return a.length||flash?a:fit(mk(1),Math.max(cap,left*.4))};
   if(o.kind==="activate"){
-    const rc=readyCall(o.ready);
-    if(!flash&&o.minutes>=10){const secs=(o.minutes>=15?180:120)+(rc&&(rc.lvl==="easy"||rc.lvl==="rest")?60:0);
-      add("Raise",[{id:"r_raise",hold:secs,why:`Raise first: a few minutes of easy cardio warms the muscles and lifts the heart rate, so everything after it moves better. Warm-ups that start this way improve performance in about 4 of 5 measures (Fradkin 2010).${rc&&rc.lvl!=="go"&&rc.lvl!=="ok"?" A minute longer today because you're not feeling fresh.":""}`}])}
+    if(!flash&&o.minutes>=10){const secs=o.minutes>=15?180:120;
+      add("Raise",[{id:"r_raise",hold:secs,why:`Raise first: a few minutes of easy cardio warms the muscles and lifts the heart rate, so everything after it moves better. Warm-ups that start this way improve performance in about 4 of 5 measures (Fradkin 2010).`}])}
     if(!flash)add("Rehab warm-up",preRehab());
     // before a run, a HYROX or race sim: on your feet and moving, with as little floor work as possible
     const runDay=moves.some(m=>RB_RUNS.has(m)),cut=rbCutMoves(moves),pmoves=moves.filter(m=>!cut.has(m));
@@ -3897,7 +3853,7 @@ function buildPlan(o){
     // groups ranked by how much of the session they cover, main lifts (listed first) counting most; movements your Rebuild
     // program says to cut today (jumps for a tendon) don't get a warm-up of their own
     const rel=p=>pmoves.reduce((t,m,i)=>t+(p.moves.includes(m)?1/(1+i*.5):0),0);
-    // movement 1 is the one the warm-up primes fully, so its group leads (later movements get a primer just before them)
+    // movement 1 is the one the warm-up primes fully, so its group leads
     const groups=MOVE_PREP.filter(p=>rel(p)>0).sort((a,b)=>b.moves.includes(pmoves[0])-a.moves.includes(pmoves[0])||rel(b)-rel(a));
     const cap=flash?2:o.minutes<=8?3:o.minutes<=12?5:o.minutes<=15?5:6;
     // breadth first: the rehearsal of the main lift, then one drill for each other movement group, then second drills
@@ -4030,7 +3986,7 @@ function buildPlan(o){
       if(mm)it.why=mm[2]===zn?it.why.replace(mm[0],`${mm[1]} and ${m} worked your ${zn}`):it.why.replace(mm[0],`${mm[0]}, ${m} your ${zn}`);
       else it.why=`${m} worked your ${zn}. `+(it.why||"")})}
   return{items,blocks,credit,secs:items.reduce((t,it)=>t+itemSecs(it),0),need,parts,excluded:hooks.x.size?hooks.name:"",warn:o.kind==="activate"?rbWorkoutWarn(moves,o.mw):"",
-    bar:o.kind==="activate"&&!flash?barPlan(moves,o.mw,o.ready):null,ready:o.kind==="activate"?readyCall(o.ready):null,tips:o.kind==="recover"?RECOVER_TIPS:null};
+    tips:o.kind==="recover"?RECOVER_TIPS:null};
 }
 
 /* ================= training (workouts pasted from SugarWOD) ================= */
@@ -4150,7 +4106,7 @@ function wTitle(w){
   let p=w.title.split(/\s*[·|]\s*/).filter(Boolean);if(w.title.length>=78&&p.length>1)p.pop();
   p=p.map(x=>/[a-z]/.test(x)||x.length<5?x:x.toLowerCase().replace(/\b\w/g,c=>c.toUpperCase()));
   return[...new Set(p)].join(" · ")||w.title}
-// the warm-up follows the session's own order (movement 1 is primed fully, later ones get a primer just before them);
+// the warm-up follows the session's own order (movement 1 is primed fully);
 // warm-up and accessory parts of the written workout go last so they never count as movement 1
 function prepFor(w){const mw=moveWeights(w),ord=movesInOrder((w.text||"")+"\n"+(w.title||"")),at=m=>{const i=ord.indexOf(m);return i<0?99:i};
   const moves=w.moves.slice().sort((a,b)=>((mw[a]??1)<1)-((mw[b]??1)<1)||at(a)-at(b));
