@@ -655,6 +655,33 @@ body.touring .carousel .pcard{height:clamp(220px,32vh,320px)}
 .stp.on .sn{background:var(--accent);color:var(--accent-ink)}.stp.done .sn{background:var(--accent-soft);color:var(--accent)}
 .stp b{display:block;font-size:calc(16px * var(--ts))}.stp small{display:block;color:var(--muted);font-size:calc(13px * var(--ts))}.stp p{margin:6px 0 0;font-size:calc(14px * var(--ts))}
 .acc details{border-bottom:1px solid var(--line);padding:2px 0}.acc details:last-child{border-bottom:0}.acc summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;min-height:48px;font-weight:700;font-size:calc(16px * var(--ts))}.acc summary::-webkit-details-marker{display:none}.acc summary::after{content:"+";font-weight:800;color:var(--muted)}.acc details[open] summary::after{content:"−"}.acc details>ul,.acc details>div{margin:0 0 12px}
+/* Liquid Glass: functional layer only (bars, floating buttons, sheets, player controls); content stays opaque */
+:root{--g-fill:rgba(28,25,22,.46);--g-fill-strong:rgba(36,32,28,.62);--g-line:rgba(255,255,255,.13);--g-hi:rgba(255,255,255,.22);--g-blur:blur(28px) saturate(1.6)}
+/* top bar: no painted band; a scroll edge effect fades and blurs content as it slides under */
+.hdr{background:transparent!important;border-bottom-color:transparent!important;isolation:isolate}
+.hdr::before{content:"";position:absolute;inset:0 0 -28px 0;z-index:-1;background:linear-gradient(to bottom,rgba(13,11,9,.92) 0%,rgba(13,11,9,.6) 60%,rgba(13,11,9,0) 100%);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);-webkit-mask-image:linear-gradient(#000 55%,transparent);mask-image:linear-gradient(#000 55%,transparent)}
+/* bar buttons: 44pt glass circles, monochrome symbols */
+.hdr button,.ptop button{width:44px;height:44px;border-radius:50%;background:var(--g-fill);-webkit-backdrop-filter:var(--g-blur);backdrop-filter:var(--g-blur);
+  box-shadow:inset 0 1px 0 var(--g-hi),inset 0 0 0 1px var(--g-line),0 6px 18px rgba(0,0,0,.35);color:var(--ink)}
+/* tab bar: thinner, livelier glass with a specular rim; the lens is a raised drop of glass; only the selected icon carries the brand colour */
+#tabbar{background:var(--g-fill)!important;-webkit-backdrop-filter:var(--g-blur)!important;backdrop-filter:var(--g-blur)!important;border:0!important;
+  box-shadow:inset 0 1px 0 var(--g-hi),inset 0 0 0 1px var(--g-line),inset 0 -1px 0 rgba(255,255,255,.05),0 14px 34px rgba(0,0,0,.5)!important}
+#tabbar .tlens{background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,.08))!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 0 1px rgba(255,255,255,.12),0 4px 14px rgba(0,0,0,.3)!important;border:0!important}
+#tabbar button[aria-current=page] .ic{color:var(--accent)!important}
+/* sheets float, inset from the edges, on regular glass */
+.scrim{background:rgba(0,0,0,.34)!important}
+.sheet{width:calc(100% - 16px)!important;margin:0 8px calc(env(safe-area-inset-bottom,0px) + 8px);border-radius:34px!important;background:var(--g-fill-strong)!important;
+  -webkit-backdrop-filter:blur(34px) saturate(1.6);backdrop-filter:blur(34px) saturate(1.6);box-shadow:inset 0 1px 0 var(--g-hi),inset 0 0 0 1px var(--g-line),0 24px 60px rgba(0,0,0,.55)!important}
+.sheet .btn.sec,.sheet .btn.danger{background:rgba(255,255,255,.09)!important;box-shadow:inset 0 0 0 1px var(--g-line)!important}
+/* bottom actions float over content: secondary on glass, one tinted primary */
+.bottomcta{background:linear-gradient(to top,rgba(13,11,9,.75) 30%,rgba(13,11,9,0))!important}
+.bottomcta .btn.sec{background:var(--g-fill)!important;-webkit-backdrop-filter:var(--g-blur);backdrop-filter:var(--g-blur);box-shadow:inset 0 1px 0 var(--g-hi),inset 0 0 0 1px var(--g-line)!important}
+.bottomcta .btn{border-radius:999px!important}
+/* player transport: one glass capsule */
+.pctrl{background:var(--g-fill);-webkit-backdrop-filter:var(--g-blur);backdrop-filter:var(--g-blur);border-radius:44px;padding:8px 10px;margin-inline:8px;box-shadow:inset 0 1px 0 var(--g-hi),inset 0 0 0 1px var(--g-line),0 14px 34px rgba(0,0,0,.45)}
+/* Reduce Transparency: the same shapes on solid surfaces */
+@media (prefers-reduced-transparency:reduce){.hdr button,.ptop button,#tabbar,.sheet,.bottomcta .btn.sec,.pctrl{background:var(--surface2)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}}
 </style>
 
 <div id="splash" aria-hidden="true"><i class="grid"></i><div class="spl">
@@ -2244,9 +2271,6 @@ AFTER.wizard=()=>{
 // what comes after the played routine: ramp sets and primers (Activate), recovery basics (Recover)
 function afterCards(p){let h="";const b=p&&p.bar;
   if(b&&b.call&&b.call.lvl==="rest")return"";
-  if(b&&(b.ramp||b.rehearse)){h+=`<div class="aftercard"><p class="blk">Then on the Bar · ${esc(b.first)}</p>${b.ramp?`<p class="muted">Ramp to today's top set. Loads are % of that top set; reps fall as the weight rises so the warm-up never tires you.</p>
-      <div class="ramp">${b.ramp.map(([l,r,rest,why])=>`<div><b>${esc(l)}</b><span>${esc(r)}</span><span class="muted">${esc(rest)}</span><span class="muted">${esc(why)}</span></div>`).join("")}<div><b>Work</b><span>As programmed</span><span class="muted">2–3 min</span><span class="muted">${esc(b.call?b.call.bar:"Working sets start.")}</span></div></div>
-      <p class="muted">If the empty bar feels heavy or stiff today, stay at 70–75%.</p>`:`<p class="muted">${esc(b.rehearse)}</p>`}</div>`}
   if(b&&b.next.length)h+=`<div class="aftercard"><p class="blk">Before Each Next Movement <span>2–5 min</span></p>${b.next.map(n=>`<div class="primer"><b>${esc(n.move)}</b>${n.mob!=="—"?`<span>${esc(n.mob)}</span><span>${esc(n.ctl)}</span>`:""}<span>${esc(n.sets)}</span></div>`).join("")}
     <p class="muted">Rested more than 10–15 min? 2 min of fast bike or jumps first, then the primer.</p></div>`;
   if(p&&p.tips)h+=`<div class="aftercard"><p class="blk">Later Today</p>${p.tips.map(([n,t])=>`<div class="primer"><b>${esc(n)}</b><span>${esc(t)}</span></div>`).join("")}</div>`;
@@ -2303,8 +2327,8 @@ ACT.whySheet=()=>{
   </div><button class="btn sec" data-act="closeSheet">Close</button>`);
 };
 ACT.info=()=>sheet(`<h2>${KINDS[W.kind].n}</h2><div class="scroll"><p class="muted" style="margin:0">${{
-  activate:"A short, mostly active protocol to do right before training, built as Raise, Mobilise, Activate, Potentiate: a few minutes of easy cardio, then the joints your workout loads from the ankles up (weighted toward your lowest test scores), then the stabilisers your first movement relies on, then ramp sets on the bar. Each later movement gets a 2–5 minute primer just before it. Your readiness check sets how hard to push.",
-  recover:"Longer passive holds after training, ending with slow breathing. It focuses on the areas your session loaded and skips anything that needs momentum. Sleep does more for recovery than anything else.",
+  activate:"A short, mostly active protocol to do right before training, built as Raise, Mobilise, Activate: a few minutes of easy cardio, then the joints your workout loads from the ankles up (weighted toward your lowest test scores), then the stabilisers your first movement relies on. Each later movement gets a 2–5 minute primer just before it. Your readiness check sets how hard to push.",
+  recover:"Longer passive holds after training. It focuses on the areas your session loaded and skips anything that needs momentum. Sleep does more for recovery than anything else.",
   daily:"A general session for home. It spends most of its time on your lowest-scoring areas from the mobility test.",
   target:"Every stretch goes to one body zone. Use it when one area is holding back a lift."}[W.kind]}</p></div><button class="btn sec" data-act="closeSheet">Close</button>`);
 
@@ -3567,9 +3591,9 @@ REGIONS.back.phasesBy={flexion:REGIONS.back.phases,extension:REGIONS.back.phases
      -> Mobilise: the joints today's movements need, dynamic first, static holds max 30 s and max 60 s per
         area (longer static holds before lifting cost strength and power)
      -> Activate: brace the core (McGill), then switch on the muscles movement 1 relies on.
-     -> Potentiate (shown after the routine): ramp sets to the top set, then a primer before each later movement.
+     -> After the routine: a primer before each later movement.
    RECOVER (after): region by region, biggest load first: release (roller / ball) for that region, then long
-     passive holds for what you trained, winding down to the floor, then 90 s of slow breathing.
+     passive holds for what you trained, winding down to the floor.
    DAILY: Mobility for your weakest areas (capped at ~10 min of static stretching per area per week, the
      point where gains level off), then Strength at end range (builds range as well as stretching does).
    TARGET: Mobility for one area, then Lock it in with a strength drill in the new range.
@@ -3964,9 +3988,7 @@ function buildPlan(o){
       add("Release",rl);state.rolled=rl.map(it=>LIBI[it.id]);
     }
     pool=pool.filter(ex=>(!ex.dyn||ex.post)&&!ex.roll);
-    const breathe=!flash&&o.minutes>=10&&okEq("r_breath")?[{id:"r_breath",dose:D_.hold(1,90),why:"Close with slow breathing: 90 seconds of long exhales switches the body from training to recovery mode."}]:[];
-    const bSecs=breathe.reduce((t,it)=>t+itemSecs(it),0);
-    add("Long holds",pickMobility(o,C,left-bSecs,pool,state).items);
+    add("Long holds",pickMobility(o,C,left,pool,state).items);
     // every focus area gets at least one hold, in place of a third hold for an area that already has two
     const lh=blocks.find(b=>b.name==="Long holds");if(lh&&!flash){const inA=(e,k)=>e.a===k||zoneArea(e.z[0])===k,f=[...new Set([...focusOf(o),...mobilityFocus(ctx.sc)])],all=()=>blocks.flatMap(b=>b.items);
       f.forEach(k=>{if(all().some(it=>inA(LIBI[it.id],k)))return;
@@ -3975,7 +3997,6 @@ function buildPlan(o){
         const it={id:c.id,hold:Math.min(c.sides?45:60,Math.round(c.hold*1.25/5)*5),why:whyFor(c,o,moves,ctx,parts,zd),block:"Long holds"};
         if(di!=null&&all().reduce((t,x)=>t+itemSecs(x),0)+itemSecs(it)>budget+30){state.used.delete(lh.items[di].id);lh.items.splice(di,1)}
         const pc=posOf(c),j=lh.items.findIndex(x=>posOf(LIBI[x.id])>pc);lh.items.splice(j<0?lh.items.length:j,0,it);state.used.add(c.id)})}
-    if(breathe.length)add("Finish",breathe);
   }else if(o.kind==="daily"){
     // rolling the low back itself isn't worth a daily slot (the muscles beside it are rolled instead), and a roll you did
     // in the last few days gives way to a different one
@@ -5659,7 +5680,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="86652605";
+<script>window.RANGE_BUILD="39116751";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
