@@ -690,6 +690,9 @@ body.touring .carousel .pcard{height:clamp(220px,32vh,320px)}
 @media (prefers-reduced-transparency:reduce){#tabbar{background:var(--surface2)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}}
 .pcards{grid-auto-columns:100%}
 .pseg.two{grid-template-columns:repeat(2,1fr)}.pseg.two .plens{width:calc((100% - 8px)/2)}
+.rbpair{display:grid;grid-template-columns:1.25fr 1fr;gap:8px;align-items:stretch}
+.rbtrack.v{grid-auto-flow:row;grid-auto-columns:auto;gap:6px}.rbtrack.v .rbph{grid-template-columns:22px 1fr;gap:8px;align-items:center;padding:8px 10px}.rbtrack.v .rbph>div{display:grid;gap:1px;min-width:0}
+.rbnext.sm{padding:12px;gap:10px;align-content:start}.rbnext.sm .rbnh b{font-size:calc(15px * var(--ts))}.rbnext.sm .rbml{font-size:calc(13px * var(--ts))}.rbnext.sm .rbbar{height:6px}.rbnext.sm .link{font-size:calc(12px * var(--ts));padding:0;text-align:left}
 </style>
 
 <div id="splash" aria-hidden="true"><i class="grid"></i><div class="spl">
@@ -4636,11 +4639,13 @@ function rbDash(st,R,C,phs,ph,stt,items,pane){
   const g=rbProgress(),lp=lastPain(st),mins=rbMinutes(),nx=phs[st.phase+1],dayOk=Math.min(g.days,g.min);
   const meter=(n,v,m,ok)=>`<div class="rbm"><div class="rbml"><span>${n}</span><b>${ok?ic("check"):""}${v}/${m}</b></div><span class="rbbar"><i style="width:${Math.max(3,Math.min(100,v/Math.max(1,m)*100))}%;background:${ok?"var(--good)":"var(--accent)"}"></i></span></div>`;
   const tone={back:["c-bad","Back Off"],stuck:["c-bad","Get It Checked"],ready:["c-good","Ready to Progress"],done:["c-good","Program Complete"]}[stt.k];
-  if(pane==="prog")return`${nx?`<div class="panel rbnext"><div class="rbnh"><span class="eyebrow">Unlocks</span><b>${esc(nx.n)}</b></div>
-    ${meter("Days in this phase",dayOk,g.min,g.timeOk)}${meter(`Sessions at ${PAIN_OK}/10 or less`,Math.min(g.streak,3),3,g.painOk)}
-    ${g.timeOk&&g.painOk?"":`<button class="link muted" data-act="rbForce">My Physio Cleared Me</button>`}</div>`:""}
-  <div class="rbtrack">${phs.map((p,i)=>`<div class="rbph ${i<st.phase?"done":i===st.phase?"on":""}"><span>${i<st.phase?ic("check"):i+1}</span><b>${esc(p.n)}</b><small>${p.min}+ days</small></div>`).join("")}</div>
-  ${rbChart(st)}`;
+  if(pane==="prog")return`${rbChart(st)}
+  <div class="rbpair">
+    <div class="rbtrack v">${phs.map((p,i)=>`<div class="rbph ${i<st.phase?"done":i===st.phase?"on":""}"><span>${i<st.phase?ic("check"):i+1}</span><div><b>${esc(p.n)}</b><small>${p.min}+ days</small></div></div>`).join("")}</div>
+    ${nx?`<div class="panel rbnext sm"><div class="rbnh"><span class="eyebrow">Unlocks</span><b>Phase ${st.phase+2}</b></div>
+      ${meter("Days",dayOk,g.min,g.timeOk)}${meter(`≤${PAIN_OK}/10`,Math.min(g.streak,3),3,g.painOk)}
+      ${g.timeOk&&g.painOk?"":`<button class="link muted" data-act="rbForce">Physio cleared me</button>`}</div>`:`<div class="panel rbnext sm"><div class="rbnh"><span class="eyebrow">Final Phase</span><b>Keep it up</b></div></div>`}
+  </div>`;
   return`${tone?`<div class="panel rbstat"><span class="eyebrow ${tone[0]}">${tone[1]}</span><div>${esc(stt.t)}</div>${stt.k==="ready"?`<button class="btn" data-act="rbNext">Start Phase ${st.phase+2}</button>`:""}</div>`:""}
   <div class="rbgo2">
     <button class="rbplay" data-act="rbStart" aria-label="Start today's session">${icf("play")}</button>
