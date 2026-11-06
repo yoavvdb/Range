@@ -46,3 +46,4 @@ GitHub Pages serves it again within a minute or two. The app source lives outsid
 | 2026-11-06 | `2026-11-06_liquid-glass.html` | Liquid Glass bars, buttons, sheets and player controls; no ramp-set card or closing breathing | dc17b53 |
 | 2026-11-06 | `2026-11-06_sore-areas.html` | Anything sore? step (pick areas) replaces the readiness check; between-movement primers removed | e3938ff |
 | 2026-11-06 | `2026-11-06_no-double-hinge.html` | Hip hinge drill and Active hinge never in the same session; one exercise per family everywhere | cbfcb33 |
+| 2026-11-06 | `2026-11-06_tour-rebuild.html` | 4-step tour on Today, Rebuild off the Today cards, redesigned first Rebuild page | f4e671e |
