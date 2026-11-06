@@ -715,6 +715,7 @@ body.touring .carousel .pcard{height:clamp(220px,32vh,320px)}
 #app{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 86px)}
 @media (prefers-reduced-transparency:reduce){#tabbar{background:var(--surface2)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}}
 .pcards{grid-auto-columns:100%}
+.pseg.two{grid-template-columns:repeat(2,1fr)}.pseg.two .plens{width:calc((100% - 8px)/2)}
 </style>
 
 <div id="splash" aria-hidden="true"><i class="grid"></i><div class="spl">
@@ -2080,6 +2081,9 @@ function back(){const top=stack[stack.length-1];
   if(stack[0].name==="profile"){const P=PROF_TABS.map(x=>x[0]),k=P.indexOf(PROF_TAB);
     if(dx<0){if(k<P.length-1)ACT.profTab({p:P[k+1]});return}
     if(k>0){ACT.profTab({p:P[k-1]});return}}
+  if(stack[0].name==="rebuild"&&S.rehab){const P=RB_TABS.map(x=>x[0]),k=P.indexOf(RB_TAB);
+    if(dx<0){if(k<P.length-1)ACT.rbTab({p:P[k+1]});return}
+    if(k>0){ACT.rbTab({p:P[k-1]});return}}
   const i=TABS.indexOf(stack[0].name),j=i+(dx<0?1:-1);if(i<0||j<0||j>=TABS.length)return;
   ACT.tab({t:TABS[j]});push(dx<0?1:-1)},{passive:true})})();
 function push(dir){if(REDUCED||TOUR)return;const el=$("#screen");
@@ -4622,7 +4626,7 @@ function spark(logs){
    <polyline points="${pts}" class="sp"/>${logs.map((l,i)=>`<circle cx="${x(i)}" cy="${y(l.testPain)}" r="${i===n-1?4:2.5}" class="sd"/>`).join("")}</svg>`;
 }
 /* ================= Rebuild: the same three slides as Profile ================= */
-let RB_TAB="today",RB_ANIM=false;const RB_TABS=[["today","Today"],["plan","Program"],["prog","Progress"]];
+let RB_TAB="today",RB_ANIM=false;const RB_TABS=[["today","Today"],["prog","Progress"]];
 const painCol=v=>v<=PAIN_OK?"var(--good)":v<=PAIN_STOP?"var(--accent)":v<=7?"var(--warn)":"var(--bad)";
 const lastPain=st=>{const L=(st.logs||[]).slice(-1)[0];return L?(L.testR!=null?Math.max(L.testR,L.testL):L.testPain):null};
 function rbTodayPane(st,R,phs,ph,stt,items){
@@ -4654,10 +4658,15 @@ function rbPlanPane(st,R,C,phs,ph){
     <details><summary>See a Physio If</summary><ul class="cross">${[...R.urgent,...R.doctor,"Pain is getting worse week to week","There's no real change after 3 weeks"].map(h=>`<li>${esc(h)}</li>`).join("")}</ul></details></div>
   ${myProtosPanel()}`}
 // the program at a glance: start button, three numbers, what unlocks the next phase, the phase track, pain over time
-function rbDash(st,R,C,phs,ph,stt,items){
+function rbDash(st,R,C,phs,ph,stt,items,pane){
   const g=rbProgress(),lp=lastPain(st),mins=rbMinutes(),nx=phs[st.phase+1],dayOk=Math.min(g.days,g.min);
   const meter=(n,v,m,ok)=>`<div class="rbm"><div class="rbml"><span>${n}</span><b>${ok?ic("check"):""}${v}/${m}</b></div><span class="rbbar"><i style="width:${Math.max(3,Math.min(100,v/Math.max(1,m)*100))}%;background:${ok?"var(--good)":"var(--accent)"}"></i></span></div>`;
   const tone={back:["c-bad","Back Off"],stuck:["c-bad","Get It Checked"],ready:["c-good","Ready to Progress"],done:["c-good","Program Complete"]}[stt.k];
+  if(pane==="prog")return`${nx?`<div class="panel rbnext"><div class="rbnh"><span class="eyebrow">Unlocks</span><b>${esc(nx.n)}</b></div>
+    ${meter("Days in this phase",dayOk,g.min,g.timeOk)}${meter(`Sessions at ${PAIN_OK}/10 or less`,Math.min(g.streak,3),3,g.painOk)}
+    ${g.timeOk&&g.painOk?"":`<button class="link muted" data-act="rbForce">My Physio Cleared Me</button>`}</div>`:""}
+  <div class="rbtrack">${phs.map((p,i)=>`<div class="rbph ${i<st.phase?"done":i===st.phase?"on":""}"><span>${i<st.phase?ic("check"):i+1}</span><b>${esc(p.n)}</b><small>${p.min}+ days</small></div>`).join("")}</div>
+  ${rbChart(st)}`;
   return`${tone?`<div class="panel rbstat"><span class="eyebrow ${tone[0]}">${tone[1]}</span><div>${esc(stt.t)}</div>${stt.k==="ready"?`<button class="btn" data-act="rbNext">Start Phase ${st.phase+2}</button>`:""}</div>`:""}
   <div class="rbgo2">
     <button class="rbplay" data-act="rbStart" aria-label="Start today's session">${icf("play")}</button>
@@ -4669,11 +4678,6 @@ function rbDash(st,R,C,phs,ph,stt,items){
     <div class="tile"><span class="eyebrow">Phase</span><b>${st.phase+1}<small>/${phs.length}</small></b></div>
     <div class="tile"><span class="eyebrow">Sessions</span><b>${(st.logs||[]).length}</b></div>
   </div>
-  ${nx?`<div class="panel rbnext"><div class="rbnh"><span class="eyebrow">Unlocks</span><b>${esc(nx.n)}</b></div>
-    ${meter("Days in this phase",dayOk,g.min,g.timeOk)}${meter(`Sessions at ${PAIN_OK}/10 or less`,Math.min(g.streak,3),3,g.painOk)}
-    ${g.timeOk&&g.painOk?"":`<button class="link muted" data-act="rbForce">My Physio Cleared Me</button>`}</div>`:""}
-  <div class="rbtrack">${phs.map((p,i)=>`<div class="rbph ${i<st.phase?"done":i===st.phase?"on":""}"><span>${i<st.phase?ic("check"):i+1}</span><b>${esc(p.n)}</b><small>${p.min}+ days</small></div>`).join("")}</div>
-  ${rbChart(st)}
   <div class="stack" style="gap:8px"><h3>Exercises</h3>
     <div class="hscroll rxrow">${items.map(it=>{const e=LIBI[it.id];return`<button class="rxm" data-act="openEx" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><b>${esc(e.n)}</b><small>${esc(doseText(it))}</small></button>`}).join("")}</div></div>
   <div class="rbguide">${[["do","check","Do"],["avoid","x","Avoid"],["physio","heart","See a Physio"]].map(([k,i,n])=>`<button class="tile" data-act="rbGuide" data-k="${k}">${ic(i)}<b>${n}</b></button>`).join("")}</div>
@@ -4715,7 +4719,8 @@ SCREENS.rebuild=()=>{
   <div class="stack" style="padding-top:4px">
   <div class="phead"><button class="avatar" data-act="rbMenu" aria-label="Program options">${ic("heart")}</button>
     <div class="pwho"><button class="pname" data-act="rbMenu">${esc(C.n)}</button><span class="pprog" style="cursor:default"><i class="pdot"></i>${esc(R.n)}${st.side&&st.side!=="both"?` · ${esc(st.side)}`:""}</span></div></div>
-  ${rbDash(st,R,C,phs,ph,stt,items)}
+  <div class="pseg two" role="tablist"><i class="plens" style="--pi:${Math.max(0,RB_TABS.findIndex(t=>t[0]===RB_TAB))}"></i>${RB_TABS.map(([k,n])=>`<button role="tab" aria-selected="${k===RB_TAB}" class="${k===RB_TAB?"on":""}" data-act="rbTab" data-p="${k}">${n}</button>`).join("")}</div>
+  <div id="pane" class="stack">${rbDash(st,R,C,phs,ph,stt,items,RB_TAB==="prog"?"prog":"today")}</div>
   </div>`};
 ACT.rbTab=d=>{const a=RB_TABS.findIndex(t=>t[0]===RB_TAB),b=RB_TABS.findIndex(t=>t[0]===d.p);if(a===b||b<0)return;RB_TAB=d.p;RB_ANIM=true;render();window.scrollTo(0,0);
   if(!REDUCED){const el=$("#pane");try{el&&el.animate([{opacity:0,transform:`translateX(${(b>a?1:-1)*36}px)`},{opacity:1,transform:"none"}],{duration:380,easing:"cubic-bezier(.32,.72,0,1)"})}catch(e){}}};
@@ -5695,7 +5700,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="84926414";
+<script>window.RANGE_BUILD="78186115";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
