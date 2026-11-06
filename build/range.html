@@ -2613,12 +2613,16 @@ const FLOWS=[
  {k:"wake",n:"Wake Up",sub:"Morning",pose:"lunge",items:[["t4",45],["wgs",30],["h7",60],["t1",30],["inch",45],["e2_standquad",30]]},
  {k:"travel",n:"After Sitting",sub:"Drive or flight",pose:"kneel",items:[["h6",40],["p1",40],["t4",40],["e2_standquad",30],["a2",30],["g1_kneecirc",30]]},
  {k:"night",n:"Wind Down",sub:"Before bed",pose:"child",items:[["o5",45],["h2",60],["e2_twist",45],["b_butterfly",45],["d_legsup",90],["r_breath",120]]},
+ // gentle movement and hip release first, then McGill-style trunk endurance; no loaded or deep forward folding
+ {k:"lowback",n:"Lower Back Pain",sub:"Ease a sore back",pose:"r_birddog",items:[["t4",45],["h6",30],["h2",45],["e2_twist",45],["r_birddog",0,{k:"rephold",sets:1,reps:5,secs:5,sides:true}],["r_curlup",0,{k:"rephold",sets:1,reps:5,secs:5,sides:false}],["r_sideplank",0,{k:"rephold",sets:1,reps:3,secs:10,sides:true}],["r_breath",90]]},
+ // rotation through the upper back and hips, from all fours to standing to lying
+ {k:"twist",n:"Twist",sub:"Spine rotation",pose:"g1_halftwist",items:[["t5",40],["t1",40],["t2",40],["g1_lungetw",40],["g1_sqrot",40],["g1_halftwist",45],["e2_twist",45],["g1_sprot",30]]},
 ];
 const flowItems=f=>{const taken=new Set(f.items.map(([id])=>id)),out=[];
-  f.items.forEach(([id,t])=>{const e=LIBI[id];if(!e||!e.eq.every(q=>S.equip.includes(q)))return;
+  f.items.forEach(([id,t,dose])=>{const e=LIBI[id];if(!e||!e.eq.every(q=>S.equip.includes(q)))return;
     if(rbAvoids(id)){const a=rbFlowAlt(id,taken);if(!a)return;taken.add(a.id);const w=`In place of ${e.n.toLowerCase()}, which your Rebuild program says to avoid for now.`;
       out.push(a.rehab?{id:a.id,dose:(((REHAB_HOOKS[S.rehab.region]||{})[S.rehab.cls]||{}).pre||[]).find(([i])=>i===a.id)?.[1]||fitDose(a,D_.hold(1,30,a.sides?1:0)),why:`${w} An easy isometric hold calms the tendon instead of stretching it.`}:{id:a.id,hold:a.sides?Math.min(t,45):t,why:w});return}
-    out.push(e.rehab?{id,dose:D_.time(t),why:"Slow breathing with long exhales to finish."}:{id,hold:t,why:`Part of the ${f.n} flow.`})});
+    out.push(dose?{id,dose:{...dose},why:`Part of the ${f.n} flow.`}:e.rehab?{id,dose:D_.time(t),why:"Slow breathing with long exhales to finish."}:{id,hold:t,why:`Part of the ${f.n} flow.`})});
   // the same order as every other session: big muscles first, one region at a time
   return regionOrder(out,"flow",null).flatMap(b=>b.items)};
 ACT.flowStart=d=>{const f=FLOWS.find(x=>x.k===d.k);if(f)openPlayer(flowItems(f),{kind:"daily",focus:[],title:f.n})};
