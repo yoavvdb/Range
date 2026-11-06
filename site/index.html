@@ -3378,7 +3378,7 @@ addStretches([
 [["c_cobra","posterior"],["e2_updog","posterior"],["g1_scorpion","hips"]].forEach(([id,a])=>{if(LIBI[id])LIBI[id].a=a});
 // exercise families: near-duplicates (same position, same tissue). A session uses at most one from each family.
 const FAM={fold:["p1","p3","w_widefold","p6"],straddle:["p6","w_widefold","w_wallstraddle","e2_seatside","w_boxadductor"],frog:["h4","b_butterfly","b_addrock"],
- hamstr:["p2","p5","c_boxham"],downdog:["p4","inch","g1_ddcobra","d_ddcalf"],hinge:["g1_hinge","g1_walkgm","c_goodmorn"],
+ hamstr:["p2","p5","c_boxham"],downdog:["p4","inch","g1_ddcobra","d_ddcalf"],hinge:["g1_hinge","g1_walkgm","c_goodmorn","r_hinge"],
  gastroc:["a3","g1_calfwall"],soleus:["a5","a2"],dfmob:["a1","a6"],shin:["d_shinstretch","e2_tibkneel"],
  hipflex:["h6","h1","d_rfequad","e2_kneelquad","e2_standquad","g1_samson"],pigeon:["h2","w_9090","w_boxpigeon","w_wallfig4","b_fig4"],
  latside:["o5","o4","e2_sidebend","e2_seatside"],puppy:["o1","o2"],tri:["e1_ohtri","g1_bandtri"],lumbext:["c_cobra","e2_updog","g1_scorpion"],
@@ -3859,7 +3859,8 @@ function buildPlan(o){
   let pool=LIB.filter(ex=>!ex.rehab&&!ex.manual&&need[ex.a]>.05&&ex.eq.every(q=>o.equip.includes(q))&&!hooks.x.has(ex.id));
   const blocks=[];let left=budget;
   const add=(name,items)=>{if(!items.length)return;items.forEach(it=>{it.block=name;state.used.add(it.id)});blocks.push({name,items});left-=items.reduce((t,it)=>t+itemSecs(it),0)};
-  const fit=(list,cap)=>{const out=[];let t=0;for(const it of list){if(state.used.has(it.id)||out.some(x=>x.id===it.id)||!okEq(it.id))continue;const s=itemSecs(it);if(t+s>cap+8)continue;out.push(it);t+=s}return out};
+  const famTaken=id=>{const f=famsOf(LIBI[id]||{});return f.length&&[...state.used,...(state.picks||[]).map(e=>e.id)].some(u=>u!==id&&famsOf(LIBI[u]||{}).some(x=>f.includes(x)))};
+  const fit=(list,cap)=>{const out=[];let t=0;for(const it of list){if(state.used.has(it.id)||out.some(x=>x.id===it.id||famsOf(LIBI[x.id]||{}).some(f=>famsOf(LIBI[it.id]||{}).includes(f)))||!okEq(it.id)||famTaken(it.id))continue;const s=itemSecs(it);if(t+s>cap+8)continue;out.push(it);t+=s}return out};
   // the program's isometric warm-up always makes it in: a short session gets fewer sets rather than none
   const preRehab=()=>{const cap=flash?60:Math.min(left*.3,300),mk=sh=>hooks.pre.map(([id,dose])=>({id,dose:sh?{...dose,sets:1}:dose,why:`Part of your ${hooks.name} program: isometric holds before training calm the area and let you lift with less pain.`}));
     const a=fit(mk(0),cap);return a.length||flash?a:fit(mk(1),Math.max(cap,left*.4))};
@@ -3897,7 +3898,7 @@ function buildPlan(o){
     const kept=fit(prio,Math.max(0,left*(flash?.4:.5)));
     // shown floor first and standing last, with the rehearsal of the main lift at the very end
     const act=kept.map((it,i)=>({it,i})).sort((a,b)=>(a.it.main?1:0)-(b.it.main?1:0)||posOf(LIBI[b.it.id])-posOf(LIBI[a.it.id])||a.i-b.i).map(x=>x.it);
-    act.forEach(it=>{state.used.add(it.id);if(it.main)it._main=1;delete it.main;delete it.rank;delete it._k;const e=LIBI[it.id];if(e&&!e.rehab)(state.picks=state.picks||[]).push(e)});
+    act.forEach(it=>{state.used.add(it.id);if(it.main)it._main=1;delete it.main;delete it.rank;delete it._k;const e=LIBI[it.id];if(e)(state.picks=state.picks||[]).push(e)});
     const actSecs=act.reduce((t,it)=>t+itemSecs(it),0);
     const mob=pickMobility({...o,minutes:o.minutes*(left-actSecs)/(left*.55)},C,Math.max(60,left-actSecs),pool.filter(ex=>!ex.roll),state);
     // one trip down and one trip up: floor mobility, floor activation, then standing mobility and standing activation
@@ -3968,7 +3969,7 @@ function buildPlan(o){
       pool=pool.filter(ex=>!ex.roll)}
     // the strength finisher is chosen first, so the stretching gets whatever time it leaves (all of it when nothing fits your kit)
     const lock=flash?[]:fit((END_RANGE[o.zone]||[]).map(([id,dose])=>({id,dose,why:`Use the range you just opened under load, so it carries into your lifts.`})),left*.3).slice(0,2);
-    lock.forEach(it=>state.used.add(it.id));
+    lock.forEach(it=>{state.used.add(it.id);(state.picks=state.picks||[]).push(LIBI[it.id])});
     const cap=left-lock.reduce((t,it)=>t+itemSecs(it),0),mob=pickMobility(o,C,cap,pool,state);
     // a zone with few stretches: repeat them as rounds instead of ending early
     let items=mob.items.slice(),used=mob.used,round=2;
@@ -3985,7 +3986,7 @@ function buildPlan(o){
       const calfSafe=e=>!(S.rehab&&S.rehab.region==="achilles"&&!e.rehab&&e.z.includes("calves"));
       const cands=LIB.filter(e=>!e.manual&&!e.custom&&!state.used.has(e.id)&&okEq(e.id)&&zv(e)>0&&calfSafe(e)&&!(e.filler&&!own.has(e.z[0]))&&!(e.adv&&(ctx.sc[e.adv]??70)<(e.advMin||60)))
         .sort((a,b)=>zv(b)-zv(a)||(!!a.rehab-!!b.rehab)||(pre.has(b.id)-pre.has(a.id))||(a.roll?1:0)-(b.roll?1:0));
-      const extra=[];for(const e of cands){if(tot()+extra.reduce((t,it)=>t+itemSecs(it),0)>=budget*.9)break;
+      const extra=[];for(const e of cands){if(tot()+extra.reduce((t,it)=>t+itemSecs(it),0)>=budget*.9)break;if(famTaken(e.id))continue;
         const it=e.rehab?{id:e.id,dose:pre.get(e.id)||{...defaultDose(e.id)},why:pre.has(e.id)?`Part of your ${hooks.name} program, and safe for your ${AN[o.zone]}: an easy hold that builds strength without stretching what's sore.`:`Strength for your ${AN[o.zone]} in a position that's safe for you right now.`}
           :{id:e.id,hold:flash?(e.sides?15:30):e.hold,why:own.has(e.z[0])||e.z.slice(1,3).some(z=>own.has(z))?`Works your ${AN[o.zone]}${hooks.x.size?` in a position your Rebuild program allows`:""}.`:`Tight ${ZONES[e.z[0]].toLowerCase()} often limit your ${AN[o.zone]}.`};
         if(tot()+extra.reduce((t,x)=>t+itemSecs(x),0)+itemSecs(it)>budget+30)continue;extra.push(it);state.used.add(e.id)}
@@ -5636,7 +5637,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="72217419";
+<script>window.RANGE_BUILD="61689168";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
