@@ -42,3 +42,4 @@ GitHub Pages serves it again within a minute or two. The app source lives outsid
 | 2026-11-05 | `2026-11-05_smooth-loop.html` | Today loop stays smooth across a new lap, even with quick swipes | bf869b8 |
 | 2026-11-05 | `2026-11-05_sign-out-button.html` | Sign out button top left on Today, with a confirmation sheet | ae75920 |
 | 2026-11-05 | `2026-11-05_apple-title-case.html` | Apple title-style capitalization for buttons, titles, tabs and names | 56fe84b |
+| 2026-11-06 | `2026-11-06_lifter-protocol.html` | Lifter protocol: readiness check, Raise first, bottom-up mobilise, ramp sets and primers after Activate, breathing and recovery tips after Recover | 22ffe17 |
