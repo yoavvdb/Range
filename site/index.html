@@ -689,6 +689,32 @@ body.touring .carousel .pcard{height:clamp(220px,32vh,320px)}
 .pctrl{background:var(--g-fill);-webkit-backdrop-filter:var(--g-blur);backdrop-filter:var(--g-blur);border-radius:44px;padding:8px 10px;margin-inline:8px;box-shadow:inset 0 1px 0 var(--g-hi),inset 0 0 0 1px var(--g-line),0 14px 34px rgba(0,0,0,.45)}
 /* Reduce Transparency: the same shapes on solid surfaces */
 @media (prefers-reduced-transparency:reduce){.hdr button,.ptop button,#tabbar,.sheet,.bottomcta .btn.sec,.pctrl{background:var(--surface2)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}}
+
+/* Rebuild program dashboard */
+.rbgo2{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;background:var(--p-white,#ECE4D6);color:#17181A;border-radius:var(--r-panel,20px);padding:16px}
+.rbplay{width:72px;height:72px;border-radius:50%;background:var(--accent);color:#17181A;display:grid;place-items:center;box-shadow:0 8px 20px rgba(0,0,0,.25)}.rbplay .ic{width:30px;height:30px;margin-left:3px}
+.rbgotx{display:grid;gap:2px;min-width:0}.rbgotx b{font-size:calc(19px * var(--ts))}.rbgotx>span{font-size:calc(14px * var(--ts));opacity:.7;font-weight:600}
+.rbgotx .rbmin{margin-top:8px;display:flex;gap:6px;flex-wrap:wrap}.rbgotx .chip{background:rgba(23,24,26,.08);color:#17181A;padding:6px 12px}.rbgotx .chip.on{background:#17181A;color:var(--p-white,#ECE4D6);box-shadow:none}
+.rbtiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.rbtiles .tile b{font-size:calc(30px * var(--ts));line-height:1;font-variant-numeric:tabular-nums}.rbtiles .tile small{font-size:calc(14px * var(--ts));color:var(--muted);font-weight:600;margin-left:2px}
+.rbnext{gap:12px}.rbnh{display:grid;gap:2px}.rbnh b{font-size:calc(17px * var(--ts))}
+.rbm{display:grid;gap:6px}.rbml{display:flex;justify-content:space-between;font-size:calc(14px * var(--ts))}.rbml b{display:flex;align-items:center;gap:4px;font-variant-numeric:tabular-nums}.rbml .ic{width:16px;height:16px;color:var(--good)}
+.rbbar{height:8px;border-radius:4px;background:var(--surface2);overflow:hidden}.rbbar i{display:block;height:100%;border-radius:4px}
+.rbnext .link{justify-self:start;font-size:calc(13px * var(--ts))}
+.rbtrack{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px}
+.rbph{background:var(--surface);border-radius:14px;padding:10px;display:grid;gap:3px;align-content:start;min-width:0;opacity:.55}.rbph.on{opacity:1;box-shadow:inset 0 0 0 1.5px var(--accent)}.rbph.done{opacity:.85}
+.rbph span{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:calc(12px * var(--ts));font-weight:800;background:var(--surface2)}.rbph.on span{background:var(--accent);color:#17181A}.rbph.done span{background:var(--good);color:#06150E}.rbph span .ic{width:14px;height:14px}
+.rbph b{font-size:calc(13px * var(--ts));line-height:1.2}.rbph small{font-size:calc(11px * var(--ts));color:var(--muted);line-height:1.25}
+.rbguide{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.rbguide .tile{justify-items:start;gap:6px;min-height:72px}.rbguide .tile .ic{width:20px;height:20px;color:var(--accent)}.rbguide .tile b{font-size:calc(14px * var(--ts))}
+/* tab bar: thinner, clear Liquid Glass */
+#tabbar{padding:4px!important;border-radius:28px!important;background:rgba(18,16,14,.16)!important;-webkit-backdrop-filter:blur(12px) saturate(1.9) brightness(1.08)!important;backdrop-filter:blur(12px) saturate(1.9) brightness(1.08)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 0 0 1px rgba(255,255,255,.16),inset 0 -1px 0 rgba(255,255,255,.06),0 10px 28px rgba(0,0,0,.35)!important}
+#tabbar button{padding:4px 4px 3px!important;gap:1px;border-radius:24px;text-shadow:0 1px 2px rgba(0,0,0,.55)}
+#tabbar .ic{width:22px;height:22px;filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.5))}
+#tabbar button{font-size:calc(10px * var(--ts))!important}
+#tabbar .tlens{top:4px!important;bottom:4px!important;left:4px!important;width:calc((100% - 8px)/3)!important;border-radius:24px!important;background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.07))!important}
+#app{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 86px)}
+@media (prefers-reduced-transparency:reduce){#tabbar{background:var(--surface2)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}}
+.pcards{grid-auto-columns:100%}
 </style>
 
 <div id="splash" aria-hidden="true"><i class="grid"></i><div class="spl">
@@ -2054,9 +2080,6 @@ function back(){const top=stack[stack.length-1];
   if(stack[0].name==="profile"){const P=PROF_TABS.map(x=>x[0]),k=P.indexOf(PROF_TAB);
     if(dx<0){if(k<P.length-1)ACT.profTab({p:P[k+1]});return}
     if(k>0){ACT.profTab({p:P[k-1]});return}}
-  if(stack[0].name==="rebuild"&&S.rehab){const P=RB_TABS.map(x=>x[0]),k=P.indexOf(RB_TAB);
-    if(dx<0){if(k<P.length-1)ACT.rbTab({p:P[k+1]});return}
-    if(k>0){ACT.rbTab({p:P[k-1]});return}}
   const i=TABS.indexOf(stack[0].name),j=i+(dx<0?1:-1);if(i<0||j<0||j>=TABS.length)return;
   ACT.tab({t:TABS[j]});push(dx<0?1:-1)},{passive:true})})();
 function push(dir){if(REDUCED||TOUR)return;const el=$("#screen");
@@ -2418,7 +2441,7 @@ function openPlayer(items,meta){
    <div class="segbar" id="segbar">${items.map(()=>"<i><b></b></i>").join("")}</div></div>
    <div class="stage" id="stage" data-act="pStage" role="button" aria-label="Show play and reset" tabindex="0"><div id="pfig"></div><div class="dov" id="pinfo"></div><span class="sidetag" id="pside" hidden></span><div class="ov" id="pov" hidden><button data-act="pToggle">${icf("play")}<span id="povl">Play</span></button><button data-act="pReset">${ic("reset")}Reset</button></div></div>
    <div class="ptitle"><h2 id="pname"></h2><div class="meta" id="pmeta"></div></div>
-   <div style="display:grid;grid-template-rows:minmax(120px,1fr) auto;min-height:0"><div class="pcards" id="pcards" tabindex="0" aria-label="Exercise details"></div><div class="pdots" id="pdots"><i class="on"></i><i></i></div></div>
+   <div style="display:grid;grid-template-rows:minmax(120px,1fr) auto;min-height:0"><div class="pcards" id="pcards" tabindex="0" aria-label="Exercise details"></div><div class="pdots" id="pdots" hidden></div></div>
    <div class="pctrl">
      <button class="easybtn ${P.easy?"on":""}" id="peasy" data-act="pEasy" aria-pressed="${P.easy}">Easy<br>Mode</button>
      <button class="sm" data-act="pPrev" aria-label="Previous stretch">${icf("prev")}</button>
@@ -2450,10 +2473,8 @@ function enterSeg(){
 }
 function renderCards(ex){
   const it=P.items[P.segs[P.si].i];
-  $("#pcards").innerHTML=`<div class="icard">${it&&it.why?`<div class="whybox"><span class="eyebrow">Why this exercise</span><div>${esc(it.why)}</div></div>`:""}<div><span class="eyebrow">What you should feel</span><div style="margin-top:4px">${esc(ex.stim)}</div></div>
-    <div><span class="eyebrow">Instructions</span><ul style="margin-top:6px">${ex.c.map(c=>`<li>${esc(c)}</li>`).join("")}</ul></div>
-    ${P.easy?`<div class="easy"><b>Easy Mode:</b> ${esc(ex.easy)} Holds are 25% shorter.</div>`:""}<span class="morecue" aria-hidden="true">Scroll for more ↓</span></div>
-   <div class="icard"><span class="eyebrow">Targeted areas</span><div class="ztags">${ex.z.map(z=>`<span>${ZONES[z]}</span>`).join("")}</div>${bodyMap(ex.z)}</div>`;
+  $("#pcards").innerHTML=`<div class="icard"><div><span class="eyebrow">Instructions</span><ul style="margin-top:6px">${ex.c.map(c=>`<li>${esc(c)}</li>`).join("")}</ul></div>
+    ${P.easy?`<div class="easy"><b>Easy Mode:</b> ${esc(ex.easy)} Holds are 25% shorter.</div>`:""}<span class="morecue" aria-hidden="true">Scroll for more ↓</span></div>`;
   requestAnimationFrame(moreCue);
 }
 // a card with more text than fits says so, until you've scrolled to its end
@@ -4632,6 +4653,36 @@ function rbPlanPane(st,R,C,phs,ph){
     <details><summary>Avoid</summary><ul class="cross">${C.avoid.map(h=>`<li>${esc(h)}</li>`).join("")}</ul>${(st.notes||[]).map(n=>`<div class="note-warn">${esc(n)}</div>`).join("")}</details>
     <details><summary>See a Physio If</summary><ul class="cross">${[...R.urgent,...R.doctor,"Pain is getting worse week to week","There's no real change after 3 weeks"].map(h=>`<li>${esc(h)}</li>`).join("")}</ul></details></div>
   ${myProtosPanel()}`}
+// the program at a glance: start button, three numbers, what unlocks the next phase, the phase track, pain over time
+function rbDash(st,R,C,phs,ph,stt,items){
+  const g=rbProgress(),lp=lastPain(st),mins=rbMinutes(),nx=phs[st.phase+1],dayOk=Math.min(g.days,g.min);
+  const meter=(n,v,m,ok)=>`<div class="rbm"><div class="rbml"><span>${n}</span><b>${ok?ic("check"):""}${v}/${m}</b></div><span class="rbbar"><i style="width:${Math.max(3,Math.min(100,v/Math.max(1,m)*100))}%;background:${ok?"var(--good)":"var(--accent)"}"></i></span></div>`;
+  const tone={back:["c-bad","Back Off"],stuck:["c-bad","Get It Checked"],ready:["c-good","Ready to Progress"],done:["c-good","Program Complete"]}[stt.k];
+  return`${tone?`<div class="panel rbstat"><span class="eyebrow ${tone[0]}">${tone[1]}</span><div>${esc(stt.t)}</div>${stt.k==="ready"?`<button class="btn" data-act="rbNext">Start Phase ${st.phase+2}</button>`:""}</div>`:""}
+  <div class="rbgo2">
+    <button class="rbplay" data-act="rbStart" aria-label="Start today's session">${icf("play")}</button>
+    <div class="rbgotx"><b>Today's Session</b><span>${items.length} exercises · ${mins} min</span>
+      <div class="chipset rbmin" role="group" aria-label="Session length">${[10,15,20,30].map(m=>`<button class="chip ${mins===m?"on":""}" data-act="rbMin" data-m="${m}" aria-pressed="${mins===m}">${m}</button>`).join("")}</div></div>
+  </div>
+  <div class="rbtiles">
+    <div class="tile"><span class="eyebrow">Pain</span><b style="${lp!=null?`color:${painCol(lp)}`:""}">${lp!=null?lp:"–"}<small>/10</small></b></div>
+    <div class="tile"><span class="eyebrow">Phase</span><b>${st.phase+1}<small>/${phs.length}</small></b></div>
+    <div class="tile"><span class="eyebrow">Sessions</span><b>${(st.logs||[]).length}</b></div>
+  </div>
+  ${nx?`<div class="panel rbnext"><div class="rbnh"><span class="eyebrow">Unlocks</span><b>${esc(nx.n)}</b></div>
+    ${meter("Days in this phase",dayOk,g.min,g.timeOk)}${meter(`Sessions at ${PAIN_OK}/10 or less`,Math.min(g.streak,3),3,g.painOk)}
+    ${g.timeOk&&g.painOk?"":`<button class="link muted" data-act="rbForce">My Physio Cleared Me</button>`}</div>`:""}
+  <div class="rbtrack">${phs.map((p,i)=>`<div class="rbph ${i<st.phase?"done":i===st.phase?"on":""}"><span>${i<st.phase?ic("check"):i+1}</span><b>${esc(p.n)}</b><small>${p.min}+ days</small></div>`).join("")}</div>
+  ${rbChart(st)}
+  <div class="stack" style="gap:8px"><h3>Exercises</h3>
+    <div class="hscroll rxrow">${items.map(it=>{const e=LIBI[it.id];return`<button class="rxm" data-act="openEx" data-id="${e.id}"><span class="th">${fig(e.fig||e.id,null,{zones:e.z,t:.8,mode:exMode(e)})}</span><b>${esc(e.n)}</b><small>${esc(doseText(it))}</small></button>`}).join("")}</div></div>
+  <div class="rbguide">${[["do","check","Do"],["avoid","x","Avoid"],["physio","heart","See a Physio"]].map(([k,i,n])=>`<button class="tile" data-act="rbGuide" data-k="${k}">${ic(i)}<b>${n}</b></button>`).join("")}</div>
+  ${myProtosPanel()}`}
+ACT.rbGuide=d=>{const st=S.rehab;if(!st)return;const R=REGIONS[st.region],C=R.classes[st.cls];
+  const L=d.k==="do"?["Do",`<ul class="tick">${C.habits.map(h=>`<li>${esc(h)}</li>`).join("")}</ul>`]
+   :d.k==="avoid"?["Avoid",`<ul class="cross">${C.avoid.map(h=>`<li>${esc(h)}</li>`).join("")}</ul>${(st.notes||[]).map(n=>`<div class="note-warn">${esc(n)}</div>`).join("")}`]
+   :["See a Physio If",`<ul class="cross">${[...R.urgent,...R.doctor,"Pain is getting worse week to week","There's no real change after 3 weeks"].map(h=>`<li>${esc(h)}</li>`).join("")}</ul>`];
+  sheet(`<h3>${L[0]}</h3><div class="scroll">${L[1]}</div><button class="btn sec" data-act="closeSheet">Close</button>`)};
 function rbChart(st){
   const logs=(st.logs||[]).map(l=>({at:l.at,v:l.testR!=null?Math.max(l.testR,l.testL):l.testPain}));
   if(!logs.length)return`<div class="panel chartp"><span class="dt">Pain Before Each Session</span><p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Your line appears after the first session.</p></div>`;
@@ -4664,8 +4715,7 @@ SCREENS.rebuild=()=>{
   <div class="stack" style="padding-top:4px">
   <div class="phead"><button class="avatar" data-act="rbMenu" aria-label="Program options">${ic("heart")}</button>
     <div class="pwho"><button class="pname" data-act="rbMenu">${esc(C.n)}</button><span class="pprog" style="cursor:default"><i class="pdot"></i>${esc(R.n)}${st.side&&st.side!=="both"?` · ${esc(st.side)}`:""}</span></div></div>
-  <div class="pseg" role="tablist"><i class="plens" style="--pi:${RB_TABS.findIndex(t=>t[0]===RB_TAB)}"></i>${RB_TABS.map(([k,n])=>`<button role="tab" aria-selected="${k===RB_TAB}" class="${k===RB_TAB?"on":""}" data-act="rbTab" data-p="${k}">${n}</button>`).join("")}</div>
-  <div id="pane" class="stack">${RB_TAB==="today"?rbTodayPane(st,R,phs,ph,stt,items):RB_TAB==="plan"?rbPlanPane(st,R,C,phs,ph):rbProgPane(st,phs)}</div>
+  ${rbDash(st,R,C,phs,ph,stt,items)}
   </div>`};
 ACT.rbTab=d=>{const a=RB_TABS.findIndex(t=>t[0]===RB_TAB),b=RB_TABS.findIndex(t=>t[0]===d.p);if(a===b||b<0)return;RB_TAB=d.p;RB_ANIM=true;render();window.scrollTo(0,0);
   if(!REDUCED){const el=$("#pane");try{el&&el.animate([{opacity:0,transform:`translateX(${(b>a?1:-1)*36}px)`},{opacity:1,transform:"none"}],{duration:380,easing:"cubic-bezier(.32,.72,0,1)"})}catch(e){}}};
@@ -5645,7 +5695,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="71477682";
+<script>window.RANGE_BUILD="84926414";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
