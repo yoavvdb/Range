@@ -8,7 +8,7 @@ const PER_SHEET = 6;
   const [url, out, only] = process.argv.slice(2);
   fs.mkdirSync(out, { recursive: true });
   const b = await chromium.launch({ ...(process.env.CHROME ? { executablePath: process.env.CHROME } : {}), args: ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist"] });
-  const p = await b.newPage({ viewport: { width: 1400, height: 400 } });
+  const p = await b.newPage({ viewport: { width: 1560, height: 400 } });
   const errs = [];
   p.on("pageerror", (e) => errs.push(e.message));
   await p.addInitScript(() => { window.RANGE_THREE_URL = window.RANGE_THREE_URL || "./three.module.min.js"; });

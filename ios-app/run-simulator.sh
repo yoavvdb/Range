@@ -10,14 +10,14 @@ BUNDLE="app.range.mobility"
 command -v xcodebuild >/dev/null || { echo "Xcode is not installed (xcodebuild not found). Install it from the Mac App Store."; exit 1; }
 
 echo "1/5 Building the web app"
-(cd .. && RANGE_DIST="$PWD/site" python3 build/build.py >/dev/null)
+(cd .. && RANGE_DIST="$PWD/ios-app/build/web" python3 build/build.py >/dev/null)   # not site/: the build wipes its output folder
 echo "2/5 Copying it into the iOS project"
-npm install --silent
-./sync-web.sh
+npm ci --silent
+./sync-web.sh build/web
 npx cap sync ios >/dev/null
 echo "3/5 Starting the simulator: $SIM"
 xcrun simctl boot "$SIM" 2>/dev/null || true
-open -a Simulator
+open -a Simulator 2>/dev/null || echo "Simulator.app not found; the simulator runs without a window"
 echo "4/5 Building the app (the first build takes a few minutes)"
 xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug \
   -destination "platform=iOS Simulator,name=$SIM" -derivedDataPath build \

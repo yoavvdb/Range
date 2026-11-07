@@ -35,3 +35,22 @@ GitHub Pages serves it again within a minute or two. The app source lives outsid
 | 2026-10-31 | `2026-10-31_rebuild-dashboard.html` | Rebuild = dashboard with Today / Program / Progress slides and a pain chart | ee19597 |
 | 2026-10-31 | `2026-10-31_ios-shell.html` | Adds ios-app/ (native iOS shell for the Simulator); web app reads the feed from the web inside it | 7511db2 |
 | 2026-11-04 | `2026-11-04_fluid-gestures.html` | Fluid gestures: swipes and sheets follow the finger, flicks carry velocity, edges rubber-band; Increase Contrast support | 11cd26e |
+| 2026-11-05 | `2026-11-05_launch-reveal.html` | Today opens on the first card with a one-line greeting (no jump); blueprint logo reveal on the launch screen | 98e6d72 |
+| 2026-11-05 | `2026-11-05_opens-on-today.html` | Opens on Today; a half-done mobility test waits behind Resume my test instead of reopening | 4ab5849 |
+| 2026-11-05 | `2026-11-05_apple-google-login.html` | Continue with Apple / Google on the front page (web and iOS app) | 78a66f7 |
+| 2026-11-05 | `2026-11-05_ios-review-fixes.html` | Activate opens centred (looping cards), 44pt targets, small-phone layout, Dynamic Type, wordmark only on Today, honest Profile before the test | 68f490f |
+| 2026-11-05 | `2026-11-05_circular-today.html` | Today cards go round and round in both directions | 1f9e2cd |
+| 2026-11-05 | `2026-11-05_smooth-loop.html` | Today loop stays smooth across a new lap, even with quick swipes | bf869b8 |
+| 2026-11-05 | `2026-11-05_sign-out-button.html` | Sign out button top left on Today, with a confirmation sheet | ae75920 |
+| 2026-11-05 | `2026-11-05_apple-title-case.html` | Apple title-style capitalization for buttons, titles, tabs and names | 56fe84b |
+| 2026-11-06 | `2026-11-06_lifter-protocol.html` | Lifter protocol: readiness check, Raise first, bottom-up mobilise, ramp sets and primers after Activate, breathing and recovery tips after Recover | 22ffe17 |
+| 2026-11-06 | `2026-11-06_liquid-glass.html` | Liquid Glass bars, buttons, sheets and player controls; no ramp-set card or closing breathing | dc17b53 |
+| 2026-11-06 | `2026-11-06_sore-areas.html` | Anything sore? step (pick areas) replaces the readiness check; between-movement primers removed | e3938ff |
+| 2026-11-06 | `2026-11-06_no-double-hinge.html` | Hip hinge drill and Active hinge never in the same session; one exercise per family everywhere | cbfcb33 |
+| 2026-11-06 | `2026-11-06_tour-rebuild.html` | 4-step tour on Today, Rebuild off the Today cards, redesigned first Rebuild page | f4e671e |
+| 2026-11-06 | `2026-11-06_rebuild-dashboard.html` | Rebuild program as one dashboard, player shows only instructions, thinner clear-glass tab bar | b341dcd |
+| 2026-11-06 | `2026-11-06_rebuild-two-tabs.html` | Rebuild program dashboard split into Today and Progress segments | daa317d |
+| 2026-11-06 | `2026-11-06_progress-layout.html` | Rebuild Progress: pain chart, then stages next to a smaller Unlocks card | 53e341f |
+| 2026-11-06 | `2026-11-06_back-twist-flows.html` | Lower Back Pain and Twist flows in Daily › Classic Flows | 2d4987b |
+| 2026-11-07 | `2026-11-07_demo-fixes.html` | 10 exercise demos fixed after demo QA (cat-cow, side plank thread-through, Pallof press and more); trunk follows the spine curve | 962b24f |
+| 2026-11-07 | `2026-11-07_program-signup.html` | Sign-up asks CrossFit athletes their program (RX-Club, FBB…); tour shows how to change it | 5f81c51 |
