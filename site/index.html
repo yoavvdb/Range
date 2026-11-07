@@ -4375,7 +4375,7 @@ async function autoSync(force){
 }
 const agoText=t=>{if(!t)return"never";const m=Math.round((Date.now()-new Date(t))/6e4);return m<2?"just now":m<60?`${m} min ago`:m<1440?`${Math.round(m/60)} h ago`:`${Math.round(m/1440)} d ago`};
 ACT.syncKey=()=>{const sy=S.sync||{},tr=sy.tracks||[];if(!tr.length)return;
-  sheet(`<h3>Your SugarWOD Track</h3><div class="scroll"><div class="stack" style="gap:10px">${tr.map(t=>`<button class="opt ${t===sy.track?"on":""}" data-act="syncTrack" data-t="${esc(t)}"><span>${esc(t)}</span><span class="radio"></span></button>`).join("")}</div></div>`)};
+  sheet(`<h3>Your Program</h3><p class="muted" style="margin:0 0 10px">Activate and Recover follow the workouts your gym posts for it.</p><div class="scroll"><div class="stack" style="gap:10px">${tr.map(t=>`<button class="opt ${t===sy.track?"on":""}" data-act="syncTrack" data-t="${esc(t)}"><span>${esc(t)}</span><span class="radio"></span></button>`).join("")}</div></div>`)};
 ACT.syncTrack=async d=>{if(d.t===(S.sync||{}).track){closeSheet();return}
   S.sync={...(S.sync||{}),track:d.t,checked:0};S.training=S.training.filter(w=>w.source!=="sugarwod-public");save();closeSheet();SYNCING=true;render();
   try{await autoSync(true)}finally{SYNCING=false;render()}
@@ -5562,35 +5562,53 @@ ACT.sbOut=async()=>{clearTimeout(sbTimer);let saved=true;try{await sbPush()}catc
 
 /* ---- first run: sports, equipment, then the test or an example profile ---- */
 // setup progress is kept as you go (a reload comes back to the same step with your picks)
-function obStart(){GATE=GATE||{};GATE.step="ob";const d=S.obDraft;GATE.ob=d&&typeof d.i==="number"?{i:Math.min(2,d.i),sports:(d.sports||[]).filter(k=>SPI[k]),equip:(d.equip||[]).filter(k=>EQUIP.some(e=>e.k===k)),setS:!!d.setS,setE:!!d.setE}:{i:0,sports:[],equip:[],setS:false,setE:false};obDraw()}
+// the programs the gym posts (from the workout feed once it has loaded, else the ones it carries today, biggest first)
+const OB_TRACKS=["RX-Club","WOD","FBB + GYMNASTICS","Light & Fit"];
+const obTracks=()=>{const t=(S.sync&&S.sync.tracks)||[];return t.length?t:OB_TRACKS};
+// the steps of first run: a CrossFit athlete also picks the program they follow
+const obSteps=o=>["sports",...(o.sports.includes("crossfit")?["program"]:[]),"equip","test"];
+function obStart(){GATE=GATE||{};GATE.step="ob";const d=S.obDraft;GATE.ob=d&&typeof d.i==="number"?{i:d.i,sports:(d.sports||[]).filter(k=>SPI[k]),equip:(d.equip||[]).filter(k=>EQUIP.some(e=>e.k===k)),track:d.track||null,setS:!!d.setS,setE:!!d.setE}:{i:0,sports:[],equip:[],track:null,setS:false,setE:false};
+  GATE.ob.i=Math.min(obSteps(GATE.ob).length-1,GATE.ob.i);if(!S.sync||!S.sync.tracks)autoSync(true).then(()=>{if(GATE&&GATE.ob&&obSteps(GATE.ob)[GATE.ob.i]==="program")obDraw()}).catch(()=>{});obDraw()}
 const obKeep=()=>{S.obDraft={...GATE.ob};save()};
-function obDraw(){const g=gateHost(),o=GATE.ob,i=o.i;
+function obDraw(){const g=gateHost(),o=GATE.ob,i=o.i,steps=obSteps(o),step=steps[i],n=steps.length;
   const head=`<div><div class="hdr" style="grid-template-columns:64px 1fr 64px"><button data-act="obBack" aria-label="Back" ${i?"":`style="visibility:hidden"`}>${ic("back")}</button><div class="brand">Range<b>.</b></div><button class="link muted" style="justify-self:end;padding:8px 0" data-act="obSkip">Skip</button></div>
-    <div class="tprog">${[0,1,2].map(k=>`<i class="${k<=i?"on":""}"></i>`).join("")}</div></div>`;
+    <div class="tprog">${steps.map((_,k)=>`<i class="${k<=i?"on":""}"></i>`).join("")}</div></div>`;
   let body,cta;
-  if(i===0){body=`<div class="stack" style="align-content:start;gap:12px"><span class="eyebrow">Step 1 of 3 · Your sports</span><h1>What do you train?</h1>
+  if(step==="sports"){body=`<div class="stack" style="align-content:start;gap:12px"><span class="eyebrow">Step 1 of ${n} · Your sports</span><h1>What do you train?</h1>
      <p class="muted" style="margin:0">Pick all that apply. Warm-ups and daily sessions lean toward what your sports need.</p>
      <div class="obgrid">${SPORTS.map(s=>`<button class="opt ${o.sports.includes(s.k)?"on":""}" data-act="obSport" data-s="${s.k}" aria-pressed="${o.sports.includes(s.k)}"><span>${s.n}</span><span class="tick">${ic("check")}</span></button>`).join("")}</div></div>`;
     cta=`<button class="btn" data-act="obNext" ${o.sports.length?"":"disabled"}>Continue</button>`}
-  else if(i===1){body=`<div class="stack" style="align-content:start;gap:12px"><span class="eyebrow">Step 2 of 3 · Equipment</span><h1>What can you use?</h1>
+  else if(step==="program"){const tr=obTracks();
+    body=`<div class="stack" style="align-content:start;gap:12px"><span class="eyebrow">Step ${i+1} of ${n} · Your program</span><h1>Which Program Do You Follow?</h1>
+     <p class="muted" style="margin:0">Range reads your gym's workouts on SugarWOD, so every warm-up and cool-down fits today's session.</p>
+     <div class="stack" style="gap:10px">${tr.map((t,k)=>`<button class="opt ${o.track===t?"on":""}" data-act="obTrack" data-t="${esc(t)}" aria-pressed="${o.track===t}"><span>${esc(t)}${k===0?` <small class="muted" style="font-weight:600">· Most popular</small>`:""}</span><span class="radio" style="${o.track===t?"":"border-width:2px;border-color:var(--muted)"}"></span></button>`).join("")}
+      <button class="opt ${o.track==="none"?"on":""}" data-act="obTrack" data-t="none" aria-pressed="${o.track==="none"}"><span>Not Sure Yet</span><span class="radio" style="${o.track==="none"?"":"border-width:2px;border-color:var(--muted)"}"></span></button></div>
+     <p class="muted" style="margin:0;font-size:calc(13px * var(--ts))">You can switch any time in Profile.</p></div>`;
+    cta=`<button class="btn" data-act="obNext" ${o.track?"":"disabled"}>Continue</button>`}
+  else if(step==="equip"){body=`<div class="stack" style="align-content:start;gap:12px"><span class="eyebrow">Step ${i+1} of ${n} · Equipment</span><h1>What can you use?</h1>
      <p class="muted" style="margin:0">Tap what you have at home or at your gym. Sessions only use these, and the floor is always included.</p>
      <div class="chipset obeq">${EQUIP.map(e=>`<button class="chip ${o.equip.includes(e.k)?"on":""}" data-act="obEq" data-e="${e.k}" aria-pressed="${o.equip.includes(e.k)}">${ic(e.k)}${e.n}</button>`).join("")}</div></div>`;
     cta=`<button class="btn" data-act="obNext">${o.equip.length?"Continue":"Continue with No Equipment"}</button>`}
-  else{body=`<div class="stack" style="align-content:start;gap:12px"><span class="eyebrow">Step 3 of 3 · Your starting point</span><h1>Find Your Weak Spots</h1>
+  else{body=`<div class="stack" style="align-content:start;gap:12px"><span class="eyebrow">Step ${n} of ${n} · Your starting point</span><h1>Find Your Weak Spots</h1>
      <p class="muted" style="margin:0">The mobility test is ${TSTEPS.length} quick checks across 6 areas. Every session then spends the most time where you need it.</p>
      <div class="obtest">${fig("squat")}</div>
      <ul class="obl"><li>${ic("check")}About 10 minutes</li><li>${ic("check")}A wall and a bench or bed</li><li>${ic("check")}Retest monthly to see your progress</li></ul></div>`;
     cta=`<button class="btn" data-act="obDone" data-t="1">Take the 10-Minute Mobility Test Now</button><button class="btn sec" data-act="obDone" data-t="0">Later — Start with an Example Profile</button>`}
   g.innerHTML=`<div class="inner">${head}${body}<div class="bottomcta">${cta}</div></div>`;g.scrollTop=0}
-ACT.obSport=(d,el)=>{const o=GATE.ob,k=o.sports.indexOf(d.s);if(k>=0)o.sports.splice(k,1);else o.sports.push(d.s);const on=o.sports.includes(d.s);el.classList.toggle("on",on);el.setAttribute("aria-pressed",on);$("[data-act=obNext]").disabled=!o.sports.length;obKeep()};
+ACT.obSport=(d,el)=>{const o=GATE.ob,k=o.sports.indexOf(d.s);if(k>=0)o.sports.splice(k,1);else o.sports.push(d.s);const on=o.sports.includes(d.s);el.classList.toggle("on",on);el.setAttribute("aria-pressed",on);$("[data-act=obNext]").disabled=!o.sports.length;obKeep();
+  // the step count changes with CrossFit (it adds the program step)
+  const n=obSteps(o).length,eb=document.querySelector("#gate .eyebrow");if(eb)eb.textContent=`Step 1 of ${n} · Your sports`;const tp=document.querySelector("#gate .tprog");if(tp)tp.innerHTML=obSteps(o).map((_,k)=>`<i class="${k<=o.i?"on":""}"></i>`).join("")};
 ACT.obEq=(d,el)=>{const o=GATE.ob,k=o.equip.indexOf(d.e);if(k>=0)o.equip.splice(k,1);else o.equip.push(d.e);const on=o.equip.includes(d.e);el.classList.toggle("on",on);el.setAttribute("aria-pressed",on);$("[data-act=obNext]").textContent=o.equip.length?"Continue":"Continue with No Equipment";obKeep()};
-ACT.obNext=()=>{const o=GATE.ob;if(o.i===0)o.setS=true;if(o.i===1)o.setE=true;o.i++;obKeep();obDraw()};
+ACT.obTrack=d=>{GATE.ob.track=d.t;obKeep();obDraw()};
+ACT.obNext=()=>{const o=GATE.ob,st=obSteps(o)[o.i];if(st==="sports")o.setS=true;if(st==="equip")o.setE=true;o.i++;obKeep();obDraw()};
 ACT.obBack=()=>{const o=GATE.ob;if(o.i>0){o.i--;obKeep();obDraw()}};
 // skipping a step keeps what's there now (CrossFit and every piece of equipment); you can change both in Profile
-ACT.obSkip=()=>{const o=GATE.ob;if(o.i<2){o.i++;obKeep();obDraw()}else ACT.obDone({t:"0"})};
+ACT.obSkip=()=>{const o=GATE.ob;if(o.i<obSteps(o).length-1){o.i++;obKeep();obDraw()}else ACT.obDone({t:"0"})};
 ACT.obDone=d=>{const o=GATE.ob;
   if(o.setS&&o.sports.length)S.sports=SPORTS.map(s=>s.k).filter(k=>o.sports.includes(k));
   if(o.setE)S.equip=EQUIP.map(e=>e.k).filter(k=>o.equip.includes(k));
+  // the program they follow: workouts of any other track go, and the feed is read again for this one
+  if(o.track&&o.track!=="none"&&S.sports.includes("crossfit")){const ch=(S.sync||{}).track!==o.track;S.sync={...(S.sync||{}),track:o.track,checked:0};if(ch)S.training=S.training.filter(w=>w.source!=="sugarwod-public");setTimeout(()=>autoSync(true).then(()=>render()).catch(()=>{}),50)}
   // the tour is owed until it has been seen (kept in your data, so it still starts after a reload or on another phone)
   S._eqBall=1;S._eqBar=1;S.onboarded=true;delete S.obDraft;if(!S.tourDone)S.tourPending=true;
   if(d.t==="1")S.testDraft={i:0,ans:{},at:Date.now()};save();if(SBU)sbPush().catch(()=>{});
@@ -5610,7 +5628,8 @@ const TOUR_STEPS=[
  {tab:"home",el:()=>tq("#car .pcard:not(.clone)"),t:"Pick a Session",d:"Swipe the cards. <b>Activate</b> warms you up before training, <b>Recover</b> cools you down after, <b>Daily</b> is for rest days, and <b>Library</b> has every exercise. Tap a card to start."},
  {tab:"home",el:()=>tq("[data-tour=test]")||tq("[data-tour=streak]"),t:()=>S.scores?"Your Streak":"Start Here",d:()=>S.scores?"Days in a row with a session. Tap it to see your mobility score.":"Take the 10-minute mobility test. Every check shows you how to do it, and afterwards each session focuses on your weak spots."},
  {tab:"home",el:()=>tq("#tabbar [data-t=rebuild]"),t:"Sore Somewhere?",d:"Rebuild turns pain into a step-by-step rehab plan: a quick safety check, a few tests, then phases that move on when your pain allows."},
- {tab:"home",el:()=>tq("#tabbar [data-t=profile]"),t:"Your Profile",d:"Your mobility score, sports and equipment. Sessions only use the gear you switch on there. You can replay this tour from Settings."},
+ {tab:"home",el:()=>tq("#tabbar [data-t=profile]"),t:"Your Profile",d:()=>"Your mobility score, sports and equipment. Sessions only use the gear you switch on there."+((S.sync||{}).track?"":" You can replay this tour from Settings.")},
+ {tab:"profile",pane:"dash",el:()=>tq("[data-tour=program]"),t:"Change Your Program",d:()=>`You're following <b>${esc((S.sync||{}).track||"")}</b>. Tap it to switch to another program, like ${esc(((S.sync||{}).tracks||OB_TRACKS).filter(t=>t!==(S.sync||{}).track).slice(0,2).join(" or "))}. Activate and Recover follow the one you pick. You can replay this tour from Settings.`},
 ];
 const tval=v=>typeof v==="function"?v():v;
 const tvis=e=>!!e&&e.getClientRects().length>0;
@@ -5713,7 +5732,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="59705109";
+<script>window.RANGE_BUILD="43875015";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
