@@ -2516,7 +2516,7 @@ function renderCards(ex){
 }
 // a card with more text than fits says so, until you've scrolled to its end
 // what kind of exercise it is, in the player and the library ("Foam rolling", not "Active stretch")
-const exKind=e=>e.rehab?"Strength":e.roll?"Foam rolling":e.dyn?"Active stretch":"Passive stretch";
+const exKind=e=>e.rehab?"Strength":e.act?"Activation":e.roll?"Foam rolling":e.dyn?"Active stretch":"Passive stretch";
 function moreCue(){document.querySelectorAll("#pcards .icard").forEach(c=>{const f=()=>c.classList.toggle("more",c.scrollHeight-c.clientHeight-c.scrollTop>16);f();if(!c._mc){c._mc=1;c.addEventListener("scroll",f,{passive:true})}})}
 function drawP(){
   const s=P.segs[P.si];
@@ -3347,7 +3347,7 @@ Object.assign(FIGS,{
 });
 addStretches([
  {id:"w_cuffsmash",n:"Rotator cuff ball smash",a:"shoulders",z:["shoulders","upperback"],eq:["ball"],pose:"roller",hold:60,sides:1,dyn:1,stim:"Pressure on the back of the shoulder blade, easing as you turn the arm",c:["Lie on your back, ball under the back of one shoulder blade","Arm out to the side, elbow bent 90°","Slowly turn the forearm down toward the floor both ways, pause on tender spots"],easy:"Use a softer ball, or stand and pin it against a wall."},
- {id:"w_wallohs",n:"Wall-facing overhead squat",a:"overhead",z:["lats","upperback","ankles"],eq:["wall"],pose:"squat",hold:40,sides:0,dyn:1,stim:"Stretch through the lats and ankles, effort in the upper back to keep the arms up",c:["Toes a few inches from the wall, feet shoulder width","Arms straight overhead, chest up","Squat as low as you can without hands, face or knees touching the wall, then stand"],easy:"Stand further from the wall, or squat only part way."},
+ {id:"w_wallohs",n:"Wall-facing overhead squat",a:"overhead",z:["upperback","lats","ankles"],eq:["wall"],pose:"squat",hold:40,sides:0,dyn:1,act:1,stim:"Upper back and trunk working hard to keep the arms overhead as you sink, the lats and ankles at the end of their range",c:["Toes a few inches from the wall, feet shoulder width","Arms straight overhead, chest up","Squat as low as you can without hands, face or knees touching the wall, then stand"],easy:"Stand further from the wall, or squat only part way."},
  {id:"w_boxpigeon",n:"Bench pigeon",a:"hips",z:["glutes"],eq:["bench"],pose:"fold",hold:45,sides:1,dyn:0,stim:"A deep stretch in the buttock of the front leg",c:["Lay the front shin across a bench, knee bent","Step the back leg back, leg straight","Hinge your chest forward over the shin with a flat back","If the front knee complains, bring the foot closer to the hip"],easy:"Use a lower bench, or stay more upright."},
  {id:"w_btnpress",n:"Snatch-grip behind-the-neck press (PVC)",a:"overhead",z:["shoulders","upperback","lats"],eq:["pipe"],pose:"armsUp",hold:40,sides:0,dyn:1,stim:"Work in the upper back and the backs of the shoulders as the PVC goes up",c:["PVC on your upper back, wide snatch grip","Press straight up behind your head, pause with straight arms","Lower slowly back to your traps, head stays neutral"],easy:"Only go as far as is pain-free; press from in front of the head instead if behind the neck pinches."},
  {id:"w_pikelift",n:"Seated pike leg lifts",a:"hips",z:["hipflex","hamstrings","core"],eq:[],pose:"pike",hold:40,sides:1,dyn:1,stim:"Hard work in the front of the hip, stretch in the back of the legs",c:["Sit tall, legs straight together, hands beside the knees","Lift one straight leg a few inches, hold 1 second, lower","Don't lean back to lift higher"],easy:"Put your hands further back, or bend the other knee."},
@@ -3662,7 +3662,8 @@ const MOVE_PREP=[
  {moves:["Deadlift","Romanian Deadlift"],
   drills:[["w_hamact",D_.reps(1,10,{sides:1}),"wakes up the hamstrings so they share the pull with the glutes and low back"]]},
  {moves:["Snatch","Power Snatch","Overhead Squat","Split Jerk","Push Jerk","Clean & Jerk","Strict Press","Push Press","Handstand Push-up","Handstand Walk","Wall Ball","Thruster"],
-  drills:[["a_pullapart",D_.reps(1,15),m=>m==="Wall Ball"?"wakes up the upper back that steadies the ball overhead":"wakes up the upper back that holds the bar overhead"],["s6",D_.reps(2,10,{rest:15}),"takes the shoulders through the whole overhead arc with the pipe, narrowing the grip as they loosen"],["r_proneY",D_.reps(1,8),m=>m==="Wall Ball"||m==="Handstand Push-up"||m==="Handstand Walk"?"turns on the lower traps so the shoulder blade rotates up as the arms go overhead":"turns on the lower traps so the shoulder blade rotates up under the bar"],["r_scappull",D_.reps(1,6),"teaches the shoulder blades to set before you press or hang"],["a_sots",D_.reps(1,6),"presses from the bottom of a squat, the hardest overhead position"],["r_ohs",D_.reps(2,5,{tempo:[3,2,1],note:"Pause at the bottom"}),m=>m==="Wall Ball"?"rehearses the squat and the arms-overhead finish of the throw, slowly, before the ball":"rehearses the exact overhead position you'll need, slowly, before the bar is loaded"]]},
+  // a 4th entry limits a drill to the movements it is made for (the wall-facing squat only for lifts that squat with the arms overhead)
+  drills:[["w_wallohs",D_.reps(1,6,{tempo:[3,1,1]}),m=>/Wall Ball|Thruster/.test(m)?"switches on the upper back and trunk that keep the arms up while the hips sink":"switches on the upper back and trunk that keep the arms locked overhead while the hips sink, the bottom of the catch",["Snatch","Power Snatch","Overhead Squat","Thruster","Wall Ball"]],["a_pullapart",D_.reps(1,15),m=>m==="Wall Ball"?"wakes up the upper back that steadies the ball overhead":"wakes up the upper back that holds the bar overhead"],["s6",D_.reps(2,10,{rest:15}),"takes the shoulders through the whole overhead arc with the pipe, narrowing the grip as they loosen"],["r_proneY",D_.reps(1,8),m=>m==="Wall Ball"||m==="Handstand Push-up"||m==="Handstand Walk"?"turns on the lower traps so the shoulder blade rotates up as the arms go overhead":"turns on the lower traps so the shoulder blade rotates up under the bar"],["r_scappull",D_.reps(1,6),"teaches the shoulder blades to set before you press or hang"],["a_sots",D_.reps(1,6),"presses from the bottom of a squat, the hardest overhead position"],["r_ohs",D_.reps(2,5,{tempo:[3,2,1],note:"Pause at the bottom"}),m=>m==="Wall Ball"?"rehearses the squat and the arms-overhead finish of the throw, slowly, before the ball":"rehearses the exact overhead position you'll need, slowly, before the bar is loaded"]]},
  {moves:["Front Squat","Squat Clean","Power Clean","Clean & Jerk","Thruster","Push Press","Handstand Push-up","Handstand Walk","Push-up","Burpee","Front Rack Hold"],
   drills:[["r_wristrock",D_.reps(1,10),"warms up the wrists for the front rack and pressing"],["a_bandrack",null,"lets the band pull the elbow up into a better rack position"]]},
  {moves:["Pull-up","Chest-to-bar Pull-up","Bar Muscle-up","Ring Muscle-up","Toes-to-bar","Rope Climb","Climbing","Ring Row","DB Row"],
@@ -3681,7 +3682,7 @@ const END_RANGE={
  posterior:[["r_slrdl",D_.reps(2,8,{sides:1,tempo:[3,1,1]})],["r_hinge",D_.reps(2,10,{tempo:[3,1,1]})],["c_backext",D_.reps(2,10)],["c_superman",D_.hold(2,20)],["r_slbridge",D_.rep(2,8,5,1)]],
  thoracic:[["r_proneY",D_.reps(2,8)],["c_backext",D_.reps(2,10)],["r_row",D_.reps(2,10)]],
  shoulders:[["a_pullapart",D_.reps(2,15)],["r_ser",D_.reps(2,12,{sides:1,tempo:[1,0,3]})],["r_bandw",D_.reps(2,12)],["a_scappush",D_.reps(2,10)],["r_proneY",D_.reps(2,8)]],
- overhead:[["a_sots",D_.reps(2,6)],["a_wallserr",D_.reps(2,10)],["r_proneY",D_.reps(2,8)],["r_scappull",D_.reps(2,6)]],
+ overhead:[["a_sots",D_.reps(2,6)],["w_wallohs",D_.reps(2,6,{tempo:[3,1,1]})],["a_wallserr",D_.reps(2,10)],["r_proneY",D_.reps(2,8)],["r_scappull",D_.reps(2,6)]],
 };
 // end-range strength is light work: short rests keep each drill around a minute and a half
 Object.values(END_RANGE).forEach(l=>l.forEach(([id,d])=>{if(d&&d.k==="reps"){d.rest=30;const rs=d.tempo?d.tempo[0]+d.tempo[1]+d.tempo[2]:3,t=r=>d.sets*r*rs*(d.sides?2:1)+(d.sets-1)*30+8;while(d.reps>5&&t(d.reps)>90)d.reps--}}));
@@ -3928,7 +3929,7 @@ function buildPlan(o){
   const hooks=rehabHooks(),state={used:new Set()},C={need,parts,ctx,flash,moves,zd};
   const tooHard=id=>{const e=LIBI[id];return!!(e&&e.adv&&(ctx.sc[e.adv]??70)<(e.advMin||60))};
   const okEq=id=>LIBI[id]&&LIBI[id].eq.every(q=>o.equip.includes(q))&&!hooks.x.has(id)&&!tooHard(id);
-  let pool=LIB.filter(ex=>!ex.rehab&&!ex.manual&&need[ex.a]>.05&&ex.eq.every(q=>o.equip.includes(q))&&!hooks.x.has(ex.id));
+  let pool=LIB.filter(ex=>!ex.rehab&&!ex.act&&!ex.manual&&need[ex.a]>.05&&ex.eq.every(q=>o.equip.includes(q))&&!hooks.x.has(ex.id));
   const blocks=[];let left=budget;
   const add=(name,items)=>{if(!items.length)return;items.forEach(it=>{it.block=name;state.used.add(it.id)});blocks.push({name,items});left-=items.reduce((t,it)=>t+itemSecs(it),0)};
   const famTaken=id=>{const f=famsOf(LIBI[id]||{});return f.length&&[...state.used,...(state.picks||[]).map(e=>e.id)].some(u=>u!==id&&famsOf(LIBI[u]||{}).some(x=>f.includes(x)))};
@@ -3960,7 +3961,7 @@ function buildPlan(o){
     const passes=[[],[]];
     groups.forEach((g,gi)=>{const m=pmoves.find(x=>g.moves.includes(x));
       // a pipe or plate you brought gets used: drills that need it go first (the top group keeps its main-lift rehearsal)
-      const spec=id=>LIBI[id].eq.some(q=>q!=="wall"&&q!=="band"),ok0=g.drills.filter(([id])=>okEq(id)&&!(runDay&&posOf(LIBI[id])>=2)),ok=gi===0||!ok0.some(d=>spec(d[0]))?ok0:(()=>{const i=ok0.findIndex(d=>spec(d[0]));return[ok0[i],...ok0.filter((_,j)=>j!==i)]})(),ds=gi===0&&ok.length>1?[ok[ok.length-1],ok[0]]:ok;
+      const spec=id=>LIBI[id].eq.some(q=>q!=="wall"&&q!=="band"),ok0=g.drills.filter(([id,,,only])=>okEq(id)&&!(runDay&&posOf(LIBI[id])>=2)&&(!only||pmoves.some(x=>only.includes(x)))),ok=gi===0||!ok0.some(d=>spec(d[0]))?ok0:(()=>{const i=ok0.findIndex(d=>spec(d[0]));return[ok0[i],...ok0.filter((_,j)=>j!==i)]})(),ds=gi===0&&ok.length>1?[ok[ok.length-1],ok[0]]:ok;
       ds.slice(0,2).forEach(([id,dose,why],k)=>passes[k].push({id,...(dose?{dose}:{hold:30}),why:`${m}: this ${typeof why==="function"?why(m):why}.`,rank:gi,main:gi===0&&k===0,_k:k*.4-rel(g)+(gi===0&&k===1?.5:0)}))});
     const prep=[...passes[0],...passes[1]].filter((it,i,a)=>a.findIndex(x=>x.id===it.id)===i);
     // a well-matched group's second drill beats a loosely-matched group's first (pull-aparts before good mornings for a jerk)
