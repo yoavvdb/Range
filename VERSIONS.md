@@ -51,3 +51,4 @@ GitHub Pages serves it again within a minute or two. The app source lives outsid
 | 2026-11-06 | `2026-11-06_rebuild-two-tabs.html` | Rebuild program dashboard split into Today and Progress segments | daa317d |
 | 2026-11-06 | `2026-11-06_progress-layout.html` | Rebuild Progress: pain chart, then stages next to a smaller Unlocks card | 53e341f |
 | 2026-11-06 | `2026-11-06_back-twist-flows.html` | Lower Back Pain and Twist flows in Daily › Classic Flows | 2d4987b |
+| 2026-11-07 | `2026-11-07_demo-fixes.html` | 10 exercise demos fixed after demo QA (cat-cow, side plank thread-through, Pallof press and more); trunk follows the spine curve | 962b24f |
