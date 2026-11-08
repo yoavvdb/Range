@@ -63,3 +63,4 @@ GitHub Pages serves it again within a minute or two. The app source lives outsid
 | 2026-11-08 | `2026-11-08_rebuild-accuracy.html` | Rebuild protocol choice checked against blind clinical review (51/52); close-call note; better warnings | db2c25f |
 | 2026-11-08 | `2026-11-08_login-card.html` | New login page: floating card, plate medallion, button morph and fly-in to the app | 46c67be |
 | 2026-11-08 | `2026-11-08_login-reveal.html` | After login the app opens up through the plate instead of fading | 0247343 |
+| 2026-11-08 | `2026-11-08_login-reveal-3d.html` | Login reveal shows the 3D figure from the first frame, 0.3 s slower, sharp rim | 6cd53f1 |
