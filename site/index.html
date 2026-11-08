@@ -2151,8 +2151,10 @@ let NOPUSH=false;
  // dir -1: finger moving left (next), +1: moving right (previous / back)
  const target=dir=>{
   if(stack.length>1||stack[0].name==="wizard")return dir>0?{go:()=>back(),kind:"back"}:null;
-  if(stack[0].name==="profile"){const P=PROF_TABS.map(x=>x[0]),j=P.indexOf(PROF_TAB)-dir;return j>=0&&j<P.length?{go:()=>ACT.profTab({p:P[j]}),kind:"pane"}:null}
-  if(stack[0].name==="rebuild"&&S.rehab){const P=RB_TABS.map(x=>x[0]),j=P.indexOf(RB_TAB)-dir;return j>=0&&j<P.length?{go:()=>ACT.rbTab({p:P[j]}),kind:"pane"}:null}
+  // a tab with panes (Profile, a Rebuild program) moves between its panes first; past its first or last pane the swipe
+  // carries on to the neighbouring tab
+  if(stack[0].name==="profile"){const P=PROF_TABS.map(x=>x[0]),j=P.indexOf(PROF_TAB)-dir;if(j>=0&&j<P.length)return{go:()=>ACT.profTab({p:P[j]}),kind:"pane"}}
+  if(stack[0].name==="rebuild"&&S.rehab){const P=RB_TABS.map(x=>x[0]),j=P.indexOf(RB_TAB)-dir;if(j>=0&&j<P.length)return{go:()=>ACT.rbTab({p:P[j]}),kind:"pane"}}
   const i=TABS.indexOf(stack[0].name),j=i-dir;return i<0||j<0||j>=TABS.length?null:{go:()=>ACT.tab({t:TABS[j]}),kind:"tab"}};
  const scr=()=>$("#screen");
  document.addEventListener("touchstart",e=>{if(e.touches.length!==1||TOUR||$("#layer").children.length||skip(e.target)){t=null;return}
@@ -5956,7 +5958,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="36099606";
+<script>window.RANGE_BUILD="31109389";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
