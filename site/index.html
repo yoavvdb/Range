@@ -960,6 +960,8 @@ const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const overall=sc=>Math.round(AREAS.reduce((t,a)=>t+sc[a.k],0)/AREAS.length);
 function level(v){if(v<40)return{t:"Restricted",c:"c-bad",v:"var(--bad)"};if(v<65)return{t:"Limited",c:"c-warn",v:"var(--warn)"};if(v<85)return{t:"Good",c:"c-top",v:"var(--accent)"};return{t:"Optimal",c:"c-good",v:"var(--good)"}}
+// a section's length as you'd time it: the hold itself (both sides) or the whole dosed exercise, without the changeover
+const blockSecs=it=>{if(it.dose){const d=it.dose,rs=d.tempo?d.tempo[0]+d.tempo[1]+d.tempo[2]:3;return segsFor(it,1).filter((x,k)=>!(k===0&&x.type==="ready")).reduce((t,x)=>t+(x.type==="set"?x.reps*rs:x.type==="ready"?x.secs:x.hold),0)}const e=LIBI[it.id];return(it.hold||0)*(e&&e.sides?2:1)};
 const fmt=s=>{s=Math.round(s);const m=Math.floor(s/60),r=s%60;return m?(r?`${m}:${String(r).padStart(2,"0")}`:`${m} min`):`${r}s`};
 const dayKey=d=>{const x=new Date(d);return`${x.getFullYear()}-${x.getMonth()}-${x.getDate()}`};
 const REDUCED=matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -2321,7 +2323,7 @@ SCREENS.wizard=()=>{
     body=`<div class="stack" style="gap:6px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="chipset">${W.kind==="target"?`<button class="chip" data-act="wGoto" data-s="zone">${ic("target")}${esc(AN[W.zone])}</button>`:""}${W.sore&&W.sore.length?`<button class="chip" data-act="wGoto" data-s="sore">${ic("target")}${esc(W.sore.map(k=>AN[k]).join(", "))}</button>`:""}<button class="chip" data-act="wGoto" data-s="time">${ic("clock")}${W.minutes} min</button><button class="chip" data-act="wGoto" data-s="equip" aria-label="Equipment">${ic("equip")}Kit</button></span><span style="display:flex;gap:14px"><button class="link" data-act="whySheet">Why?</button><button class="link" data-act="reshuffle">Shuffle</button></span></div>
     ${rbNote(W.plan.warn)}
     ${W.plan.excluded&&!W.plan.warn?`<p class="muted safeln" style="margin:0;font-size:calc(13px * var(--ts))">${ic("check")} Safe for your ${esc(W.plan.excluded.toLowerCase().replace(/ \(.*\)$/,""))}</p>`:""}
-    <div class="preview">${W.plan.items.length?(()=>{let n=0;return(W.plan.blocks||[{name:"",items:W.plan.items}]).map((b,bi)=>`${b.name?`<p class="blk">${esc(b.name)} <span>${Math.round(b.items.reduce((t,it)=>t+itemSecs(it),0)/60)||"<1"} min</span></p>`:""}${b.items.map((it,ii)=>{const ex=LIBI[it.id];n++;return`<div class="ed"><span>${n}</span><span>${esc(ex.n)}</span><span class="rt"><span>${it.dose?esc(doseText(it).split(" · ")[0]):fmt(it.hold)+(ex.sides?" ×2":"")}</span><span class="pe"><button data-act="wSwap" data-b="${bi}" data-i="${ii}" aria-label="Swap ${esc(ex.n)}">${ic("reset")}</button><button data-act="wRm" data-b="${bi}" data-i="${ii}" aria-label="Remove ${esc(ex.n)}">${ic("x")}</button></span></span></div>`}).join("")}`).join("")})():`<div><span></span><span class="muted">No stretches match this equipment and time. Add equipment or pick more time.</span><span></span></div>`}</div>
+    <div class="preview">${W.plan.items.length?(()=>{let n=0;return(W.plan.blocks||[{name:"",items:W.plan.items}]).map((b,bi)=>`${b.name?`<p class="blk">${esc(b.name)} <span>${fmt(Math.round(b.items.reduce((t,it)=>t+blockSecs(it),0)/5)*5)}</span></p>`:""}${b.items.map((it,ii)=>{const ex=LIBI[it.id];n++;return`<div class="ed"><span>${n}</span><span>${esc(ex.n)}</span><span class="rt"><span>${it.dose?esc(doseText(it).split(" · ")[0]):fmt(it.hold)+(ex.sides?" ×2":"")}</span><span class="pe"><button data-act="wSwap" data-b="${bi}" data-i="${ii}" aria-label="Swap ${esc(ex.n)}">${ic("reset")}</button><button data-act="wRm" data-b="${bi}" data-i="${ii}" aria-label="Remove ${esc(ex.n)}">${ic("x")}</button></span></span></div>`}).join("")}`).join("")})():`<div><span></span><span class="muted">No stretches match this equipment and time. Add equipment or pick more time.</span><span></span></div>`}</div>
     <button class="btn sec" data-act="wAdd">${ic("plus","")} Add Exercise</button>${afterCards(W.plan)}</div>`;
     cta=`<button class="btn" id="goBtn" data-act="letsGo" ${W.plan.items.length?"":"disabled"}>${W.plan.items.length?"Start":"Nothing to Play"}</button>`;
   }
@@ -5797,7 +5799,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="88998369";
+<script>window.RANGE_BUILD="6929385";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
