@@ -4072,6 +4072,19 @@ function buildPlan(o){
   // one shared order for every session: region by region, biggest load first; release, then stretch, then activation
   const ordered=regionOrder(blocks.flatMap(b=>b.items),o.kind,o.kind==="daily"?null:zd);blocks.length=0;blocks.push(...ordered);
   const items=blocks.flatMap(b=>b.items);
+  // land on the time you picked: whole exercises leave a gap (or overshoot), so the holds are tuned 5 s at a time until the
+  // session is within ~8 s of it. Limits: static holds before training stay at 30 s or less, moving drills up to 75 s,
+  // the Raise up to 5 min; long holds after training up to 2 min; nothing below 20 s
+  {const tot=()=>items.reduce((t,it)=>t+itemSecs(it),0);
+    const flex=items.filter(it=>!it.dose&&it.hold>0&&LIBI[it.id]).map(it=>{const ex=LIBI[it.id];
+      const cap=it.id==="r_raise"?300:o.kind==="activate"?(ex.dyn?75:30):o.kind==="recover"?120:90;return{it,per:ex.sides?2:1,cap:Math.max(cap,it.hold),min:Math.min(20,it.hold)}});
+    for(let guard=0;guard<600;guard++){const g=budget-tot();if(Math.abs(g)<=8)break;
+      const grow=g>0,c=flex.filter(f=>grow?f.it.hold+5<=f.cap&&f.per*5<=g+8:f.it.hold-5>=f.min).sort((a,b)=>grow?a.it.hold-b.it.hold||a.per-b.per:b.it.hold-a.it.hold);
+      if(!c.length)break;c[0].it.hold+=grow?5:-5}
+    // still short (a session of mostly strength drills): one more set where it fits, at most 4 sets
+    for(let guard=0;guard<6;guard++){const g=budget-tot();if(g<=20)break;
+      const opts=items.filter(it=>it.dose&&["reps","rephold","hold"].includes(it.dose.k)&&(it.dose.sets||1)<4).map(it=>{const before=itemSecs(it);it.dose.sets=(it.dose.sets||1)+1;const add=itemSecs(it)-before;it.dose.sets--;return{it,add}}).filter(x=>x.add<=g+8).sort((x,y)=>y.add-x.add);
+      if(!opts.length)break;opts[0].it.dose={...opts[0].it.dose,sets:(opts[0].it.dose.sets||1)+1}}}
   // a knee program: squats only to the depth that stays pain-free
   if(S.rehab&&S.rehab.region==="knee")items.forEach(it=>{if(it.dose&&/squat|r_ohs|a_sots/i.test(it.id+" "+LIBI[it.id].n)&&!/hold/i.test(LIBI[it.id].n)){it.dose={...it.dose,note:"To pain-free depth"};it.why=(it.why||"")+" Only as deep as your knee stays pain-free."}});
   // which exercises answer each movement (shown under "Why these?"), and after training every movement that something
