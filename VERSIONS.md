@@ -61,3 +61,4 @@ GitHub Pages serves it again within a minute or two. The app source lives outsid
 | 2026-11-08 | `2026-11-08_section-times.html` | Section headers show real times (40s, 1:45) instead of rounded minutes | deca9b6 |
 | 2026-11-08 | `2026-11-08_describe-pain.html` | Rebuild asks you to describe your pain; it helps pick the protocol | ce1f359 |
 | 2026-11-08 | `2026-11-08_rebuild-accuracy.html` | Rebuild protocol choice checked against blind clinical review (51/52); close-call note; better warnings | db2c25f |
+| 2026-11-08 | `2026-11-08_login-card.html` | New login page: floating card, plate medallion, button morph and fly-in to the app | 46c67be |
