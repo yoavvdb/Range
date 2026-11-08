@@ -2044,7 +2044,7 @@ function whyFor(ex,o,moves,ctx,parts,zd){
   if(o.kind==="recover")s+=ex.dyn?" Slow, easy movement helps you wind down.":" A long passive hold helps you wind down.";
   // said once per area, not on every card
   if(sc<40){const said=ctx.easySaid=ctx.easySaid||new Set();if(!said.has(sa)){said.add(sa);s+=" Start with Easy Mode on: the easier version on the card, with holds a quarter shorter."}}
-  const b=(S.sideBias||{})[a];if(b&&ex.sides)s+=` Your ${b==="L"?"left":"right"} side is tighter, so it gets 50% longer.`;
+
   return s;
 }
 /* ================= router ================= */
@@ -2440,9 +2440,8 @@ function say(t){if(!S.settings.voice)return;try{speechSynthesis.cancel();speechS
 function segsFor(it,i){
   const ex=LIBI[it.id],d=it.dose,out=[],first=i===0;
   if(!d){
-    const bias=(S.sideBias||{})[ex.a];
     const rbSide=S.rehab&&(S.rehab.side==="left"?"L":S.rehab.side==="right"?"R":null);
-    (ex.sides?(rbSide==="L"&&ex.roll?["Left side","Right side"]:["Right side","Left side"]):[null]).forEach((sd,k)=>{const tight=bias&&sd&&sd[0]===bias&&!(ex.roll&&rbSide===bias);out.push({type:"ready",i,side:sd,secs:first&&!k?S.settings.ready:5,label:k?"Switch sides":first?"Get ready":"Next up"});out.push({type:"hold",i,side:tight?sd+" · tighter, +50%":sd,hold:tight?Math.round(it.hold*1.5):it.hold})});
+    (ex.sides?(rbSide==="L"&&ex.roll?["Left side","Right side"]:["Right side","Left side"]):[null]).forEach((sd,k)=>{out.push({type:"ready",i,side:sd,secs:first&&!k?S.settings.ready:5,label:k?"Switch sides":first?"Get ready":"Next up"});out.push({type:"hold",i,side:sd,hold:it.hold})});
     return out;
   }
   out.push({type:"ready",i,secs:first?S.settings.ready:8,label:first?"Get ready":"Next up"});
@@ -5144,7 +5143,7 @@ function drawTest(){
       <p class="muted" style="margin:6px 0 0;font-size:calc(13px * var(--ts))">The squat counts less here, because tight ankles can hold it back too.</p></div>
     <div class="panel"><span class="eyebrow">Right vs left</span>${lr.map(q=>{const r=tScore(q,T.ans[q.id+"R"]),l=tScore(q,T.ans[q.id+"L"]),s=r<l?"R":l<r?"L":"";
       return`<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0"><span>${q.t}</span><span class="muted">Right ${r} · Left ${l}${s?` · <b style="color:var(--ink)">${SIDE_N[s]} is tighter</b>`:" · even"}</span></div>`}).join("")}
-      <p class="muted" style="margin:6px 0 0;font-size:calc(13px * var(--ts))">Each check is scored on its tighter side, and areas with several checks average them. One-sided stretches give the tighter side 50% more time.</p></div></div>
+      <p class="muted" style="margin:6px 0 0;font-size:calc(13px * var(--ts))">Each check is scored on its tighter side, and areas with several checks average them.</p></div></div>
     <div class="bottomcta"><button class="btn" data-act="testSave">Save My Scores</button><button class="link muted" style="justify-self:center;padding:4px 12px" data-act="testDiscard">Discard Results</button></div></div></div>`;
     return;
   }
