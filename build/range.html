@@ -326,6 +326,8 @@ textarea{font:inherit}.edex{gap:10px}.edhead{display:grid;grid-template-columns:
 .rbarea .rbfig{flex:none;width:64px;height:60px;border-radius:10px;background:var(--surface2);overflow:hidden;display:grid;place-items:center}.rbarea .rbfig svg,.rbarea .rbfig canvas{width:100%;height:100%}
 .rbarea .rbtx{flex:1;min-width:0;display:grid;gap:2px}.rbarea .rbtx small{font-weight:500;color:var(--muted);font-size:calc(13px * var(--ts));line-height:1.3}
 .rbarea>svg:last-child{flex:none;opacity:.5}
+.descbox{width:100%;box-sizing:border-box;min-height:150px;padding:14px;border-radius:var(--r-panel,18px);border:0;background:var(--surface);color:var(--ink);font:inherit;font-size:16px;line-height:1.45;resize:vertical;box-shadow:inset 0 0 0 1px var(--line)}.descbox:focus{outline:2px solid var(--accent);outline-offset:1px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .painrow{display:grid;grid-template-columns:repeat(11,1fr);gap:4px}
 .pain{min-height:42px;border-radius:8px;background:var(--surface2);font-weight:800;font-variant-numeric:tabular-nums}
 .pain.on.plo{background:var(--good);color:#06150E}.pain.on.pmid{background:var(--warn);color:#1A1205}.pain.on.phi{background:var(--bad);color:#1A0606}
@@ -2118,13 +2120,13 @@ function render(){
   if(TOUR)requestAnimationFrame(()=>tourPlace());
 }
 // the Rebuild safety check and self-screen are kept as you go, so a reload or a closed tab comes back to the same question
-const RB_SCREENS=/^rb(flags|screen|result)$/;
+const RB_SCREENS=/^rb(flags|desc|screen|result)$/;
 function rbKeepDraft(name){if(TOUR)return;
-  if(RB_SCREENS.test(name)&&RB){S.rbDraft={r:RB.r,flags:[...RB.flags],step:RB.step,ans:RB.ans,first:RB.first||null,sub:RB.sub||null,screen:name,at:Date.now()};save()}
+  if(RB_SCREENS.test(name)&&RB){S.rbDraft={r:RB.r,flags:[...RB.flags],step:RB.step,ans:RB.ans,first:RB.first||null,sub:RB.sub||null,desc:RB.desc||"",screen:name,at:Date.now()};save()}
   else if(S.rbDraft&&rbRestored&&!RB_SCREENS.test(name)){delete S.rbDraft;save()}}
 let rbRestored=false;
 function rbRestore(){const d=S.rbDraft;rbRestored=true;if(!d||!REGIONS[d.r]||Date.now()-(d.at||0)>7*864e5||S.rehab&&S.rehab.region===d.r&&S.rehab.started>d.at)return false;
-  RB={r:d.r,flags:new Set(d.flags||[]),step:Math.min(d.step||0,REGIONS[d.r].screens.length-1),ans:d.ans||[],first:d.first||undefined,sub:d.sub||undefined};
+  RB={r:d.r,flags:new Set(d.flags||[]),step:Math.min(d.step||0,REGIONS[d.r].screens.length-1),ans:d.ans||[],first:d.first||undefined,sub:d.sub||undefined,desc:d.desc||""};
   stack=[{name:"rebuild",p:{}},{name:"rbflags",p:{}}];if(d.screen!=="rbflags")stack.push({name:d.screen,p:{}});return true}
 const SCREENS={},AFTER={};
 // arriving on Profile, the score counts up and its bars grow (once per visit, not on every refresh)
@@ -4737,7 +4739,7 @@ function rbDash(st,R,C,phs,ph,stt,items,pane){
   <div class="rbguide">${[["do","check","Do"],["avoid","x","Avoid"],["physio","heart","See a Physio"]].map(([k,i,n])=>`<button class="tile" data-act="rbGuide" data-k="${k}">${ic(i)}<b>${n}</b></button>`).join("")}</div>
   ${myProtosPanel()}`}
 ACT.rbGuide=d=>{const st=S.rehab;if(!st)return;const R=REGIONS[st.region],C=R.classes[st.cls];
-  const L=d.k==="do"?["Do",`<ul class="tick">${C.habits.map(h=>`<li>${esc(h)}</li>`).join("")}</ul>`]
+  const L=d.k==="do"?["Do",`${st.desc?`<p class="muted" style="margin:0 0 10px;font-style:italic">You described: “${esc(st.desc)}”</p>`:""}<ul class="tick">${C.habits.map(h=>`<li>${esc(h)}</li>`).join("")}</ul>`]
    :d.k==="avoid"?["Avoid",`<ul class="cross">${C.avoid.map(h=>`<li>${esc(h)}</li>`).join("")}</ul>${(st.notes||[]).map(n=>`<div class="note-warn">${esc(n)}</div>`).join("")}`]
    :["See a Physio If",`<ul class="cross">${[...R.urgent,...R.doctor,"Pain is getting worse week to week","There's no real change after 3 weeks"].map(h=>`<li>${esc(h)}</li>`).join("")}</ul>`];
   sheet(`<h3>${L[0]}</h3><div class="scroll">${L[1]}</div><button class="btn sec" data-act="closeSheet">Close</button>`)};
@@ -4793,7 +4795,57 @@ SCREENS.rbflags=()=>{
   </div><div class="bottomcta">${urgent?`<button class="btn sec" data-act="back">Back</button>`:doc?`<button class="btn" data-act="rbGoScreen">I've Been Checked, Continue</button>`:`<button class="btn sec" data-act="rbGoScreen">None of These Apply</button>`}</div>`;
 };
 ACT.rbFlag=d=>{RB.flags.has(d.k)?RB.flags.delete(d.k):RB.flags.add(d.k);render()};
-ACT.rbGoScreen=()=>{RB.step=0;RB.first=S.rehab&&S.rehab.region===RB.r&&S.rehab.side==="left"?"L":"R";RB.sub=RB.first;RB.ans=[];go("rbscreen",{})};
+ACT.rbGoScreen=()=>{RB.desc=RB.desc||"";go("rbdesc",{})};
+ACT.rbDescGo=()=>{const ta=$("#rbDesc");RB.desc=ta?ta.value.trim():RB.desc||"";const rd=rbReadDesc(RB.r,RB.desc);
+  RB.step=0;RB.first=rd.side||(S.rehab&&S.rehab.region===RB.r&&S.rehab.side==="left"?"L":"R");RB.sub=RB.first;RB.ans=[];go("rbscreen",{})};
+ACT.rbDescAdd=d=>{const ta=$("#rbDesc");if(!ta)return;const v=ta.value.trim();ta.value=(v?v+(/[.!?]$/.test(v)?" ":". "):"")+d.t;RB.desc=ta.value;ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length)};
+SCREENS.rbdesc=()=>{const R=REGIONS[RB.r];
+  return hdr()+`<div class="stack" style="padding-top:4px">
+   <span class="eyebrow">Rebuild · ${esc(R.n)} · Your words</span><h2>Describe Your Pain</h2>
+   <p class="muted" style="margin:0">Where exactly does it hurt, and when? What makes it worse or better? How long has it been going on? The more specific, the better your program fits.</p>
+   <label class="sr" for="rbDesc">Your description</label>
+   <textarea id="rbDesc" class="descbox" rows="6" placeholder="${esc(RB_DESC_EX[RB.r]||"For example: it hurts when…")}">${esc(RB.desc||"")}</textarea>
+   <div class="stack" style="gap:6px"><span class="eyebrow">Tap to add</span><div class="chipset">${["It hurts when I","It's worse in the morning","It's worse after training","It started","Sitting makes it worse","It warms up and eases","It's on my left side","It's on my right side"].map(t=>`<button class="chip" data-act="rbDescAdd" data-t="${esc(t)}">${ic("plus")}${esc(t)}</button>`).join("")}</div></div>
+   <p class="muted" style="margin:0;font-size:calc(13px * var(--ts))">Stays on your phone. Range reads it to fit your program and keeps it with the program.</p>
+  </div><div class="bottomcta"><button class="btn sec" data-act="rbDescGo">Skip</button><button class="btn" data-act="rbDescGo">Continue</button></div>`};
+// typical words for each pattern (lower case). A match adds a vote to that pattern; the self-screen still leads
+const RB_DESC_EX={back:"For example: my lower back hurts when I bend to tie my shoes and after sitting for an hour. Deadlifts make it worse; walking eases it.",
+  knee:"For example: the spot just below my kneecap hurts when I land jumps and going down stairs. It eases once I warm up.",
+  hip:"For example: I feel a pinch at the front of my right hip at the bottom of a squat.",
+  shoulder:"For example: my left shoulder hurts in the catch of a snatch and when I kip.",
+  elbow:"For example: the outside of my elbow hurts when I grip the bar for pull-ups.",
+  achilles:"For example: my right Achilles is stiff in the morning and hurts a few centimetres above the heel after double-unders."};
+const RB_DESC_RULES={
+ back:{flexion:[/bend(ing)? (forward|over|down)|ty(e|ing) (my )?shoe|put(ting)? on (my )?socks|sitting|after sit|rounding|round(ed)? back|off the floor|deadlift|picking (things )?up|lifting|morning/,"bending and sitting"],
+   extension:[/arch(ing)?|lean(ing)? back|standing (for|long)|after stand|walking (a lot|for)|overhead|lying on (my )?(stomach|front)|back ?bend|cobra/,"arching and standing"],
+   rotation:[/twist|rotat|turning|golf|one leg behind|split jerk|lunge|kip/,"twisting"],
+   load:[/jump|land|running|impact|heavy|carry|box jump|double.?unders|squat(ting)? heavy|compress/,"impact and heavy load"]},
+ knee:{tendon:[/(below|under|bottom of) (the |my )?(left |right )?kneecap|patellar tendon|tendon|jump|land(ing)?|down ?stairs|going down|warms? up|eases? once|start of/,"below the kneecap, jumping and landing"],
+   control:[/cave|caving|knee(s)? (fall|go|goes|drift) in|single.?leg|pistol|lunge|wobbl|unstable|gives? way|around (the |my )?(left |right )?kneecap|side of (the |my )?(left |right )?knee/,"the knee drifting in, single-leg work"],
+   mobility:[/stiff ankle|ankle|deep squat|bottom of (the |a )?squat|tight (hip|ankle)|can.?t squat deep/,"deep squats and stiff ankles or hips"]},
+ hip:{pinch:[/pinch|front of (the |my )?(right |left )?hip|hip crease|bottom of (the |a )?squat|deep squat|knee to (my )?chest/,"a pinch at the front of the hip in deep bending"],
+   flexor:[/hip flexor|lift(ing)? (my )?(knee|leg)|sprint|toes.?to.?bar|v.?ups?|leg raises?|running/,"lifting the knee and sprinting"],
+   lateral:[/(outside|side) of (the |my )?(right |left )?hip|lying on (my |that )?side|sleep(ing)? on|up ?stairs|standing on one leg/,"the side of the hip, lying on it"],
+   groin:[/groin|inner thigh|adductor|wide stance|sumo|cossack|lateral lunge|side lunge/,"the groin and wide stances"],
+   hamtendon:[/sit ?bones?|sitting bones?|bottom of (my )?(butt|glute)|where (the )?hamstring|high hamstring|sitting on|deadlift|rdl|good morning/,"the sit bone, sitting and hinging"],
+   shortpiri:[/deep in (my |the )?(butt|glute)|piriformis|sciatic|down the (back of (my |the )?)?leg|sitting on (a )?hard/,"deep in the buttock, sitting"],
+   longpiri:[/knees? (cave|caves|falls? in|goes in)|crossing (my )?legs|cross(ed)? leg/,"the knee falling in"]},
+ shoulder:{mobility:[/overhead|snatch|jerk|reach(ing)? up|stiff|tight|front rack|lats/,"overhead positions and stiffness"],
+   stability:[/push.?ups?|dips?|bench|kip|muscle.?ups?|hanging|ring|unstable|loose|slips?|pops? out|catch/,"pressing, hanging and the catch"],
+   coordination:[/click|clunk|halfway up|painful arc|lift(ing)? my arm|raising my arm|arm (goes )?up/,"a painful spot as the arm goes up"]},
+ elbow:{lateral:[/outside of (the |my )?(right |left )?elbow|outer elbow|tennis|grip(ping)?|pull.?ups?|lifting a (cup|kettle)|mouse|typing|wrist (bent )?back/,"the outer elbow and gripping"],
+   medial:[/inside of (the |my )?(right |left )?elbow|inner elbow|golfer|front rack|throw(ing)?|curl/,"the inner elbow and front rack"]},
+ achilles:{midportion:[/above the heel|middle of the tendon|cm above|thick(er)?|double.?unders|running|hills?|jump|morning stiff/,"above the heel, running and jumping"],
+   insertional:[/heel bone|back of (the |my )?heel|where (it|the tendon) (attaches|meets|joins)|shoes? rub|uphill|stretch(ing)? (makes|hurts)|bump on (the |my )?heel/,"at the heel bone"]}};
+// words that need a professional look, whatever the region
+const RB_DESC_WARN=/numb|tingl|pins and needles|night pain|wakes? me|at night|can.?t sleep|fever|losing weight|weight loss|bladder|bowel|fell|a fall|accident|popped|a pop|can.?t (bear|put) weight|swollen|swell(s|ing)?|bruis|getting worse every|gives? way|locks?|locking/;
+function rbReadDesc(r,text){const t=" "+String(text||"").toLowerCase()+" ",out={votes:{},hits:[],side:null,warn:[],since:null};if(!t.trim())return out;
+  for(const[cls,[re,why]]of Object.entries(RB_DESC_RULES[r]||{})){const m=t.match(new RegExp(re.source,"g"));if(m){out.votes[cls]=Math.min(2,m.length);out.hits.push({cls,why,words:[...new Set(m.map(x=>x.trim()))].slice(0,3)})}}
+  const sm=t.match(/\b(left|right)\b(?=\s*(side|knee|hip|shoulder|elbow|heel|leg|arm|achilles|calf|glute|butt|groin|back|thigh)|\s*$|[.,])|on (the|my) (left|right)/);
+  if(sm){const w=(sm[0].match(/left|right/)||[])[0];out.side=w==="left"?"L":w==="right"?"R":null}
+  const wm=t.match(new RegExp(RB_DESC_WARN.source,"g"));if(wm)out.warn=[...new Set(wm.map(x=>x.trim()))];
+  const dm=t.match(/(\d+|a few|a couple of|several)\s*(day|week|month|year)s?/);if(dm)out.since=dm[0];
+  return out}
 // one-sided screens start on the sore side
 ACT.rbFirst=()=>{RB.first=RB.first==="L"?"R":"L";RB.sub=RB.first;render()};
 SCREENS.rbscreen=()=>{
@@ -4817,9 +4869,10 @@ function rbClassify(){
   R.screens.forEach((q,i)=>{let a=RB.ans[i];
     if(q.side&&a&&typeof a==="object"){const oR=q.o[a.R],oL=q.o[a.L];sideW.R+=w(oR);sideW.L+=w(oL);a=w(oL)>w(oR)?a.L:a.R}
     const o=q.o[a];if(!o)return;for(const[k,v]of Object.entries(o[1])){if(k.startsWith("_"))flags[k]=1;else votes[k]=(votes[k]||0)+v}});
+  const rd=rbReadDesc(RB.r,RB.desc);for(const[k,v]of Object.entries(rd.votes))if(R.classes[k])votes[k]=(votes[k]||0)+v;
   const keys=Object.keys(R.classes),best=keys.slice().sort((a,b)=>(votes[b]||0)-(votes[a]||0))[0];
-  const side=sideW.R>sideW.L?"right":sideW.L>sideW.R?"left":sideW.R>0?"both":null;
-  return{cls:best,clear:(votes[best]||0)>0,votes,flags,side};
+  let side=sideW.R>sideW.L?"right":sideW.L>sideW.R?"left":sideW.R>0?"both":null;if(!side&&rd.side)side=rd.side==="L"?"left":"right";
+  return{cls:best,clear:(votes[best]||0)>0,votes,flags,side,desc:rd};
 }
 SCREENS.rbresult=()=>{
   const R=REGIONS[RB.r],res=rbClassify(),C=R.classes[res.cls],phs=rbPhases(R,res.cls),notes=[];
@@ -4832,12 +4885,16 @@ SCREENS.rbresult=()=>{
    <p style="margin:0">${esc(C.why)}</p>
    ${res.clear?"":`<div class="note-warn">No clear pattern came out of the screen. This is the closest match. If the plan doesn't help within 2 weeks, see a physiotherapist.</div>`}
    ${notes.map(n=>`<div class="note-warn">${esc(n)}</div>`).join("")}
+   ${res.desc&&res.desc.warn.length?`<div class="note-warn"><b>Get this checked.</b> You mentioned ${esc(res.desc.warn.slice(0,3).join(", "))}. That can need a physiotherapist or doctor before an exercise program.</div>`:""}
+   ${RB.desc?`<div class="panel descread"><h3>From Your Description</h3><p class="muted" style="margin:0;font-style:italic">“${esc(RB.desc.length>220?RB.desc.slice(0,218)+"…":RB.desc)}”</p>
+     ${res.desc.hits.length?`<ul class="tick">${res.desc.hits.map(h=>`<li><b>${esc(R.classes[h.cls].n)}</b>: you mentioned ${esc(h.words.join(", "))}</li>`).join("")}</ul><p class="muted" style="margin:0;font-size:calc(13px * var(--ts))">These counted alongside your test answers.</p>`:`<p class="muted" style="margin:0;font-size:calc(13px * var(--ts))">Nothing in it changed the result; your test answers decided it. It's saved with your program.</p>`}
+     ${res.desc.since?`<p class="muted" style="margin:0;font-size:calc(13px * var(--ts))">Going on for ${esc(res.desc.since)}.</p>`:""}</div>`:""}
    <div class="panel"><h3>The Plan</h3>${phs.map((p,i)=>`<div class="phrow"><span class="n">${i+1}</span><span><b>${esc(p.n)}</b><small>${esc(p.goal)} At least ${p.min} days.</small></span></div>`).join("")}</div>
    <div class="panel"><h3>For Now, Do</h3><ul class="tick">${C.habits.map(h=>`<li>${esc(h)}</li>`).join("")}</ul><h3>For Now, Avoid</h3><ul class="cross">${C.avoid.map(h=>`<li>${esc(h)}</li>`).join("")}</ul></div>
   </div><div class="bottomcta"><button class="btn" data-act="rbBegin">Start This Program</button></div>`;
 };
 ACT.rbMin=d=>{if(!S.rehab)return;S.rehab.minutes=+d.m;save();render()};
-ACT.rbBegin=()=>{const now=Date.now();delete S.rbDraft;S.rehab={region:RB.r,cls:RB.result.cls,side:RB.result.side||null,votes:RB.result.votes||{},minutes:(S.rehab&&S.rehab.minutes)||20,phase:0,started:now,phaseStart:now,logs:[],notes:RB.result.notes};save();stack=[{name:"rebuild",p:{}}];render();scrollTo(0,0)};
+ACT.rbBegin=()=>{const now=Date.now();delete S.rbDraft;S.rehab={region:RB.r,cls:RB.result.cls,side:RB.result.side||null,votes:RB.result.votes||{},minutes:(S.rehab&&S.rehab.minutes)||20,phase:0,started:now,phaseStart:now,logs:[],notes:RB.result.notes,desc:RB.desc||""};save();stack=[{name:"rebuild",p:{}}];render();scrollTo(0,0)};
 ACT.rbNext=()=>{S.rehab.phase++;S.rehab.phaseStart=Date.now();save();render()};
 ACT.rbEnd=()=>sheet(`<h3>End this program?</h3><div class="scroll"><p class="muted" style="margin:0">Your pain log for this program will be deleted.</p></div><div style="display:grid;gap:8px"><button class="btn" style="background:var(--bad)" data-act="rbEndYes">End Program</button><button class="btn sec" data-act="closeSheet">Keep Going</button></div>`);
 ACT.rbEndYes=()=>{S.rehab=null;save();closeSheet();render()};
