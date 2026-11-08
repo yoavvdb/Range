@@ -2941,8 +2941,8 @@ Object.assign(FIGS,{
 
 addStretches([
  
- {id:"c_goodmorn",n:"Good morning (PVC)",a:"posterior",z:["hamstrings","glutes","lowback"],eq:["pipe"],pose:"fold",hold:40,sides:0,dyn:1,
-  stim:"Stretch in the hamstrings while the back muscles hold the spine flat",
+ {id:"c_goodmorn",n:"Good morning (PVC)",a:"posterior",z:["glutes","hamstrings","lowback"],eq:["pipe"],pose:"fold",hold:40,sides:0,dyn:1,act:1,
+  stim:"Glutes, hamstrings and the muscles along the spine working to keep the back flat as you hinge and drive back up",
   c:["PVC across the upper back, knees soft","Push the hips back until the chest is near parallel","Keep the back flat, then drive the hips forward to stand"],
   easy:"Hinge only to where the back starts to round."},
  
@@ -3704,7 +3704,7 @@ const CORE_PREP=[["r_birddog",D_.rep(1,3,10,1),"Brace first, then move the limbs
 const END_RANGE={
  ankles:[["r_goblethold",D_.rep(1,5,5)],["d_heelsq",D_.reps(2,8,{tempo:[3,2,1]})],["d_tibraise",D_.reps(2,15)],["r_touchdown",D_.reps(2,8,{sides:1})],["r_bwsquat",D_.reps(2,10,{tempo:[3,2,1],note:"Heels down, pause at the bottom"})]],
  hips:[["b_9090ir",D_.reps(2,8,{sides:1})],["d_atgsplit",D_.reps(2,8,{sides:1,tempo:[3,1,1]})],["r_goblethold",D_.rep(2,5,5)],["r_bwsquat",D_.reps(2,10,{tempo:[3,2,1],note:"Pause at the bottom"})],["r_copenhagen",D_.rep(1,6,5,1)],["r_slrdl",D_.reps(2,8,{sides:1,tempo:[3,1,1]})]],
- posterior:[["r_slrdl",D_.reps(2,8,{sides:1,tempo:[3,1,1]})],["r_hinge",D_.reps(2,10,{tempo:[3,1,1]})],["c_backext",D_.reps(2,10)],["c_superman",D_.hold(2,20)],["r_slbridge",D_.rep(2,8,5,1)]],
+ posterior:[["r_slrdl",D_.reps(2,8,{sides:1,tempo:[3,1,1]})],["c_goodmorn",D_.reps(2,8,{tempo:[3,1,1]})],["r_hinge",D_.reps(2,10,{tempo:[3,1,1]})],["c_backext",D_.reps(2,10)],["c_superman",D_.hold(2,20)],["r_slbridge",D_.rep(2,8,5,1)]],
  thoracic:[["r_proneY",D_.reps(2,8)],["c_backext",D_.reps(2,10)],["r_row",D_.reps(2,10)]],
  shoulders:[["a_pullapart",D_.reps(2,15)],["r_ser",D_.reps(2,12,{sides:1,tempo:[1,0,3]})],["r_bandw",D_.reps(2,12)],["a_scappush",D_.reps(2,10)],["r_proneY",D_.reps(2,8)]],
  overhead:[["a_sots",D_.reps(2,6)],["w_wallohs",D_.reps(2,6,{tempo:[3,1,1]})],["a_wallserr",D_.reps(2,10)],["r_proneY",D_.reps(2,8)],["r_scappull",D_.reps(2,6)]],
@@ -5797,7 +5797,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="36243318";
+<script>window.RANGE_BUILD="88998369";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
