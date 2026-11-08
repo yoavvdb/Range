@@ -57,3 +57,4 @@ GitHub Pages serves it again within a minute or two. The app source lives outsid
 | 2026-11-07 | `2026-11-07_wall-squat-activation.html` | Wall-facing overhead squat moves from stretches to activation (overhead squat, snatch, thruster, wall ball warm-ups) | 476066f |
 | 2026-11-08 | `2026-11-08_exact-time.html` | Sessions last the time you picked (10 min is 10 min) | cd53726 |
 | 2026-11-08 | `2026-11-08_equal-sides.html` | One-sided stretches hold equally long on both sides | acabd32 |
+| 2026-11-08 | `2026-11-08_goodmorning-activation.html` | Good morning (PVC) moves from stretches to activation | 8e28e68 |
