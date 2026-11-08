@@ -748,7 +748,10 @@ body.touring .carousel .pcard{height:clamp(220px,32vh,320px)}
 .ls[data-p=apple] svg{fill:#000;margin-top:-2px}
 .lswitch{margin:0;text-align:center;color:rgba(246,241,232,.75);font-size:calc(14px * min(var(--ts),1.2))}.lswitch .llink{color:#f6b43a}
 .loff{width:100%;margin-top:14px;display:grid;gap:6px;justify-items:center;font-size:13px;color:#6b6257;text-align:center}.loff .ic{width:18px;height:18px}
-.lveil{position:fixed;inset:0;z-index:60;background:#f6f1e8;pointer-events:none}
+.lrim{position:fixed;z-index:60;border-radius:50%;pointer-events:none;transform-origin:50% 50%;will-change:transform;
+  background:conic-gradient(from 210deg,#2b2b2e,#4a4a4f 18%,#1d1d20 36%,#3d3d42 58%,#18181b 78%,#2b2b2e);
+  -webkit-mask:radial-gradient(circle,transparent 52%,#000 53%);mask:radial-gradient(circle,transparent 52%,#000 53%);
+  box-shadow:0 10px 22px rgba(0,0,0,.28)}
 @media (prefers-reduced-motion:reduce){.lsun{animation:none}.lgo .lspin{animation-duration:2s}}
 </style>
 
@@ -5659,19 +5662,22 @@ function gateDraw(keep){const g=gateHost(),G=GATE;
   if(OAUTH_ERR){const mm=$("#sbMsg");mm.className="c-bad";mm.textContent=OAUTH_ERR;OAUTH_ERR=""}
 }
 ACT.pwEye=(d,el)=>{const f=$("#sbF");if(!f)return;const on=f.password.type==="password";f.password.type=on?"text":"password";el.classList.toggle("on",on);el.setAttribute("aria-label",on?"Hide password":"Show password")};
-// logged in: the button turns into a check, the card falls away and the plate grows to fill the screen, then the app appears
-async function gateFly(){const btn=$("[data-act=sbGo]"),pl=$("#lplate"),cd=$("#lcard");if(btn){btn.classList.remove("busy");btn.classList.add("done")}
-  if(REDUCED||!pl)return;await new Promise(r=>setTimeout(r,420));
-  try{const r=pl.getBoundingClientRect(),cx=innerWidth/2-(r.left+r.width/2),cy=innerHeight/2-(r.top+r.height/2),k=Math.hypot(innerWidth,innerHeight)/r.width*1.15;
-    cd.querySelectorAll(":scope > :not(#lplate)").forEach(e=>e.animate([{opacity:1},{opacity:0}],{duration:220,fill:"forwards"}));
-    cd.animate([{backgroundColor:getComputedStyle(cd).backgroundColor,boxShadow:getComputedStyle(cd).boxShadow},{backgroundColor:"rgba(246,241,232,0)",boxShadow:"0 0 0 rgba(0,0,0,0)"}],{duration:260,fill:"forwards"});
-    const mk=pl.querySelector(".gmark");if(mk)mk.animate([{opacity:1,transform:"none"},{opacity:0,transform:"scale(.6)"}],{duration:200,fill:"forwards"});
-    // a copy of the plate above everything, so it grows past the card to fill the screen
-    const fl=pl.cloneNode(true);fl.removeAttribute("id");Object.assign(fl.style,{position:"fixed",left:r.left+"px",top:r.top+"px",width:r.width+"px",height:r.height+"px",margin:"0",zIndex:"61"});
-    document.body.appendChild(fl);pl.style.visibility="hidden";const fm=fl.querySelector(".gmark");if(fm)fm.style.opacity="0";
-    await fl.animate([{transform:"none"},{transform:`translate(${cx}px,${cy}px) scale(${k})`}],{duration:560,easing:"cubic-bezier(.65,0,.35,1)",fill:"forwards"}).finished;
-    setTimeout(()=>fl.remove(),80)}catch(e){}
-  const v=document.createElement("div");v.className="lveil";document.body.appendChild(v);setTimeout(()=>{try{v.animate([{opacity:1},{opacity:0}],{duration:420,easing:"ease-out"}).onfinish=()=>v.remove()}catch(e){v.remove()}},60)}
+// logged in: the button turns into a check; then (afterIn) the app is drawn under the login page and opens up through the plate
+async function gateDone(){const btn=$("[data-act=sbGo]");if(btn){btn.classList.remove("busy");btn.classList.add("done")}if(GATE)GATE.reveal=1;
+  if(!REDUCED)await new Promise(r=>setTimeout(r,380))}
+// the plate's face becomes a window onto the app: the login page is masked by a growing circle, the plate's rubber rim rides its edge
+function gateReveal(){return new Promise(done=>{const g=$("#gate"),pl=$("#lplate");if(!g||!pl||REDUCED){done();return}
+  const r=pl.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,face=r.width/2*.52,R=Math.hypot(Math.max(cx,innerWidth-cx),Math.max(cy,innerHeight-cy))+r.width;
+  const cd=$("#lcard");cd.querySelectorAll(":scope > :not(#lplate)").forEach(e=>{try{e.animate([{opacity:1},{opacity:0}],{duration:180,fill:"forwards"})}catch(x){}});
+  const sw=$(".lswitch");if(sw)sw.style.opacity="0";
+  const ring=document.createElement("div");ring.className="lrim";Object.assign(ring.style,{left:r.left+"px",top:r.top+"px",width:r.width+"px",height:r.height+"px"});document.body.appendChild(ring);
+  pl.style.visibility="hidden";
+  const t0=performance.now(),D=720,ease=u=>u<.5?4*u*u*u:1-Math.pow(-2*u+2,3)/2;
+  const step=now=>{const u=Math.min(1,(now-t0)/D),e=ease(u),h=face+(R-face)*e;
+    const m=`radial-gradient(circle at ${cx}px ${cy}px, transparent ${h}px, #000 ${h+1}px)`;g.style.webkitMaskImage=m;g.style.maskImage=m;
+    ring.style.transform=`scale(${h/face})`;ring.style.opacity=String(1-Math.max(0,(e-.7)/.3));
+    if(u<1)requestAnimationFrame(step);else{ring.remove();done()}};
+  requestAnimationFrame(step)})}
 ACT.sbOAuth=async d=>{const p=d.p,name=OAUTH_NAME[p],msg=$("#sbMsg"),btns=[...document.querySelectorAll("[data-act=sbOAuth]")];
   const say=(t,c)=>{if(msg){msg.className=c;msg.textContent=t}},bad=t=>{say(t,"c-bad");btns.forEach(b=>b.disabled=false)};
   btns.forEach(b=>b.disabled=true);say(`Opening ${name}…`,"muted");
@@ -5691,7 +5697,7 @@ if(NATIVE&&Capacitor.Plugins.App){const B=Capacitor.Plugins.Browser,reset=()=>do
     const show=t=>{if(!GATE)gateShow("in");reset();const mm=$("#sbMsg");if(mm){mm.className="c-bad";mm.textContent=t}};
     if(!code)return show(err&&/cancel|denied/i.test(err)?"Sign-in was cancelled.":"Couldn't finish signing in. Please try again.");
     const mm=$("#sbMsg");if(mm){mm.className="muted";mm.textContent="Signing in…"}
-    try{await sbLoad();const r=await SB.auth.exchangeCodeForSession(code);if(r.error)throw r.error;await gateIn(r.data.user||r.data.session.user)}
+    try{await sbLoad();const r=await SB.auth.exchangeCodeForSession(code);if(r.error)throw r.error;if(GATE)GATE.reveal=1;await gateIn(r.data.user||r.data.session.user)}
     catch(e){show(sbNet(e)?"Couldn't reach the server. Check your connection and try again.":"Couldn't finish signing in. Please try again.")}})}
 ACT.gateMode=d=>{const f=$("#sbF");if(f)GATE.email=f.email.value.trim();GATE.m=d.m;GATE.step="form";gateDraw()};
 ACT.gateOffline=()=>{GATE_SKIPPED=true;gateClose();stack=[{name:"home",p:{}}];render()};
@@ -5711,7 +5717,7 @@ ACT.sbGo=async()=>{const f=$("#sbF");if(!f||!GATE)return;const m=GATE.m,email=f.
     // with email confirmation on, an address that already has an account comes back with no identities
     if(m==="up"&&r.data.user&&Array.isArray(r.data.user.identities)&&!r.data.user.identities.length){GATE.m="in";gateDraw(true);const mm=$("#sbMsg");mm.className="c-bad";mm.textContent="There's already an account with this email. Sign in, or use Forgot your password.";return}
     if(m==="up"&&!r.data.session){GATE.pw=password;GATE.step="check";gateDraw();return}
-    await gateFly();await gateIn(r.data.user||(r.data.session&&r.data.session.user))}
+    await gateDone();await gateIn(r.data.user||(r.data.session&&r.data.session.user))}
   catch(e){if(sbNet(e)){GATE.net=true;gateDraw(true);const mm=$("#sbMsg");mm.className="c-bad";mm.textContent="Couldn't reach the server. Check your connection, or continue offline.";return}bad(sbNice(e))}};
 ACT.gateConfirmed=async()=>{const msg=$("#sbMsg"),btn=$("[data-act=gateConfirmed]");btn.disabled=true;msg.className="muted";msg.textContent="Signing in…";
   try{await sbLoad();const r=await SB.auth.signInWithPassword({email:GATE.email,password:GATE.pw||""});if(r.error)throw r.error;await gateIn(r.data.user)}
@@ -5729,6 +5735,8 @@ async function gateIn(user){SBU=user;SB_OFFLINE=false;GATE_SKIPPED=false;try{loc
 function afterIn(){
   if(!S.onboarded&&usedRange(S)){S.onboarded=true;save()} // used Range before accounts, or on another device
   if(!S.onboarded){obStart();return}
+  // after logging in on the login page: Today is drawn under it first, then it opens up through the plate
+  if(GATE&&GATE.reveal&&!REDUCED&&document.getElementById("lplate")){stack=[{name:"home",p:{}}];render();window.scrollTo(0,0);gateReveal().then(()=>{gateClose();tourOwed()});return}
   gateClose();stack=[{name:"home",p:{}}];render();window.scrollTo(0,0);tourOwed()}
 ACT.signOutAsk=()=>sheet(`<h3>Sign Out of Range?</h3><div class="scroll"><p style="margin:0">Your tests, sessions and routines are saved to your account${SBU&&SBU.email?` (<b>${esc(SBU.email)}</b>)`:""}. They're removed from this phone and come back when you sign in.</p></div>
   <div style="display:grid;gap:8px"><button class="btn danger" data-act="signOutGo">Sign Out</button><button class="btn sec" data-act="closeSheet">Cancel</button></div>`);
