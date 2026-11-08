@@ -55,3 +55,4 @@ GitHub Pages serves it again within a minute or two. The app source lives outsid
 | 2026-11-07 | `2026-11-07_demo-fixes.html` | 10 exercise demos fixed after demo QA (cat-cow, side plank thread-through, Pallof press and more); trunk follows the spine curve | 962b24f |
 | 2026-11-07 | `2026-11-07_program-signup.html` | Sign-up asks CrossFit athletes their program (RX-Club, FBB…); tour shows how to change it | 5f81c51 |
 | 2026-11-07 | `2026-11-07_wall-squat-activation.html` | Wall-facing overhead squat moves from stretches to activation (overhead squat, snatch, thruster, wall ball warm-ups) | 476066f |
+| 2026-11-08 | `2026-11-08_exact-time.html` | Sessions last the time you picked (10 min is 10 min) | cd53726 |
