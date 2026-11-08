@@ -3528,7 +3528,7 @@ const REGIONS={
   screens:[
    {q:"Where exactly does it hurt?",o:[["Bottom tip of the kneecap or the tendon below it",{tendon:3}],["Just above the kneecap",{tendon:3}],["Around the kneecap, and it moves around",{control:2}],["On the outside of the knee",{control:2}]]},
    {q:"Do 10 jumps in place on both legs, then 10 hops on one leg.",o:[["Pain climbs with the jumps and stays in one spot",{tendon:3}],["Pain moves around or doesn't really change",{control:2}],["No pain",{}]]},
-   {q:"Do a single-leg squat in front of a mirror. Does the knee cave in or the hip drop? Does it hurt less when you push the hips back and grip the floor?",o:[["Yes, and fixing it helps",{control:3}],["It caves, but fixing it doesn't help",{control:1}],["No, it stays straight",{}]]},
+   {q:"Do a single-leg squat in front of a mirror. Does the knee cave in or the hip drop? Does it hurt less when you push the hips back and grip the floor?",o:[["Yes, and fixing it helps",{control:3}],["It caves, but fixing it doesn't help",{control:1}],["No, it stays straight",{control:-2}]]},
    {q:"Knee-to-wall test: toes 12 cm (5 in) from the wall. Can the knee touch with the heel down?",o:[["No",{mobility:2}],["Yes",{}]]},
    {q:"Lying on your back, compare how far each hip rotates in and out (with a friend's help). Big difference?",o:[["Yes, clearly different",{mobility:2}],["About the same",{}]]},
   ],
@@ -3583,7 +3583,7 @@ const REGIONS={
    shortpiri:[{n:"Release and stretch",goal:"Lengthen the short deep rotator.",min:7,freq:"Daily",items:[["r_fig4",D_.hold(3,30,1)],["h2",D_.hold(3,30,1)]],exit:"Hip rotation equal on both sides."},{n:"Strength",goal:"Keep the new range with glute work.",min:14,freq:"3–4 times a week",items:[["r_bridge",D_.rep(2,20,5)],["r_bandwalk",D_.reps(3,20)]],exit:"Sitting and squatting pain-free.",last:true}],
    longpiri:[{n:"Glute control",goal:"Strengthen instead of stretch.",min:7,freq:"Daily",items:[["r_bandsquat",D_.hold(5,30)],["r_bridge",D_.rep(2,20,5)]],exit:"Pain settling with daily activity."},{n:"Knee control",goal:"Stop the knee caving that strains the muscle.",min:14,freq:"3–4 times a week",items:[["r_bandwalk",D_.reps(3,20)],["r_touchdown",D_.reps(3,12,{sides:1})],["r_slrdl",D_.reps(3,10,{sides:1})]],exit:"Squats and lunges with the knee in line and no pain.",last:true}],
   }},
- shoulder:{n:"Shoulder",fig:"r_kbpress",
+ shoulder:{n:"Shoulder",fig:"r_kbpress",fallback:"coordination",
   urgent:["The shoulder dislocated and hasn't been checked"],
   doctor:["You can't lift the arm after a fall or big pull","Numbness or tingling down the arm","Moving your neck reproduces the arm pain","Night pain with real weakness after an injury"],
   test:{n:"Overhead reach",how:"Raise the painful arm overhead as far as you can, slowly, and rate the pain."},
@@ -4797,7 +4797,7 @@ SCREENS.rbflags=()=>{
 ACT.rbFlag=d=>{RB.flags.has(d.k)?RB.flags.delete(d.k):RB.flags.add(d.k);render()};
 ACT.rbGoScreen=()=>{RB.desc=RB.desc||"";go("rbdesc",{})};
 ACT.rbDescGo=()=>{const ta=$("#rbDesc");RB.desc=ta?ta.value.trim():RB.desc||"";const rd=rbReadDesc(RB.r,RB.desc);
-  RB.step=0;RB.first=rd.side||(S.rehab&&S.rehab.region===RB.r&&S.rehab.side==="left"?"L":"R");RB.sub=RB.first;RB.ans=[];go("rbscreen",{})};
+  RB.step=0;RB.first=(rd.side==="L"||rd.side==="R"?rd.side:null)||(S.rehab&&S.rehab.region===RB.r&&S.rehab.side==="left"?"L":"R");RB.sub=RB.first;RB.ans=[];go("rbscreen",{})};
 ACT.rbDescAdd=d=>{const ta=$("#rbDesc");if(!ta)return;const v=ta.value.trim();ta.value=(v?v+(/[.!?]$/.test(v)?" ":". "):"")+d.t;RB.desc=ta.value;ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length)};
 SCREENS.rbdesc=()=>{const R=REGIONS[RB.r];
   return hdr()+`<div class="stack" style="padding-top:4px">
@@ -4822,27 +4822,31 @@ const RB_DESC_RULES={
    load:[/jump|land|running|impact|heavy|carry|box jump|double.?unders|squat(ting)? heavy|compress/,"impact and heavy load"]},
  knee:{tendon:[/(below|under|bottom of) (the |my )?(left |right )?kneecap|patellar tendon|tendon|jump|land(ing)?|down ?stairs|going down|warms? up|eases? once|start of/,"below the kneecap, jumping and landing"],
    control:[/cave|caving|knee(s)? (fall|go|goes|drift) in|single.?leg|pistol|lunge|wobbl|unstable|gives? way|around (the |my )?(left |right )?kneecap|side of (the |my )?(left |right )?knee/,"the knee drifting in, single-leg work"],
-   mobility:[/stiff ankle|ankle|deep squat|bottom of (the |a )?squat|tight (hip|ankle)|can.?t squat deep/,"deep squats and stiff ankles or hips"]},
+   mobility:[/stiff ankles?|ankles?|deep squats?|deep in (the |my )?squats?|bottom of (the |a )?squat|tight (hips?|ankles?)|can.?t (squat deep|get low)|heels? (come|comes|lift|lifts|rise|rises|want to come) up|lifting shoes|squat shoes/,"deep squats and stiff ankles or hips"]},
  hip:{pinch:[/pinch|front of (the |my )?(right |left )?hip|hip crease|bottom of (the |a )?squat|deep squat|knee to (my )?chest/,"a pinch at the front of the hip in deep bending"],
-   flexor:[/hip flexor|lift(ing)? (my )?(knee|leg)|sprint|toes.?to.?bar|v.?ups?|leg raises?|running/,"lifting the knee and sprinting"],
+   flexor:[/hip flexor|lift(ing)? (my )?(knee|leg)|sprint|toes.?to.?bar|ghd|sit.?ups?|v.?ups?|leg raises?|running|kicking/,"lifting the knee and sprinting"],
    lateral:[/(outside|side) of (the |my )?(right |left )?hip|lying on (my |that )?side|sleep(ing)? on|up ?stairs|standing on one leg/,"the side of the hip, lying on it"],
    groin:[/groin|inner thigh|adductor|wide stance|sumo|cossack|lateral lunge|side lunge/,"the groin and wide stances"],
    hamtendon:[/sit ?bones?|sitting bones?|bottom of (my )?(butt|glute)|where (the )?hamstring|high hamstring|sitting on|deadlift|rdl|good morning/,"the sit bone, sitting and hinging"],
    shortpiri:[/deep in (my |the )?(butt|glute)|piriformis|sciatic|down the (back of (my |the )?)?leg|sitting on (a )?hard/,"deep in the buttock, sitting"],
    longpiri:[/knees? (cave|caves|falls? in|goes in)|crossing (my )?legs|cross(ed)? leg/,"the knee falling in"]},
  shoulder:{mobility:[/overhead|snatch|jerk|reach(ing)? up|stiff|tight|front rack|lats/,"overhead positions and stiffness"],
-   stability:[/push.?ups?|dips?|bench|kip|muscle.?ups?|hanging|ring|unstable|loose|slips?|pops? out|catch/,"pressing, hanging and the catch"],
-   coordination:[/click|clunk|halfway up|painful arc|lift(ing)? my arm|raising my arm|arm (goes )?up/,"a painful spot as the arm goes up"]},
+   stability:[/push.?ups?|dips?|bench|kip|muscle.?ups?|hanging|ring|unstable|loose|slips?|pops? out|catch|weak|push(ing)? out to the side/,"pressing, hanging and the catch"],
+   coordination:[/click|clunk|half ?way up|mid ?way( up)?|middle of the (lift|press|rep|movement)|on the way up|moves funny|painful arc|lift(ing)? my arm|raising my arm|arm (goes )?up|fine at (the top|lockout)/,"a painful spot as the arm goes up"]},
  elbow:{lateral:[/outside of (the |my )?(right |left )?elbow|outer elbow|tennis|grip(ping)?|pull.?ups?|lifting a (cup|kettle)|mouse|typing|wrist (bent )?back/,"the outer elbow and gripping"],
    medial:[/inside of (the |my )?(right |left )?elbow|inner elbow|golfer|front rack|throw(ing)?|curl/,"the inner elbow and front rack"]},
  achilles:{midportion:[/above the heel|middle of the tendon|cm above|thick(er)?|double.?unders|running|hills?|jump|morning stiff/,"above the heel, running and jumping"],
    insertional:[/heel bone|back of (the |my )?heel|where (it|the tendon) (attaches|meets|joins)|shoes? rub|uphill|stretch(ing)? (makes|hurts)|bump on (the |my )?heel/,"at the heel bone"]}};
 // words that need a professional look, whatever the region
-const RB_DESC_WARN=/numb|tingl|pins and needles|night pain|wakes? me|at night|can.?t sleep|fever|losing weight|weight loss|bladder|bowel|fell|a fall|accident|popped|a pop|can.?t (bear|put) weight|swollen|swell(s|ing)?|bruis|getting worse every|gives? way|locks?|locking/;
+const RB_DESC_WARN=/numb|tingl|pins and needles|night pain|pain at night|wakes? me|can.?t sleep|fever|losing weight|weight loss|bladder|bowel|\bfell\b|a fall|accident|popped|a pop\b|can.?t (bear|put) weight|swollen|swell(s|ing)?|bruised after|bruising after|getting worse every|gives? way|gave way|giving way|buckl|caught on something|catches on|locks up|locking up|locked up|gets stuck/;
 function rbReadDesc(r,text){const t=" "+String(text||"").toLowerCase()+" ",out={votes:{},hits:[],side:null,warn:[],since:null};if(!t.trim())return out;
-  for(const[cls,[re,why]]of Object.entries(RB_DESC_RULES[r]||{})){const m=t.match(new RegExp(re.source,"g"));if(m){out.votes[cls]=Math.min(2,m.length);out.hits.push({cls,why,words:[...new Set(m.map(x=>x.trim()))].slice(0,3)})}}
-  const sm=t.match(/\b(left|right)\b(?=\s*(side|knee|hip|shoulder|elbow|heel|leg|arm|achilles|calf|glute|butt|groin|back|thigh)|\s*$|[.,])|on (the|my) (left|right)/);
-  if(sm){const w=(sm[0].match(/left|right/)||[])[0];out.side=w==="left"?"L":w==="right"?"R":null}
+  for(const[cls,[re,why]]of Object.entries(RB_DESC_RULES[r]||{})){const m=t.match(new RegExp(re.source,"g"));if(m){out.votes[cls]=Math.min(2,m.length);(out.raw=out.raw||{})[cls]=m.length;out.hits.push({cls,why,words:[...new Set(m.map(x=>x.trim()))].slice(0,3)})}}
+  const sides=[...t.matchAll(/\b(left|right)\b(?!\s*(after|now|away|before|then|when|there|here|into|at the|on time|enough))/g)].map(m=>m[1]);
+  const L=sides.filter(x=>x==="left").length,Rr=sides.filter(x=>x==="right").length;
+  const worse=t.match(/(left|right)\s+(is\s+|one\s+|side\s+)?(more|worse)|worse (on the |on my )?(left|right)/);
+  if(worse)out.side=worse[0].includes("left")?"L":"R";
+  else if(/\bboth (sides|shoulders|knees|hips|elbows|legs|arms|heels|achilles|calves|wrists)\b/.test(t))out.side="B";
+  else if(L||Rr)out.side=L>Rr?"L":Rr>L?"R":null;
   const wm=t.match(new RegExp(RB_DESC_WARN.source,"g"));if(wm)out.warn=[...new Set(wm.map(x=>x.trim()))];
   const dm=t.match(/(\d+|a few|a couple of|several)\s*(day|week|month|year)s?/);if(dm)out.since=dm[0];
   return out}
@@ -4870,9 +4874,11 @@ function rbClassify(){
     if(q.side&&a&&typeof a==="object"){const oR=q.o[a.R],oL=q.o[a.L];sideW.R+=w(oR);sideW.L+=w(oL);a=w(oL)>w(oR)?a.L:a.R}
     const o=q.o[a];if(!o)return;for(const[k,v]of Object.entries(o[1])){if(k.startsWith("_"))flags[k]=1;else votes[k]=(votes[k]||0)+v}});
   const rd=rbReadDesc(RB.r,RB.desc);for(const[k,v]of Object.entries(rd.votes))if(R.classes[k])votes[k]=(votes[k]||0)+v;
-  const keys=Object.keys(R.classes),best=keys.slice().sort((a,b)=>(votes[b]||0)-(votes[a]||0))[0];
-  let side=sideW.R>sideW.L?"right":sideW.L>sideW.R?"left":sideW.R>0?"both":null;if(!side&&rd.side)side=rd.side==="L"?"left":"right";
-  return{cls:best,clear:(votes[best]||0)>0,votes,flags,side,desc:rd};
+  const keys=Object.keys(R.classes),raw=rd.raw||{},ord=keys.slice().sort((a,b)=>(votes[b]||0)-(votes[a]||0)||(raw[b]||0)-(raw[a]||0));
+  const none=keys.every(k=>(votes[k]||0)<=0),best=none&&R.fallback?R.fallback:ord[0],second=none?null:ord[1];
+  const close=second&&(votes[second]||0)>0&&(votes[best]||0)-(votes[second]||0)<=1?second:null;
+  let side=sideW.R>sideW.L?"right":sideW.L>sideW.R?"left":sideW.R>0?"both":null;if(!side&&rd.side)side=rd.side==="L"?"left":rd.side==="B"?"both":"right";
+  return{cls:best,clear:(votes[best]||0)>0||(none&&!!R.fallback),votes,flags,side,desc:rd,close};
 }
 SCREENS.rbresult=()=>{
   const R=REGIONS[RB.r],res=rbClassify(),C=R.classes[res.cls],phs=rbPhases(R,res.cls),notes=[];
@@ -4885,6 +4891,7 @@ SCREENS.rbresult=()=>{
    <p style="margin:0">${esc(C.why)}</p>
    ${res.clear?"":`<div class="note-warn">No clear pattern came out of the screen. This is the closest match. If the plan doesn't help within 2 weeks, see a physiotherapist.</div>`}
    ${notes.map(n=>`<div class="note-warn">${esc(n)}</div>`).join("")}
+   ${res.close?`<div class="note-warn"><b>Close call.</b> It could also be ${esc(R.classes[res.close].n.toLowerCase())}. Start with this plan; if it hasn't helped within 2 weeks, redo the screen or see a physiotherapist.</div>`:""}
    ${res.desc&&res.desc.warn.length?`<div class="note-warn"><b>Get this checked.</b> You mentioned ${esc(res.desc.warn.slice(0,3).join(", "))}. That can need a physiotherapist or doctor before an exercise program.</div>`:""}
    ${RB.desc?`<div class="panel descread"><h3>From Your Description</h3><p class="muted" style="margin:0;font-style:italic">“${esc(RB.desc.length>220?RB.desc.slice(0,218)+"…":RB.desc)}”</p>
      ${res.desc.hits.length?`<ul class="tick">${res.desc.hits.map(h=>`<li><b>${esc(R.classes[h.cls].n)}</b>: you mentioned ${esc(h.words.join(", "))}</li>`).join("")}</ul><p class="muted" style="margin:0;font-size:calc(13px * var(--ts))">These counted alongside your test answers.</p>`:`<p class="muted" style="margin:0;font-size:calc(13px * var(--ts))">Nothing in it changed the result; your test answers decided it. It's saved with your program.</p>`}

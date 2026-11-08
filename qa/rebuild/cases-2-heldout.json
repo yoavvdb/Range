@@ -1,0 +1,547 @@
+[
+ {
+  "id": "back2-1",
+  "region": "back",
+  "description": "I am 52, doing olympic lifting for masters. my low back is hurting when i stand long time in the kitchen and when i push the bar over head and lean back. if i bend forward to touch toes it is feel good actually. since summer.",
+  "answers": [
+   1,
+   1,
+   1,
+   {
+    "R": 2,
+    "L": 2
+   },
+   2,
+   2
+  ],
+  "expert": {
+   "protocol": "extension",
+   "confidence": "high",
+   "side": null,
+   "red_flags": false,
+   "reasoning": "Pain with standing and leaning back overhead, relieved by bending forward, with arched sitting and prone lying provocative: extension-sensitive."
+  }
+ },
+ {
+  "id": "back2-2",
+  "region": "back",
+  "description": "ex rower here, back is cooked lol. kettlebell swings and burpees make it throb across the belt line, also sitting on the erg or in the car. kinda dull all day after a big session",
+  "answers": [
+   0,
+   2,
+   0,
+   {
+    "R": 2,
+    "L": 2
+   },
+   0,
+   0
+  ],
+  "expert": {
+   "protocol": "flexion",
+   "confidence": "medium",
+   "side": null,
+   "red_flags": false,
+   "reasoning": "Slumped sitting and hinge descent provoke it which favours flexion, but impact and front-loaded holds also hurt (eased by bracing), so a load component is possible."
+  }
+ },
+ {
+  "id": "back2-3",
+  "region": "back",
+  "description": "gymnast, 19. right side of low back stabs on round-offs and back walkovers when i twist out of it. arabesque on the right leg too. forward folds no problem at all",
+  "answers": [
+   1,
+   2,
+   1,
+   {
+    "R": 0,
+    "L": 2
+   },
+   2,
+   2
+  ],
+  "expert": {
+   "protocol": "rotation",
+   "confidence": "high",
+   "side": "right",
+   "red_flags": false,
+   "reasoning": "One-sided pain with arching combined with rotation and the leg extending behind, positive one-sided prone leg lift that eases with bracing: twist-and-arch sensitive."
+  }
+ },
+ {
+  "id": "back2-4",
+  "region": "back",
+  "description": "Back has been bad for 3 weeks, middle low back. Worse after running and heavy squats but honestly it's just there all the time now, even lying in bed it doesn't let up and it wakes me. I had a fever and night sweats the week before it started.",
+  "answers": [
+   2,
+   2,
+   2,
+   {
+    "R": 2,
+    "L": 2
+   },
+   1,
+   1
+  ],
+  "expert": {
+   "protocol": "load",
+   "confidence": "medium",
+   "side": null,
+   "red_flags": true,
+   "reasoning": "The answers fit a compression/load pattern, but constant night pain after a fever and night sweats needs a doctor before any exercise."
+  }
+ },
+ {
+  "id": "knee2-1",
+  "region": "knee",
+  "description": "used to play volleybal, now crossfit. left knee hurts rite under knee cap, like a bruise on the tendon. jumping lunges + box jumps kill it, feels ok once warm but next day stiff af",
+  "answers": [
+   0,
+   {
+    "R": 2,
+    "L": 0
+   },
+   {
+    "R": 2,
+    "L": 2
+   },
+   {
+    "R": 1,
+    "L": 1
+   },
+   1
+  ],
+  "expert": {
+   "protocol": "tendon",
+   "confidence": "high",
+   "side": "left",
+   "red_flags": false,
+   "reasoning": "Localised pain at the patellar tendon that climbs with jumping, plus normal alignment and mobility: tendon overload."
+  }
+ },
+ {
+  "id": "knee2-2",
+  "region": "knee",
+  "description": "Runner who does crossfit 3x a week. Right knee aches vaguely around the kneecap on long runs and step ups. Also my knees make loud crunchy grinding noises when I squat which freaks me out but the noise itself doesnt hurt. My knee drifts inward when I'm tired, pushing it out helps.",
+  "answers": [
+   2,
+   {
+    "R": 1,
+    "L": 2
+   },
+   {
+    "R": 0,
+    "L": 2
+   },
+   {
+    "R": 1,
+    "L": 1
+   },
+   1
+  ],
+  "expert": {
+   "protocol": "control",
+   "confidence": "high",
+   "side": "right",
+   "red_flags": false,
+   "reasoning": "Diffuse kneecap pain with valgus that is relieved by correcting it: knee control; painless crunching (crepitus) is common and not a red flag."
+  }
+ },
+ {
+  "id": "knee2-3",
+  "region": "knee",
+  "description": "Left knee. Hurts a bit above the knee cap when I do deep squats and wall balls, not so much running. I can't really sit in a deep squat without my heels lifting, and my left hip feels kinda blocked. Knee wobbles a bit but trying to fix it doesn't change anything.",
+  "answers": [
+   1,
+   {
+    "R": 2,
+    "L": 1
+   },
+   {
+    "R": 2,
+    "L": 1
+   },
+   {
+    "R": 1,
+    "L": 0
+   },
+   0
+  ],
+  "expert": {
+   "protocol": "mobility",
+   "confidence": "medium",
+   "side": "left",
+   "red_flags": false,
+   "reasoning": "Failed knee-to-wall and asymmetric hip rotation on the painful side point to stiffness, though the location above the kneecap and a mild cave make this less clear-cut."
+  }
+ },
+ {
+  "id": "hip2-1",
+  "region": "hip",
+  "description": "58 yo powerlifter, left hip crease gets this jammy pinch at depth on squats. Also when I tie my shoes on that side or get out of a low car. Been creeping in for a year.",
+  "answers": [
+   0,
+   {
+    "R": 1,
+    "L": 0
+   },
+   {
+    "R": 1,
+    "L": 1
+   },
+   {
+    "R": 1,
+    "L": 1
+   },
+   {
+    "R": 1,
+    "L": 1
+   },
+   {
+    "R": 1,
+    "L": 1
+   },
+   0,
+   0
+  ],
+  "expert": {
+   "protocol": "pinch",
+   "confidence": "high",
+   "side": "left",
+   "red_flags": false,
+   "reasoning": "Anterior hip pinch in deep flexion with reduced internal rotation and worse sitting: front-of-hip impingement."
+  }
+ },
+ {
+  "id": "hip2-2",
+  "region": "hip",
+  "description": "trail runner + crossfit. outer right hip is achy, sometimes feels like its deep in the bum too. single leg stuff like pistols, and my knee goes in on step downs. standing on that leg brushing teeth gets it going",
+  "answers": [
+   1,
+   {
+    "R": 1,
+    "L": 1
+   },
+   {
+    "R": 1,
+    "L": 1
+   },
+   {
+    "R": 1,
+    "L": 1
+   },
+   {
+    "R": 0,
+    "L": 1
+   },
+   {
+    "R": 1,
+    "L": 1
+   },
+   1,
+   2
+  ],
+  "expert": {
+   "protocol": "lateral",
+   "confidence": "medium",
+   "side": "right",
+   "red_flags": false,
+   "reasoning": "Lateral hip pain reproduced by single-leg standing favours the glute tendon, but buttock pain with knee caving and increased internal rotation also fits an overstretched deep rotator."
+  }
+ },
+ {
+  "id": "hip2-3",
+  "region": "hip",
+  "description": "Sprinter cross-training. Left side, right where I sit, hurts on stiff leg deadlifts and when I sprint out of the blocks. Sitting on the bleachers is miserable. It's like a deep bruise on the bone.",
+  "answers": [
+   3,
+   {
+    "R": 1,
+    "L": 1
+   },
+   {
+    "R": 1,
+    "L": 1
+   },
+   {
+    "R": 1,
+    "L": 1
+   },
+   {
+    "R": 1,
+    "L": 1
+   },
+   {
+    "R": 1,
+    "L": 0
+   },
+   2,
+   0
+  ],
+  "expert": {
+   "protocol": "hamtendon",
+   "confidence": "high",
+   "side": "left",
+   "red_flags": false,
+   "reasoning": "Sit-bone pain with straight-knee hinging, sprinting and sitting, positive straight-knee bridge: proximal hamstring tendon."
+  }
+ },
+ {
+  "id": "hip2-4",
+  "region": "hip",
+  "description": "ex hockey player. felt a tweak inner right thigh up near the groin doing wide lateral lunges with a kettlebell. hurts to bring my legs together hard or kick a ball sideways. 2 weeks",
+  "answers": [
+   2,
+   {
+    "R": 1,
+    "L": 1
+   },
+   {
+    "R": 1,
+    "L": 1
+   },
+   {
+    "R": 0,
+    "L": 1
+   },
+   {
+    "R": 1,
+    "L": 1
+   },
+   {
+    "R": 1,
+    "L": 1
+   },
+   2,
+   2
+  ],
+  "expert": {
+   "protocol": "groin",
+   "confidence": "high",
+   "side": "right",
+   "red_flags": false,
+   "reasoning": "Inner-thigh pain after a stretched-position tweak with positive resisted adduction: adductor strain."
+  }
+ },
+ {
+  "id": "hip2-5",
+  "region": "hip",
+  "description": "my bum (right side) hurts when I sit at work for hours, feels like a tight knot deep in there. Pigeon stretch feels really tight on that side. No pain down the leg.",
+  "answers": [
+   3,
+   {
+    "R": 1,
+    "L": 1
+   },
+   {
+    "R": 1,
+    "L": 1
+   },
+   {
+    "R": 1,
+    "L": 1
+   },
+   {
+    "R": 1,
+    "L": 1
+   },
+   {
+    "R": 1,
+    "L": 1
+   },
+   0,
+   0
+  ],
+  "expert": {
+   "protocol": "shortpiri",
+   "confidence": "high",
+   "side": "right",
+   "red_flags": false,
+   "reasoning": "Deep buttock tightness worse with sitting and reduced internal rotation: a short, tight piriformis."
+  }
+ },
+ {
+  "id": "shoulder2-1",
+  "region": "shoulder",
+  "description": "Gymnast doing rings. Right shoulder feels loose & clunky deep inside on dips and support holds, kinda like it wants to slide forward. Flexibility is not my issue at all.",
+  "answers": [
+   1,
+   1,
+   1,
+   {
+    "R": 1,
+    "L": 1
+   },
+   {
+    "R": 0,
+    "L": 1
+   }
+  ],
+  "expert": {
+   "protocol": "stability",
+   "confidence": "high",
+   "side": "right",
+   "red_flags": false,
+   "reasoning": "Full range but cuff collapses on the painful side under load: shoulder stability."
+  }
+ },
+ {
+  "id": "shoulder2-2",
+  "region": "shoulder",
+  "description": "Left shoulder hurts at the top of overhead squats and snatches, I can't get it all the way back. Also when I turn my head to the left I get a weird tingly zing down the arm into my fingers. Mid back is super stiff from my office job.",
+  "answers": [
+   0,
+   0,
+   0,
+   {
+    "R": 1,
+    "L": 0
+   },
+   {
+    "R": 1,
+    "L": 1
+   }
+  ],
+  "expert": {
+   "protocol": "mobility",
+   "confidence": "high",
+   "side": "left",
+   "red_flags": true,
+   "reasoning": "Fails all overhead and thoracic tests with good strength, so overhead mobility, but arm tingling reproduced by neck movement needs a clinical check for the neck first."
+  }
+ },
+ {
+  "id": "shoulder2-3",
+  "region": "shoulder",
+  "description": "Ex swimmer. Both shoulders ache in the middle part of the press or when I lower from a handstand, top and bottom are fine. Range is great, strenght is fine, it just feels out of sync",
+  "answers": [
+   1,
+   1,
+   1,
+   {
+    "R": 1,
+    "L": 1
+   },
+   {
+    "R": 1,
+    "L": 1
+   }
+  ],
+  "expert": {
+   "protocol": "coordination",
+   "confidence": "high",
+   "side": "both",
+   "red_flags": false,
+   "reasoning": "Mid-range pain with normal mobility and strength suggests poor scapula-arm timing: overhead coordination."
+  }
+ },
+ {
+  "id": "elbow2-1",
+  "region": "elbow",
+  "description": "boulderer who does crossfit, right elbow inner side aches after crimpy sessions and front squats. wrists are super tight bending back",
+  "answers": [
+   1,
+   0,
+   {
+    "R": 1,
+    "L": 1
+   }
+  ],
+  "expert": {
+   "protocol": "medial",
+   "confidence": "high",
+   "side": "right",
+   "red_flags": false,
+   "reasoning": "Medial elbow pain with gripping and wrist-extended rack positions, limited wrist extension: flexor tendon overload."
+  }
+ },
+ {
+  "id": "elbow2-2",
+  "region": "elbow",
+  "description": "I play tennis before, now crossfit. Left elbow outside part is painful when I take the bar for row or when I open a jar. Also my shoulder is feel weak.",
+  "answers": [
+   0,
+   1,
+   {
+    "R": 1,
+    "L": 0
+   }
+  ],
+  "expert": {
+   "protocol": "lateral",
+   "confidence": "high",
+   "side": "left",
+   "red_flags": false,
+   "reasoning": "Lateral elbow pain with gripping and weak shoulder external rotation on that side: extensor tendon overload."
+  }
+ },
+ {
+  "id": "achilles2-1",
+  "region": "achilles",
+  "description": "Marathoner, left achilles sore in the middle, mornings + first mile. I noticed a lump on the tendon and panicked thinking it's torn, but no pop or anything, I can still hop and do single leg calf raises fine. Hill repeats make it worse.",
+  "answers": [
+   0,
+   {
+    "R": 1,
+    "L": 0
+   },
+   {
+    "R": 1,
+    "L": 1
+   }
+  ],
+  "expert": {
+   "protocol": "midportion",
+   "confidence": "high",
+   "side": "left",
+   "red_flags": false,
+   "reasoning": "Mid-tendon pain with a thickened spot and load-dependent pain; a tendinopathy nodule with intact single-leg heel raise is not a rupture sign."
+  }
+ },
+ {
+  "id": "achilles2-2",
+  "region": "achilles",
+  "description": "masters athlete, 47. right heel at the back has a bony bump where the tendon goes in, shoes rub it raw. calf stretch off a step hurts loads, flat is okay",
+  "answers": [
+   1,
+   {
+    "R": 1,
+    "L": 1
+   },
+   {
+    "R": 0,
+    "L": 1
+   }
+  ],
+  "expert": {
+   "protocol": "insertional",
+   "confidence": "high",
+   "side": "right",
+   "red_flags": false,
+   "reasoning": "Insertional pain with a posterior heel bump and compression sensitivity into dorsiflexion: insertional."
+  }
+ },
+ {
+  "id": "achilles2-3",
+  "region": "achilles",
+  "description": "both achilles kinda sore low down near the heel? after a lot of double unders and jumping rope. gets worse the more I jump, stairs are ok",
+  "answers": [
+   1,
+   {
+    "R": 0,
+    "L": 0
+   },
+   {
+    "R": 1,
+    "L": 1
+   }
+  ],
+  "expert": {
+   "protocol": "insertional",
+   "confidence": "medium",
+   "side": "both",
+   "red_flags": false,
+   "reasoning": "Tenderness at the insertion fits insertional, but pain climbing with jumping and no step sensitivity also look mid-portion-like."
+  }
+ }
+]
