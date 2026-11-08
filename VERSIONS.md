@@ -59,3 +59,4 @@ GitHub Pages serves it again within a minute or two. The app source lives outsid
 | 2026-11-08 | `2026-11-08_equal-sides.html` | One-sided stretches hold equally long on both sides | acabd32 |
 | 2026-11-08 | `2026-11-08_goodmorning-activation.html` | Good morning (PVC) moves from stretches to activation | 8e28e68 |
 | 2026-11-08 | `2026-11-08_section-times.html` | Section headers show real times (40s, 1:45) instead of rounded minutes | deca9b6 |
+| 2026-11-08 | `2026-11-08_describe-pain.html` | Rebuild asks you to describe your pain; it helps pick the protocol | ce1f359 |
