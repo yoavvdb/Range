@@ -328,7 +328,6 @@ textarea{font:inherit}.edex{gap:10px}.edhead{display:grid;grid-template-columns:
 .rbarea>svg:last-child{flex:none;opacity:.5}
 .descbox{width:100%;box-sizing:border-box;min-height:150px;padding:14px;border-radius:var(--r-panel,18px);border:0;background:var(--surface);color:var(--ink);font:inherit;font-size:16px;line-height:1.45;resize:vertical;box-shadow:inset 0 0 0 1px var(--line)}.descbox:focus{outline:2px solid var(--accent);outline-offset:1px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-#screen,#pane{will-change:transform}
 .painrow{display:grid;grid-template-columns:repeat(11,1fr);gap:4px}
 .pain{min-height:42px;border-radius:8px;background:var(--surface2);font-weight:800;font-variant-numeric:tabular-nums}
 .pain.on.plo{background:var(--good);color:#06150E}.pain.on.pmid{background:var(--warn);color:#1A1205}.pain.on.phi{background:var(--bad);color:#1A0606}
@@ -1898,7 +1897,6 @@ const FIG3D=(()=>{
         if(cv._spin){const dt=cv._st?Math.min(50,ts-cv._st):16;cv._st=ts;cv.dataset.yaw=(+cv.dataset.yaw||0)+cv._spin*dt;cv._spin*=Math.pow(.996,dt);if(Math.abs(cv._spin)<.00003)cv._spin=0;cv.dataset.drawn=""}
         const paused=(cv.closest(".player")&&animPaused)||cv.dataset.mode==="static";if(paused&&cv.dataset.drawn)return;
         if(gt&&gt.dataset.reveal&&cv.dataset.r3&&gt.dataset.reveal==="2")return;
-        if(MOVING&&cv.dataset.r3)return;
         // size from the container, never from the canvas itself: on iPhone a canvas can take its pixel size as its
         // display size, which made it grow every frame and look zoomed in
         const box=cv.parentElement.getBoundingClientRect(),stg=cv.closest(".stage,.detailstage,.tsfig");
@@ -2121,9 +2119,7 @@ function back(){const top=stack[stack.length-1];
 // finger swipes: on a main tab, swipe sideways to the next or previous tab; on any deeper screen, swipe right to go back.
 // The screen follows the finger 1:1 and can be pulled back to cancel; a flick commits and both screens move on at the finger's speed.
 // Swipes that start on something that scrolls sideways itself (the cards, the flows, a 3D figure) or inside a sheet are left alone
-let NOPUSH=false,MOVING=0,MOVE_T=0;
-// while a screen slides, 3D figures already drawn hold their frame (no WebGL work competing with the slide)
-const moving=on=>{clearTimeout(MOVE_T);if(on){MOVING=1;MOVE_T=setTimeout(()=>MOVING=0,1500)}else MOVING=0};
+let NOPUSH=false;
 (()=>{const TABS=["home","rebuild","profile"];let t=null;
  const skip=el=>el.closest(".carousel,.hscroll,.pcards,canvas,input,textarea,select,.sheet,#tabbar,#layer > *,#tour,[data-noswipe]");
  // dir -1: finger moving left (next), +1: moving right (previous / back)
@@ -2145,34 +2141,28 @@ const moving=on=>{clearTimeout(MOVE_T);if(on){MOVING=1;MOVE_T=setTimeout(()=>MOV
  let en,cn;
  const mv=e=>{if(!t||t.mode==="v")return;const c=e.touches[0],dx=c.clientX-t.x0,dy=c.clientY-t.y0;
   if(!t.mode){if(Math.hypot(dx,dy)<10)return;if(Math.abs(dx)>Math.abs(dy)*1.2){t.mode="h";t.x0=c.clientX}else{t.mode="v";return}}
-  const off=c.clientX-t.x0;t.tr.add(off);const tg=target(off<0?-1:1);if(!t.mv){t.mv=1;moving(true)}
-  if(REDUCED){t.off=off;return}
-  // a pane (Profile, a Rebuild program) follows the finger inside its screen
-  if(tg&&tg.kind==="pane"){t.off=off;const pn=$("#pane");if(pn){pn.style.transition="none";pn.style.transform=`translateX(${off*.85}px)`;pn.style.opacity=String(1-Math.min(.35,Math.abs(off)/innerWidth*.6))}return}
+  const off=c.clientX-t.x0;t.tr.add(off);const tg=target(off<0?-1:1);
+  if(REDUCED||(tg&&tg.kind==="pane")){t.off=off;return}
   t.off=tg?off:rubber(off,innerWidth*.5);const el=scr();el.style.transition="none";el.style.transform=`translateX(${t.off}px)`};
  const onEnd=()=>{if(!t)return;const T_=t;t=null;if(T_.mode!=="h")return;
   const v=T_.tr.v(),off=T_.off,w=innerWidth,dest=off+project(v),dir=Math.sign(Math.abs(dest)>1?dest:off)||1,tg=target(dir);
   const go=tg&&(Math.abs(dest)>Math.min(w,480)*.35||Math.abs(v)>700)&&v*dir>-150&&off*dir>=0;
-  if(REDUCED){if(go)tg.go();scr().style.transform="";moving(false);return}
-  if(tg&&tg.kind==="pane"){const pn=$("#pane");
-    if(go){if(pn){pn.style.transform="";pn.style.opacity=""}tg.go();setTimeout(()=>moving(false),400);return}
-    if(pn)T_.sp=spring({from:off*.85,to:0,v,damping:1,response:.3,onUpdate:x=>{pn.style.transform=x?`translateX(${x}px)`:"";pn.style.opacity=String(1-Math.min(.35,Math.abs(x)/innerWidth*.6))},onDone:()=>{pn.style.opacity="";moving(false)}});else moving(false);return}
+  if(tg&&tg.kind==="pane"||REDUCED){if(go)tg.go();scr().style.transform="";return}
   const el=scr();
-  if(!go){T_.sp=spring({from:off,to:0,v,damping:1,response:.3,onUpdate:x=>el.style.transform=x?`translateX(${x}px)`:"",onDone:()=>moving(false)});return}
+  if(!go){T_.sp=spring({from:off,to:0,v,damping:1,response:.3,onUpdate:x=>el.style.transform=x?`translateX(${x}px)`:""});return}
   // a still copy of the old screen leaves with the finger while the new one comes in beside it (tabs) or from under it (back)
   const r=el.getBoundingClientRect(),g=el.cloneNode(true);g.removeAttribute("id");g.setAttribute("aria-hidden","true");g.querySelectorAll("[id]").forEach(n=>n.removeAttribute("id"));
   const oc=el.querySelectorAll("canvas"),gc=g.querySelectorAll("canvas");gc.forEach((c,i)=>{try{c.getContext("2d").drawImage(oc[i],0,0)}catch(_){}});
   Object.assign(g.style,{position:"fixed",top:r.top+"px",left:r.left+"px",width:r.width+"px",margin:"0",zIndex:"5",pointerEvents:"none",background:"var(--bg)",transform:`translateX(${off}px)`,boxShadow:tg.kind==="back"?"-12px 0 24px rgba(0,0,0,.35)":"none"});
-  document.body.appendChild(g);NOPUSH=true;moving(true);try{tg.go()}finally{NOPUSH=false}
+  document.body.appendChild(g);NOPUSH=true;try{tg.go()}finally{NOPUSH=false}
   const nel=scr(),to=dir*w,move=x=>{g.style.transform=`translateX(${x}px)`;nel.style.transform=`translateX(${tg.kind==="back"?-.3*(w-x):x-to}px)`};
-  move(off);spring({from:off,to,v,damping:1,response:.32,onUpdate:move,onDone:()=>{g.remove();nel.style.transform="";moving(false)}})};
- const onCancel=()=>{if(t&&t.mode==="h"){scr().style.transform="";const pn=$("#pane");if(pn){pn.style.transform="";pn.style.opacity=""}}moving(false);t=null}})();
-function push(dir){if(REDUCED||TOUR||NOPUSH)return;const el=$("#screen");moving(true);setTimeout(()=>moving(false),dir>0?440:380);
+  move(off);spring({from:off,to,v,damping:1,response:.32,onUpdate:move,onDone:()=>{g.remove();nel.style.transform=""}})};
+ const onCancel=()=>{if(t&&t.mode==="h")scr().style.transform="";t=null}})();
+function push(dir){if(REDUCED||TOUR||NOPUSH)return;const el=$("#screen");
   try{el.animate(dir>0?[{transform:"translateX(100%)",boxShadow:"-12px 0 24px rgba(0,0,0,.35)"},{transform:"none",boxShadow:"none"}]:[{transform:"translateX(-30%)",opacity:.6},{transform:"none",opacity:1}],{duration:dir>0?420:360,easing:"cubic-bezier(.32,.72,0,1)"})}catch(e){}}
 ACT.back=back;
 let PROF_ANIM=false;
-// the count-up and chart animations play when you tap a tab, not when you swipe to it (they'd run during the slide)
-ACT.tab=d=>{if(d.t==="profile"&&stack[0].name!=="profile"&&!NOPUSH)PROF_ANIM=true;if(d.t==="rebuild"&&stack[0].name!=="rebuild"&&!NOPUSH)RB_ANIM=true;stack=[{name:d.t,p:{}}];render();window.scrollTo(0,0)};
+ACT.tab=d=>{if(d.t==="profile"&&stack[0].name!=="profile")PROF_ANIM=true;if(d.t==="rebuild"&&stack[0].name!=="rebuild")RB_ANIM=true;stack=[{name:d.t,p:{}}];render();window.scrollTo(0,0)};
 
 const hdr=(right="")=>`<div class="hdr"><button data-act="back" aria-label="Back">${ic("back")}</button><div class="brand">Range<b>.</b></div><div>${right}</div></div>`;
 function render(){
