@@ -700,6 +700,56 @@ body.touring .carousel .pcard{height:clamp(220px,32vh,320px)}
 .rbpair{display:grid;grid-template-columns:1.25fr 1fr;gap:8px;align-items:stretch}
 .rbtrack.v{grid-auto-flow:row;grid-auto-columns:auto;gap:6px}.rbtrack.v .rbph{grid-template-columns:22px 1fr;gap:8px;align-items:center;padding:8px 10px}.rbtrack.v .rbph>div{display:grid;gap:1px;min-width:0}
 .rbnext.sm{padding:12px;gap:10px;align-content:start}.rbnext.sm .rbnh b{font-size:calc(15px * var(--ts))}.rbnext.sm .rbml{font-size:calc(13px * var(--ts))}.rbnext.sm .rbbar{height:6px}.rbnext.sm .link{font-size:calc(12px * var(--ts));padding:0;text-align:left}
+
+/* sign-in: a floating card over a warm scene */
+#gate.lgn{background:#0f0c0a;overflow:auto;display:grid;place-items:center;padding:max(24px,env(safe-area-inset-top,0px)) 16px max(24px,env(safe-area-inset-bottom,0px))}
+.lscene{position:fixed;inset:0;overflow:hidden;pointer-events:none;background:radial-gradient(90% 55% at 50% 18%,#5a3413 0%,#2a1a0f 45%,#0f0c0a 78%)}
+.lsun{position:absolute;left:50%;top:14%;width:520px;height:520px;margin-left:-260px;border-radius:50%;background:radial-gradient(circle,rgba(246,180,58,.55) 0%,rgba(229,72,26,.18) 38%,rgba(229,72,26,0) 68%);filter:blur(8px);animation:lsun 9s ease-in-out infinite alternate}
+.lring{position:absolute;left:50%;top:calc(14% + 260px);border-radius:50%;border:1.5px solid rgba(246,180,58,.12);transform:translate(-50%,-50%)}
+.lring.r1{width:420px;height:420px}.lring.r2{width:640px;height:640px;border-color:rgba(246,180,58,.08)}.lring.r3{width:900px;height:900px;border-color:rgba(246,180,58,.05)}
+@keyframes lsun{from{transform:translateY(0) scale(1)}to{transform:translateY(18px) scale(1.06)}}
+.lwrap{position:relative;width:min(100%,400px);display:grid;gap:16px}
+.lcard{position:relative;background:#f6f1e8;color:#17140f;border-radius:32px;padding:30px 22px 22px;box-shadow:0 30px 80px rgba(0,0,0,.55),inset 0 1px 0 #fff;display:grid;justify-items:center;text-align:center}
+.lplate{position:relative;z-index:2;width:92px;height:92px;border-radius:50%;margin-top:-4px;display:grid;place-items:center;
+  background:radial-gradient(circle at 50% 50%,#f6f1e8 0 52%,transparent 53%),conic-gradient(from 210deg,#2b2b2e,#4a4a4f 18%,#1d1d20 36%,#3d3d42 58%,#18181b 78%,#2b2b2e);
+  box-shadow:0 10px 22px rgba(0,0,0,.28),0 2px 4px rgba(0,0,0,.25),inset 0 2px 1px rgba(255,255,255,.25),inset 0 -3px 6px rgba(0,0,0,.45)}
+.lplate::after{content:"";position:absolute;inset:12px;border-radius:50%;box-shadow:inset 0 3px 6px rgba(0,0,0,.28),inset 0 -1px 0 rgba(255,255,255,.7)}
+.lplate .gmark{width:56px;height:56px;--ink:#17140f}
+.ltitle{margin:16px 0 0;font-size:calc(26px * min(var(--ts),1.2));font-weight:800;font-stretch:112%;letter-spacing:-.02em;line-height:1.1;text-wrap:balance;color:#17140f}
+.lsub{margin:6px 0 0;font-size:calc(14px * min(var(--ts),1.2));line-height:1.4;color:#6b6257;max-width:30ch}
+.lform{width:100%;display:grid;gap:10px;margin-top:20px;text-align:left}
+.lf{position:relative;display:flex;align-items:center;gap:12px;min-height:60px;padding:8px 14px;border-radius:16px;background:#ebe4d8;box-shadow:inset 0 0 0 1.5px transparent;transition:box-shadow .18s ease,background .18s ease;cursor:text}
+.lf:focus-within{background:#fff;box-shadow:inset 0 0 0 1.5px #17140f,0 0 0 4px rgba(23,20,15,.06)}
+.lf>svg{width:20px;height:20px;flex:none;fill:none;stroke:#6b6257;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.lf:focus-within>svg{stroke:#17140f}
+.lf>span{flex:1;min-width:0;display:grid;gap:1px}
+.lf small{font-size:12px;font-weight:600;color:#7a7065}
+.lf input{border:0;background:none;outline:none;padding:0;font:inherit;font-size:16px;font-weight:600;color:#17140f;width:100%;min-width:0}
+.lf input::placeholder{color:#a69b8e;font-weight:500}
+.leye{flex:none;width:40px;height:40px;margin-right:-8px;border-radius:12px;display:grid;place-items:center;color:#6b6257}
+.leye svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
+.leye.on .slash{display:none}
+.llink{font-weight:700;color:#b5650f;font-size:calc(14px * min(var(--ts),1.2));padding:6px 2px}
+.lforgot{justify-self:end;margin:-2px 0 -4px}
+.lmsg{margin:0;min-height:1.3em;font-size:14px;text-align:center}.lmsg.c-bad{color:#b3261e}.lmsg.muted{color:#6b6257}
+.lgo{position:relative;height:54px;border-radius:16px;background:#17140f;color:#f6f1e8;font-weight:800;font-size:16px;letter-spacing:-.005em;box-shadow:0 8px 18px rgba(23,20,15,.25),inset 0 1px 0 rgba(255,255,255,.12);transition:transform .12s ease}
+.lgo:active{transform:scale(.98)}
+.lgo .lspin,.lgo .lcheck{position:absolute;left:50%;top:50%;opacity:0;transition:opacity .2s ease}
+.lgo .lspin{width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;border:2.5px solid rgba(246,241,232,.3);border-top-color:#f6f1e8;animation:lspin .8s linear infinite}
+.lgo .lcheck{width:24px;height:24px;margin:-12px 0 0 -12px;fill:none;stroke:#f6b43a;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:24;stroke-dashoffset:24}
+.lgo.busy .lgo-t,.lgo.done .lgo-t{opacity:0}.lgo.busy .lspin{opacity:1}
+.lgo.done .lcheck{opacity:1;stroke-dashoffset:0;transition:opacity .15s ease,stroke-dashoffset .35s cubic-bezier(.23,1,.32,1) .05s}
+.lgo-t{transition:opacity .15s ease}
+@keyframes lspin{to{transform:rotate(360deg)}}
+.lor{display:flex;align-items:center;gap:12px;margin:8px 0 2px;color:#8a7f72;font-size:13px;font-weight:600}.lor::before,.lor::after{content:"";flex:1;height:1px;background:#ddd5c8}
+.lsoc{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ls{display:flex;align-items:center;justify-content:center;gap:9px;height:50px;border-radius:14px;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.06),inset 0 0 0 1px #e2dacd;font-weight:700;font-size:15px;color:#17140f}
+.ls svg{width:18px;height:18px}.ls:disabled{opacity:.55}
+.ls[data-p=apple] svg{fill:#000;margin-top:-2px}
+.lswitch{margin:0;text-align:center;color:rgba(246,241,232,.75);font-size:calc(14px * min(var(--ts),1.2))}.lswitch .llink{color:#f6b43a}
+.loff{width:100%;margin-top:14px;display:grid;gap:6px;justify-items:center;font-size:13px;color:#6b6257;text-align:center}.loff .ic{width:18px;height:18px}
+.lveil{position:fixed;inset:0;z-index:60;background:#f6f1e8;pointer-events:none}
+@media (prefers-reduced-motion:reduce){.lsun{animation:none}.lgo .lspin{animation-duration:2s}}
 </style>
 
 <div id="splash" aria-hidden="true"><i class="grid"></i><div class="spl">
@@ -5573,32 +5623,55 @@ function gateShow(m){closeSheet();GATE={m:m||(lastEmail()||usedRange(S)?"in":"up
   sbLoad().catch(()=>{if(GATE&&GATE.step==="form"){GATE.net=true;gateDraw(true)}})}
 function gateDraw(keep){const g=gateHost(),G=GATE;
   const f=$("#sbF"),typed=f&&{email:f.email.value,password:f.password.value};
-  if(G.step==="check"){g.innerHTML=`<div class="inner gate"><div class="ghero sm">${RANGE_MARK}<div class="gword">Range<b>.</b></div></div>
+  if(G.step==="check"){g.classList.remove("lgn");g.innerHTML=`<div class="inner gate"><div class="ghero sm">${RANGE_MARK}<div class="gword">Range<b>.</b></div></div>
     <div class="stack" style="align-content:start;gap:12px"><span class="eyebrow">One more step</span><h1>Check Your Email</h1>
      <p style="margin:0">We sent a link to <b>${esc(G.email)}</b>. Tap it to confirm your account, then come back here.</p>
      <p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Not there after a minute? Look in spam or promotions.</p><p id="sbMsg" style="margin:0;font-size:calc(14px * var(--ts))" aria-live="polite"></p></div>
     <div class="bottomcta"><button class="btn" data-act="gateConfirmed">I've Confirmed, Sign Me In</button><button class="btn sec" data-act="gateResend">Send the Email Again</button>
      <button class="link muted" style="justify-self:center;padding:4px 12px" data-act="gateMode" data-m="up">Use a Different Email</button></div></div>`;return}
   const up=G.m==="up",off=G.net||navigator.onLine===false;
-  g.innerHTML=`<div class="inner gate"><div class="ghero">${RANGE_MARK}<div class="gword">Range<b>.</b></div><p class="gtag">Warm-ups and recovery built from the workout you're actually doing.</p></div>
-   <form id="sbF" class="stack" style="align-content:start;gap:12px" onsubmit="return false" novalidate>
-    <div class="oauth"><button type="button" class="obtn apple" data-act="sbOAuth" data-p="apple"><svg viewBox="0 0 384 512" aria-hidden="true"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>Continue with Apple</button>
-     <button type="button" class="obtn google" data-act="sbOAuth" data-p="google"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Continue with Google</button></div>
-    <div class="ordiv">or with email</div>
-    <div class="seg" style="grid-template-columns:1fr 1fr" role="tablist" aria-label="Account"><button type="button" role="tab" aria-selected="${up}" class="${up?"on":""}" data-act="gateMode" data-m="up">Create Account</button><button type="button" role="tab" aria-selected="${!up}" class="${up?"":"on"}" data-act="gateMode" data-m="in">Sign In</button></div>
-    <label class="field"><span class="eyebrow">Email</span><input name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" value="${esc(G.email||"")}"></label>
-    <label class="field"><span class="eyebrow">Password${up?" · at least 8 characters":""}</span><input name="password" type="password" autocomplete="${up?"new-password":"current-password"}" enterkeyhint="go"></label>
-    <p id="sbMsg" style="margin:0;font-size:calc(14px * var(--ts));min-height:1.45em" aria-live="polite"></p>
-    ${up?"":`<button type="button" class="link" style="justify-self:start;margin-top:-6px" data-act="sbForgot">Forgot Your Password?</button>`}
+  // a floating card over a warm scene: the plate medallion, two clean fields, one dark button, then Apple and Google
+  g.classList.add("lgn");
+  g.innerHTML=`<div class="lscene" aria-hidden="true"><i class="lsun"></i><i class="lring r1"></i><i class="lring r2"></i><i class="lring r3"></i></div>
+  <div class="lwrap"><div class="lcard" id="lcard">
+   <div class="lplate" id="lplate">${RANGE_MARK}</div>
+   <h1 class="ltitle">${up?"Create Your Range Account":"Log in to Range"}</h1>
+   <p class="lsub">${up?"Warm-ups and recovery built from the workout you're actually doing.":"Welcome back. Your sessions are waiting."}</p>
+   <form id="sbF" class="lform" onsubmit="return false" novalidate>
+    <label class="lf"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/></svg><span><small>Email</small><input name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="you@example.com" value="${esc(G.email||"")}"></span></label>
+    <label class="lf"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg><span><small>Password${up?" · 8+ characters":""}</small><input name="password" type="password" autocomplete="${up?"new-password":"current-password"}" enterkeyhint="go" placeholder="Your password"></span>
+     <button type="button" class="leye" data-act="pwEye" aria-label="Show password"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/><path class="slash" d="M4 4l16 16"/></svg></button></label>
+    ${up?"":`<button type="button" class="llink lforgot" data-act="sbForgot">Forgot password?</button>`}
+    <p id="sbMsg" class="lmsg" aria-live="polite"></p>
+    <button type="submit" class="lgo" data-act="sbGo"><span class="lgo-t">${up?"Create Account":"Log In"}</span><i class="lspin" aria-hidden="true"></i><svg class="lcheck" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
+    <div class="lor"><span>Or ${up?"sign up":"log in"} with</span></div>
+    <div class="lsoc"><button type="button" class="ls" data-act="sbOAuth" data-p="apple" aria-label="Continue with Apple"><svg viewBox="0 0 384 512" aria-hidden="true"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg><span>Apple</span></button><button type="button" class="ls" data-act="sbOAuth" data-p="google" aria-label="Continue with Google"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span>Google</span></button></div>
    </form>
-   <div class="bottomcta">${off?`<div class="gnote">${ic("sync")}<span>You're offline. Use Range with this phone's data and sign in later.</span></div><button class="btn sec" data-act="gateOffline">Continue Offline</button>`:""}
-    <button class="btn" data-act="sbGo">${up?"Create Account":"Sign In"}</button>
-    <p class="muted" style="margin:0;font-size:calc(12px * var(--ts));text-align:center">Free. Your tests, sessions and routines follow you to any device.</p></div></div>`;
+   ${off?`<div class="loff">${ic("sync")}<span>You're offline. Use Range with this phone's data and sign in later.</span><button type="button" class="llink" data-act="gateOffline">Continue Offline</button></div>`:""}
+  </div>
+  <p class="lswitch">${up?`Already have an account? <button type="button" class="llink" data-act="gateMode" data-m="in">Log In</button>`:`New to Range? <button type="button" class="llink" data-act="gateMode" data-m="up">Create an Account</button>`}</p></div>`;
+  // the plate drops in and the card rises, once per open (not when the mode switches)
+  if(!REDUCED&&!keep&&!G.shown){G.shown=1;try{$("#lplate").animate([{transform:"translateY(-18px) scale(.86)",opacity:0},{transform:"none",opacity:1}],{duration:620,easing:"cubic-bezier(.2,.9,.2,1.15)",delay:80,fill:"backwards"});
+    $("#lcard").animate([{transform:"translateY(28px)",opacity:0},{transform:"none",opacity:1}],{duration:520,easing:"cubic-bezier(.23,1,.32,1)",fill:"backwards"})}catch(e){}}
   const nf=$("#sbF");if(keep&&typed){nf.email.value=typed.email;nf.password.value=typed.password}
   nf.password.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();ACT.sbGo()}});
   nf.email.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();nf.password.focus()}});
   if(OAUTH_ERR){const mm=$("#sbMsg");mm.className="c-bad";mm.textContent=OAUTH_ERR;OAUTH_ERR=""}
 }
+ACT.pwEye=(d,el)=>{const f=$("#sbF");if(!f)return;const on=f.password.type==="password";f.password.type=on?"text":"password";el.classList.toggle("on",on);el.setAttribute("aria-label",on?"Hide password":"Show password")};
+// logged in: the button turns into a check, the card falls away and the plate grows to fill the screen, then the app appears
+async function gateFly(){const btn=$("[data-act=sbGo]"),pl=$("#lplate"),cd=$("#lcard");if(btn){btn.classList.remove("busy");btn.classList.add("done")}
+  if(REDUCED||!pl)return;await new Promise(r=>setTimeout(r,420));
+  try{const r=pl.getBoundingClientRect(),cx=innerWidth/2-(r.left+r.width/2),cy=innerHeight/2-(r.top+r.height/2),k=Math.hypot(innerWidth,innerHeight)/r.width*1.15;
+    cd.querySelectorAll(":scope > :not(#lplate)").forEach(e=>e.animate([{opacity:1},{opacity:0}],{duration:220,fill:"forwards"}));
+    cd.animate([{backgroundColor:getComputedStyle(cd).backgroundColor,boxShadow:getComputedStyle(cd).boxShadow},{backgroundColor:"rgba(246,241,232,0)",boxShadow:"0 0 0 rgba(0,0,0,0)"}],{duration:260,fill:"forwards"});
+    const mk=pl.querySelector(".gmark");if(mk)mk.animate([{opacity:1,transform:"none"},{opacity:0,transform:"scale(.6)"}],{duration:200,fill:"forwards"});
+    // a copy of the plate above everything, so it grows past the card to fill the screen
+    const fl=pl.cloneNode(true);fl.removeAttribute("id");Object.assign(fl.style,{position:"fixed",left:r.left+"px",top:r.top+"px",width:r.width+"px",height:r.height+"px",margin:"0",zIndex:"61"});
+    document.body.appendChild(fl);pl.style.visibility="hidden";const fm=fl.querySelector(".gmark");if(fm)fm.style.opacity="0";
+    await fl.animate([{transform:"none"},{transform:`translate(${cx}px,${cy}px) scale(${k})`}],{duration:560,easing:"cubic-bezier(.65,0,.35,1)",fill:"forwards"}).finished;
+    setTimeout(()=>fl.remove(),80)}catch(e){}
+  const v=document.createElement("div");v.className="lveil";document.body.appendChild(v);setTimeout(()=>{try{v.animate([{opacity:1},{opacity:0}],{duration:420,easing:"ease-out"}).onfinish=()=>v.remove()}catch(e){v.remove()}},60)}
 ACT.sbOAuth=async d=>{const p=d.p,name=OAUTH_NAME[p],msg=$("#sbMsg"),btns=[...document.querySelectorAll("[data-act=sbOAuth]")];
   const say=(t,c)=>{if(msg){msg.className=c;msg.textContent=t}},bad=t=>{say(t,"c-bad");btns.forEach(b=>b.disabled=false)};
   btns.forEach(b=>b.disabled=true);say(`Opening ${name}…`,"muted");
@@ -5627,18 +5700,18 @@ addEventListener("offline",()=>{if(GATE&&GATE.step==="form")gateDraw(true)});
 // the old sheet buttons (Profile, when you continued offline) open the front page
 ACT.sbAuth=d=>gateShow(d.m);
 ACT.sbGo=async()=>{const f=$("#sbF");if(!f||!GATE)return;const m=GATE.m,email=f.email.value.trim(),password=f.password.value,msg=$("#sbMsg"),btn=$("[data-act=sbGo]");
-  const bad=t=>{msg.className="c-bad";msg.textContent=t;btn.disabled=false};
+  const bad=t=>{msg.className="c-bad";msg.textContent=t;btn.disabled=false;btn.classList.remove("busy");try{!REDUCED&&$("#lcard").animate([{transform:"translateX(0)"},{transform:"translateX(-8px)"},{transform:"translateX(7px)"},{transform:"translateX(-4px)"},{transform:"translateX(0)"}],{duration:320})}catch(e){}};
   if(!email||!password)return bad("Enter your email and password.");
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))return bad("Please use a real email address.");
   if(m==="up"&&password.length<8)return bad("Use at least 8 characters.");
-  GATE.email=email;btn.disabled=true;msg.className="muted";msg.textContent=m==="up"?"Creating your account…":"Signing in…";
+  GATE.email=email;btn.disabled=true;btn.classList.add("busy");msg.className="muted";msg.textContent="";
   try{await sbLoad();const back=location.origin+location.pathname;
     const r=m==="up"?await SB.auth.signUp({email,password,options:{emailRedirectTo:back}}):await SB.auth.signInWithPassword({email,password});
     if(r.error)throw r.error;
     // with email confirmation on, an address that already has an account comes back with no identities
     if(m==="up"&&r.data.user&&Array.isArray(r.data.user.identities)&&!r.data.user.identities.length){GATE.m="in";gateDraw(true);const mm=$("#sbMsg");mm.className="c-bad";mm.textContent="There's already an account with this email. Sign in, or use Forgot your password.";return}
     if(m==="up"&&!r.data.session){GATE.pw=password;GATE.step="check";gateDraw();return}
-    await gateIn(r.data.user||(r.data.session&&r.data.session.user))}
+    await gateFly();await gateIn(r.data.user||(r.data.session&&r.data.session.user))}
   catch(e){if(sbNet(e)){GATE.net=true;gateDraw(true);const mm=$("#sbMsg");mm.className="c-bad";mm.textContent="Couldn't reach the server. Check your connection, or continue offline.";return}bad(sbNice(e))}};
 ACT.gateConfirmed=async()=>{const msg=$("#sbMsg"),btn=$("[data-act=gateConfirmed]");btn.disabled=true;msg.className="muted";msg.textContent="Signing in…";
   try{await sbLoad();const r=await SB.auth.signInWithPassword({email:GATE.email,password:GATE.pw||""});if(r.error)throw r.error;await gateIn(r.data.user)}
@@ -5675,7 +5748,7 @@ const obSteps=o=>["sports",...(o.sports.includes("crossfit")?["program"]:[]),"eq
 function obStart(){GATE=GATE||{};GATE.step="ob";const d=S.obDraft;GATE.ob=d&&typeof d.i==="number"?{i:d.i,sports:(d.sports||[]).filter(k=>SPI[k]),equip:(d.equip||[]).filter(k=>EQUIP.some(e=>e.k===k)),track:d.track||null,setS:!!d.setS,setE:!!d.setE}:{i:0,sports:[],equip:[],track:null,setS:false,setE:false};
   GATE.ob.i=Math.min(obSteps(GATE.ob).length-1,GATE.ob.i);if(!S.sync||!S.sync.tracks)autoSync(true).then(()=>{if(GATE&&GATE.ob&&obSteps(GATE.ob)[GATE.ob.i]==="program")obDraw()}).catch(()=>{});obDraw()}
 const obKeep=()=>{S.obDraft={...GATE.ob};save()};
-function obDraw(){const g=gateHost(),o=GATE.ob,i=o.i,steps=obSteps(o),step=steps[i],n=steps.length;
+function obDraw(){const g=gateHost();g.classList.remove("lgn");const o=GATE.ob,i=o.i,steps=obSteps(o),step=steps[i],n=steps.length;
   const head=`<div><div class="hdr" style="grid-template-columns:64px 1fr 64px"><button data-act="obBack" aria-label="Back" ${i?"":`style="visibility:hidden"`}>${ic("back")}</button><div class="brand">Range<b>.</b></div><button class="link muted" style="justify-self:end;padding:8px 0" data-act="obSkip">Skip</button></div>
     <div class="tprog">${steps.map((_,k)=>`<i class="${k<=i?"on":""}"></i>`).join("")}</div></div>`;
   let body,cta;
