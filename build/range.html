@@ -888,7 +888,7 @@ html:not(.fig3d) .orb.prof.cards{display:block}html:not(.fig3d) .orb.prof .o-her
 .eqt:active{transform:scale(.96)}
 
 /* ===== one stage behind the three tabs ===== */
-:root{--stg-h:clamp(330px,calc(100svh - 318px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)),600px)}
+:root{--stg-h:clamp(340px,calc(100svh - 270px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)),640px)}
 body.noscores{--stg-h:clamp(300px,calc(100svh - 440px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)),520px)}
 body.touring{--stg-h:clamp(280px,40vh,360px)}
 #stage.orb{position:absolute;left:0;right:0;top:0;height:var(--stg-h);margin:0;z-index:0;--ob:60px}
@@ -917,6 +917,7 @@ html:not(.fig3d) body[data-tab=rebuild] .o-hero{visibility:hidden}
 .o-zoom{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--ink);background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px var(--g-line);transition:transform 160ms var(--ease-out),background .2s}
 .o-zoom svg{width:20px;height:20px}.o-zoom:active{transform:scale(.92)}
 .o-zoom.on{background:color-mix(in srgb,var(--glow,#FF5A4A) 28%,transparent);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--glow,#FF5A4A) 70%,transparent)}
+.o-stat.cen{justify-items:center;text-align:center}.o-stat.cen .dt{justify-self:center}
 /* Rebuild: only the body to tap. The list of areas is the way in when 3D is off */
 html.fig3d .rbareas{display:none}
 @media (prefers-reduced-motion:reduce){.o-bob,.o-shadow,.o-beam,.o-pulse.on{animation:none}.orb{transition:none}}
@@ -2023,7 +2024,10 @@ const FIG3D=(()=>{
     const out=[],F=B.F,U=B.U,at=(q,v,k)=>[q[0]+v[0]*k,q[1]+v[1]*k,q[2]+v[2]*k],lp=(a,b,u)=>[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,a[2]+(b[2]-a[2])*u];
     String(mark).split(";").forEach(m=>{let p=null;
       if(m[0]==="@"){const[r,s0]=m.slice(1).split(":"),s=s0==="2"?"2":"1",L=B.legs[s],A=B.arms[s];
-        p=r==="back"?at(lp(B.p,B.n,.22),F,-7):r==="knee"?at(L.k,F,3.6):r==="hip"?at(L.hip,F,5):r==="shoulder"?at(A.sh,U,3):r==="elbow"?A.e:r==="achilles"?at(lp(L.k,L.f,.85),F,-3.4):null}
+        p=r==="back"?at(lp(B.p,B.n,.22),F,-7):r==="knee"?at(L.k,F,3.6):r==="hip"?at(L.hip,F,5):r==="shoulder"?at(A.sh,U,3):r==="elbow"?A.e:r==="achilles"?at(lp(L.k,L.f,.85),F,-3.4):
+          r==="neck"?at(B.n,U,4):r==="upperback"?at(lp(B.p,B.n,.72),F,-7.5):r==="chest"?at(at(lp(B.p,B.n,.8),F,7),B.Lat,s==="2"?4:-4):r==="abs"?at(lp(B.p,B.n,.38),F,7.5):
+          r==="kneeback"?at(L.k,F,-3.6):r==="kneeside"?at(L.k,B.Lat,s==="2"?3.6:-3.6):r==="shin"?at(lp(L.k,L.f,.55),F,2.6):r==="ankle"?at(L.f,B.Lat,s==="2"?2.6:-2.6):
+          r==="foot"?lp(L.f,L.ft,.35):r==="wrist"?A.w:r==="arm"?lp(A.sh,A.e,.5):r==="thigh"?at(lp(L.hip,L.k,.5),F,4.5):null}
       else{const[n,xyz]=m.split("|"),o=rig.parts[n];if(o&&xyz){const v=new T.Vector3(...xyz.split(",").map(Number)).applyMatrix4(o.matrix);p=[v.x,v.y,v.z]}}
       if(p)out.push(p)});
     return out;
@@ -4104,6 +4108,258 @@ const REGIONS={
    midportion:[{n:"Isometric holds",goal:"Calm the tendon with heavy holds.",min:7,freq:"Daily",items:[["r_calfiso",D_.hold(5,45,1)],["r_soleusiso",D_.hold(3,45),"Bent-knee isometric for the soleus: it takes much of the load when you run, and a still hold calms the tendon while it works."]],exit:"Single-leg heel raises at 3/10 or lower."},{n:"Heavy slow calves",goal:"Rebuild tendon capacity.",min:21,freq:"Every other day. Holds on the days in between",items:[["r_calfraise",D_.reps(4,15,{tempo:[3,0,3],rest:90,sides:1,hsr:1})],["r_soleus",D_.reps(4,15,{tempo:[3,0,3],rest:90,hsr:1})]],exit:"Through the 4×6 stage with next-morning pain stable."},{n:"Spring back",goal:"Hops, skipping, then running and jumps.",min:14,freq:"3 times a week",items:[["r_hops",D_.reps(3,20)],["r_calfraise",D_.reps(3,8,{tempo:[3,0,1],sides:1})]],exit:"Running and jumping at normal volume with next-morning pain stable.",last:true}],
    insertional:[{n:"Isometric holds",goal:"Calm the tendon without squeezing it.",min:7,freq:"Daily",items:[["r_calfiso",D_.hold(5,45,1)]],exit:"Single-leg heel raises at 3/10 or lower."},{n:"Heavy slow calves (flat ground)",goal:"Rebuild capacity without dropping the heel.",min:21,freq:"Every other day",items:[["r_calfraise",D_.reps(4,15,{tempo:[3,0,3],rest:90,sides:1,hsr:1,note:"Flat ground only"})],["r_soleus",D_.reps(4,15,{tempo:[3,0,3],rest:90,hsr:1})]],exit:"Through the 4×6 stage with next-morning pain stable."},{n:"Spring back",goal:"Hops and running reintroduced.",min:14,freq:"3 times a week",items:[["r_hops",D_.reps(3,20)]],exit:"Running and jumping back to normal.",last:true}],
   }},
+ // ---- areas you can tap on the body (added with the tap-the-body picker). Built from the library's exercises ----
+ neck:{n:"Neck",fig:"e1_uptrap",
+  urgent:["Sudden, severe headache, or a stiff neck with fever","Weakness, numbness or clumsiness in both arms or both legs, or trouble walking","The pain started with a big impact, like a car crash or a fall onto your head"],
+  doctor:["Pain, numbness or pins and needles running down an arm","Dizziness, blurred vision or trouble swallowing when you move your neck","Constant pain that doesn't change with movement, including at night","Fever, unexplained weight loss, or a history of cancer"],
+  test:{n:"Look over your shoulder",how:"Turn your head slowly to look over the sore-side shoulder and rate the pain."},
+  screens:[
+   {q:"Where is it?",o:[["Back of the neck",{stiff:2}],["Top of the shoulder, toward the neck",{tension:3}],["Side of the neck",{stiff:1,tension:1}]]},
+   {q:"Turn your head side to side, then tip your ear toward each shoulder. What happens?",o:[["Turning is blocked or stiff one way",{stiff:3}],["It moves fine, the muscles just feel tight and sore",{tension:2}],["No pain",{}]]},
+   {q:"Does it build up after long sitting, screens or driving, and ease when you move?",o:[["Yes",{tension:2}],["No",{}]]},
+  ],
+  classes:{
+   stiff:{n:"Stiff neck",why:"The neck has stiffened up, often after sleeping awkwardly or a sudden movement. Gentle, frequent movement settles it faster than rest.",habits:["Move your neck gently through its comfortable range every hour","Warmth (a shower or heat pack) before the exercises","Sleep on one pillow that keeps your head level"],avoid:["Cracking or forcing the neck to the end of its range","Heavy shrugs, kipping and handstands until turning is comfortable"]},
+   tension:{n:"Neck and upper-trap tension",why:"The muscles between the neck and shoulder work too long without a break, usually from desk or phone posture. They need movement and a stronger upper back.",habits:["Every 30 minutes at a screen: stand, roll the shoulders, look away","Screen at eye level, elbows supported","Carry bags on alternate sides"],avoid:["Long sessions with your chin poking forward at a screen","Heavy shrugs and farmer carries in phase 1"]},
+  },
+  fallback:"tension",
+  phases:[
+   {n:"Ease it",goal:"Get the neck moving again without provoking it.",min:7,freq:"Daily, 1–2 times",items:[["g1_neckroll",D_.hold(2,30)],["e1_uptrap",D_.hold(2,30,1)],["t4",D_.rep(1,8,3)],["r_walk",D_.time(600)]],exit:"Looking over your shoulder at 3/10 or lower for 3 days."},
+   {n:"Build the upper back",goal:"Strengthen the muscles that hold your head and shoulders up.",min:14,freq:"Daily or every other day",items:[["e1_uptrap",D_.hold(1,30,1)],["a_pullapart",D_.reps(3,15)],["g1_blackburn",D_.reps(2,10)],["o3",D_.reps(2,10)],["t1",D_.rep(1,6,5,1)]],exit:"A full workday without the neck building up past 2/10."},
+   {n:"Back to load",goal:"Make the upper back strong enough for training and long days.",min:14,freq:"3 times a week",items:[["r_row",D_.reps(3,10,{note:"3-second hold at the top"})],["r_farmer",D_.hold(3,40)],["a_pullapart",D_.reps(2,20)]],exit:"Back to normal training, including overhead and pulling work, with no rise in neck pain the next morning.",last:true},
+  ]},
+ upperback:{n:"Upper & Mid Back",fig:"t1",
+  urgent:["Chest pain, pressure or tightness, especially with shortness of breath, sweating or pain spreading to the arm or jaw. Call emergency services","Sudden tearing pain between the shoulder blades","Weakness or numbness in both legs, or new bladder or bowel trouble"],
+  doctor:["It started with a fall or a big impact","Sharp pain when you breathe deeply or cough","Constant pain that doesn't change with position, including at night","Fever, unexplained weight loss, or a history of cancer"],
+  test:{n:"Seated twist",how:"Sit with your arms crossed on your chest, turn to look behind you each way and rate the pain."},
+  screens:[
+   {q:"When does it hurt most?",o:[["After sitting or slouching for a long time",{stiff:3}],["When I twist or reach",{stiff:1,muscle:1}],["During or after pulling, rowing or overhead work",{muscle:3}]]},
+   {q:"Sitting, round your upper back, then sit tall and lift your chest. Then twist each way.",o:[["Stiff, and moving eases it",{stiff:2}],["One twist pinches a specific spot",{muscle:2}],["No pain",{}]]},
+   {q:"Press around the sore spot with your fingers. Is it a tender muscle beside the spine or the shoulder blade?",o:[["Yes",{muscle:2}],["No, it's deeper or I can't find it",{stiff:1}]]},
+  ],
+  classes:{
+   stiff:{n:"Stiff upper back",why:"The upper back has stiffened from long hours in one position. It needs regular movement in every direction and a stronger back to hold you up.",habits:["Get up and move every 30–45 minutes","Lean back over your chair and breathe into your chest a few times an hour","Screen at eye level"],avoid:["Long sessions slumped on the sofa or over a phone","Forcing loaded twists until it moves freely"]},
+   muscle:{n:"Upper-back muscle strain",why:"A muscle beside the spine or shoulder blade has been overloaded, usually by pulling or rowing volume. It recovers with gentle movement, then gradually more load.",habits:["Keep moving it gently; full rest stiffens it","Heat before the exercises if it feels tight","Build pulling volume back slowly"],avoid:["High-volume pull-ups, rowing and kipping for now","Ball-smashing the sore spot hard"]},
+  },
+  fallback:"stiff",
+  phases:[
+   {n:"Get it moving",goal:"Restore movement in the upper back without irritating it.",min:7,freq:"Daily",items:[["t4",D_.rep(1,8,3)],["t1",D_.rep(1,6,5,1)],["t2",D_.rep(1,6,5,1)],["t5",D_.reps(2,8,{sides:1})],["r_walk",D_.time(600)]],exit:"The seated twist at 3/10 or lower for 3 days."},
+   {n:"Strengthen",goal:"Build the muscles between and below the shoulder blades.",min:14,freq:"Every other day",items:[["t1",D_.rep(1,6,5,1)],["a_pullapart",D_.reps(3,15)],["g1_blackburn",D_.reps(3,10)],["c_superman",D_.hold(2,20)],["o3",D_.reps(2,10)]],exit:"Pulling and twisting in everyday life pain-free."},
+   {n:"Back to pulling",goal:"Rebuild pulling strength for training.",min:14,freq:"3 times a week",items:[["r_row",D_.reps(3,10,{note:"3-second hold at the top"})],["r_scappull",D_.reps(3,8)],["a_pullapart",D_.reps(2,20)]],exit:"Start pull-ups and rows at about half your usual volume, adding 10–20% a week while the next morning stays at 2/10 or lower.",last:true},
+  ]},
+ chest:{n:"Chest",fig:"s2",
+  urgent:["Chest pain, pressure or tightness at rest or with effort, especially with shortness of breath, sweating, nausea or pain spreading to the arm, neck or jaw. Call emergency services","Sudden sharp chest pain with trouble breathing"],
+  doctor:["It started with a fall or a blow to the chest","A pop during bench press or dips, with bruising or a change in the shape of the chest or armpit","Pain when you breathe deeply or cough that doesn't change when you move your arms","Fever or a cough, or you feel unwell"],
+  test:{n:"Push-up hold",how:"Hold the top of a push-up (from your knees if needed) for 10 seconds and rate the pain."},
+  screens:[
+   {q:"Press on the sore spot. Where is it?",o:[["The chest muscle, toward the shoulder or armpit",{muscle:3}],["On the breastbone, or where the ribs meet it",{rib:3}],["Pressing doesn't make it hurt",{}]]},
+   {q:"Press your palms together hard in front of your chest for 5 seconds.",o:[["That brings on the pain",{muscle:2}],["No pain",{rib:1}]]},
+   {q:"Does a deep breath, a cough or lying on your front bring it on?",o:[["Yes",{rib:2}],["No",{muscle:1}]]},
+  ],
+  classes:{
+   muscle:{n:"Chest muscle strain",why:"The chest muscle (pec) has been overloaded, usually by pressing or dips. It heals with gentle movement, then gradually more load.",habits:["Keep the arm moving gently in its pain-free range","Build pressing back slowly, starting light"],avoid:["Bench press, dips, push-ups and ring work for now","Deep chest stretching while it is sore"]},
+   rib:{n:"Rib and breastbone irritation",why:"The joints where the ribs meet the breastbone are irritated (costochondritis). It usually settles over a few weeks with calm breathing, upper-back movement and less heavy pressing.",habits:["Slow, relaxed breathing a few times a day","Upper-back mobility daily","Sleep on your back or side"],avoid:["Heavy pressing and dips until it settles","Pressing hard on the sore spot to check it"]},
+  },
+  fallback:"rib",
+  phases:[
+   {n:"Settle it",goal:"Calm the area and keep the shoulders and upper back moving.",min:7,freq:"Daily",items:[["r_breath",D_.rep(1,5,5)],["t1",D_.rep(1,6,5,1)],["o3",D_.reps(2,10)],["r_walk",D_.time(600)]],exit:"The push-up hold at 3/10 or lower for 3 days."},
+   {n:"Rebuild pressing",goal:"Load the chest gently again.",min:14,freq:"Every other day",items:[["a_scappush",D_.reps(3,10)],["a_wallserr",D_.reps(2,10)],["a_pullapart",D_.reps(3,15)],["s2",D_.hold(2,30,1)]],exit:"Push-ups from the knees pain-free for 3 sets of 10."},
+   {n:"Back to pressing",goal:"Return to the bench, push-ups and dips.",min:14,freq:"3 times a week",items:[["a_scappush",D_.reps(3,15)],["r_kbpress",D_.reps(3,8,{sides:1})],["r_row",D_.reps(3,10)]],exit:"Start bench press and dips at about half your working weights, adding about 10% a week while the next morning stays at 2/10 or lower.",last:true},
+  ]},
+ abs:{n:"Abs & Side of the Waist",fig:"r_sideplank",
+  urgent:["Severe belly pain with fever or vomiting, or a hard, swollen belly","Belly pain with blood in your vomit, urine or stool"],
+  doctor:["A bulge in the groin or belly, especially when you cough or strain","The pain doesn't change with movement, or wakes you at night","A pop with bruising when it started","Pain in the side or back with fever, or pain when you pee"],
+  test:{n:"Head lift",how:"Lying on your back, lift your head and shoulders off the floor and hold for 5 seconds. Rate the pain."},
+  screens:[
+   {q:"Where is it?",o:[["Front of the belly",{front:3}],["The side of the waist",{oblique:3}],["Low, near the groin",{front:1}]]},
+   {q:"Lying on your back, lift your head and shoulders. Then twist toward each knee.",o:[["Straight up hurts most",{front:2}],["Twisting hurts most",{oblique:2}],["No pain",{}]]},
+  ],
+  classes:{
+   front:{n:"Abdominal strain",why:"The front abdominal muscle has been overloaded, often by toes-to-bar, GHD sit-ups or heavy bracing. It heals with steady core work that stays pain-free.",habits:["Brace gently before you cough, sneeze or lift","Keep training everything that doesn't hurt"],avoid:["GHD sit-ups, toes-to-bar and kipping for now","Heavy lifts that need a hard brace until it is pain-free"]},
+   oblique:{n:"Side-of-the-waist strain",why:"The muscles at the side of your waist (obliques) have been overloaded by twisting, throwing or side bending. They recover with gradual anti-twist work.",habits:["Turn with your feet rather than twisting","Brace gently when you cough or sneeze"],avoid:["Twisting under load, Russian twists and wall-ball throws for now","Side-bending stretches while it is sore"]},
+  },
+  fallback:"front",
+  phases:[
+   {n:"Calm it",goal:"Use the core gently without straining the sore muscle.",min:7,freq:"Daily",items:[["r_breath",D_.rep(1,5,5)],["c_deadbug",D_.reps(2,8,{sides:1,note:"Small range, only pain-free"})],["r_walk",D_.time(900)]],exit:"The head lift at 2/10 or lower."},
+   {n:"Rebuild the core",goal:"Build endurance in the whole trunk.",min:14,freq:"Daily",items:[["r_curlup",D_.pyr([6,4,2])],["r_sideplank",D_.pyr([6,4,2],1)],["r_pallof",D_.reps(3,10,{sides:1})],["c_plank",D_.hold(3,30)]],exit:"Planks and side planks pain-free for 45 seconds."},
+   {n:"Back to training",goal:"Load the core with speed and twisting again.",min:14,freq:"3 times a week",items:[["c_hollow",D_.hold(3,25)],["g1_sprot",D_.reps(2,8,{sides:1})],["r_pallof",D_.reps(3,12,{sides:1})]],exit:"Return to toes-to-bar and GHD sit-ups at low volume, adding a little each week while the next morning stays at 2/10 or lower.",last:true},
+  ]},
+ kneeback:{n:"Back of the Knee",fig:"r_slbridge",
+  urgent:["The calf is swollen, warm, red or tender, especially after a long trip, surgery or time off your feet (a possible blood clot)"],
+  doctor:["A lump or swelling behind the knee","The knee locks, catches or gives way","It started with a twist or a pop","Numbness or tingling down the leg"],
+  test:{n:"Single-leg bridge",how:"Lie on your back with one heel on the floor and lift your hips on the painful leg. Rate the pain."},
+  screens:[
+   {q:"Single-leg bridge on the painful side, then a single-leg heel raise.",o:[["The bridge hurts more",{ham:3}],["The heel raise hurts more",{calf:3}],["Both about the same",{ham:1,calf:1}],["Neither",{}]]},
+   {q:"Sitting on a chair, dig your heel into the floor and pull it toward you for 5 seconds.",o:[["Pain behind the knee",{ham:2}],["No pain",{calf:1}]]},
+  ],
+  classes:{
+   ham:{n:"Hamstring tendon at the knee",why:"The hamstring tendons behind the knee are overloaded, often from running, deadlift volume or sprinting. Tendons need steady load that is heavy enough, not rest.",habits:["Keep pain at 3/10 or lower during exercise, and back to normal by the next morning","Cut back sprinting and high-volume deadlifts for now"],avoid:["Sprinting and fast hamstring stretches","Long periods sitting with the knee bent"]},
+   calf:{n:"Upper calf at the knee",why:"The top of the calf, where it joins behind the knee, is overloaded, often by running, skipping or jumping. It needs gradual calf loading.",habits:["Keep pain at 3/10 or lower during exercise","Softer surfaces and shoes you know for running"],avoid:["Double-unders, jumping and hill running for now"]},
+  },
+  fallback:"ham",
+  phasesBy:{
+   ham:[
+    {n:"Isometrics",goal:"Calm the tendon with steady holds.",min:7,freq:"Daily",items:[["w_hamact",D_.reps(3,10,{sides:1,note:"5-second dig each rep"})],["r_bridge",D_.rep(3,10,5)],["r_walk",D_.time(600)]],exit:"The single-leg bridge at 3/10 or lower."},
+    {n:"Build strength",goal:"Load the hamstrings slowly and heavily.",min:14,freq:"Every other day",items:[["r_slbridge",D_.rep(3,10,5,1)],["r_hinge",D_.reps(3,10,{note:"3-second hold at the bottom"})],["r_slrdl",D_.reps(3,8,{sides:1,tempo:[3,1,1]})]],exit:"Single-leg RDLs pain-free for 3 sets of 10."},
+    {n:"Speed and load",goal:"Get the hamstrings ready for running and lifting.",min:14,freq:"3 times a week",items:[["r_slrdl",D_.reps(3,10,{sides:1})],["c_goodmorn",D_.reps(3,12)],["g1_walkgm",D_.reps(2,10)]],exit:"Start deadlifts at about half your working weight and add 10% a week; build running and sprints back gradually.",last:true},
+   ],
+   calf:[
+    {n:"Isometrics",goal:"Calm the upper calf with steady holds.",min:7,freq:"Daily",items:[["r_calfiso",D_.hold(4,30,1)],["r_soleusiso",D_.hold(3,30)],["r_walk",D_.time(600)]],exit:"Single-leg heel raises at 3/10 or lower."},
+    {n:"Build strength",goal:"Load the calf slowly and heavily.",min:14,freq:"Every other day",items:[["r_calfraise",D_.reps(3,15,{sides:1,tempo:[3,1,3]})],["r_soleus",D_.reps(3,15)]],exit:"25 single-leg heel raises pain-free."},
+    {n:"Spring back",goal:"Bring back bouncing and running.",min:14,freq:"3 times a week",items:[["r_calfraise",D_.reps(3,15,{sides:1})],["r_hops",D_.reps(3,20,{rest:60})]],exit:"Build running and skipping back gradually while the next morning stays at 2/10 or lower.",last:true},
+   ],
+  }},
+ kneeside:{n:"Side of the Knee",fig:"r_bandwalk",
+  urgent:["You can't put any weight on the leg"],
+  doctor:["It started with a twist, a pop or a blow to the side of the knee","The knee swelled up within a few hours","It locks, catches or gives way","Numbness or tingling down the leg"],
+  test:{n:"Step-down",how:"Step slowly down from a low step on the painful leg and rate the pain."},
+  screens:[
+   {q:"Where is it?",o:[["Inside of the knee",{inside:3}],["Outside of the knee",{outside:3}]]},
+   {q:"Does it come on while running, especially downhill or after about the same distance each time?",o:[["Yes",{outside:2}],["Not really",{}]]},
+   {q:"Is it worse on stairs, or when you lie on your side with your knees together?",o:[["Yes",{inside:1}],["No",{}]]},
+  ],
+  classes:{
+   inside:{n:"Inside-of-the-knee overload",why:"The tendons and ligament on the inside of the knee are overloaded, often by the knee caving in on squats and landings. Hip strength and knee control settle it.",habits:["Knees out over the toes in squats and landings","A pillow between the knees if you sleep on your side"],avoid:["Deep or wide squats that hurt","Cutting, pivoting and jumping until it settles"]},
+   outside:{n:"Outside-of-the-knee (IT band) irritation",why:"The band on the outside of the thigh is irritated where it crosses the knee, usually after a jump in running or cycling. Less of the trigger plus hip strength fixes it.",habits:["Run only as far as you can before pain starts","Shorter strides, flat routes"],avoid:["Downhill running and long runs for now","Foam rolling hard on the sore spot itself"]},
+  },
+  fallback:"inside",
+  phasesBy:{
+   inside:[
+    {n:"Calm it",goal:"Load the knee gently and switch on the hips.",min:7,freq:"Daily",items:[["r_wallsit",D_.hold(4,30)],["r_addsqueeze",D_.rep(2,10,5)],["r_bridge",D_.rep(2,15,5)]],exit:"The step-down at 3/10 or lower."},
+    {n:"Hip and knee control",goal:"Teach the hip to hold the knee in line.",min:14,freq:"Daily or every other day",items:[["r_bandwalk",D_.reps(3,15,{note:"Steps each way"})],["r_touchdown",D_.reps(3,10,{sides:1})],["r_copenhagen",D_.rep(2,8,5,1)]],exit:"Step-downs pain-free for 3 sets of 10, knee in line."},
+    {n:"Back to training",goal:"Control the knee under load and speed.",min:14,freq:"3 times a week",items:[["r_splitsq",D_.reps(3,10,{sides:1,tempo:[3,1,1]})],["r_boxsquat",D_.reps(3,10)],["r_hops",D_.reps(3,15)]],exit:"Normal training with the knee tracking over the toes and the next morning at 2/10 or lower.",last:true},
+   ],
+   outside:[
+    {n:"Calm it",goal:"Ease the irritation and wake up the side of the hip.",min:7,freq:"Daily",items:[["r_gmedwall",D_.hold(3,30,1)],["r_bridge",D_.rep(2,15,5)],["w_tfl",D_.hold(2,30,1)],["r_walk",D_.time(600)]],exit:"The step-down at 3/10 or lower, and walking pain-free."},
+    {n:"Hip strength",goal:"Build the hip muscles that steady the knee.",min:14,freq:"Daily or every other day",items:[["r_bandwalk",D_.reps(3,15,{note:"Steps each way"})],["r_abduction",D_.reps(3,15,{sides:1})],["r_slbridge",D_.rep(2,10,5,1)],["r_touchdown",D_.reps(3,10,{sides:1})]],exit:"Single-leg work pain-free and a 20-minute walk without pain."},
+    {n:"Back to running",goal:"Build running back without a flare-up.",min:14,freq:"3 times a week",items:[["r_splitsq",D_.reps(3,10,{sides:1})],["r_airplane",D_.rep(1,10,5,1)],["r_hops",D_.reps(3,20)]],exit:"Run-walk on flat ground, adding about 10% distance a week while the next morning stays at 2/10 or lower.",last:true},
+   ],
+  }},
+ shin:{n:"Shin",fig:"d_tibraise",
+  urgent:[],
+  doctor:["One small spot on the bone that hurts to press, or pain when walking or at night (a possible stress fracture)","Tightness, numbness or tingling in the lower leg during exercise that goes away when you stop","It started with a fall, a kick or a knock","Swelling or bruising"],
+  test:{n:"Hops",how:"Hop 10 times on the painful leg and rate the pain."},
+  screens:[
+   {q:"Press along the inside edge of the shin bone. What do you find?",o:[["Tender along a longer strip (5 cm or more)",{mtss:3}],["One small, very sore spot",{mtss:1,_high:1}],["Mostly the muscle on the front of the shin",{front:3}]]},
+   {q:"When does it hurt?",o:[["Early in a run, easing as I warm up",{mtss:2}],["It gets worse the longer I go",{front:1,_high:1}],["Only after training",{mtss:1}]]},
+  ],
+  classes:{
+   mtss:{n:"Shin splints",why:"The bone and muscles along the inside of the shin are overloaded, usually after a sudden rise in running or jumping. Load comes down, then builds back with calf strength.",habits:["Keep running and jumping at a level that stays at 2/10 or lower","Run on softer surfaces, in shoes you know","Build back about 10% a week"],avoid:["Double-unders, box jumps and long runs for now","Running through pain that changes your stride"]},
+   front:{n:"Front shin muscle overload",why:"The muscle on the front of the shin is overworked, often by downhill running, skipping or new shoes. It needs strengthening and a short break from the trigger.",habits:["Flat routes for now","Loosen the laces over the top of the foot"],avoid:["Downhill running and double-unders for now"]},
+  },
+  fallback:"mtss",
+  highNote:"One small spot on the bone that hurts to press, or pain that gets worse the longer you go, can be a stress fracture. Stop running and jumping and see a doctor before you start this program.",
+  phases:[
+   {n:"Unload and calm",goal:"Rest from the trigger while keeping the lower leg strong.",min:7,freq:"Daily",items:[["r_soleusiso",D_.hold(3,30)],["d_tibraise",D_.reps(2,15)],["r_calfiso",D_.hold(3,30,1)]],exit:"Walking and hops pain-free."},
+   {n:"Build the lower leg",goal:"Make the calf and shin muscles strong enough to absorb running.",min:14,freq:"Every other day",items:[["r_calfraise",D_.reps(3,15,{sides:1,tempo:[2,1,2]})],["r_soleus",D_.reps(3,15)],["d_tibraise",D_.reps(3,20)]],exit:"25 single-leg heel raises pain-free on each side."},
+   {n:"Back to running",goal:"Bring back bouncing and running gradually.",min:14,freq:"3 times a week",items:[["r_hops",D_.reps(3,20,{rest:60})],["r_calfraise",D_.reps(3,15,{sides:1})],["d_tibraise",D_.reps(2,20)]],exit:"Run-walk on soft ground, adding about 10% a week while the next morning stays at 2/10 or lower.",last:true},
+  ]},
+ ankle:{n:"Ankle",fig:"a6",
+  urgent:["You couldn't take 4 steps right after the injury, or still can't"],
+  doctor:["It hurts to press on the bony bumps on either side of the ankle, or on the outer edge of the foot (a possible fracture)","Big swelling or bruising after a roll","The ankle keeps giving way","Numbness or tingling in the foot"],
+  test:{n:"Single-leg balance",how:"Stand on the painful leg for 30 seconds and rate the pain."},
+  screens:[
+   {q:"How did it start?",o:[["I rolled it",{sprain:3}],["Gradually, with no injury",{stiff:2}],["I rolled it a while ago and it never felt right",{sprain:2,stiff:1}]]},
+   {q:"Kneel and push your knee forward over the toes toward a wall. Where do you feel it?",o:[["A pinch at the front of the ankle",{stiff:3}],["On the outside or inside, where I rolled it",{sprain:2}],["Nothing",{}]]},
+   {q:"Stand on the painful leg with your eyes closed for 15 seconds.",o:[["I wobble a lot, or can't",{sprain:2}],["Fine",{}]]},
+  ],
+  classes:{
+   sprain:{n:"Ankle sprain",why:"The ligaments around the ankle were stretched when it rolled. They heal best with early, protected movement, then balance and strength so it doesn't roll again.",habits:["Walk normally as soon as you can","A brace or tape for sport for the first few months","Balance on one leg while you brush your teeth"],avoid:["Jumping, cutting and uneven ground until your balance is good","Rolling the ankle inward to stretch it"]},
+   stiff:{n:"Stiff, pinching ankle",why:"The front of the ankle pinches when the knee goes over the toes, usually from stiffness after an old sprain or a tight calf. Mobility and strength open it up.",habits:["Ankle mobility before squatting","Lifting shoes or a small heel lift for squats while you work on it"],avoid:["Forcing deep squats into the pinch"]},
+  },
+  fallback:"sprain",
+  phasesBy:{
+   sprain:[
+    {n:"Protect and move",goal:"Get the ankle moving and walking normally.",min:7,freq:"Daily",items:[["r_calfiso",D_.hold(3,30,1)],["d_tibraise",D_.reps(2,15)],["r_walk",D_.time(600)]],exit:"Walking normally without a limp."},
+    {n:"Balance and strength",goal:"Rebuild strength and the ankle's sense of position.",min:14,freq:"Daily",items:[["r_calfraise",D_.reps(3,15,{sides:1})],["r_airplane",D_.rep(1,10,5,1)],["r_bandwalk",D_.reps(2,15,{note:"Steps each way"})]],exit:"Balance for 30 seconds on the injured leg with your eyes closed."},
+    {n:"Back to sport",goal:"Hops, landings and changes of direction.",min:14,freq:"3 times a week",items:[["r_hops",D_.reps(3,20,{rest:60})],["r_touchdown",D_.reps(3,10,{sides:1})],["r_calfraise",D_.reps(3,20,{sides:1})]],exit:"Hop and land on the injured leg as well as the other. Brace or tape for sport for the next few months.",last:true},
+   ],
+   stiff:[
+    {n:"Open it up",goal:"Restore the ankle's bend without the pinch.",min:7,freq:"Daily",items:[["a6",D_.hold(2,40,1)],["a1",D_.reps(2,10,{sides:1})],["g1_calfwall",D_.hold(2,30,1)]],exit:"Knee-to-wall without the pinch."},
+    {n:"Strength through range",goal:"Make the new range strong.",min:14,freq:"Every other day",items:[["a1",D_.reps(2,10,{sides:1})],["r_calfraise",D_.reps(3,15,{sides:1})],["d_tibraise",D_.reps(3,15)],["r_bwsquat",D_.reps(3,15,{note:"To pain-free depth"})]],exit:"A full-depth bodyweight squat with heels down and no pinch."},
+    {n:"Load it",goal:"Squat and land through the full range.",min:14,freq:"3 times a week",items:[["a6",D_.hold(1,40,1)],["d_heelsq",D_.reps(3,10)],["r_hops",D_.reps(3,20)]],exit:"Normal squatting and jumping without the pinch.",last:true},
+   ],
+  }},
+ foot:{n:"Heel & Foot",fig:"r_calfraise",
+  urgent:[],
+  doctor:["It started with a fall, a landing or a twist","One spot on the top of the foot that hurts to press (a possible stress fracture)","Burning, numbness or tingling in the foot","A hot, red, swollen joint, or you feel unwell"],
+  test:{n:"First steps",how:"Take 10 steps after sitting for a while (or first thing in the morning) and rate the pain."},
+  screens:[
+   {q:"Where is it?",o:[["Under the heel or the arch",{plantar:3}],["Top of the foot",{_high:1}],["Ball of the foot or the toes",{forefoot:3}]]},
+   {q:"Are the first steps in the morning or after sitting the worst, easing as you walk?",o:[["Yes",{plantar:2}],["No",{forefoot:1}]]},
+  ],
+  classes:{
+   plantar:{n:"Plantar heel pain",why:"The thick band under the foot (plantar fascia) is overloaded where it joins the heel. A stronger calf and arch and less load fix it, usually over a few months.",habits:["Supportive shoes; no barefoot walking on hard floors for now","Roll the arch gently before you get up","Keep running and jumping at a level that stays at 2/10 or lower"],avoid:["Long runs, double-unders and box jumps for now","Standing still for long periods in flat shoes"]},
+   forefoot:{n:"Ball-of-the-foot overload",why:"The front of the foot is taking too much load, often from jumping, running on the toes or tight shoes. Stronger feet and calves and less impact settle it.",habits:["Shoes with room for your toes","Cut skipping and box jumps for now"],avoid:["Double-unders and running on your toes for now"]},
+  },
+  fallback:"plantar",
+  highNote:"Pain on one spot on the top of the foot can be a stress fracture. Stop running and jumping and see a doctor before you start this program.",
+  phases:[
+   {n:"Calm it",goal:"Ease the morning pain and start loading the foot.",min:7,freq:"Daily",items:[["e2_ballroll",D_.hold(1,60,1)],["r_calfiso",D_.hold(3,30,1)],["d_toestretch",D_.hold(2,30)]],exit:"First steps at 3/10 or lower."},
+   {n:"Build the foot",goal:"Make the calf and the arch strong.",min:21,freq:"Every other day",items:[["r_calfraise",D_.reps(3,12,{sides:1,tempo:[3,2,3],note:"A rolled towel under your toes"})],["r_soleus",D_.reps(3,15)],["e2_ballroll",D_.hold(1,60,1)]],exit:"Single-leg heel raises pain-free for 3 sets of 12."},
+   {n:"Back to impact",goal:"Bring back running and jumping.",min:14,freq:"3 times a week",items:[["r_calfraise",D_.reps(3,15,{sides:1})],["r_hops",D_.reps(3,20,{rest:60})]],exit:"Build running and jumping back gradually while the mornings stay at 2/10 or lower.",last:true},
+  ]},
+ wrist:{n:"Wrist & Hand",fig:"r_wristrock",
+  urgent:[],
+  doctor:["It started with a fall onto your hand, and the base of the thumb is tender (a possible scaphoid fracture)","Numbness or tingling in the fingers, especially at night","A visible lump, swelling or a change in shape","Clicking or clunking with pain, or a weak grip after an injury"],
+  test:{n:"Hands on the floor",how:"Put your weight through your hands in a push-up position (from your knees) and rate the pain."},
+  screens:[
+   {q:"When does it hurt most?",o:[["Front rack, push-ups or handstands (wrist bent back under load)",{load:3}],["Gripping, twisting or lifting things",{grip:3}],["Both",{load:1,grip:1}]]},
+   {q:"Press your palms together in front of your chest and lower them. Do your wrists reach 90°?",o:[["No",{load:2,_wrist:1}],["Yes",{}]]},
+  ],
+  classes:{
+   load:{n:"Wrist overload when bent back",why:"The back of the wrist is overloaded when it bends back under weight: front rack, push-ups and handstands. Strength and range let it take that load again.",habits:["Warm up the wrists before every session","Push-ups on fists or parallettes for now","Loosen your front-rack grip to the fingertips"],avoid:["Handstands, heavy front rack and flat-hand burpees for now"]},
+   grip:{n:"Grip and forearm overload",why:"The tendons that grip and twist are overloaded, often by high-rep pulling and kettlebells. They need gradual grip strength.",habits:["Hook grip or straps to spare the grip for now","Spread out high-rep pulling"],avoid:["High-rep pull-ups, toes-to-bar and kettlebell swings for now"]},
+  },
+  fallback:"load",
+  phases:[
+   {n:"Calm and move",goal:"Get the wrist moving without irritating it.",min:7,freq:"Daily",items:[["r_wristrock",D_.reps(2,10)],["e1_prayer",D_.hold(2,30)],["r_wristiso",D_.hold(3,30,1)]],exit:"Hands on the floor at 3/10 or lower."},
+   {n:"Build strength",goal:"Make the wrist and forearm strong.",min:14,freq:"Every other day",items:[["r_wristcurl",D_.reps(3,15,{sides:1,tempo:[3,0,3]})],["a_pinch",D_.hold(3,30)],["a_wristext",D_.hold(2,30)]],exit:"Wrist curls pain-free for 3 sets of 15."},
+   {n:"Back to load",goal:"Put weight through the hands again.",min:14,freq:"3 times a week",items:[["r_rackhold",D_.hold(3,30)],["r_farmer",D_.hold(3,40)],["r_wristrock",D_.reps(2,15)]],exit:"Return to push-ups, front rack and handstands gradually while the next morning stays at 2/10 or lower.",last:true},
+  ]},
+ thigh:{n:"Front of the Thigh",fig:"r_wallsit",
+  urgent:[],
+  doctor:["A pop with bruising, or a dent you can feel in the muscle","It started with a blow and the thigh is very swollen, hard or getting worse (a deep bruise can need care)","You can't walk normally"],
+  test:{n:"Bodyweight squat",how:"Squat to a comfortable depth and rate the pain."},
+  screens:[
+   {q:"How did it start?",o:[["A sudden pull while sprinting, kicking or jumping",{strain:3}],["A knock or a blow to the thigh",{bruise:3}],["Gradually, with training",{strain:1}]]},
+   {q:"Lying on your front, bend the knee to bring the heel toward your bottom. Compare sides.",o:[["Much less bend on the sore side",{bruise:1,strain:1}],["About the same",{}]]},
+  ],
+  classes:{
+   strain:{n:"Quad muscle strain",why:"The muscle on the front of the thigh has been overloaded, usually in a sprint, kick or jump. It heals with early gentle loading, then gradually faster and heavier work.",habits:["Keep walking and moving it in its pain-free range","Build speed back last"],avoid:["Sprinting, kicking and jumping for now","Hard quad stretching while it is sore"]},
+   bruise:{n:"Deep thigh bruise",why:"A blow has bruised the muscle. Early gentle movement helps, but heat, massage and hard stretching in the first days can make it worse.",habits:["Ice and gentle movement in the first days","Bend the knee gently as far as is comfortable a few times a day"],avoid:["Heat, massage and hard stretching in the first week","Contact and impact until the knee bends fully"]},
+  },
+  fallback:"strain",
+  phases:[
+   {n:"Gentle loading",goal:"Use the thigh without straining it.",min:7,freq:"Daily",items:[["r_wallsit",D_.hold(3,30)],["d_tke",D_.reps(3,15,{sides:1})],["r_walk",D_.time(600)]],exit:"Bodyweight squats at 2/10 or lower."},
+   {n:"Build strength",goal:"Load the quads through more range.",min:14,freq:"Every other day",items:[["r_bwsquat",D_.reps(3,15,{note:"To pain-free depth"})],["r_splitsq",D_.reps(3,10,{sides:1,tempo:[3,1,1]})],["e2_standquad",D_.hold(2,30,1)]],exit:"Split squats pain-free for 3 sets of 10 and the knee bending fully."},
+   {n:"Speed and load",goal:"Get the thigh ready for sprinting, jumping and heavy squats.",min:14,freq:"3 times a week",items:[["d_revnordic",D_.reps(3,6)],["r_boxsquat",D_.reps(3,10)],["r_hops",D_.reps(3,20)]],exit:"Build sprinting and heavy squats back gradually while the next morning stays at 2/10 or lower.",last:true},
+  ]},
+ arm:{n:"Upper Arm",fig:"a_pushdown",
+  urgent:["Very sore, swollen arms with dark (cola-coloured) urine after a hard workout (possible rhabdomyolysis)"],
+  doctor:["A pop with sudden weakness, bruising or a bulge in the upper arm (a possible tendon tear)","Numbness or tingling down the arm","Pain that wakes you at night"],
+  test:{n:"Arm against resistance",how:"Bend your elbow while your other hand pushes it down, then straighten it while your other hand pushes back. Rate the worse one."},
+  screens:[
+   {q:"Where is it?",o:[["Front of the upper arm",{biceps:3}],["Back of the upper arm",{triceps:3}]]},
+   {q:"Which hurts more?",o:[["Bending the elbow against resistance, or pulling",{biceps:2}],["Straightening it against resistance, or pushing",{triceps:2}],["Neither",{}]]},
+  ],
+  classes:{
+   biceps:{n:"Biceps strain",why:"The biceps has been overloaded, often by high-rep pulling, ring work or heavy curls. It heals with gentle use, then gradually heavier pulling.",habits:["Keep using the arm gently in its pain-free range","Build pulling volume back slowly"],avoid:["Kipping, muscle-ups and high-rep pull-ups for now","Heavy curls and chin-ups until it is pain-free"]},
+   triceps:{n:"Triceps strain",why:"The triceps has been overloaded, often by high-rep pushing, dips or overhead work. It heals with gentle use, then gradually heavier pushing.",habits:["Keep using the arm gently in its pain-free range","Build pressing volume back slowly"],avoid:["Dips, handstand push-ups and high-rep push-ups for now"]},
+  },
+  fallback:"biceps",
+  phasesBy:{
+   biceps:[
+    {n:"Gentle use",goal:"Use the arm without straining the sore muscle.",min:7,freq:"Daily",items:[["r_row",D_.reps(2,10,{note:"Easy angle, body nearly upright"})],["e1_wallbicep",D_.hold(2,20,1)],["r_walk",D_.time(600)]],exit:"Bending the elbow against resistance at 2/10 or lower."},
+    {n:"Rebuild pulling",goal:"Load the biceps gradually.",min:14,freq:"Every other day",items:[["r_row",D_.reps(3,10,{note:"3-second hold at the top"})],["a_extpull",D_.reps(3,12)],["r_scappull",D_.reps(3,8)]],exit:"Ring rows pain-free for 3 sets of 10."},
+    {n:"Back to pulling",goal:"Return to pull-ups and ring work.",min:14,freq:"3 times a week",items:[["r_row",D_.reps(3,12)],["r_farmer",D_.hold(3,40)],["r_scappull",D_.reps(3,10)]],exit:"Start pull-ups at about half your usual volume, adding 10–20% a week while the next morning stays at 2/10 or lower.",last:true},
+   ],
+   triceps:[
+    {n:"Gentle use",goal:"Use the arm without straining the sore muscle.",min:7,freq:"Daily",items:[["a_pushdown",D_.reps(2,15,{note:"Light band, slow"})],["e1_ohtri",D_.hold(2,20,1)],["r_walk",D_.time(600)]],exit:"Straightening the elbow against resistance at 2/10 or lower."},
+    {n:"Rebuild pushing",goal:"Load the triceps gradually.",min:14,freq:"Every other day",items:[["a_pushdown",D_.reps(3,15)],["a_scappush",D_.reps(3,10)],["a_wallserr",D_.reps(2,10)]],exit:"Push-ups from the knees pain-free for 3 sets of 10."},
+    {n:"Back to pressing",goal:"Return to push-ups, dips and overhead work.",min:14,freq:"3 times a week",items:[["a_pushdown",D_.reps(3,20)],["r_kbpress",D_.reps(3,8,{sides:1})],["a_scappush",D_.reps(3,15)]],exit:"Start dips and handstand push-ups at low volume, adding a little each week while the next morning stays at 2/10 or lower.",last:true},
+   ],
+  }}
 };
 // flexion-sensitive backs groove the hip hinge from day one (it's how they should pick things up)
 REGIONS.back.extraBy={flexion:[["r_hinge",D_.reps(2,8,{note:"Dowel along your back, pain-free depth"})]]};
@@ -5229,7 +5485,10 @@ function rbProgPane(st,phs){const days=Math.floor((Date.now()-st.started)/dayMs)
     <div class="tile"><span class="eyebrow">Days</span><b>${days}</b></div>
     <div class="tile"><span class="eyebrow">Phase</span><b>${st.phase+1}/${phs.length}</b></div>
   </div>`}
-const RB_SUB={back:"Pain when you bend, sit, lift or twist",knee:"Around the kneecap and the tendon below it",hip:"Front of the hip, groin or the hamstring tendon",shoulder:"Overhead, pressing or hanging hurts",elbow:"Tennis or golfer's elbow, gripping hurts",achilles:"Tendon pain when you run, jump or rise onto your toes"};
+const RB_SUB={back:"Pain when you bend, sit, lift or twist",knee:"Around the kneecap and the tendon below it",hip:"Front of the hip, groin or the hamstring tendon",shoulder:"Overhead, pressing or hanging hurts",elbow:"Tennis or golfer's elbow, gripping hurts",achilles:"Tendon pain when you run, jump or rise onto your toes",
+  neck:"Stiff or tight neck and upper traps",upperback:"Between and around the shoulder blades",chest:"Chest muscle or where the ribs meet the breastbone",abs:"Front of the belly or the side of the waist",
+  kneeback:"Hamstring tendons or the top of the calf",kneeside:"Inside of the knee, or the IT band on the outside",shin:"Shin splints and the front of the shin",ankle:"Sprains and a stiff, pinching ankle",
+  foot:"Under the heel, the arch or the ball of the foot",wrist:"Front rack, push-ups and grip",arm:"Biceps or triceps strain",thigh:"Quad strain or a bruised thigh"};
 // Rebuild: tap the body where it hurts. The spot you tap picks the program (knee, hip, back...) and the side
 let RB_SEL=null;
 // where you tapped, as a person would say it: "Back of the Knee", "Mid Back", "Front of the Shoulder". r is the Rebuild
@@ -5270,8 +5529,18 @@ function rbFromHit(h){
     case"foot":L=fb==="back"?"Heel":"Foot";break;
     default:L="There";
   }
-  return{label:L,side,r,mark:h.mark};
+  let hint=null;if(!r&&RB_SPOT[L]){r=RB_SPOT[L][0];hint=RB_SPOT[L][1]||null}else if(r&&RB_SPOT_HINT[L])hint=RB_SPOT_HINT[L];
+  return{label:L,side,r,hint,mark:h.mark};
 }
+// spots without their own program in the code above go to the program for that area; the second value gives the
+// screen a head start toward the right kind of problem (it still asks its questions)
+const RB_SPOT={"Back of the Knee":["kneeback"],"Inside of the Knee":["kneeside",{inside:3}],"Outside of the Knee":["kneeside",{outside:3}],
+  "Shin":["shin"],"Inside of the Shin":["shin",{mtss:2}],"Outside of the Shin":["shin",{front:2}],"Front of the Ankle":["ankle",{stiff:2}],"Inside of the Ankle":["ankle"],"Outside of the Ankle":["ankle",{sprain:2}],
+  "Heel":["foot",{plantar:2}],"Foot":["foot"],"Wrist":["wrist"],"Wrist & Hand":["wrist"],"Biceps":["arm",{biceps:3}],"Inside of the Upper Arm":["arm",{biceps:2}],"Triceps":["arm",{triceps:3}],
+  "Outside of the Upper Arm":["shoulder"],"Armpit":["shoulder"],"Top of the Shoulder":["neck",{tension:2}],"Front of the Neck":["neck"],"Back of the Neck":["neck"],
+  "Chest":["chest"],"Upper Back":["upperback"],"Mid Back":["upperback"],"Upper Belly":["abs",{front:2}],"Lower Belly":["abs",{front:2}],"Side of the Waist":["abs",{oblique:3}],
+  "Glute":["hip"],"Outside of the Hip":["hip",{lateral:3}],"Front of the Thigh":["thigh"],"Back of the Thigh":["kneeback",{ham:3}],"Inner Thigh":["hip",{groin:2}],"Outside of the Thigh":["kneeside",{outside:2}]};
+const RB_SPOT_HINT={"Groin":{groin:2},"Front of the Hip":{pinch:1,flexor:1}};
 const RB_ZOOM=2.6;
 function rbZoomed(){const f=$("#stage .o-hero .fig");return!!f&&(+f.dataset.zoom||1)>1.05}
 function rbPickBar(){const s=RB_SEL,z=rbZoomed();
@@ -5282,7 +5551,7 @@ function rbZoomTo(z){const f=$("#stage .o-hero .fig"),h=$("#stage .o-hero");if(!
   clearTimeout(h._zt);if(z>1.02)h.classList.add("zoomed");else h._zt=setTimeout(()=>{if(!rbZoomed())h.classList.remove("zoomed")},450);
   const bar=$("#rbPickBar");if(bar&&RB_SEL)bar.innerHTML=rbPickBar()}
 ACT.rbZoom=()=>rbZoomTo(rbZoomed()?1:RB_ZOOM);
-ACT.rbPickGo=()=>{const s=RB_SEL;if(!s||!s.r)return;ACT.rbPick({r:s.r});RB.pickSide=s.side;RB.mark=s.mark};
+ACT.rbPickGo=()=>{const s=RB_SEL;if(!s||!s.r)return;ACT.rbPick({r:s.r});RB.pickSide=s.side;RB.mark=s.mark;RB.hint=s.hint||null};
 AFTER.rebuild=()=>{
   if(!RB_ANIM||REDUCED||TOUR){RB_ANIM=false;return}RB_ANIM=false;dashAnim()};
 SCREENS.rebuild=()=>{
@@ -5329,7 +5598,12 @@ SCREENS.rbdesc=()=>{const R=REGIONS[RB.r];
    <p class="muted" style="margin:0;font-size:calc(13px * var(--ts))">Stays on your phone. Range reads it to fit your program and keeps it with the program.</p>
   </div><div class="bottomcta"><button class="btn sec" data-act="rbDescGo">Skip</button><button class="btn" data-act="rbDescGo">Continue</button></div>`};
 // typical words for each pattern (lower case). A match adds a vote to that pattern; the self-screen still leads
-const RB_DESC_EX={back:"For example: my lower back hurts when I bend to tie my shoes and after sitting for an hour. Deadlifts make it worse; walking eases it.",
+const RB_DESC_EX={neck:"For example: the right side of my neck is stiff and I can't turn my head fully since I slept on it.",upperback:"For example: the spot between my shoulder blades aches after a day at the desk and after rowing.",
+  chest:"For example: my left chest near the armpit hurts at the bottom of a bench press since last week.",abs:"For example: the right side of my waist hurts when I twist, since a session of toes-to-bar.",
+  kneeback:"For example: the back of my right knee hurts at the end of runs and in deadlifts.",kneeside:"For example: the outside of my left knee starts hurting about 3 km into a run.",
+  shin:"For example: the inside of both shins hurts at the start of my runs since I doubled my running.",ankle:"For example: I rolled my right ankle two weeks ago and it still feels unstable.",
+  foot:"For example: the bottom of my heel hurts for the first steps in the morning.",wrist:"For example: my right wrist hurts in the front rack and in handstands.",arm:"For example: the front of my upper arm hurts in pull-ups since a muscle-up session.",thigh:"For example: I felt a pull in the front of my left thigh while sprinting.",
+  back:"For example: my lower back hurts when I bend to tie my shoes and after sitting for an hour. Deadlifts make it worse; walking eases it.",
   knee:"For example: the spot just below my kneecap hurts when I land jumps and going down stairs. It eases once I warm up.",
   hip:"For example: I feel a pinch at the front of my right hip at the bottom of a squat.",
   shoulder:"For example: my left shoulder hurts in the catch of a snatch and when I kip.",
@@ -5394,10 +5668,11 @@ function rbClassify(){
     if(q.side&&a&&typeof a==="object"){const oR=q.o[a.R],oL=q.o[a.L];sideW.R+=w(oR);sideW.L+=w(oL);a=w(oL)>w(oR)?a.L:a.R}
     const o=q.o[a];if(!o)return;for(const[k,v]of Object.entries(o[1])){if(k.startsWith("_"))flags[k]=1;else votes[k]=(votes[k]||0)+v}});
   const rd=rbReadDesc(RB.r,RB.desc);for(const[k,v]of Object.entries(rd.votes))if(R.classes[k])votes[k]=(votes[k]||0)+v;
+  for(const[k,v]of Object.entries(RB.hint||{}))if(R.classes[k])votes[k]=(votes[k]||0)+v; // where you tapped on the body
   const keys=Object.keys(R.classes),raw=rd.raw||{},ord=keys.slice().sort((a,b)=>(votes[b]||0)-(votes[a]||0)||(raw[b]||0)-(raw[a]||0));
   const none=keys.every(k=>(votes[k]||0)<=0),best=none&&R.fallback?R.fallback:ord[0],second=none?null:ord[1];
   const close=second&&(votes[second]||0)>0&&(votes[best]||0)-(votes[second]||0)<=1?second:null;
-  let side=sideW.R>sideW.L?"right":sideW.L>sideW.R?"left":sideW.R>0?"both":null;if(!side&&rd.side)side=rd.side==="L"?"left":rd.side==="B"?"both":"right";
+  let side=sideW.R>sideW.L?"right":sideW.L>sideW.R?"left":sideW.R>0?"both":null;if(!side&&rd.side)side=rd.side==="L"?"left":rd.side==="B"?"both":"right";if(!side&&RB.pickSide)side=RB.pickSide;
   return{cls:best,clear:(votes[best]||0)>0||(none&&!!R.fallback),votes,flags,side,desc:rd,close};
 }
 SCREENS.rbresult=()=>{
@@ -5590,10 +5865,10 @@ function equipPane(){return`<div class="panel" data-tour="sports"><div style="di
   <div class="panel" data-tour="equip"><div style="display:flex;justify-content:space-between;align-items:baseline"><h3>My Equipment</h3><span class="muted" id="eqCount" style="font-size:calc(13px * var(--ts))">${S.equip.length} of ${EQUIP.length}</span></div><div class="eqgrid">${EQUIP.map(e=>`<button class="eqt ${S.equip.includes(e.k)?"on":""}" data-act="profEq" data-e="${e.k}" aria-pressed="${S.equip.includes(e.k)}">${ic(e.k)}<span>${e.n}</span></button>`).join("")}</div></div>`}
 // Profile, Progress: streak, this week, sessions and tests around the character
 function progStats(){const wk=Date.now()-7*864e5,last=S.tests[S.tests.length-1];
-  return`<div class="o-stat time"><span class="dt">Streak</span><b class="dbig">${streak()}</b><small class="muted">day${streak()===1?"":"s"} in a row</small></div>
-  <div class="o-stat tr"><span class="dt">This Week</span><b class="dbig">${S.sessions.filter(s=>s.at>=wk).reduce((t,s)=>t+s.mins,0)}</b><small class="muted">minutes</small></div>
-  <div class="o-stat focus"><span class="dt">Sessions</span><b class="dbig">${S.sessions.length}</b><small class="muted">all time</small></div>
-  <div class="o-stat areas"><span class="dt">Tests</span><b class="dbig">${S.tests.length}</b><small class="muted">${last?"Last "+new Date(last.at).toLocaleDateString(undefined,{month:"short",day:"numeric"}):"None yet"}</small></div>`}
+  return`<div class="o-stat time cen"><span class="dt">Streak</span><b class="dbig">${streak()}</b><small class="muted">day${streak()===1?"":"s"} in a row</small></div>
+  <div class="o-stat tr cen"><span class="dt">This Week</span><b class="dbig">${S.sessions.filter(s=>s.at>=wk).reduce((t,s)=>t+s.mins,0)}</b><small class="muted">minutes</small></div>
+  <div class="o-stat focus cen"><span class="dt">Sessions</span><b class="dbig">${S.sessions.length}</b><small class="muted">all time</small></div>
+  <div class="o-stat areas cen"><span class="dt">Tests</span><b class="dbig">${S.tests.length}</b><small class="muted">${last?"Last "+new Date(last.at).toLocaleDateString(undefined,{month:"short",day:"numeric"}):"None yet"}</small></div>`}
 function progPane(sc){const wk=Date.now()-7*864e5;return`${testChart()}
   <div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline"><h3>This Week by Area</h3><span class="muted" style="font-size:calc(12px * var(--ts))">10 min per area</span></div>
     <ul class="bars">${(()=>{const w=weekAreaSecs();return AREAS.map(a=>{const m=(w[a.k]||0)/60,pc=m/10*100,col=pc>=100?"var(--good)":pc>=35?"var(--accent)":"var(--warn)";return`<li><span>${a.n}</span><span class="tr"><i style="width:${Math.min(100,pc)}%;background:${col}"></i></span><b>${m<.05?"0":m.toFixed(1)} min</b></li>`}).join("")})()}</ul>
