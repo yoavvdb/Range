@@ -2345,7 +2345,7 @@ let NOPUSH=false;
   // a still copy of the old screen leaves with the finger while the new one comes in beside it (tabs) or from under it (back)
   const r=el.getBoundingClientRect(),g=el.cloneNode(true);g.removeAttribute("id");g.setAttribute("aria-hidden","true");g.querySelectorAll("[id]").forEach(n=>n.removeAttribute("id"));
   const oc=el.querySelectorAll("canvas"),gc=g.querySelectorAll("canvas");gc.forEach((c,i)=>{try{c.getContext("2d").drawImage(oc[i],0,0)}catch(_){}});
-  Object.assign(g.style,{position:"fixed",top:r.top+"px",left:r.left+"px",width:r.width+"px",margin:"0",zIndex:"5",pointerEvents:"none",background:tg.kind==="back"?"var(--bg)":"transparent",transform:`translateX(${off}px)`,boxShadow:tg.kind==="back"?"-12px 0 24px rgba(0,0,0,.35)":"none"});
+  Object.assign(g.style,{position:"fixed",top:r.top+"px",left:r.left+"px",width:r.width+"px",margin:"0",zIndex:"5",pointerEvents:"none",background:tg.kind==="back"||scrollY>8?"var(--bg)":"transparent",transform:`translateX(${off}px)`,boxShadow:tg.kind==="back"?"-12px 0 24px rgba(0,0,0,.35)":"none"});
   document.body.appendChild(g);NOPUSH=true;try{tg.go()}finally{NOPUSH=false}
   const nel=scr(),to=dir*w,move=x=>{g.style.transform=`translateX(${x}px)`;nel.style.transform=`translateX(${tg.kind==="back"?-.3*(w-x):x-to}px)`};
   move(off);spring({from:off,to,v,damping:1,response:.32,onUpdate:move,onDone:()=>{g.remove();nel.style.transform=""}})};
@@ -2493,7 +2493,7 @@ function stageSync(){
   }
   if(name!=="home")heroFront();
   // the cards: the old ones fade out where they are, the new ones fade in, rising a little
-  const c=stageCards(name),key=name+"|"+c.cls+"|"+c.html,old=st.querySelector(".o-cards:not(.o-old)");
+  const c=stageCards(name),key=name+"|"+c.html,old=st.querySelector(".o-cards:not(.o-old)");
   if(old&&old._key===key)return;
   const nw=document.createElement("div");nw.className="o-cards"+(c.cls?" "+c.cls:"");nw._key=key;
   for(const k in c.attrs)nw.setAttribute(k,c.attrs[k]);nw.innerHTML=c.html;
