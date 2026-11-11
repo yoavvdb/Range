@@ -912,6 +912,28 @@ html:not(.fig3d) .orb.prof.cards{display:block}html:not(.fig3d) .orb.prof .o-her
 .eqt.on{color:var(--ink);background:color-mix(in srgb,var(--accent) 18%,transparent);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 70%,transparent),0 0 22px -8px var(--accent)}
 .eqt.on .ic{color:var(--accent)}
 .eqt:active{transform:scale(.96)}
+
+/* ===== one stage behind the three tabs ===== */
+:root{--stg-h:clamp(330px,calc(100svh - 318px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)),600px)}
+body.noscores{--stg-h:clamp(300px,calc(100svh - 440px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)),520px)}
+body.touring{--stg-h:clamp(280px,40vh,360px)}
+#stage.orb{position:absolute;left:0;right:0;top:0;height:var(--stg-h);margin:0;z-index:0;--ob:60px}
+#stage:empty,#app.sub #stage{display:none}
+#screen{position:relative;z-index:1}
+#app:not(.sub) #screen{background:transparent;pointer-events:none}
+#app:not(.sub) #screen>*{pointer-events:auto}
+#app:not(.sub) #screen>.slot{pointer-events:none}
+.slot{height:var(--stg-h)}
+.o-cards{inset:0;pointer-events:none}.o-cards>*{position:absolute;pointer-events:auto}#orb.o-cards{pointer-events:auto;outline:0}.o-cards .o-line{pointer-events:none}
+.o-cards.intro .o-tab,.o-cards.intro .o-nav{opacity:0}
+.o-old,.o-old *{pointer-events:none!important}
+/* the row between the header and the stage: the same height on every tab, so the stage never moves */
+.trow{height:64px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0}
+.trow.greet{padding:0}.trow h1,.trow h2{margin:0}
+.trow h2{font-size:calc(26px * var(--ts));font-weight:800;font-stretch:112%;letter-spacing:-.02em;white-space:nowrap}
+.phead.trow{justify-content:flex-start;padding:0}.phead.trow .avatar{width:46px;height:46px;font-size:calc(20px * var(--ts));flex:none}
+.phead.trow .pname{font-size:calc(22px * var(--ts))}
+html:not(.fig3d) body[data-tab=rebuild] .o-hero{visibility:hidden}
 /* Rebuild: only the body to tap. The list of areas is the way in when 3D is off */
 html.fig3d .rbareas{display:none}
 @media (prefers-reduced-motion:reduce){.o-bob,.o-shadow,.o-beam,.o-pulse.on{animation:none}.orb{transition:none}}
@@ -930,7 +952,7 @@ html.fig3d .rbareas{display:none}
 <g transform="translate(28 35.2) scale(.72)"><g class="fig"><path d="M100 70V118L130 120L132 158M100 118L76 140L52 152"/><path d="M100 76L116 52L124 30"/></g><circle cx="96" cy="52" r="13" fill="var(--ink)"/></g></g>
 <line class="sw" x1="22" x2="178" y1="-40" y2="-40"/></svg>
 <div class="word">Range<b>.</b></div><div class="tag">Move better. Every day.</div><div class="bar"><i></i></div></div></div>
-<div id="app"><div id="screen"></div></div>
+<div id="app"><div id="stage"></div><div id="screen"></div></div>
 <nav id="tabbar" aria-label="Main"><i class="tlens" aria-hidden="true"></i>
   <button data-act="tab" data-t="home"></button>
   <button data-act="tab" data-t="rebuild"></button>
@@ -2349,7 +2371,7 @@ let NOPUSH=false;
   // a still copy of the old screen leaves with the finger while the new one comes in beside it (tabs) or from under it (back)
   const r=el.getBoundingClientRect(),g=el.cloneNode(true);g.removeAttribute("id");g.setAttribute("aria-hidden","true");g.querySelectorAll("[id]").forEach(n=>n.removeAttribute("id"));
   const oc=el.querySelectorAll("canvas"),gc=g.querySelectorAll("canvas");gc.forEach((c,i)=>{try{c.getContext("2d").drawImage(oc[i],0,0)}catch(_){}});
-  Object.assign(g.style,{position:"fixed",top:r.top+"px",left:r.left+"px",width:r.width+"px",margin:"0",zIndex:"5",pointerEvents:"none",background:"var(--bg)",transform:`translateX(${off}px)`,boxShadow:tg.kind==="back"?"-12px 0 24px rgba(0,0,0,.35)":"none"});
+  Object.assign(g.style,{position:"fixed",top:r.top+"px",left:r.left+"px",width:r.width+"px",margin:"0",zIndex:"5",pointerEvents:"none",background:tg.kind==="back"?"var(--bg)":"transparent",transform:`translateX(${off}px)`,boxShadow:tg.kind==="back"?"-12px 0 24px rgba(0,0,0,.35)":"none"});
   document.body.appendChild(g);NOPUSH=true;try{tg.go()}finally{NOPUSH=false}
   const nel=scr(),to=dir*w,move=x=>{g.style.transform=`translateX(${x}px)`;nel.style.transform=`translateX(${tg.kind==="back"?-.3*(w-x):x-to}px)`};
   move(off);spring({from:off,to,v,damping:1,response:.32,onUpdate:move,onDone:()=>{g.remove();nel.style.transform=""}})};
@@ -2367,7 +2389,8 @@ function render(){
   const top=stack[stack.length-1];
   $("#screen").innerHTML=SCREENS[top.name](top.p);
   const root=stack.length===1;
-  $("#tabbar").hidden=!root;$("#app").classList.toggle("sub",!root);
+  $("#tabbar").hidden=!root;$("#app").classList.toggle("sub",!root);document.body.classList.toggle("noscores",!S.scores);
+  try{stageSync()}catch(e){noteError(e,"stage")}
   const tabs={home:["home","Today"],rebuild:["heart","Rebuild"],training:["cal","Training"],profile:["user","Profile"]};
   const ti=["home","rebuild","profile"].indexOf(stack[0].name);$("#tabbar").style.setProperty("--ti",Math.max(0,ti));
   document.querySelectorAll("#tabbar button").forEach(b=>{const[icn,l]=tabs[b.dataset.t];b.innerHTML=ic(icn)+l;b.toggleAttribute("aria-current",false);if(b.dataset.t===stack[0].name)b.setAttribute("aria-current","page")});
@@ -2386,7 +2409,7 @@ function rbRestore(){const d=S.rbDraft;rbRestored=true;if(!d||!REGIONS[d.r]||Dat
   stack=[{name:"rebuild",p:{}},{name:"rbflags",p:{}}];if(d.screen!=="rbflags")stack.push({name:d.screen,p:{}});return true}
 const SCREENS={},AFTER={};
 // arriving on Profile, the score counts up and its bars grow (once per visit, not on every refresh)
-AFTER.profile=()=>{orbSolo($("#profStage"));const on=document.querySelector(".cchips .chip.on");if(on&&on.offsetLeft>on.parentElement.clientWidth-90)on.parentElement.scrollLeft=on.offsetLeft-20;
+AFTER.profile=()=>{const on=document.querySelector(".cchips .chip.on");if(on&&on.offsetLeft>on.parentElement.clientWidth-90)on.parentElement.scrollLeft=on.offsetLeft-20;
   if(!PROF_ANIM||REDUCED||TOUR){PROF_ANIM=false;return}PROF_ANIM=false;dashAnim()};
 function dashAnim(){
   const b=document.querySelector(".ringnum");if(b&&!b.closest(".none")){const to=+b.textContent||0,t0=performance.now(),D=900;
@@ -2410,21 +2433,14 @@ const ORB={a:Math.PI*1.75,t:0,v:0,intro:1,busy:false};
 // where the character sits inside its own drawing: top of the head and the toes as a share of the drawing's height, and
 // the drawing's shape (width / height). The box is sized from these so head and toes land where the layout wants them
 const ORB_FIG={top:.078,bot:.876,asp:.6};
-// the stage on its own (Rebuild, Profile): the character over the stand with the light behind it, no ring.
-// hero: the drawing to show; cls: extra classes; glow: the colour of the light
-function orbStage({cls="",glow="#F6B43A",hero="",attrs=""}){
-  return `<section class="orb solo ${cls}" style="--glow:${glow}" ${attrs}>
-    <div class="o-bg" aria-hidden="true"><div class="o-wash"></div><div class="o-bgi"><div class="o-halo"></div><div class="o-floor"></div></div></div>
-    <div class="o-pglow"></div><div class="o-pside"></div><div class="o-ptop"></div><div class="o-pulse"></div><div class="o-beam"></div><div class="o-shadow"></div>
-    <div class="o-aura"></div>
-    ${hero}
-  </section>`}
-// the character on a stage: hero pose, moving gently; zones light muscles, mark puts a dot where it hurts
-function orbHero({zones=null,sides=false,mark="",pick=false}={}){
-  let f=drawPart("hero",()=>fig("hero",null,{anim:true,period:7200,zones,sides}));
-  if(mark)f=f.replace('<svg class="fig',`<svg data-mark="${esc(mark)}" class="fig`);
-  return `<div class="o-hero${pick?" pick":""}"${pick?' role="img" aria-label="Your body. Tap where it hurts; drag to turn."':' aria-hidden="true"'}><div class="o-bob">${f}</div></div>`}
-// the stage's measurements, from its size: the stand at the bottom, the character hovering just above it
+// One stage for the three tabs. The character, the stand and the light live in #stage, outside the page, so moving
+// between Today, Rebuild and Profile never rebuilds them: the character stays where it is and only the cards around it
+// change. Each tab leaves an empty .slot where the stage shows through; all three tabs put it at the same height
+const SLOT=(attrs="")=>`<div class="slot" aria-hidden="true" ${attrs}></div>`;
+// the character: hero pose, moving gently. zones light muscles, data-mark puts a dot where it hurts (both set per tab)
+function orbHero(){
+  return `<div class="o-hero" aria-hidden="true"><div class="o-bob">${drawPart("hero",()=>fig("hero",null,{anim:true,period:7200}))}</div></div>`}
+// the stage's measurements, from its size
 function orbVars(stage,{W,ch,ht,py,prx,pry,pth,cy,tw=0,th=0}){
   const hbh=ch/(ORB_FIG.bot-ORB_FIG.top),hbt=ht-ORB_FIG.top*hbh,hbw=hbh*ORB_FIG.asp;
   const st=stage.style,px=n=>n.toFixed(1)+"px",set=(k,v)=>st.setProperty(k,v);
@@ -2433,49 +2449,111 @@ function orbVars(stage,{W,ch,ht,py,prx,pry,pth,cy,tw=0,th=0}){
   set("--by",px(ht+ch*.55));set("--hy",px(ht+ch*.36));set("--hs",px(Math.min(W*1.5,ch*1.5)));set("--fs",px(W*1.75));
   set("--hbt",px(hbt));set("--hbh",px(hbh));set("--hbw",px(hbw));
 }
-function orbSolo(stage){
-  if(!stage)return;
-  const lay=()=>{const W=stage.clientWidth,H=stage.clientHeight;if(!W||!H)return;
-    const prx=Math.min(W*.24,H*.2),pry=prx*.34,pth=Math.max(8,prx*.13),py=H-pth-pry-6,ht=Math.max(4,H*.03),feet=py-pry*.2-14;
-    orbVars(stage,{W,ch:Math.max(80,feet-ht),ht,py,prx,pry,pth,cy:py})};
-  const ro=new ResizeObserver(()=>{if(!stage.isConnected){ro.disconnect();return}lay()});ro.observe(stage);lay();
+// one layout for every tab (the ring's, which needs the most room), so the character never moves between tabs.
+// STG_HOOK: the ring's own layout, while Today's ring is up
+let STG=null,STG_HOOK=null;
+function stageLayout(){
+  const st=$("#stage");if(!st)return;const W=st.clientWidth,H=st.clientHeight;if(!W||!H)return;
+  const cl=(x,a,b)=>Math.max(a,Math.min(b,x));
+  const tw=Math.min(140,W*.345,H*.3),th=tw*.76,rx=Math.min(W/2-tw*.39-6,170),prx=Math.min(W*.28,H*.21),pry=prx*.34,pth=Math.max(9,prx*.13);
+  // from the bottom up: the stand, the front tab just above it, the character's toes behind the top of that tab.
+  // The character takes the height that is left, and stands a little down from the top of the stage
+  const below=.84*th+10+2*pry+pth+8,ch=cl((H-below)/1.1,120,W*1.1),top=Math.max(0,(H-below-ch*1.1)/2);
+  const ht=top+ch*.1,feet=ht+ch,yF=feet+th*.34,ry=Math.min(ch*.27,rx*.74),cy=yF-ry,py=yF+th/2+10+pry;
+  STG={W,H,cx:W/2,cy,rx,ry,tw,th,yF};orbVars(st,{W,ch,ht,py,prx,pry,pth,cy,tw,th});
+  if(STG_HOOK)STG_HOOK();
 }
-SCREENS.home=()=>{
-  const intro=ORB.intro===1&&!REDUCED&&!TOUR;
-  const tab=k=>{const v=KINDS[k];return drawPart("tab "+k,()=>`<button class="o-tab" type="button" data-kind="${k}" data-glow="${ORB_TINT[k]}" style="--tint:${ORB_TINT[k]}" aria-label="${v.n}, ${v.sub}"><span class="o-glass"><span class="o-rings"></span><span class="o-pic">${fig(v.pose,null,{mode:"static"})}</span><span class="o-sheen"></span><span class="o-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><span class="o-txt"><b>${v.n}</b><i>${v.sub}</i></span></span><span class="o-edge"></span></button>`)};
-  const nav=(c,l,d)=>`<button class="o-nav ${c}" type="button" aria-label="${l}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg></button>`;
-  return `${tabHdr()}
-  <div class="greet"><h1>${greeting()}</h1><button class="streak" data-act="tab" data-t="profile" data-tour="streak" aria-label="${streak()} day streak">${ic("flame","fill")}<b>${streak()}</b></button></div>
-  <section class="orb${S.scores?"":" short"}${intro?" intro":""}" id="orb" data-tour="cards" data-noswipe tabindex="-1" aria-label="Choose a session. Swipe or use the arrow keys to turn the ring, then tap the one in front.">
-    <div class="o-bg" aria-hidden="true"><div class="o-wash"></div><div class="o-bgi"><div class="o-halo"></div><div class="o-floor"></div></div></div>
+// the stage is made once, the first time a tab shows
+function stageEl(){
+  let st=$("#stage");if(st&&st.dataset.built)return st;
+  if(!st){st=document.createElement("div");st.id="stage";$("#app").prepend(st)}
+  st.className="orb";st.dataset.built="1";
+  st.innerHTML=`<div class="o-bg" aria-hidden="true"><div class="o-wash"></div><div class="o-bgi"><div class="o-halo"></div><div class="o-floor"></div></div></div>
     <div class="o-pglow"></div><div class="o-pside"></div><div class="o-ptop"></div><div class="o-pulse"></div><div class="o-beam"></div><div class="o-shadow"></div>
-    <svg class="o-line back" aria-hidden="true"><ellipse/></svg>
-    <div class="o-aura"></div>
-    ${orbHero()}
-    <svg class="o-line front" aria-hidden="true"><ellipse/></svg>
-    ${HOME_KINDS.map(tab).join("")}
-    ${nav("o-prev","Previous session","M15 5l-7 7 7 7")}${nav("o-next","Next session","M9 5l7 7-7 7")}
-    <p class="sr o-live" aria-live="polite"></p>
-  </section>
+    <div class="o-aura"></div>${orbHero()}<div class="o-cards"></div>`;
+  // Rebuild: tap the body where it hurts (a drag turns it; hookDrag does that on the canvas)
+  const hero=st.querySelector(".o-hero");let d=null;
+  hero.addEventListener("pointerdown",e=>{d={x:e.clientX,y:e.clientY,t:performance.now()};const cv=hero.querySelector("canvas");if(cv)cv._userTurn=performance.now()});
+  hero.addEventListener("pointerup",e=>{const s=d;d=null;if(!s||!(stack.length===1&&stack[0].name==="rebuild"&&!S.rehab))return;
+    if(Math.hypot(e.clientX-s.x,e.clientY-s.y)>8||performance.now()-s.t>450)return;
+    const cv=hero.querySelector("canvas.fig.f3");if(!cv||!FIG3D.ready)return;
+    let res=null;try{res=rbFromHit(FIG3D.pick(cv,e.clientX,e.clientY))}catch(err){noteError(err,"pick")}
+    if(!res)return;
+    RB_SEL=res;cv.dataset.mark=res.mark||"";
+    const bar=$("#rbPickBar");if(bar){bar.innerHTML=rbPickBar();bar.classList.add("got")}
+    const pl=st.querySelector(".o-pulse");if(pl&&!REDUCED){pl.classList.remove("on");void pl.offsetWidth;pl.classList.add("on")}
+    try{navigator.vibrate&&navigator.vibrate(8)}catch(_){}});
+  new ResizeObserver(stageLayout).observe(st);
+  addEventListener("resize",stagePlace);
+  return st;
+}
+// line the stage up with the tab's slot
+function stagePlace(){const st=$("#stage"),sl=$("#screen .slot");if(!st||!sl||stack.length!==1)return;
+  const top=sl.getBoundingClientRect().top-$("#app").getBoundingClientRect().top;st.style.top=top.toFixed(1)+"px"}
+// turn the character back to face you (after you turned them on Rebuild, or the ring's sway on Today)
+function heroFront(){
+  const cv=$("#stage .o-hero canvas");if(!cv)return;cv._spin=0;
+  const y0=+cv.dataset.yaw||0,to=Math.round(y0/(2*Math.PI))*2*Math.PI,t0=performance.now();if(Math.abs(y0-to)<.002){cv.dataset.yaw="0";return}
+  const step=t=>{if((cv._userTurn||0)>t0||(stack.length===1&&stack[0].name==="home"))return;
+    const k=Math.min(1,(t-t0)/650),e=1-Math.pow(1-k,3);cv.dataset.yaw=String(k<1?y0+(to-y0)*e:0);cv.dataset.drawn="";if(k<1)requestAnimationFrame(step)};
+  requestAnimationFrame(step)}
+// what goes around the character on each tab, and what the character shows
+function stageCards(name){
+  if(name==="home")return{html:homeRing(),attrs:{id:"orb","data-noswipe":"","data-tour":"cards",tabindex:"-1","aria-label":"Choose a session. Swipe or use the arrow keys to turn the ring, then tap the one in front."},cls:ORB.intro===1&&!REDUCED&&!TOUR?"intro":""};
+  if(name==="profile")return{html:PROF_TAB==="dash"?profStats(scores()):PROF_TAB==="prog"?progStats():"",attrs:{},cls:""};
+  return{html:"",attrs:{},cls:""};
+}
+function stageSync(){
+  const root=stack.length===1,name=stack[0].name;document.body.dataset.tab=root?name:"";
+  if(!root||!["home","rebuild","profile"].includes(name))return;
+  const st=stageEl();stagePlace();if(!STG)stageLayout();
+  if(name!=="home")st.style.setProperty("--glow",name==="rebuild"?ORB_TINT.rebuild:ORB_TINT.profile);
+  const hero=st.querySelector(".o-hero"),f=hero.querySelector(".fig"),pick=name==="rebuild"&&!S.rehab;
+  hero.classList.toggle("pick",pick);
+  if(pick){hero.setAttribute("role","img");hero.setAttribute("aria-label","Your body. Tap where it hurts; drag to turn.");hero.removeAttribute("aria-hidden")}
+  else{hero.removeAttribute("role");hero.removeAttribute("aria-label");hero.setAttribute("aria-hidden","true")}
+  if(f){
+    const rh=S.rehab,mark=name!=="rebuild"?"":rh?(rh.mark||(rh.side==="both"?`@${rh.region}:1;@${rh.region}:2`:`@${rh.region}:${rh.side==="left"?2:1}`)):(RB_SEL?RB_SEL.mark:"");
+    const zones=name==="profile"?[...new Set(mobilityFocus(scores()).flatMap(k=>AREA_ZONES[k]||[]))].join(","):"";
+    if(f.dataset.mark!==mark)f.dataset.mark=mark;if(f.dataset.zones!==zones)f.dataset.zones=zones;f.dataset.drawn="";
+  }
+  if(name!=="home")heroFront();
+  // the cards: the old ones fade out where they are, the new ones fade in, rising a little
+  const c=stageCards(name),key=name+"|"+c.cls+"|"+c.html,old=st.querySelector(".o-cards:not(.o-old)");
+  if(old&&old._key===key)return;
+  const nw=document.createElement("div");nw.className="o-cards"+(c.cls?" "+c.cls:"");nw._key=key;
+  for(const k in c.attrs)nw.setAttribute(k,c.attrs[k]);nw.innerHTML=c.html;
+  if(old){old.removeAttribute("id");old.classList.add("o-old");old.removeAttribute("data-tour");
+    const kids=[...old.children];
+    if(REDUCED||!kids.length||!old.animate)old.remove();
+    else{kids.forEach(k=>{try{k.animate([{opacity:getComputedStyle(k).opacity},{opacity:0}],{duration:170,easing:"ease-out",fill:"forwards"})}catch(_){}});setTimeout(()=>old.remove(),190)}}
+  st.appendChild(nw);
+  if(!REDUCED&&old)[...nw.children].forEach(k=>{if(k.classList.contains("o-line")||k.classList.contains("sr"))return;try{k.animate([{opacity:0,translate:"0 12px"},{opacity:1,translate:"0 0"}],{duration:300,delay:90,easing:"cubic-bezier(.23,1,.32,1)",fill:"backwards"})}catch(_){}});
+}
+SCREENS.home=()=>`${tabHdr()}
+  <div class="greet trow"><h1>${greeting()}</h1><button class="streak" data-act="tab" data-t="profile" data-tour="streak" aria-label="${streak()} day streak">${ic("flame","fill")}<b>${streak()}</b></button></div>
+  ${SLOT()}
   <div class="stack">
     ${S.scores?"":`<div class="banner" data-tour="test"><div><h3>Find Your Weak Spots</h3><div class="muted" style="font-size:calc(14px * var(--ts));margin-top:4px">A 10-minute test so every session fits your body.</div></div><button class="btn" data-act="openTest">${testDraft()?"Resume My Test":"Test My Mobility"}</button></div>`}
   </div>`;
-};
+// Today's ring, as cards on the stage
+function homeRing(){
+  const tab=k=>{const v=KINDS[k];return drawPart("tab "+k,()=>`<button class="o-tab" type="button" data-kind="${k}" data-glow="${ORB_TINT[k]}" style="--tint:${ORB_TINT[k]}" aria-label="${v.n}, ${v.sub}"><span class="o-glass"><span class="o-rings"></span><span class="o-pic">${fig(v.pose,null,{mode:"static"})}</span><span class="o-sheen"></span><span class="o-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><span class="o-txt"><b>${v.n}</b><i>${v.sub}</i></span></span><span class="o-edge"></span></button>`)};
+  const nav=(c,l,d)=>`<button class="o-nav ${c}" type="button" aria-label="${l}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg></button>`;
+  return `<svg class="o-line back" aria-hidden="true"><ellipse/></svg><svg class="o-line front" aria-hidden="true"><ellipse/></svg>
+    ${HOME_KINDS.map(tab).join("")}
+    ${nav("o-prev","Previous session","M15 5l-7 7 7 7")}${nav("o-next","Next session","M9 5l7 7-7 7")}
+    <p class="sr o-live" aria-live="polite"></p>`}
 AFTER.home=()=>{
-  const stage=$("#orb");if(!stage)return;
-  const tabs=[...stage.querySelectorAll(".o-tab")],N=tabs.length,Q=Math.PI*2/N,ells=[...stage.querySelectorAll(".o-line ellipse")],
-    prev=stage.querySelector(".o-prev"),next=stage.querySelector(".o-next"),live=stage.querySelector(".o-live"),memo=tabs.map(()=>({})),
-    cl=(x,a,b)=>Math.max(a,Math.min(b,x));
-  let G=null,sel=-1,drag=null,lastDrag=0,yaw=0,last=0,cv=null,first=true;
+  const ring=$("#orb");if(!ring||ring._on)return;ring._on=1;
+  const stage=$("#stage"),tabs=[...ring.querySelectorAll(".o-tab")],N=tabs.length,Q=Math.PI*2/N,ells=[...ring.querySelectorAll(".o-line ellipse")],
+    prev=ring.querySelector(".o-prev"),next=ring.querySelector(".o-next"),live=ring.querySelector(".o-live"),memo=tabs.map(()=>({})),
+    cl=(x,a,b)=>Math.max(a,Math.min(b,x)),onHome=()=>stack.length===1&&stack[0].name==="home";
+  let G=null,sel=-1,drag=null,lastDrag=0,yaw=null,last=0,cv=null,first=true;
   if(REDUCED||TOUR){ORB.a=ORB.t;ORB.v=0;ORB.intro=0}
   function layout(){
-    const W=stage.clientWidth,H=stage.clientHeight;if(!W||!H)return;
-    const tw=Math.min(140,W*.345,H*.3),th=tw*.76,rx=Math.min(W/2-tw*.39-6,170),prx=Math.min(W*.28,H*.21),pry=prx*.34,pth=Math.max(9,prx*.13);
-    // from the bottom up: the stand, the front tab just above it, the character's toes behind the top of that tab.
-    // The character takes the height that is left, and stands a little down from the top of the stage
-    const below=.84*th+10+2*pry+pth+8,ch=cl((H-below)/1.1,120,W*1.1),top=Math.max(0,(H-below-ch*1.1)/2);
-    const ht=top+ch*.1,feet=ht+ch,yF=feet+th*.34,ry=Math.min(ch*.27,rx*.74),cy=yF-ry,py=yF+th/2+10+pry;
-    G={cx:W/2,cy,rx,ry};orbVars(stage,{W,ch,ht,py,prx,pry,pth,cy,tw,th});
+    if(!ring.isConnected||ring.classList.contains("o-old")||!STG)return;
+    const{W,cy,rx,ry,tw,yF}=STG;G={cx:W/2,cy,rx,ry};
     ells.forEach(e=>{e.setAttribute("cx",W/2);e.setAttribute("cy",cy);e.setAttribute("rx",rx);e.setAttribute("ry",ry)});
     const nx=tw/2+30;[[prev,-1],[next,1]].forEach(([b,s])=>{b.style.transform=`translate(${(W/2+s*nx).toFixed(1)}px,${yF.toFixed(1)}px)`});
     place(performance.now()/1000);
@@ -2493,26 +2571,28 @@ AFTER.home=()=>{
       if(m.sh!==sh){m.sh=sh;el.style.setProperty("--sh",sh)}
     }
     const k=((Math.round(-ORB.a/Q)%N)+N)%N;
-    if(k!==sel){sel=k;stage.style.setProperty("--glow",tabs[k].dataset.glow);
+    if(k!==sel||(onHome()&&stage.style.getPropertyValue("--glow")!==tabs[k].dataset.glow)){sel=k;if(onHome())stage.style.setProperty("--glow",tabs[k].dataset.glow);
       tabs.forEach((b,i)=>{i===k?b.setAttribute("aria-current","true"):b.removeAttribute("aria-current")});
       const v=KINDS[tabs[k].dataset.kind];if(!first)live.textContent=v.n+", "+v.sub;first=false}
   }
   // the launch screen or the login page is still up: the tabs wait, and swing in once Today is on show
   const held=()=>{const sp=document.getElementById("splash");return!!(sp&&!sp.classList.contains("out"))||!!document.getElementById("gate")};
   function tick(now){
-    if(!stage.isConnected){ro.disconnect();return}
+    if(!ring.isConnected){if(STG_HOOK===layout)STG_HOOK=null;return}
     const dt=last?Math.min(.034,(now-last)/1000):.016;last=now;
-    if(ORB.intro===1){if(held()){requestAnimationFrame(tick);return}ORB.intro=2;stage.classList.remove("intro")}
+    if(!onHome()||ring.classList.contains("o-old")){yaw=null;requestAnimationFrame(tick);return} // another tab or a deeper screen: wait
+    if(ORB.intro===1){if(held()){requestAnimationFrame(tick);return}ORB.intro=2;ring.classList.remove("intro")}
     if(!drag){
       // a spring pulls the ring to the tab it is heading for (a softer one for the swing-in)
       const k=ORB.intro?30:150,c=ORB.intro?8.5:20;
       ORB.v+=(-k*(ORB.a-ORB.t)-c*ORB.v)*dt;ORB.a+=ORB.v*dt;
       if(Math.abs(ORB.a-ORB.t)<.0005&&Math.abs(ORB.v)<.005){const lap=Math.round(ORB.t/(Math.PI*2))*Math.PI*2;ORB.t-=lap;ORB.a=ORB.t;ORB.v=0;ORB.intro=0}
     }
-    // the character turns a little with the ring, and sways slowly when it is still
-    const want=cl(-ORB.v*9,-34,34)+Math.sin(now/1000*.55)*7;yaw+=(want-yaw)*Math.min(1,dt*7);
+    // the character turns a little with the ring, and sways slowly when it is still. It starts from wherever it is
+    // facing (another tab may have turned it), so coming back to Today turns it smoothly
     if(!cv||!cv.isConnected)cv=stage.querySelector(".o-hero canvas");
-    if(cv)cv.dataset.yaw=(1*yaw*Math.PI/180).toFixed(4);
+    if(cv&&yaw==null){let y=(+cv.dataset.yaw||0)*180/Math.PI;y=((y+180)%360+360)%360-180;yaw=y;cv._spin=0}
+    if(yaw!=null){const want=cl(-ORB.v*9,-34,34)+Math.sin(now/1000*.55)*7;yaw+=(want-yaw)*Math.min(1,dt*5);if(cv)cv.dataset.yaw=(yaw*Math.PI/180).toFixed(4)}
     place(now/1000);requestAnimationFrame(tick);
   }
   const settle=()=>{if(REDUCED){ORB.a=ORB.t;ORB.v=0;place(0)}};
@@ -2522,12 +2602,12 @@ AFTER.home=()=>{
     if(ORB.busy||performance.now()-lastDrag<280)return;
     if(i===sel&&Math.abs(ORB.a-ORB.t)<.2)orbOpen(b,b.dataset.kind);else toFront(i)}));
   prev.addEventListener("click",()=>turn(-1));next.addEventListener("click",()=>turn(1));
-  stage.addEventListener("keydown",e=>{if(e.key==="ArrowLeft"){turn(-1);e.preventDefault()}else if(e.key==="ArrowRight"){turn(1);e.preventDefault()}});
+  ring.addEventListener("keydown",e=>{if(e.key==="ArrowLeft"){turn(-1);e.preventDefault()}else if(e.key==="ArrowRight"){turn(1);e.preventDefault()}});
   // a finger (or the mouse) turns the ring 1:1; let go and it carries on at your speed to the nearest tab
-  stage.addEventListener("pointerdown",e=>{if(e.button||ORB.busy||ORB.intro===1||e.target.closest(".o-nav"))return;drag={id:e.pointerId,x:e.clientX,a0:ORB.a,moved:false,pt:performance.now()}});
-  stage.addEventListener("pointermove",e=>{
+  ring.addEventListener("pointerdown",e=>{if(e.button||ORB.busy||ORB.intro===1||e.target.closest(".o-nav"))return;drag={id:e.pointerId,x:e.clientX,a0:ORB.a,moved:false,pt:performance.now()}});
+  ring.addEventListener("pointermove",e=>{
     if(!drag||e.pointerId!==drag.id||!G)return;
-    if(!drag.moved){if(Math.abs(e.clientX-drag.x)<7)return;drag.moved=true;drag.x=e.clientX;drag.a0=ORB.a;ORB.intro=0;try{stage.setPointerCapture(e.pointerId)}catch(_){}return}
+    if(!drag.moved){if(Math.abs(e.clientX-drag.x)<7)return;drag.moved=true;drag.x=e.clientX;drag.a0=ORB.a;ORB.intro=0;try{ring.setPointerCapture(e.pointerId)}catch(_){}return}
     const now=performance.now(),na=drag.a0+(e.clientX-drag.x)/G.rx,dt=Math.max(.004,(now-drag.pt)/1000);
     ORB.v=ORB.v*.5+((na-ORB.a)/dt)*.5;ORB.a=na;drag.pt=now;if(REDUCED)place(0);
   });
@@ -2536,8 +2616,8 @@ AFTER.home=()=>{
     if(performance.now()-d.pt>120)ORB.v=0;ORB.v=cl(ORB.v,-9,9);
     ORB.t=Math.round((ORB.a+ORB.v*.16)/Q)*Q;settle();
   };
-  stage.addEventListener("pointerup",end);stage.addEventListener("pointercancel",end);
-  const ro=new ResizeObserver(layout);ro.observe(stage);layout();
+  ring.addEventListener("pointerup",end);ring.addEventListener("pointercancel",end);
+  STG_HOOK=layout;layout();
   if(!REDUCED)requestAnimationFrame(tick);
 };
 // opening a session from the ring: its colour opens out from the tab until it fills the screen, the page changes behind
@@ -2547,7 +2627,7 @@ function orbOpen(tab,kind){
   const run=()=>ACT.startKind({kind});
   if(REDUCED||TOUR||!tab.animate){run();return}
   ORB.busy=true;
-  const pl=$("#orb .o-pulse");if(pl){pl.classList.remove("on");void pl.offsetWidth;pl.classList.add("on")}
+  const pl=$("#stage .o-pulse");if(pl){pl.classList.remove("on");void pl.offsetWidth;pl.classList.add("on")}
   const r=tab.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,far=Math.hypot(Math.max(x,innerWidth-x),Math.max(y,innerHeight-y));
   const w=document.createElement("div");w.className="o-warp";w.setAttribute("aria-hidden","true");w.style.cssText=`--x:${x.toFixed(1)}px;--y:${y.toFixed(1)}px;--tint:${ORB_TINT[kind]||"#F6B43A"}`;
   w.innerHTML='<i class="o-wd"></i><i class="o-wr"></i><i class="o-wr"></i>';document.body.appendChild(w);
@@ -5195,33 +5275,17 @@ function rbPickBar(){const s=RB_SEL;
   return`<span class="o-pbt"><b>${esc(s.label)}</b>${s.side?` · ${s.side==="left"?"Left":"Right"}`:""}</span>${s.r?`<button class="btn" data-act="rbPickGo">Continue</button>`:""}`}
 ACT.rbPickGo=()=>{const s=RB_SEL;if(!s||!s.r)return;ACT.rbPick({r:s.r});RB.pickSide=s.side;RB.mark=s.mark};
 AFTER.rebuild=()=>{
-  const st=$("#rbStage");if(st){orbSolo(st);
-    const hero=st.querySelector(".o-hero.pick");let d=null;
-    hero.addEventListener("pointerdown",e=>{d={x:e.clientX,y:e.clientY,t:performance.now()}});
-    hero.addEventListener("pointerup",e=>{const s=d;d=null;if(!s||Math.hypot(e.clientX-s.x,e.clientY-s.y)>8||performance.now()-s.t>450)return;
-      const cv=hero.querySelector("canvas.fig.f3");if(!cv||!FIG3D.ready)return;
-      let res=null;try{res=rbFromHit(FIG3D.pick(cv,e.clientX,e.clientY))}catch(err){noteError(err,"pick")}
-      if(!res)return;
-      RB_SEL=res;cv.dataset.mark=res.mark||"";
-      const bar=$("#rbPickBar");if(bar){bar.innerHTML=rbPickBar();bar.classList.toggle("got",true)}
-      const pl=st.querySelector(".o-pulse");if(pl&&!REDUCED){pl.classList.remove("on");void pl.offsetWidth;pl.classList.add("on")}
-      try{navigator.vibrate&&navigator.vibrate(8)}catch(_){}});
-  }
-  const ps=$("#rbProgStage");if(ps)orbSolo(ps);
   if(!RB_ANIM||REDUCED||TOUR){RB_ANIM=false;return}RB_ANIM=false;dashAnim()};
 SCREENS.rebuild=()=>{
-  if(!S.rehab){const kd=KINDS.rebuild;return`${tabHdr()}<div class="stack" style="padding-top:4px">
-   <div class="stephead rbhead"><span class="bub">${ic("heart")}</span><div><h3>Where Does It Hurt?</h3></div></div>
-   ${orbStage({cls:"rbpick",glow:ORB_TINT.rebuild,attrs:'id="rbStage" data-tour="rebuild"',hero:orbHero({pick:true,mark:RB_SEL?RB_SEL.mark:""})})}
+  if(!S.rehab){const kd=KINDS.rebuild;return`${tabHdr()}<div class="trow"><h2>Where Does It Hurt?</h2></div>${SLOT('data-tour="rebuild"')}<div class="stack">
    <div class="o-pickbar${RB_SEL&&RB_SEL.r?" got":""}" id="rbPickBar" style="--glow:${ORB_TINT.rebuild}" aria-live="polite">${rbPickBar()}</div>
    <div class="stack rbareas" style="gap:10px">${Object.entries(REGIONS).map(([k,R])=>`<button class="opt rbarea" data-act="rbPick" data-r="${k}"><span class="rbfig" aria-hidden="true">${fig(R.fig,null,{t:.8})}</span><span class="rbtx"><b>${R.n}</b><small>${esc(RB_SUB[k]||"")}</small></span>${ic("chev")}</button>`).join("")}</div>
    ${myProtosPanel()}</div>`}
   const st=S.rehab,R=REGIONS[st.region],C=R.classes[st.cls],phs=rbPhases(R,st.cls),ph=phs[st.phase],stt=rbStatus(),items=rbItems();
   return`${tabHdr(`<button data-act="rbMenu" aria-label="Program options">${ic("dots")}</button>`)}
-  <div class="stack" style="padding-top:4px">
-  <div class="phead"><button class="avatar" data-act="rbMenu" aria-label="Program options">${ic("heart")}</button>
+  <div class="phead trow"><button class="avatar" data-act="rbMenu" aria-label="Program options">${ic("heart")}</button>
     <div class="pwho"><button class="pname" data-act="rbMenu">${esc(C.n)}</button><span class="pprog" style="cursor:default"><i class="pdot"></i>${esc(R.n)}${st.side&&st.side!=="both"?` · ${esc(st.side)}`:""}</span></div></div>
-  ${orbStage({cls:"rbprog",glow:ORB_TINT.rebuild,attrs:'id="rbProgStage"',hero:orbHero({mark:st.mark||(st.side==="both"?`@${st.region}:1;@${st.region}:2`:`@${st.region}:${st.side==="left"?2:1}`)})})}
+  ${SLOT()}<div class="stack">
   <div class="pseg two" role="tablist"><i class="plens" style="--pi:${Math.max(0,RB_TABS.findIndex(t=>t[0]===RB_TAB))}"></i>${RB_TABS.map(([k,n])=>`<button role="tab" aria-selected="${k===RB_TAB}" class="${k===RB_TAB?"on":""}" data-act="rbTab" data-p="${k}">${n}</button>`).join("")}</div>
   <div id="pane" class="stack">${rbDash(st,R,C,phs,ph,stt,items,RB_TAB==="prog"?"prog":"today")}</div>
   </div>`};
@@ -5557,11 +5621,10 @@ ACT.progMetric=d=>{PROG_METRIC=d.m;PROF_ANIM=true;render()};
 SCREENS.profile=()=>{
   const sc=scores(),sy=S.sync||{};
   return`${tabHdr(`<button data-act="settings" aria-label="Settings" data-tour="gear">${ic("gear")}</button>`)}
-  <div class="stack" style="padding-top:4px">
-  <div class="phead"><button class="avatar" data-act="nameSheet" aria-label="Your Name">${esc(userName()[0]||"A").toUpperCase()}</button>
+  <div class="phead trow"><button class="avatar" data-act="nameSheet" aria-label="Your Name">${esc(userName()[0]||"A").toUpperCase()}</button>
     <div class="pwho"><button class="pname" data-act="nameSheet">${esc(userName())}</button>${sy.track?`<button class="pprog" data-act="syncKey" data-tour="program"><i class="pdot"></i>${esc(sy.track)}</button>`:""}</div></div>
+  ${SLOT()}<div class="stack">
   <div class="pseg" role="tablist"><i class="plens" style="--pi:${PROF_TABS.findIndex(t=>t[0]===PROF_TAB)}"></i>${PROF_TABS.map(([k,n])=>`<button role="tab" aria-selected="${k===PROF_TAB}" class="${k===PROF_TAB?"on":""}" data-act="profTab" data-p="${k}">${n}</button>`).join("")}</div>
-  ${orbStage({cls:"prof"+(PROF_TAB!=="equip"?" cards":""),glow:ORB_TINT.profile,attrs:'id="profStage"',hero:orbHero({zones:sc?[...new Set(mobilityFocus(sc).flatMap(k=>AREA_ZONES[k]||[]))]:null})+(PROF_TAB==="dash"?profStats(sc):PROF_TAB==="prog"?progStats():"")})}
   <div id="pane" class="stack gl">${PROF_TAB==="dash"?dashPane(sc):PROF_TAB==="equip"?equipPane():progPane(sc)}</div>
   </div>`};
 ACT.profTab=d=>{const a=PROF_TABS.findIndex(t=>t[0]===PROF_TAB),b=PROF_TABS.findIndex(t=>t[0]===d.p);if(a===b||b<0)return;PROF_TAB=d.p;PROF_ANIM=true;render();window.scrollTo(0,0);
@@ -6140,7 +6203,7 @@ function afterIn(){
     if(typeof start3d==="function")start3d();const gt=document.getElementById("gate");if(gt)gt.dataset.reveal="1";
     const t0=performance.now(),go=()=>gateReveal().then(()=>{gateClose();tourOwed()});
     // wait until the character's 3D figure has been drawn (or 3D is off, unsupported or failed; never more than 1.5 s)
-    const wait=()=>{const on=S.settings.fig3d!==false,cv=document.querySelector("#orb .o-hero canvas.fig.f3"),drawn=cv&&cv.dataset.r3&&document.documentElement.classList.contains("fig3d");
+    const wait=()=>{const on=S.settings.fig3d!==false,cv=document.querySelector("#stage .o-hero canvas.fig.f3"),drawn=cv&&cv.dataset.r3&&document.documentElement.classList.contains("fig3d");
       if(!on||drawn||(FIG3D.settled&&!FIG3D.ready)||performance.now()-t0>1500)requestAnimationFrame(()=>requestAnimationFrame(go));else setTimeout(wait,40)};wait();return}
   gateClose();stack=[{name:"home",p:{}}];render();window.scrollTo(0,0);tourOwed()}
 ACT.signOutAsk=()=>sheet(`<h3>Sign Out of Range?</h3><div class="scroll"><p style="margin:0">Your tests, sessions and routines are saved to your account${SBU&&SBU.email?` (<b>${esc(SBU.email)}</b>)`:""}. They're removed from this phone and come back when you sign in.</p></div>
@@ -6323,7 +6386,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="23104525";
+<script>window.RANGE_BUILD="80860599";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
