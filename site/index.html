@@ -934,6 +934,15 @@ body.touring{--stg-h:clamp(280px,40vh,360px)}
 .phead.trow{justify-content:flex-start;padding:0}.phead.trow .avatar{width:46px;height:46px;font-size:calc(20px * var(--ts));flex:none}
 .phead.trow .pname{font-size:calc(22px * var(--ts))}
 html:not(.fig3d) body[data-tab=rebuild] .o-hero{visibility:hidden}
+
+/* Rebuild: zoomed in on the spot. The drawing fades out toward its edges so the close-up has no hard cut */
+.o-hero.zoomed .o-bob{-webkit-mask-image:radial-gradient(closest-side,#000 72%,transparent);mask-image:radial-gradient(closest-side,#000 72%,transparent)}
+.o-hero.pick .fig{touch-action:none}
+.o-pickbar .o-pbt small{color:var(--muted);font-size:.85em}
+.o-pbb{display:flex;align-items:center;gap:8px;flex:none}
+.o-zoom{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:var(--ink);background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px var(--g-line);transition:transform 160ms var(--ease-out),background .2s}
+.o-zoom svg{width:20px;height:20px}.o-zoom:active{transform:scale(.92)}
+.o-zoom.on{background:color-mix(in srgb,var(--glow,#FF5A4A) 28%,transparent);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--glow,#FF5A4A) 70%,transparent)}
 /* Rebuild: only the body to tap. The list of areas is the way in when 3D is off */
 html.fig3d .rbareas{display:none}
 @media (prefers-reduced-motion:reduce){.o-bob,.o-shadow,.o-beam,.o-pulse.on{animation:none}.orb{transition:none}}
@@ -2005,7 +2014,7 @@ const FIG3D=(()=>{
     const yaw=(C.yaw??(D.view==="front"?68:D.view==="above"?40:wallAhead?-24:26))*Math.PI/180+yawExtra,pitch=(C.pitch??(D.view==="above"?28:10))*Math.PI/180;
     return norm([Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),Math.cos(yaw)*Math.cos(pitch)]);
   }
-  function frame(key,aspect,yawExtra=0,reserve=0){
+  function frame(key,aspect,yawExtra=0,reserve=0,zoom=1,zp=null){
     const D=figData(key),c=[(D.mn[0]+D.mx[0])/2,(D.mn[1]+D.mx[1])/2,(D.mn[2]+D.mx[2])/2],size=[D.mx[0]-D.mn[0]+22,D.mx[1]-D.mn[1]+20,D.mx[2]-D.mn[2]+22];
     // yaw measured from the person's right side (+Z) toward their front (+X)
     // (the character on Today turns on the spot: it is always fitted as seen from its resting angle, so it never changes size)
@@ -2014,7 +2023,10 @@ const FIG3D=(()=>{
     const dist=Math.max(h/2/Math.tan(fov/2),w/2/(Math.tan(fov/2)*aspect))*1.04+Math.max(size[0],size[2])*.18;
     // leave the bottom of the frame free for the info overlay: pull back a little and aim lower
     const d2=dist*(1+reserve*1.25),ty=c[1]*.95-reserve*size[1]*.45;
-    cam.aspect=aspect;cam.position.set(c[0]+dv[0]*d2,ty+(c[1]-ty)+dv[1]*d2,c[2]+dv[2]*d2);cam.lookAt(c[0],ty,c[2]);cam.updateProjectionMatrix();
+    let pos=[c[0]+dv[0]*d2,ty+(c[1]-ty)+dv[1]*d2,c[2]+dv[2]*d2],look=[c[0],ty,c[2]];
+    // zoomed in (Rebuild): aim at the spot and come closer, keeping the same direction, so turning orbits the spot
+    if(zoom>1.001&&zp){const k=1-Math.pow(zoom,-1.5);look=[look[0]+(zp[0]-look[0])*k,look[1]+(zp[1]-look[1])*k,look[2]+(zp[2]-look[2])*k];pos=[look[0]+(pos[0]-c[0])/zoom,look[1]+(pos[1]-ty)/zoom,look[2]+(pos[2]-c[2])/zoom]}
+    cam.aspect=aspect;cam.position.set(pos[0],pos[1],pos[2]);cam.lookAt(look[0],look[1],look[2]);cam.updateProjectionMatrix();
   }
   let curKey=null,curExtras=[];
   function setFigure(key,t,zones,sides,guide,mark){
@@ -2028,24 +2040,26 @@ const FIG3D=(()=>{
     add2(props(B,D.P.props||[],{cx:D.cx}));
     if(mark&&D.P.hero)add2(marks(B,mark));
     if(guide){const ak="arrow|"+M.style;if(!(ak in D))D[ak]=arrow(D.BA,D.BB,camDir(D,0));add2(D[ak])}
+    return B;
   }
   // a glowing dot on Today's character: where you said it hurts. Either a spot on one body part ("knee1|x,y,z", in that
   // part's own coordinates, so it moves with the part) or a region's usual spot ("@knee:1"). Several are split by ";"
-  function marks(B,mark){
-    const g=new T.Group(),F=B.F,U=B.U,at=(q,v,k)=>[q[0]+v[0]*k,q[1]+v[1]*k,q[2]+v[2]*k],lp=(a,b,u)=>[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,a[2]+(b[2]-a[2])*u];
+  function marks(B,mark){const g=new T.Group();markPts(B,mark).forEach(p=>{const o=part(geo.sph,M.hl,false);blob(o,p,3.1,3.1,3.1);g.add(o)});return g}
+  function markPts(B,mark){
+    const out=[],F=B.F,U=B.U,at=(q,v,k)=>[q[0]+v[0]*k,q[1]+v[1]*k,q[2]+v[2]*k],lp=(a,b,u)=>[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,a[2]+(b[2]-a[2])*u];
     String(mark).split(";").forEach(m=>{let p=null;
       if(m[0]==="@"){const[r,s0]=m.slice(1).split(":"),s=s0==="2"?"2":"1",L=B.legs[s],A=B.arms[s];
         p=r==="back"?at(lp(B.p,B.n,.22),F,-7):r==="knee"?at(L.k,F,3.6):r==="hip"?at(L.hip,F,5):r==="shoulder"?at(A.sh,U,3):r==="elbow"?A.e:r==="achilles"?at(lp(L.k,L.f,.85),F,-3.4):null}
       else{const[n,xyz]=m.split("|"),o=rig.parts[n];if(o&&xyz){const v=new T.Vector3(...xyz.split(",").map(Number)).applyMatrix4(o.matrix);p=[v.x,v.y,v.z]}}
-      if(!p)return;const o=part(geo.sph,M.hl,false);blob(o,p,3.1,3.1,3.1);g.add(o)});
-    return g;
+      if(p)out.push(p)});
+    return out;
   }
   // which body part is under a point on a character canvas, and where on it: u runs along the part's bone (0 at the
   // joint nearer the body), front says whether it is on the front of the body
   function pick(cv,x,y){
     if(!ready||!cv||!cv.width||!cv.dataset.pose)return null;
     const r=cv.getBoundingClientRect(),key=cv.dataset.pose,t=cv._t??.5,D=figData(key),F=poseAt(D.P,t),B=lift(solveFig(F),F,D.cx);
-    pose(rig,B);frame(key,cv.width/cv.height,+cv.dataset.yaw||0,0);rig.G.updateMatrixWorld(true);cam.updateMatrixWorld();
+    pose(rig,B);frame(key,cv.width/cv.height,+cv.dataset.yaw||0,0,cv._zoom||1,cv._zp||null);rig.G.updateMatrixWorld(true);cam.updateMatrixWorld();
     const rc=new T.Raycaster();rc.setFromCamera(new T.Vector2((x-r.left)/r.width*2-1,-((y-r.top)/r.height*2-1)),cam);
     const hit=rc.intersectObjects(rig.G.children.filter(o=>o.visible),false)[0];if(!hit)return null;
     let part="";for(const k in rig.parts)if(rig.parts[k]===hit.object){part=k;break}
@@ -2060,7 +2074,11 @@ const FIG3D=(()=>{
   function draw(r,key,t,o,w,h,yaw=0,reserve=0){
     if(M.style!==(document.documentElement.dataset.fig||"gymkit")){makeMaterials();[rig,ghost].forEach(x=>scene.remove(x.G));rig=buildRig(false);ghost=buildRig(true);for(const k in cache)for(const j in cache[k])if(j.startsWith("arrow|"))delete cache[k][j]}
     const sz=w+"x"+h;if(r===R){if(liveSize!==sz){R.setSize(w,h,false);liveSize=sz}}else if(thumbSize!==sz){r.setSize(w,h,false);thumbSize=sz}
-    setFigure(key,t,o.zones,o.sides,o.guide!==false,o.mark);frame(key,w/h,yaw,reserve);r.render(scene,cam);return r.domElement;
+    const B=setFigure(key,t,o.zones,o.sides,o.guide!==false,o.mark);let z=1,zp=null;const cv=o.cv;
+    // a canvas can be zoomed (data-zoom): ease toward it, aiming at its marked spot (or the middle of the body)
+    if(cv){const zt=+cv.dataset.zoom||1,z0=cv._zoom||1;cv._zoom=Math.abs(zt-z0)<.004?zt:z0+(zt-z0)*.16;
+      if(cv._zoom>1.003){const tp=markPts(B,o.mark)[0]||B.c;cv._zp=cv._zp?cv._zp.map((v,i)=>v+(tp[i]-v)*.2):tp;z=cv._zoom;zp=cv._zp}else cv._zp=null}
+    frame(key,w/h,yaw,reserve,z,zp);r.render(scene,cam);return r.domElement;
   }
   function renderTo(key,t,o,w,h,yaw=0){if(!TR)TR=makeRenderer(true);return draw(TR,key,t,o,w,h,yaw)}
 
@@ -2098,7 +2116,7 @@ const FIG3D=(()=>{
   function hookDrag(cv){
     let x0=null,tr=null;
     cv.addEventListener("pointerdown",e=>{x0=e.clientX;cv._spin=0;tr=tracker();tr.add(e.clientX);try{cv.setPointerCapture(e.pointerId)}catch(_){};cv.dataset.drag=1});
-    cv.addEventListener("pointermove",e=>{if(x0==null)return;cv.dataset.yaw=(+cv.dataset.yaw||0)+(e.clientX-x0)*.012;x0=e.clientX;tr.add(e.clientX);cv.dataset.drawn=""});
+    cv.addEventListener("pointermove",e=>{if(x0==null||cv._pinch)return;cv.dataset.yaw=(+cv.dataset.yaw||0)+(e.clientX-x0)*.012;x0=e.clientX;tr.add(e.clientX);cv.dataset.drawn=""});
     // let go mid-turn and it keeps turning, slowing like a real thing would
     const end=e=>{if(x0!=null){const v=tr.v()*.012/1000;if(!REDUCED&&Math.abs(v)>.0004){cv._spin=v;cv._st=0}if(Math.abs(+cv.dataset.yaw)<.02)cv.dataset.drag=""}x0=null};
     cv.addEventListener("pointerup",end);cv.addEventListener("pointercancel",end);
@@ -2129,7 +2147,7 @@ const FIG3D=(()=>{
         if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}
         const per=+cv.dataset.period||3400,t=cv.dataset.mode==="static"?1:REDUCED?.75:cv.dataset.mode==="iso"?.86+.14*(.5-.5*Math.cos(ts/4200*2*Math.PI)):.5-.5*Math.cos(ts/per*2*Math.PI);
         const ov=stg&&stg.querySelector(".dov"),res=ov&&ov.offsetHeight?Math.min(.3,(ov.offsetHeight+8)/Math.max(1,dh)):0;
-        cv._t=t;const src=draw(R,cv.dataset.pose,t,opts(cv),w,h,+cv.dataset.yaw||0,res);
+        cv._t=t;const src=draw(R,cv.dataset.pose,t,Object.assign(opts(cv),{cv}),w,h,+cv.dataset.yaw||0,res);
         const g=cv.getContext("2d");g.clearRect(0,0,w,h);g.drawImage(src,0,0,w,h);cv.dataset.drawn=paused?"1":"";cv.dataset.r3="1";cv.dataset.seen=1;
       });
       upgrade(scope);
@@ -2456,10 +2474,10 @@ function stageLayout(){
   const st=$("#stage");if(!st)return;const W=st.clientWidth,H=st.clientHeight;if(!W||!H)return;
   const cl=(x,a,b)=>Math.max(a,Math.min(b,x));
   const tw=Math.min(140,W*.345,H*.3),th=tw*.76,rx=Math.min(W/2-tw*.39-6,170),prx=Math.min(W*.28,H*.21),pry=prx*.34,pth=Math.max(9,prx*.13);
-  // from the bottom up: the stand, the front tab just above it, the character's toes behind the top of that tab.
-  // The character takes the height that is left, and stands a little down from the top of the stage
-  const below=.84*th+10+2*pry+pth+8,ch=cl((H-below)/1.1,120,W*1.1),top=Math.max(0,(H-below-ch*1.1)/2);
-  const ht=top+ch*.1,feet=ht+ch,yF=feet+th*.34,ry=Math.min(ch*.27,rx*.74),cy=yF-ry,py=yF+th/2+10+pry;
+  // from the bottom up: the stand, the character hovering just over it, the front tab in front of the lower legs.
+  // The character takes the height that is left above the stand
+  const py=H-pth-pry-6,feet=py-pry*.35-8,ch=cl(feet-Math.max(6,H*.025),120,W*1.05),ht=feet-ch;
+  const yF=py-pry*.3-th*.42,ry=Math.min(ch*.2,rx*.66),cy=yF-ry;
   STG={W,H,cx:W/2,cy,rx,ry,tw,th,yF};orbVars(st,{W,ch,ht,py,prx,pry,pth,cy,tw,th});
   if(STG_HOOK)STG_HOOK();
 }
@@ -2474,7 +2492,7 @@ function stageEl(){
   // Rebuild: tap the body where it hurts (a drag turns it; hookDrag does that on the canvas)
   const hero=st.querySelector(".o-hero");let d=null;
   hero.addEventListener("pointerdown",e=>{d={x:e.clientX,y:e.clientY,t:performance.now()};const cv=hero.querySelector("canvas");if(cv)cv._userTurn=performance.now()});
-  hero.addEventListener("pointerup",e=>{const s=d;d=null;if(!s||!(stack.length===1&&stack[0].name==="rebuild"&&!S.rehab))return;
+  hero.addEventListener("pointerup",e=>{const s=d;d=null;if(!s||!(stack.length===1&&stack[0].name==="rebuild"&&!S.rehab))return;const fz=hero.querySelector(".fig");if(fz&&fz._pinch)return;
     if(Math.hypot(e.clientX-s.x,e.clientY-s.y)>8||performance.now()-s.t>450)return;
     const cv=hero.querySelector("canvas.fig.f3");if(!cv||!FIG3D.ready)return;
     let res=null;try{res=rbFromHit(FIG3D.pick(cv,e.clientX,e.clientY))}catch(err){noteError(err,"pick")}
@@ -2483,6 +2501,14 @@ function stageEl(){
     const bar=$("#rbPickBar");if(bar){bar.innerHTML=rbPickBar();bar.classList.add("got")}
     const pl=st.querySelector(".o-pulse");if(pl&&!REDUCED){pl.classList.remove("on");void pl.offsetWidth;pl.classList.add("on")}
     try{navigator.vibrate&&navigator.vibrate(8)}catch(_){}});
+  // two fingers on the body (Rebuild): pinch to zoom in or out
+  let pz=null;const dist=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
+  hero.addEventListener("touchstart",e=>{if(e.touches.length!==2||!hero.classList.contains("pick"))return;const f=hero.querySelector(".fig");if(!f)return;
+    pz={d:dist(e.touches),z:+f.dataset.zoom||1,f};f._pinch=true;d=null},{passive:true});
+  hero.addEventListener("touchmove",e=>{if(!pz||e.touches.length!==2)return;e.preventDefault();
+    const z=Math.max(1,Math.min(4,pz.z*dist(e.touches)/pz.d));pz.f.dataset.zoom=z.toFixed(3);if(z>1.02)hero.classList.add("zoomed")},{passive:false});
+  const pend=e=>{if(!pz||e.touches.length>=2)return;const f=pz.f;pz=null;setTimeout(()=>{f._pinch=false},60);rbZoomTo(+f.dataset.zoom<1.15?1:+f.dataset.zoom)};
+  hero.addEventListener("touchend",pend,{passive:true});hero.addEventListener("touchcancel",pend,{passive:true});
   new ResizeObserver(stageLayout).observe(st);
   addEventListener("resize",stagePlace);
   return st;
@@ -2518,6 +2544,7 @@ function stageSync(){
     if(f.dataset.mark!==mark)f.dataset.mark=mark;if(f.dataset.zones!==zones)f.dataset.zones=zones;f.dataset.drawn="";
   }
   if(name!=="home")heroFront();
+  if(!pick&&f&&(+f.dataset.zoom||1)!==1){f.dataset.zoom="1";const h=hero;clearTimeout(h._zt);h._zt=setTimeout(()=>h.classList.remove("zoomed"),450)}
   // the cards: the old ones fade out where they are, the new ones fade in, rising a little
   const c=stageCards(name),key=name+"|"+c.html,old=st.querySelector(".o-cards:not(.o-old)");
   if(old&&old._key===key)return;
@@ -2581,7 +2608,8 @@ AFTER.home=()=>{
     if(!ring.isConnected){if(STG_HOOK===layout)STG_HOOK=null;return}
     const dt=last?Math.min(.034,(now-last)/1000):.016;last=now;
     if(!onHome()||ring.classList.contains("o-old")){yaw=null;requestAnimationFrame(tick);return} // another tab or a deeper screen: wait
-    if(ORB.intro===1){if(held()){requestAnimationFrame(tick);return}ORB.intro=2;ring.classList.remove("intro")}
+    if(ORB.intro===1){if(held()){requestAnimationFrame(tick);return}ORB.intro=2}
+    if(ring.classList.contains("intro"))ring.classList.remove("intro");
     if(!drag){
       // a spring pulls the ring to the tab it is heading for (a softer one for the swing-in)
       const k=ORB.intro?30:150,c=ORB.intro?8.5:20;
@@ -5270,9 +5298,16 @@ function rbFromHit(h){
   }
   return{label:L,side,r,mark:h.mark};
 }
-function rbPickBar(){const s=RB_SEL;
-  if(!s)return`<span class="o-pbt">Tap where it hurts</span>`;
-  return`<span class="o-pbt"><b>${esc(s.label)}</b>${s.side?` · ${s.side==="left"?"Left":"Right"}`:""}</span>${s.r?`<button class="btn" data-act="rbPickGo">Continue</button>`:""}`}
+const RB_ZOOM=2.6;
+function rbZoomed(){const f=$("#stage .o-hero .fig");return!!f&&(+f.dataset.zoom||1)>1.05}
+function rbPickBar(){const s=RB_SEL,z=rbZoomed();
+  if(!s)return`<span class="o-pbt">Tap where it hurts <small>· pinch to zoom</small></span>`;
+  return`<span class="o-pbt"><b>${esc(s.label)}</b>${s.side?` · ${s.side==="left"?"Left":"Right"}`:""}</span><span class="o-pbb"><button class="o-zoom${z?" on":""}" data-act="rbZoom" aria-label="${z?"Zoom out":"Zoom in on the spot"}" aria-pressed="${z}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L20 20"/>${z?'<path d="M7.5 10.5h6"/>':'<path d="M7.5 10.5h6M10.5 7.5v6"/>'}</svg></button>${s.r?`<button class="btn" data-act="rbPickGo">Continue</button>`:""}</span>`}
+// zoom the body in on the marked spot, or back out. The edges of the drawing fade while zoomed, so nothing is cut off sharply
+function rbZoomTo(z){const f=$("#stage .o-hero .fig"),h=$("#stage .o-hero");if(!f||!h)return;f.dataset.zoom=String(z);
+  clearTimeout(h._zt);if(z>1.02)h.classList.add("zoomed");else h._zt=setTimeout(()=>{if(!rbZoomed())h.classList.remove("zoomed")},450);
+  const bar=$("#rbPickBar");if(bar&&RB_SEL)bar.innerHTML=rbPickBar()}
+ACT.rbZoom=()=>rbZoomTo(rbZoomed()?1:RB_ZOOM);
 ACT.rbPickGo=()=>{const s=RB_SEL;if(!s||!s.r)return;ACT.rbPick({r:s.r});RB.pickSide=s.side;RB.mark=s.mark};
 AFTER.rebuild=()=>{
   if(!RB_ANIM||REDUCED||TOUR){RB_ANIM=false;return}RB_ANIM=false;dashAnim()};
@@ -6386,7 +6421,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="499829";
+<script>window.RANGE_BUILD="49625455";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
