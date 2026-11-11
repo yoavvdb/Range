@@ -886,11 +886,11 @@ html:not(.fig3d) .orb.solo,html:not(.fig3d) .o-pickbar,html:not(.fig3d) .rbpicko
 .pseg{background:var(--g-fill);-webkit-backdrop-filter:var(--g-blur);backdrop-filter:var(--g-blur);box-shadow:inset 0 1px 0 var(--g-hi),inset 0 0 0 1px var(--g-line)}
 
 /* Profile, Dashboard: the numbers float around the character */
-.orb.prof.dash{height:clamp(360px,calc(100svh - 330px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)),470px)}
+.orb.prof.cards{height:clamp(360px,calc(100svh - 330px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)),470px)}
 .o-stat{z-index:20;width:min(122px,31%);padding:10px 12px;border-radius:18px;display:grid;gap:5px;align-content:start;text-align:left;min-width:0;
   background:var(--g-fill);-webkit-backdrop-filter:var(--g-blur);backdrop-filter:var(--g-blur);box-shadow:inset 0 1px 0 var(--g-hi),inset 0 0 0 1px var(--g-line),0 12px 24px -12px rgba(0,0,0,.6);transition:transform 160ms var(--ease-out)}
 button.o-stat:active{transform:scale(.97)}
-.o-stat.time{left:12px;top:3%}.o-stat.score{right:12px;top:3%}.o-stat.focus{left:12px;top:50%}.o-stat.areas{right:12px;top:50%}
+.o-stat.tr{right:12px;top:3%}.o-stat.time{left:12px;top:3%}.o-stat.score{right:12px;top:3%}.o-stat.focus{left:12px;top:50%}.o-stat.areas{right:12px;top:50%}
 .o-stat .dt{font-size:calc(12px * var(--ts));color:var(--muted)}
 .o-stat .dbig{font-size:calc(24px * var(--ts))}
 .o-stat .mbar{height:10px;margin-top:2px}
@@ -898,7 +898,20 @@ button.o-stat:active{transform:scale(.97)}
 .o-stat.score small{font-size:calc(12px * var(--ts))}
 .o-stat.focus small{font-size:calc(12px * var(--ts))}.o-stat .fnames b{font-size:calc(14px * var(--ts));line-height:1.2}
 .o-stat .vbars{height:64px;padding:0 2px;gap:4px}
-html:not(.fig3d) .orb.prof.dash{display:block}html:not(.fig3d) .orb.prof .o-hero{visibility:hidden}
+html:not(.fig3d) .orb.prof.cards{display:block}html:not(.fig3d) .orb.prof .o-hero{visibility:hidden}
+
+/* Profile panes: glass panels without the blur (they sit on a plain background, so a blur would cost and show nothing) */
+#pane.gl .panel,#pane.gl .tile{background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.02));box-shadow:inset 0 1px 0 var(--g-hi),inset 0 0 0 1px var(--g-line)}
+#pane.gl .chip{background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px var(--g-line)}
+#pane.gl .chip.on{background:color-mix(in srgb,var(--accent) 20%,transparent);color:var(--ink);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 70%,transparent),0 0 18px -6px var(--accent)}
+.o-stat small{font-size:calc(12px * var(--ts))}
+.eqgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.eqt{display:grid;justify-items:center;align-content:center;gap:6px;min-height:84px;padding:10px 6px;border-radius:16px;text-align:center;font-size:calc(12px * var(--ts));font-weight:700;color:var(--muted);
+  background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px var(--g-line);transition:transform 160ms var(--ease-out),background .2s,color .2s,box-shadow .2s}
+.eqt .ic{width:24px;height:24px}
+.eqt.on{color:var(--ink);background:color-mix(in srgb,var(--accent) 18%,transparent);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 70%,transparent),0 0 22px -8px var(--accent)}
+.eqt.on .ic{color:var(--accent)}
+.eqt:active{transform:scale(.96)}
 /* Rebuild: only the body to tap. The list of areas is the way in when 3D is off */
 html.fig3d .rbareas{display:none}
 @media (prefers-reduced-motion:reduce){.o-bob,.o-shadow,.o-beam,.o-pulse.on{animation:none}.orb{transition:none}}
@@ -2015,9 +2028,12 @@ const FIG3D=(()=>{
     const hit=rc.intersectObjects(rig.G.children.filter(o=>o.visible),false)[0];if(!hit)return null;
     let part="";for(const k in rig.parts)if(rig.parts[k]===hit.object){part=k;break}
     const p=[hit.point.x,hit.point.y,hit.point.z],loc=hit.object.worldToLocal(hit.point.clone()),s=part.slice(-1),L=B.legs[s]||B.legs["1"],A=B.arms[s]||B.arms["1"];
-    const bn=part.replace(/[12]$/,""),seg={thigh:[L.hip,L.k],short:[L.hip,L.k],shin:[L.k,L.f],upper:[A.sh,A.e],sleeve:[A.sh,A.e],fore:[A.e,A.w]}[bn]||[B.p,B.n];
-    const d=sub(seg[1],seg[0]),u=Math.max(0,Math.min(1,dot(sub(p,seg[0]),d)/(dot(d,d)||1))),c=[seg[0][0]+d[0]*u,seg[0][1]+d[1]*u,seg[0][2]+d[2]*u];
-    return{part,u,front:dot(sub(p,c),B.F)>0,right:p[2]>B.p[2],mark:part+"|"+[loc.x,loc.y,loc.z].map(v=>v.toFixed(2)).join(",")};
+    const bn=part.replace(/[12]$/,""),limb=(s==="1"||s==="2")&&!/^(glute|trap|ear)$/.test(bn);
+    const seg={thigh:[L.hip,L.k],short:[L.hip,L.k],shin:[L.k,L.f],upper:[A.sh,A.e],sleeve:[A.sh,A.e],fore:[A.e,A.w],knee:[L.k,L.k],hip:[L.hip,L.hip],shoulder:[A.sh,A.sh],elbow:[A.e,A.e],hand:[A.w,A.w],ankle:[L.f,L.f],foot:[L.f,L.ft],chest:[B.c,B.c]}[bn]||[B.p,B.n];
+    const d=sub(seg[1],seg[0]),u=Math.max(0,Math.min(1,dot(sub(p,seg[0]),d)/(dot(d,d)||1))),c=[seg[0][0]+d[0]*u,seg[0][1]+d[1]*u,seg[0][2]+d[2]*u],off=sub(p,c);
+    // fwd: toward the front of the body; out: away from the body's midline (limbs); mid: right (+) or left (-) of the midline
+    const R_=[-B.Lat[0],-B.Lat[1],-B.Lat[2]],out=limb?dot(off,s==="1"?R_:B.Lat):0,mid=dot(sub(p,B.p),R_);
+    return{part,u,fwd:dot(off,B.F),out,mid,front:dot(off,B.F)>0,right:mid>0,mark:part+"|"+[loc.x,loc.y,loc.z].map(v=>v.toFixed(2)).join(",")};
   }
   function draw(r,key,t,o,w,h,yaw=0,reserve=0){
     if(M.style!==(document.documentElement.dataset.fig||"gymkit")){makeMaterials();[rig,ghost].forEach(x=>scene.remove(x.G));rig=buildRig(false);ghost=buildRig(true);for(const k in cache)for(const j in cache[k])if(j.startsWith("arrow|"))delete cache[k][j]}
@@ -2344,6 +2360,8 @@ ACT.back=back;
 let PROF_ANIM=false;
 ACT.tab=d=>{if(d.t==="profile"&&stack[0].name!=="profile")PROF_ANIM=true;if(d.t==="rebuild"&&stack[0].name!=="rebuild")RB_ANIM=true;stack=[{name:d.t,p:{}}];render();window.scrollTo(0,0)};
 
+// the three tabs share Today's header: sign out on the left (when signed in), Range. in the middle, the tab's own button on the right
+const tabHdr=(right="")=>`<div class="hdr">${SBU?`<button data-act="signOutAsk" aria-label="Sign Out">${ic("signout")}</button>`:"<span></span>"}<div class="brand">Range<b>.</b></div>${right||"<span></span>"}</div>`;
 const hdr=(right="")=>`<div class="hdr"><button data-act="back" aria-label="Back">${ic("back")}</button><div class="brand">Range<b>.</b></div><div>${right}</div></div>`;
 function render(){
   const top=stack[stack.length-1];
@@ -2426,7 +2444,7 @@ SCREENS.home=()=>{
   const intro=ORB.intro===1&&!REDUCED&&!TOUR;
   const tab=k=>{const v=KINDS[k];return drawPart("tab "+k,()=>`<button class="o-tab" type="button" data-kind="${k}" data-glow="${ORB_TINT[k]}" style="--tint:${ORB_TINT[k]}" aria-label="${v.n}, ${v.sub}"><span class="o-glass"><span class="o-rings"></span><span class="o-pic">${fig(v.pose,null,{mode:"static"})}</span><span class="o-sheen"></span><span class="o-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><span class="o-txt"><b>${v.n}</b><i>${v.sub}</i></span></span><span class="o-edge"></span></button>`)};
   const nav=(c,l,d)=>`<button class="o-nav ${c}" type="button" aria-label="${l}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg></button>`;
-  return `<div class="hdr">${SBU?`<button data-act="signOutAsk" aria-label="Sign Out">${ic("signout")}</button>`:"<span></span>"}<div class="brand">Range<b>.</b></div><span></span></div>
+  return `${tabHdr()}
   <div class="greet"><h1>${greeting()}</h1><button class="streak" data-act="tab" data-t="profile" data-tour="streak" aria-label="${streak()} day streak">${ic("flame","fill")}<b>${streak()}</b></button></div>
   <section class="orb${S.scores?"":" short"}${intro?" intro":""}" id="orb" data-tour="cards" data-noswipe tabindex="-1" aria-label="Choose a session. Swipe or use the arrow keys to turn the ring, then tap the one in front.">
     <div class="o-bg" aria-hidden="true"><div class="o-wash"></div><div class="o-bgi"><div class="o-halo"></div><div class="o-floor"></div></div></div>
@@ -5132,29 +5150,49 @@ function rbProgPane(st,phs){const days=Math.floor((Date.now()-st.started)/dayMs)
 const RB_SUB={back:"Pain when you bend, sit, lift or twist",knee:"Around the kneecap and the tendon below it",hip:"Front of the hip, groin or the hamstring tendon",shoulder:"Overhead, pressing or hanging hurts",elbow:"Tennis or golfer's elbow, gripping hurts",achilles:"Tendon pain when you run, jump or rise onto your toes"};
 // Rebuild: tap the body where it hurts. The spot you tap picks the program (knee, hip, back...) and the side
 let RB_SEL=null;
-const RB_NONE={chest:"the chest",neck:"the neck",head:"the head",hair:"the head",nose:"the head",ear:"the head",hand:"the hand or wrist",belly:"the stomach",trapx:"the upper back"};
+// where you tapped, as a person would say it: "Back of the Knee", "Mid Back", "Front of the Shoulder". r is the Rebuild
+// program for that spot when there is one (Continue appears only then)
 function rbFromHit(h){
-  if(!h)return null;const b=h.part.replace(/[12]$/,""),n=h.part.slice(-1),u=h.u,
-    // on the trunk (glutes, traps) which side is from where you tapped; on a limb it is the limb's own side
-    side=/^(glute|trap|pelvis|hip)$/.test(b)?(h.right?"right":"left"):n==="1"?"right":n==="2"?"left":h.right?"right":"left";
-  let r=null,sd=side;
-  if(b==="knee")r="knee";
-  else if(b==="thigh"||b==="short")r=u>.62?"knee":"hip";
-  else if(b==="shin")r=u<.25?"knee":"achilles";
-  else if(b==="ankle"||b==="foot")r="achilles";
-  else if(b==="hip"||b==="glute")r="hip";
-  else if(b==="pelvis"){r=h.front?"hip":"back";if(r==="back")sd=null}
-  else if(b==="belly"){if(!h.front&&u<.6){r="back";sd=null}else return{none:h.front?"the stomach":"the upper back",mark:h.mark}}
-  else if(b==="shoulder"||b==="sleeve"||b==="trap")r="shoulder";
-  else if(b==="upper")r=u<.5?"shoulder":"elbow";
-  else if(b==="elbow"||b==="fore")r="elbow";
-  if(!r)return{none:RB_NONE[b]||"there",mark:h.mark};
-  return{r,side:sd,mark:h.mark};
+  if(!h)return null;
+  const b=h.part.replace(/[12]$/,""),n=h.part.slice(-1),limb=(n==="1"||n==="2")&&!/^(glute|trap|ear)$/.test(b),u=h.u;
+  let side=limb?(n==="1"?"right":"left"):(Math.abs(h.mid)<1.5?null:h.mid>0?"right":"left");
+  const fb=Math.abs(h.fwd)>=1.15*Math.abs(h.out)?(h.fwd>0?"front":"back"):(h.out>0?"out":"in");
+  let L="",r=null;
+  const knee=()=>{L={front:"Front of the Knee",back:"Back of the Knee",in:"Inside of the Knee",out:"Outside of the Knee"}[fb];r=fb==="front"?"knee":null};
+  const elbow=()=>{L={front:"Front of the Elbow",back:"Back of the Elbow",in:"Inside of the Elbow",out:"Outside of the Elbow"}[fb];r="elbow"};
+  const shoulder=()=>{L={front:"Front of the Shoulder",back:"Back of the Shoulder",in:"Armpit",out:"Side of the Shoulder"}[fb];r=fb==="in"?null:"shoulder"};
+  const ankle=()=>{L={front:"Front of the Ankle",back:"Achilles",in:"Inside of the Ankle",out:"Outside of the Ankle"}[fb];r=fb==="back"?"achilles":null};
+  switch(b){
+    case"head":case"hair":case"nose":case"ear":L="Head";side=null;break;
+    case"neck":L=h.fwd>0?"Front of the Neck":"Back of the Neck";side=null;break;
+    case"trap":L="Top of the Shoulder";break;
+    case"shoulder":shoulder();break;
+    case"sleeve":case"upper":if(u<.3)shoulder();else if(u>.82)elbow();else L={front:"Biceps",back:"Triceps",in:"Inside of the Upper Arm",out:"Outside of the Upper Arm"}[fb];break;
+    case"elbow":elbow();break;
+    case"fore":if(u<.22)elbow();else if(u>.85)L="Wrist";else{L="Forearm";r="elbow"}break;
+    case"hand":L="Wrist & Hand";break;
+    case"chest":L=h.fwd>0?"Chest":"Upper Back";if(Math.abs(h.mid)<2)side=null;break;
+    case"belly":if(Math.abs(h.fwd)<Math.abs(h.mid)*.9)L="Side of the Waist";
+      else if(h.fwd>0){L=u<.45?"Lower Belly":"Upper Belly";if(Math.abs(h.mid)<2)side=null}
+      else{L=u<.35?"Lower Back":u<.68?"Mid Back":"Upper Back";r=u<.35?"back":null;if(Math.abs(h.mid)<2.5)side=null}break;
+    case"pelvis":if(h.fwd>0){L=Math.abs(h.mid)<3.5?"Groin":"Front of the Hip";r="hip"}else{L="Lower Back";r="back";if(Math.abs(h.mid)<2.5)side=null}break;
+    case"glute":L="Glute";break;
+    case"hip":L={front:"Front of the Hip",back:"Glute",in:"Groin",out:"Outside of the Hip"}[fb];r=fb==="front"||fb==="in"?"hip":null;break;
+    case"thigh":case"short":
+      if(u>.82)knee();
+      else if(u<.25&&(fb==="front"||fb==="in")){L=fb==="in"?"Groin":"Front of the Hip";r="hip"}
+      else{L={front:"Front of the Thigh",back:"Back of the Thigh",in:"Inner Thigh",out:"Outside of the Thigh"}[fb];if((fb==="back"&&u<.35)||(fb==="in"&&u<.4))r="hip"}break;
+    case"knee":knee();break;
+    case"shin":if(u<.18)knee();else if(u>.85)ankle();else{L={front:"Shin",back:"Calf",in:"Inside of the Shin",out:"Outside of the Shin"}[fb];r=fb==="back"?"achilles":null}break;
+    case"ankle":ankle();break;
+    case"foot":L=fb==="back"?"Heel":"Foot";break;
+    default:L="There";
+  }
+  return{label:L,side,r,mark:h.mark};
 }
 function rbPickBar(){const s=RB_SEL;
   if(!s)return`<span class="o-pbt">Tap where it hurts</span>`;
-  if(!s.r)return`<span class="o-pbt">Rebuild has no program for <b>${esc(s.none)}</b> yet. Tap another spot or pick from the list.</span>`;
-  return`<span class="o-pbt"><b>${esc(REGIONS[s.r].n)}</b>${s.side?` · ${s.side==="left"?"Left":"Right"}`:""}</span><button class="btn" data-act="rbPickGo">Continue</button>`}
+  return`<span class="o-pbt"><b>${esc(s.label)}</b>${s.side?` · ${s.side==="left"?"Left":"Right"}`:""}</span>${s.r?`<button class="btn" data-act="rbPickGo">Continue</button>`:""}`}
 ACT.rbPickGo=()=>{const s=RB_SEL;if(!s||!s.r)return;ACT.rbPick({r:s.r});RB.pickSide=s.side;RB.mark=s.mark};
 AFTER.rebuild=()=>{
   const st=$("#rbStage");if(st){orbSolo(st);
@@ -5165,21 +5203,21 @@ AFTER.rebuild=()=>{
       let res=null;try{res=rbFromHit(FIG3D.pick(cv,e.clientX,e.clientY))}catch(err){noteError(err,"pick")}
       if(!res)return;
       RB_SEL=res;cv.dataset.mark=res.mark||"";
-      const bar=$("#rbPickBar");if(bar){bar.innerHTML=rbPickBar();bar.classList.toggle("got",!!res.r)}
+      const bar=$("#rbPickBar");if(bar){bar.innerHTML=rbPickBar();bar.classList.toggle("got",true)}
       const pl=st.querySelector(".o-pulse");if(pl&&!REDUCED){pl.classList.remove("on");void pl.offsetWidth;pl.classList.add("on")}
       try{navigator.vibrate&&navigator.vibrate(8)}catch(_){}});
   }
   const ps=$("#rbProgStage");if(ps)orbSolo(ps);
   if(!RB_ANIM||REDUCED||TOUR){RB_ANIM=false;return}RB_ANIM=false;dashAnim()};
 SCREENS.rebuild=()=>{
-  if(!S.rehab){const kd=KINDS.rebuild;return`<div class="tabtop" aria-hidden="true"></div><div class="stack" style="padding-top:8px">
+  if(!S.rehab){const kd=KINDS.rebuild;return`${tabHdr()}<div class="stack" style="padding-top:4px">
    <div class="stephead rbhead"><span class="bub">${ic("heart")}</span><div><h3>Where Does It Hurt?</h3></div></div>
    ${orbStage({cls:"rbpick",glow:ORB_TINT.rebuild,attrs:'id="rbStage" data-tour="rebuild"',hero:orbHero({pick:true,mark:RB_SEL?RB_SEL.mark:""})})}
    <div class="o-pickbar${RB_SEL&&RB_SEL.r?" got":""}" id="rbPickBar" style="--glow:${ORB_TINT.rebuild}" aria-live="polite">${rbPickBar()}</div>
    <div class="stack rbareas" style="gap:10px">${Object.entries(REGIONS).map(([k,R])=>`<button class="opt rbarea" data-act="rbPick" data-r="${k}"><span class="rbfig" aria-hidden="true">${fig(R.fig,null,{t:.8})}</span><span class="rbtx"><b>${R.n}</b><small>${esc(RB_SUB[k]||"")}</small></span>${ic("chev")}</button>`).join("")}</div>
    ${myProtosPanel()}</div>`}
   const st=S.rehab,R=REGIONS[st.region],C=R.classes[st.cls],phs=rbPhases(R,st.cls),ph=phs[st.phase],stt=rbStatus(),items=rbItems();
-  return`<div class="hdr"><span></span><span></span><button data-act="rbMenu" aria-label="Program options">${ic("dots")}</button></div>
+  return`${tabHdr(`<button data-act="rbMenu" aria-label="Program options">${ic("dots")}</button>`)}
   <div class="stack" style="padding-top:4px">
   <div class="phead"><button class="avatar" data-act="rbMenu" aria-label="Program options">${ic("heart")}</button>
     <div class="pwho"><button class="pname" data-act="rbMenu">${esc(C.n)}</button><span class="pprog" style="cursor:default"><i class="pdot"></i>${esc(R.n)}${st.side&&st.side!=="both"?` · ${esc(st.side)}`:""}</span></div></div>
@@ -5476,12 +5514,14 @@ function profStats(sc){
   ${S.scores?`<button class="o-stat areas" data-act="scoreSheet" aria-label="Your six areas, details"><span class="dt">Areas</span><div class="vbars" aria-hidden="true">${AREAS.map(a=>{const v=sc[a.k];return`<span class="vb"><i style="height:${Math.max(4,v)}%;background:${level(v).v}"></i></span>`}).join("")}</div></button>`:""}`}
 function equipPane(){return`<div class="panel" data-tour="sports"><div style="display:flex;justify-content:space-between;align-items:center"><h3>My Sports</h3><button class="link" data-act="sportsSheet">Edit</button></div>
     <div class="chipset">${S.sports.map(k=>`<span class="chip">${SPI[k].n}</span>`).join("")}</div></div>
-  <div class="panel" data-tour="equip"><h3>My Equipment</h3><div class="chipset">${EQUIP.map(e=>`<button class="chip ${S.equip.includes(e.k)?"on":""}" data-act="profEq" data-e="${e.k}">${ic(e.k)}${e.n}</button>`).join("")}</div></div>`}
-function progPane(sc){const wk=Date.now()-7*864e5;return`${testChart()}<div class="stats3">
-    <div class="tile"><span class="eyebrow">Streak</span><b>${streak()}</b></div>
-    <div class="tile"><span class="eyebrow">Min / week</span><b>${S.sessions.filter(s=>s.at>=wk).reduce((t,s)=>t+s.mins,0)}</b></div>
-    <div class="tile"><span class="eyebrow">Sessions</span><b>${S.sessions.length}</b></div>
-  </div>
+  <div class="panel" data-tour="equip"><div style="display:flex;justify-content:space-between;align-items:baseline"><h3>My Equipment</h3><span class="muted" id="eqCount" style="font-size:calc(13px * var(--ts))">${S.equip.length} of ${EQUIP.length}</span></div><div class="eqgrid">${EQUIP.map(e=>`<button class="eqt ${S.equip.includes(e.k)?"on":""}" data-act="profEq" data-e="${e.k}" aria-pressed="${S.equip.includes(e.k)}">${ic(e.k)}<span>${e.n}</span></button>`).join("")}</div></div>`}
+// Profile, Progress: streak, this week, sessions and tests around the character
+function progStats(){const wk=Date.now()-7*864e5,last=S.tests[S.tests.length-1];
+  return`<div class="o-stat time"><span class="dt">Streak</span><b class="dbig">${streak()}</b><small class="muted">day${streak()===1?"":"s"} in a row</small></div>
+  <div class="o-stat tr"><span class="dt">This Week</span><b class="dbig">${S.sessions.filter(s=>s.at>=wk).reduce((t,s)=>t+s.mins,0)}</b><small class="muted">minutes</small></div>
+  <div class="o-stat focus"><span class="dt">Sessions</span><b class="dbig">${S.sessions.length}</b><small class="muted">all time</small></div>
+  <div class="o-stat areas"><span class="dt">Tests</span><b class="dbig">${S.tests.length}</b><small class="muted">${last?"Last "+new Date(last.at).toLocaleDateString(undefined,{month:"short",day:"numeric"}):"None yet"}</small></div>`}
+function progPane(sc){const wk=Date.now()-7*864e5;return`${testChart()}
   <div class="panel"><div style="display:flex;justify-content:space-between;align-items:baseline"><h3>This Week by Area</h3><span class="muted" style="font-size:calc(12px * var(--ts))">10 min per area</span></div>
     <ul class="bars">${(()=>{const w=weekAreaSecs();return AREAS.map(a=>{const m=(w[a.k]||0)/60,pc=m/10*100,col=pc>=100?"var(--good)":pc>=35?"var(--accent)":"var(--warn)";return`<li><span>${a.n}</span><span class="tr"><i style="width:${Math.min(100,pc)}%;background:${col}"></i></span><b>${m<.05?"0":m.toFixed(1)} min</b></li>`}).join("")})()}</ul>
     <p class="muted" style="margin:0;font-size:calc(13px * var(--ts));display:flex;justify-content:space-between"><span>Total</span><b style="color:var(--ink)">${S.sessions.filter(x=>x.at>=wk).reduce((t,x)=>t+x.mins,0)} min</b></p></div>
@@ -5516,13 +5556,13 @@ function testChart(){
 ACT.progMetric=d=>{PROG_METRIC=d.m;PROF_ANIM=true;render()};
 SCREENS.profile=()=>{
   const sc=scores(),sy=S.sync||{};
-  return`<div class="hdr"><span></span><span></span><button data-act="settings" aria-label="Settings" data-tour="gear">${ic("gear")}</button></div>
+  return`${tabHdr(`<button data-act="settings" aria-label="Settings" data-tour="gear">${ic("gear")}</button>`)}
   <div class="stack" style="padding-top:4px">
   <div class="phead"><button class="avatar" data-act="nameSheet" aria-label="Your Name">${esc(userName()[0]||"A").toUpperCase()}</button>
     <div class="pwho"><button class="pname" data-act="nameSheet">${esc(userName())}</button>${sy.track?`<button class="pprog" data-act="syncKey" data-tour="program"><i class="pdot"></i>${esc(sy.track)}</button>`:""}</div></div>
   <div class="pseg" role="tablist"><i class="plens" style="--pi:${PROF_TABS.findIndex(t=>t[0]===PROF_TAB)}"></i>${PROF_TABS.map(([k,n])=>`<button role="tab" aria-selected="${k===PROF_TAB}" class="${k===PROF_TAB?"on":""}" data-act="profTab" data-p="${k}">${n}</button>`).join("")}</div>
-  ${orbStage({cls:"prof"+(PROF_TAB==="dash"?" dash":""),glow:ORB_TINT.profile,attrs:'id="profStage"',hero:orbHero({zones:sc?[...new Set(mobilityFocus(sc).flatMap(k=>AREA_ZONES[k]||[]))]:null})+(PROF_TAB==="dash"?profStats(sc):"")})}
-  <div id="pane" class="stack">${PROF_TAB==="dash"?dashPane(sc):PROF_TAB==="equip"?equipPane():progPane(sc)}</div>
+  ${orbStage({cls:"prof"+(PROF_TAB!=="equip"?" cards":""),glow:ORB_TINT.profile,attrs:'id="profStage"',hero:orbHero({zones:sc?[...new Set(mobilityFocus(sc).flatMap(k=>AREA_ZONES[k]||[]))]:null})+(PROF_TAB==="dash"?profStats(sc):PROF_TAB==="prog"?progStats():"")})}
+  <div id="pane" class="stack gl">${PROF_TAB==="dash"?dashPane(sc):PROF_TAB==="equip"?equipPane():progPane(sc)}</div>
   </div>`};
 ACT.profTab=d=>{const a=PROF_TABS.findIndex(t=>t[0]===PROF_TAB),b=PROF_TABS.findIndex(t=>t[0]===d.p);if(a===b||b<0)return;PROF_TAB=d.p;PROF_ANIM=true;render();window.scrollTo(0,0);
   if(!REDUCED){const el=$("#pane");try{el&&el.animate([{opacity:0,transform:`translateX(${(b>a?1:-1)*36}px)`},{opacity:1,transform:"none"}],{duration:380,easing:"cubic-bezier(.32,.72,0,1)"})}catch(e){}}};
@@ -5576,7 +5616,7 @@ ACT.howItWorks=()=>sheet(`<h3>How Range Works</h3><div class="scroll evid">
   <li>Challoumas et al. Management of patellar tendinopathy: network meta-analysis. 2021. <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8634001/" target="_blank" rel="noopener">Link</a></li>
   <li>Konrad et al. Foam rolling vs stretching for performance. <i>Front Physiol</i>, 2021. <a href="https://www.frontiersin.org/articles/10.3389/fphys.2021.720531/full" target="_blank" rel="noopener">Link</a></li>
  </ul></div><button class="btn sec" data-act="closeSheet">Close</button>`);
-ACT.profEq=(d,el)=>{const i=S.equip.indexOf(d.e);if(i>=0)S.equip.splice(i,1);else S.equip.push(d.e);save();el.classList.toggle("on",S.equip.includes(d.e))};
+ACT.profEq=(d,el)=>{const i=S.equip.indexOf(d.e);if(i>=0)S.equip.splice(i,1);else S.equip.push(d.e);save();const on=S.equip.includes(d.e);el.classList.toggle("on",on);el.setAttribute("aria-pressed",on);const c=$("#eqCount");if(c)c.textContent=S.equip.length+" of "+EQUIP.length};
 ACT.setFig=d=>{S.settings.figStyle=d.v;save();applyFigStyle();render()};
 ACT.set3d=()=>{S.settings.fig3d=S.settings.fig3d===false;save();location.reload()};
 ACT.setReady=d=>{S.settings.ready=+d.v;save();render()};
@@ -6283,7 +6323,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="74609466";
+<script>window.RANGE_BUILD="23104525";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
