@@ -780,6 +780,94 @@ body.touring .carousel .pcard{height:clamp(220px,32vh,320px)}
   background:conic-gradient(from 210deg,#2b2b2e,#4a4a4f 18%,#1d1d20 36%,#3d3d42 58%,#18181b 78%,#2b2b2e);
   -webkit-mask:radial-gradient(circle,transparent 52%,#000 53%);mask:radial-gradient(circle,transparent 52%,#000 53%)}
 @media (prefers-reduced-motion:reduce){.lsun{animation:none}.lgo .lspin{animation-duration:2s}}
+/* ===== Today: the session ring. The character hovers over a stand and four glass tabs circle them ===== */
+@property --glow{syntax:"<color>";inherits:true;initial-value:#FF6A2B}
+.orb{position:relative;isolation:isolate;margin-inline:-16px;height:clamp(380px,calc(100svh - 226px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)),680px);
+  touch-action:pan-y;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;outline:0;--glow:#FF6A2B;--ob:84px;transition:--glow .7s var(--ease-out)}
+.orb.short{height:clamp(314px,calc(100svh - 422px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)),560px);--ob:14px}
+body.touring .orb{height:clamp(300px,42vh,380px)}
+.orb>*{position:absolute}
+/* the light behind it all takes the colour of the tab in front; it fades out above and below, with no edge */
+.o-bg{inset:-34px 0 calc(var(--ob)*-1);overflow:hidden;pointer-events:none;z-index:0;
+  -webkit-mask-image:linear-gradient(180deg,transparent,#000 13%,#000 84%,transparent);mask-image:linear-gradient(180deg,transparent,#000 13%,#000 84%,transparent)}
+.o-bgi{position:absolute;inset:34px 0 var(--ob)}.o-bgi>*{position:absolute}
+.o-wash{position:absolute;inset:0;background:radial-gradient(95% 50% at 50% 38%,color-mix(in srgb,var(--glow) 22%,transparent),transparent 72%),radial-gradient(70% 26% at 50% 86%,color-mix(in srgb,var(--glow) 13%,transparent),transparent 75%)}
+.o-halo{left:var(--cx);top:var(--hy);width:var(--hs);height:var(--hs);transform:translate(-50%,-50%);border-radius:50%;
+  background:radial-gradient(circle,color-mix(in srgb,var(--glow) 26%,transparent) 0 7%,rgba(255,255,255,.13) 7% 7.6%,transparent 7.6% 30%,rgba(255,255,255,.10) 30% 30.7%,transparent 30.7% 46%,rgba(255,255,255,.085) 46% 46.8%,transparent 46.8% 63%,rgba(255,255,255,.05) 63% 63.6%,transparent 63.6%);
+  -webkit-mask-image:linear-gradient(180deg,#000 55%,transparent 92%);mask-image:linear-gradient(180deg,#000 55%,transparent 92%)}
+.o-floor{left:var(--cx);top:var(--py);width:var(--fs);height:var(--fs);transform:translate(-50%,-50%) scaleY(.34);border-radius:50%;
+  background:radial-gradient(circle,transparent 0 30%,rgba(255,255,255,.11) 30% 30.9%,transparent 30.9% 43%,rgba(255,255,255,.08) 43% 43.8%,transparent 43.8% 58%,rgba(255,255,255,.055) 58% 58.7%,transparent 58.7%)}
+/* the stand */
+.o-pglow{left:var(--cx);top:calc(var(--py) + 8px);width:calc(var(--prx)*3.1);height:calc(var(--pry)*3.4);transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;z-index:1;
+  background:radial-gradient(closest-side,color-mix(in srgb,var(--glow) 55%,transparent),transparent);filter:blur(10px);opacity:.75}
+.o-pside{left:calc(var(--cx) - var(--prx));top:calc(var(--py) - var(--pry));width:calc(var(--prx)*2);height:calc(var(--pry)*2 + var(--pth));border-radius:50%/var(--pry);pointer-events:none;z-index:1;
+  background:linear-gradient(90deg,#070605,#2a2520 22%,#3b342c 50%,#2a2520 78%,#070605);
+  box-shadow:inset 0 -2px 0 color-mix(in srgb,var(--glow) 55%,transparent),0 14px 26px -6px rgba(0,0,0,.8)}
+.o-ptop{left:var(--cx);top:var(--py);width:calc(var(--prx)*2);height:calc(var(--prx)*2);transform:translate(-50%,-50%) scaleY(.34);border-radius:50%;pointer-events:none;z-index:1;
+  background:radial-gradient(circle,color-mix(in srgb,var(--glow) 80%,#fff) 0 5%,color-mix(in srgb,var(--glow) 38%,transparent) 5% 20%,rgba(255,255,255,.3) 20% 22%,color-mix(in srgb,var(--glow) 30%,#1c1814) 22% 52%,rgba(255,255,255,.2) 52% 54%,color-mix(in srgb,var(--glow) 16%,#231e19) 54% 84%,color-mix(in srgb,var(--glow) 70%,#fff) 84% 91%,#14110e 91%);
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--glow) 45%,transparent),0 0 46px 2px color-mix(in srgb,var(--glow) 60%,transparent),inset 0 0 40px color-mix(in srgb,var(--glow) 28%,transparent)}
+.o-pulse{left:var(--cx);top:var(--py);width:calc(var(--prx)*2);height:calc(var(--prx)*2);border-radius:50%;pointer-events:none;z-index:2;border:3px solid var(--glow);opacity:0;transform:translate(-50%,-50%) scaleY(.34) scale(1)}
+.o-pulse.on{animation:opulse .9s var(--ease-out)}
+@keyframes opulse{0%{opacity:.9;transform:translate(-50%,-50%) scaleY(.34) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scaleY(.34) scale(2.5)}}
+.o-beam{left:calc(var(--cx) - var(--prx)*.86);top:var(--by);width:calc(var(--prx)*1.72);height:calc(var(--py) + var(--pry)*.8 - var(--by));pointer-events:none;z-index:2;
+  border-radius:0 0 50% 50%/0 0 calc(var(--pry)*.84) calc(var(--pry)*.84);
+  background:linear-gradient(0deg,color-mix(in srgb,var(--glow) 50%,transparent),color-mix(in srgb,var(--glow) 12%,transparent) 55%,transparent);
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 30%,#000 70%,transparent);mask-image:linear-gradient(90deg,transparent,#000 30%,#000 70%,transparent);
+  mix-blend-mode:screen;opacity:.7;animation:obreathe 3.6s ease-in-out infinite alternate}
+@keyframes obreathe{from{opacity:.5}to{opacity:.85}}
+.o-shadow{left:var(--cx);top:var(--py);width:calc(var(--prx)*1.15);height:calc(var(--pry)*1.1);border-radius:50%;pointer-events:none;z-index:2;
+  background:radial-gradient(closest-side,rgba(0,0,0,.7),transparent);transform:translate(-50%,-50%);animation:oshadow 3.6s ease-in-out infinite alternate}
+@keyframes oshadow{from{transform:translate(-50%,-50%) scale(1);opacity:1}to{transform:translate(-50%,-50%) scale(.8);opacity:.7}}
+/* the path the tabs travel: dotted where it passes behind him */
+.o-line{inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.o-line ellipse{fill:none;stroke-width:1.4}
+.o-line.back{z-index:3;clip-path:inset(0 0 calc(100% - var(--cy)) 0)}
+.o-line.back ellipse{stroke:rgba(255,255,255,.28);stroke-dasharray:1.5 7;stroke-linecap:round}
+.o-line.front{z-index:7;clip-path:inset(var(--cy) 0 0 0)}
+.o-line.front ellipse{stroke:color-mix(in srgb,var(--glow) 45%,rgba(255,255,255,.35));opacity:.75}
+/* the character */
+.o-aura{left:var(--cx);top:calc(var(--ht) + var(--ch)*.46);width:calc(var(--ch)*.82);height:calc(var(--ch)*1.05);transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;z-index:5;
+  background:radial-gradient(closest-side,color-mix(in srgb,var(--glow) 30%,transparent),transparent)}
+.o-hero{left:var(--cx);top:var(--hbt);width:var(--hbw);height:var(--hbh);margin-left:calc(var(--hbw)*-.5);pointer-events:none;z-index:6}
+.o-bob{position:absolute;inset:0;animation:obob 3.6s ease-in-out infinite alternate}
+@keyframes obob{from{transform:translateY(0)}to{transform:translateY(-10px)}}
+.o-hero .fig{position:absolute;inset:0;width:100%!important;height:100%!important;max-width:none;aspect-ratio:auto;margin:0;cursor:default}
+/* the glass tabs */
+.o-tab{left:0;top:0;width:var(--tw);height:var(--th);margin:calc(var(--th)*-.5) 0 0 calc(var(--tw)*-.5);will-change:transform;text-align:left;border-radius:calc(22px*var(--u));
+  font-size:calc(16px*var(--u));color:var(--ink);--tint:#FF6A2B;--dim:0;--f:0;--sh:0;transition:opacity .5s ease;-webkit-tap-highlight-color:transparent}
+.o-tab::before{content:"";position:absolute;inset:0;border-radius:inherit;transform:translateY(calc(5px*var(--u)));
+  background:linear-gradient(180deg,color-mix(in srgb,var(--tint) 40%,#17130f),color-mix(in srgb,var(--tint) 16%,#080706));box-shadow:0 20px 30px -12px rgba(0,0,0,.75)}
+.o-glass{position:absolute;inset:0;border-radius:inherit;overflow:hidden;
+  background:linear-gradient(158deg,color-mix(in srgb,var(--tint) 34%,rgba(52,46,40,.5)) 0%,rgba(30,27,23,.5) 52%,rgba(16,14,12,.66) 100%);
+  -webkit-backdrop-filter:blur(16px) saturate(1.6);backdrop-filter:blur(16px) saturate(1.6);
+  box-shadow:inset 0 1px 0 var(--g-hi),inset 0 0 0 1px var(--g-line),inset 0 -12px 20px -8px rgba(0,0,0,.45)}
+.o-rings{position:absolute;right:-12%;top:-34%;height:150%;aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle,color-mix(in srgb,var(--tint) 46%,transparent) 0 7%,rgba(255,255,255,.2) 7% 8%,transparent 8% 30%,rgba(255,255,255,.14) 30% 31.2%,transparent 31.2% 46%,rgba(255,255,255,.1) 46% 47.4%,transparent 47.4%)}
+.o-pic{position:absolute;right:-7%;top:1%;width:74%;filter:drop-shadow(0 6px 6px rgba(0,0,0,.45))}
+.o-pic .fig{display:block;width:100%;height:auto;-webkit-user-drag:none;pointer-events:none}
+.o-sheen{position:absolute;inset:0 -60%;background:linear-gradient(112deg,transparent 30%,rgba(255,255,255,.2) 44%,rgba(255,255,255,.04) 52%,transparent 60%);transform:translateX(calc(var(--sh)*1%))}
+.o-txt{position:absolute;left:9.5%;right:6%;bottom:10%}
+.o-txt b{display:block;font-weight:800;font-stretch:118%;letter-spacing:-.015em;line-height:1.05;text-shadow:0 1px 8px rgba(0,0,0,.5)}
+.o-txt i{display:block;font-style:normal;margin-top:.22em;font-size:.68em;font-weight:500;color:var(--muted);white-space:nowrap;text-shadow:0 1px 6px rgba(0,0,0,.6)}
+.o-go{position:absolute;left:8%;top:10%;width:1.75em;height:1.75em;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);opacity:var(--f);transform:scale(calc(.6 + var(--f)*.4));box-shadow:0 4px 12px -2px rgba(0,0,0,.5)}
+.o-go svg{width:58%;height:58%}
+.o-glass::after{content:"";position:absolute;inset:0;background:var(--bg);opacity:var(--dim)}
+.o-edge{position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:var(--f);
+  box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--tint) 78%,#fff),0 0 30px -4px color-mix(in srgb,var(--tint) 75%,transparent)}
+.o-tab:focus-visible{outline:2px solid var(--accent);outline-offset:5px}
+.o-tab:active .o-glass{filter:brightness(1.12)}
+.o-nav{left:0;top:0;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;display:grid;place-items:center;color:var(--muted);z-index:19;
+  background:var(--g-fill);-webkit-backdrop-filter:blur(16px) saturate(1.6);backdrop-filter:blur(16px) saturate(1.6);box-shadow:inset 0 1px 0 var(--g-hi),inset 0 0 0 1px var(--g-line);transition:opacity .5s ease,color .2s}
+.o-nav svg{width:16px;height:16px;transition:transform 160ms var(--ease-out)}
+.o-nav:active{color:var(--ink)}.o-nav:active svg{transform:scale(.82)}
+.orb.intro .o-tab,.orb.intro .o-nav{opacity:0}
+/* opening a session: the tab's colour opens out from it as a ring, the page changes behind it, then it lifts */
+.o-warp{position:fixed;inset:0;z-index:50;overflow:hidden;--tint:#F6B43A}
+.o-warp i{position:absolute;left:var(--x);top:var(--y);width:320px;height:320px;margin:-160px 0 0 -160px;border-radius:50%;will-change:transform,opacity;opacity:0}
+.o-wd{background:radial-gradient(circle,var(--bg) 0 56%,color-mix(in srgb,var(--tint) 30%,var(--bg)) 78%,color-mix(in srgb,var(--tint) 88%,#fff) 96%,transparent 100%)}
+.o-wr{border:2px solid color-mix(in srgb,var(--tint) 70%,#fff)}
+@media (prefers-reduced-motion:reduce){.o-bob,.o-shadow,.o-beam,.o-pulse.on{animation:none}.orb{transition:none}}
+@media (prefers-reduced-transparency:reduce){.o-glass,.o-nav{-webkit-backdrop-filter:none;backdrop-filter:none}.o-glass{background:linear-gradient(158deg,color-mix(in srgb,var(--tint) 30%,#2a2520),#1b1815 52%,#12100e)}}
 </style>
 
 <div id="splash" aria-hidden="true"><i class="grid"></i><div class="spl">
@@ -1196,6 +1284,9 @@ Object.assign(FIGS,{
 // Generic pose names used on cards map to a representative stretch
 ["h1","h6","h8"].forEach(k=>FIGS[k].work="2"); // the stretched hip is the kneeling (back) leg
 const FIG_ALIAS={squat:"h7",armsUp:"o3",kneel:"h6",calf:"a1",fold:"p1",pike:"p3",pigeon:"h2",s9090:"h3",child:"o1",latBench:"o2",crossBody:"s4",quadRot:"t5"};
+// the character on Today: upright, hovering just off the ground with the toes pointing down; it breathes slowly
+FIGS.hero=mk({p:[121,84.5],t:-90,h:-90,L1:{a:[87,93],s:[.985,.99],dz:[1,1],f:25},L2:{a:[95,91],s:[.985,.99],dz:[1,1],f:18},A1:{a:[100,82],s:[.95,.96],dz:[1,1]},A2:{a:[98,84],s:[.95,.96],dz:[1,1]}},
+  {A1:{a:[104,85]},A2:{a:[102,87]},L1:{a:[88,95]},L2:{a:[96,93]}},[],{cam:{yaw:84,pitch:6},hero:true});
 const TEST_FIG={ankles:"a1",posterior:"p1",hips:"h7",shoulders:"bscratch",overhead:"wallreach",thoracic:"t5"};
 /* ================= test answer poses =================
    Picking an answer in the mobility test swaps the animated demo for the figure held at THAT range,
@@ -1847,7 +1938,8 @@ const FIG3D=(()=>{
   function frame(key,aspect,yawExtra=0,reserve=0){
     const D=figData(key),c=[(D.mn[0]+D.mx[0])/2,(D.mn[1]+D.mx[1])/2,(D.mn[2]+D.mx[2])/2],size=[D.mx[0]-D.mn[0]+22,D.mx[1]-D.mn[1]+20,D.mx[2]-D.mn[2]+22];
     // yaw measured from the person's right side (+Z) toward their front (+X)
-    const dv=camDir(D,yawExtra),dir=norm([dv[0],0,dv[2]]);
+    // (the character on Today turns on the spot: it is always fitted as seen from its resting angle, so it never changes size)
+    const dv=camDir(D,yawExtra),df=D.P.hero?camDir(D,0):dv,dir=norm([df[0],0,df[2]]);
     const fov=cam.fov*Math.PI/180,w=size[0]*Math.abs(dir[2])+size[2]*Math.abs(dir[0]),h=size[1]*Math.cos(Math.asin(dv[1]))+(size[0]+size[2])*.5*dv[1];
     const dist=Math.max(h/2/Math.tan(fov/2),w/2/(Math.tan(fov/2)*aspect))*1.04+Math.max(size[0],size[2])*.18;
     // leave the bottom of the frame free for the info overlay: pull back a little and aim lower
@@ -1858,6 +1950,7 @@ const FIG3D=(()=>{
   function setFigure(key,t,zones,sides,guide){
     const D=figData(key),F=poseAt(D.P,t),J=solveFig(F),B=lift(J,F,D.cx);
     pose(rig,B);
+    if(D.P.hero)guide=false;ground.visible=!D.P.hero; // Today's character hovers: no floor shadow, no guide
     const showG=guide&&t<.9;ghost.G.visible=showG;if(showG)pose(ghost,D.BB);
     curExtras.forEach(o=>extras.remove(o));curExtras=[];
     const add2=o=>{if(o){extras.add(o);curExtras.push(o)}};
@@ -1925,8 +2018,8 @@ const FIG3D=(()=>{
         if(gt&&gt.dataset.reveal&&cv.dataset.r3&&gt.dataset.reveal==="2")return;
         // size from the container, never from the canvas itself: on iPhone a canvas can take its pixel size as its
         // display size, which made it grow every frame and look zoomed in
-        const box=cv.parentElement.getBoundingClientRect(),stg=cv.closest(".stage,.detailstage,.tsfig");
-        const sr=stg?stg.getBoundingClientRect():null,tall=stg&&stg.classList.contains("tall");
+        const box=cv.parentElement.getBoundingClientRect(),stg=cv.closest(".stage,.detailstage,.tsfig,.o-hero");
+        const sr=stg?stg.getBoundingClientRect():null,tall=stg&&(stg.classList.contains("tall")||stg.classList.contains("o-hero"));
         // a tall (portrait) stage gets a portrait render: the camera re-frames rather than letterboxing
         let dw,dh;if(tall){dw=Math.max(1,sr.width);dh=Math.max(1,sr.height)}else{const maxH=sr?sr.height:Infinity;dw=Math.max(1,Math.min(box.width,maxH*1.6));dh=dw/1.6}
         if(!box.width||box.bottom<0||box.top>innerHeight)return;
@@ -2004,7 +2097,7 @@ function bodyMap(zones){
 /* ================= plan builder ================= */
 const HOME_KINDS=["activate","recover","daily","library"];
 const KINDS={
- activate:{n:"Activate",sub:"Before training",g:"g-activate",pose:"squat"},
+ activate:{n:"Warm-up",sub:"Before training",g:"g-activate",pose:"squat"},
  recover:{n:"Recover",sub:"After training",g:"g-recover",pose:"pigeon"},
  daily:{n:"Daily",sub:"At home",g:"g-daily",pose:"s9090"},
  target:{n:"Target",sub:"Per Body Zone",g:"g-target",pose:"child"},
@@ -2230,48 +2323,153 @@ function dashAnim(){
 /* ================= home ================= */
 function greeting(){const h=new Date().getHours();return h<5?"Good evening":h<12?"Good morning":h<18?"Good afternoon":"Good evening"}
 function streak(){const days=new Set(S.sessions.map(s=>dayKey(s.at)));let n=0,d=new Date();if(!days.has(dayKey(d)))d.setDate(d.getDate()-1);while(days.has(dayKey(d))){n++;d.setDate(d.getDate()-1)}return n}
+// Today: the character hovers over a stand and the four sessions circle them on a ring. Drag sideways (or use the arrows)
+// to turn the ring; tap a tab to bring it to the front, tap the one in front to open it
+const ORB_TINT={activate:"#FF6A2B",recover:"#D9AC7C",daily:"#F6A021",library:"#B4B9C6"};
+// where the ring is (a), where it is heading (t) and how fast it turns (v). Kept between visits, so Today comes back the
+// way you left it. intro: 1 = the tabs haven't swung in yet, 2 = swinging in, 0 = done
+const ORB={a:Math.PI*1.75,t:0,v:0,intro:1,busy:false};
+// where the character sits inside its own drawing: top of the head and the toes as a share of the drawing's height, and
+// the drawing's shape (width / height). The box is sized from these so head and toes land where the layout wants them
+const ORB_FIG={top:.078,bot:.876,asp:.6};
 SCREENS.home=()=>{
-  const sc=scores(),ov=overall(sc),lv=level(ov);
+  const intro=ORB.intro===1&&!REDUCED&&!TOUR;
+  const tab=k=>{const v=KINDS[k];return drawPart("tab "+k,()=>`<button class="o-tab" type="button" data-kind="${k}" data-glow="${ORB_TINT[k]}" style="--tint:${ORB_TINT[k]}" aria-label="${v.n}, ${v.sub}"><span class="o-glass"><span class="o-rings"></span><span class="o-pic">${fig(v.pose,null,{mode:"static"})}</span><span class="o-sheen"></span><span class="o-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><span class="o-txt"><b>${v.n}</b><i>${v.sub}</i></span></span><span class="o-edge"></span></button>`)};
+  const nav=(c,l,d)=>`<button class="o-nav ${c}" type="button" aria-label="${l}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg></button>`;
   return `<div class="hdr">${SBU?`<button data-act="signOutAsk" aria-label="Sign Out">${ic("signout")}</button>`:"<span></span>"}<div class="brand">Range<b>.</b></div><span></span></div>
   <div class="greet"><h1>${greeting()}</h1><button class="streak" data-act="tab" data-t="profile" data-tour="streak" aria-label="${streak()} day streak">${ic("flame","fill")}<b>${streak()}</b></button></div>
-  <div class="carousel${S.scores?"":" short"}" id="car" data-tour="cards">${homeCards()}</div>
-  <div class="dots" id="cardots">${HOME_KINDS.map((_,i)=>`<i class="${i?"":"on"}"></i>`).join("")}</div>
+  <section class="orb${S.scores?"":" short"}${intro?" intro":""}" id="orb" data-tour="cards" data-noswipe tabindex="-1" aria-label="Choose a session. Swipe or use the arrow keys to turn the ring, then tap the one in front.">
+    <div class="o-bg" aria-hidden="true"><div class="o-wash"></div><div class="o-bgi"><div class="o-halo"></div><div class="o-floor"></div></div></div>
+    <div class="o-pglow"></div><div class="o-pside"></div><div class="o-ptop"></div><div class="o-pulse"></div><div class="o-beam"></div><div class="o-shadow"></div>
+    <svg class="o-line back" aria-hidden="true"><ellipse/></svg>
+    <div class="o-aura"></div>
+    <div class="o-hero" aria-hidden="true"><div class="o-bob">${drawPart("hero",()=>fig("hero",null,{anim:true,period:7200}))}</div></div>
+    <svg class="o-line front" aria-hidden="true"><ellipse/></svg>
+    ${HOME_KINDS.map(tab).join("")}
+    ${nav("o-prev","Previous session","M15 5l-7 7 7 7")}${nav("o-next","Next session","M9 5l7 7-7 7")}
+    <p class="sr o-live" aria-live="polite"></p>
+  </section>
   <div class="stack">
     ${S.scores?"":`<div class="banner" data-tour="test"><div><h3>Find Your Weak Spots</h3><div class="muted" style="font-size:calc(14px * var(--ts));margin-top:4px">A 10-minute test so every session fits your body.</div></div><button class="btn" data-act="openTest">${testDraft()?"Resume My Test":"Test My Mobility"}</button></div>`}
   </div>`;
 };
-// the cards loop: copies of the last two cards sit before the first and of the first two after the last, so Activate
-// opens centred with a card peeking on each side. Whenever the row comes to rest on a copy it moves one lap to the real
-// card; with two copies on each side a quick second swipe still has room and never hits the end of the row
-function homeCards(){const card=(k,clone)=>{const v=KINDS[k];return drawPart("card "+k,()=>`
-    <button class="pcard ${v.g}${clone?" clone":""}" data-act="startKind" data-kind="${k}" aria-label="${v.n}"${clone?' aria-hidden="true" tabindex="-1"':""}>
-      <div class="art">${fig(v.pose,null,{anim:true})}</div>
-      <h2>${v.n}</h2>
-    </button>`)};
-  const N=HOME_KINDS.length;return HOME_KINDS.slice(N-HOME_PAD).map(k=>card(k,1)).join("")+HOME_KINDS.map(k=>card(k)).join("")+HOME_KINDS.slice(0,HOME_PAD).map(k=>card(k,1)).join("")}
-const HOME_PAD=2;
 AFTER.home=()=>{
-  const car=$("#car");if(!car)return;const N=HOME_KINDS.length,K=HOME_PAD;
-  const pos=el=>{const r=el.getBoundingClientRect(),c=car.getBoundingClientRect();return car.scrollLeft+(r.left+r.width/2)-(c.left+c.width/2)};
-  const go=i=>{car.scrollLeft=pos(car.children[i])};
-  const near=()=>{const c=car.getBoundingClientRect(),m=c.left+c.width/2;let i=0,best=1e9;[...car.children].forEach((el,k)=>{const r=el.getBoundingClientRect(),d=Math.abs(r.left+r.width/2-m);if(d<best){best=d;i=k}});return i};
-  go(K);
-  // open on Activate: if a late layout change (the web font arriving, the 3D figures sizing) moves the row before
-  // you've touched it, put it back
-  const home=()=>{if(!car._touched&&car.isConnected&&Math.abs(car.scrollLeft-pos(car.children[K]))>1)go(K)};
-  car.addEventListener("touchstart",()=>{car._touched=1},{passive:true,once:true});
-  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>requestAnimationFrame(home));
-  setTimeout(home,700);car._home=home;
-  // once the row comes to rest on a copy, move one lap to the real card. Touch events can't say when that is: once a
-  // swipe turns into a scroll, the browser (iOS included) may never send touchend or touchcancel. So it waits for the
-  // row to stop: scrollend where it exists, otherwise a short pause in scroll events. A lap is a whole number of cards,
-  // so the row stays on a snap point and nothing on screen changes.
-  let settle=0;
-  const wrap=()=>{if(!car.isConnected)return;const i=near(),to=i<K?i+N:i>=K+N?i-N:i;if(to!==i)car.scrollLeft+=pos(car.children[to])-pos(car.children[i])};
-  car.addEventListener("scrollend",()=>{clearTimeout(settle);settle=setTimeout(wrap,20)});
-  car.addEventListener("scroll",()=>{const i=near(),real=(i-K+N)%N;document.querySelectorAll("#cardots i").forEach((d,k)=>d.classList.toggle("on",k===real));
-    clearTimeout(settle);settle=setTimeout(wrap,160)},{passive:true});
+  const stage=$("#orb");if(!stage)return;
+  const tabs=[...stage.querySelectorAll(".o-tab")],N=tabs.length,Q=Math.PI*2/N,ells=[...stage.querySelectorAll(".o-line ellipse")],
+    prev=stage.querySelector(".o-prev"),next=stage.querySelector(".o-next"),live=stage.querySelector(".o-live"),memo=tabs.map(()=>({})),
+    cl=(x,a,b)=>Math.max(a,Math.min(b,x));
+  let G=null,sel=-1,drag=null,lastDrag=0,yaw=0,last=0,cv=null,first=true;
+  if(REDUCED||TOUR){ORB.a=ORB.t;ORB.v=0;ORB.intro=0}
+  function layout(){
+    const W=stage.clientWidth,H=stage.clientHeight;if(!W||!H)return;
+    const tw=Math.min(140,W*.345,H*.3),th=tw*.76,rx=Math.min(W/2-tw*.39-6,170),prx=Math.min(W*.28,H*.21),pry=prx*.34,pth=Math.max(9,prx*.13);
+    // from the bottom up: the stand, the front tab just above it, the character's toes behind the top of that tab.
+    // The character takes the height that is left, and stands a little down from the top of the stage
+    const below=.84*th+10+2*pry+pth+8,ch=cl((H-below)/1.1,120,W*1.1),top=Math.max(0,(H-below-ch*1.1)/2);
+    const ht=top+ch*.1,feet=ht+ch,yF=feet+th*.34,ry=Math.min(ch*.27,rx*.74),cy=yF-ry,py=yF+th/2+10+pry;
+    const hbh=ch/(ORB_FIG.bot-ORB_FIG.top),hbt=ht-ORB_FIG.top*hbh,hbw=hbh*ORB_FIG.asp;
+    G={cx:W/2,cy,rx,ry};
+    const st=stage.style,px=n=>n.toFixed(1)+"px",set=(k,v)=>st.setProperty(k,v);
+    set("--cx",px(W/2));set("--cy",px(cy));set("--tw",px(tw));set("--th",px(th));set("--u",(tw/136).toFixed(3));
+    set("--ch",px(ch));set("--ht",px(ht));set("--py",px(py));set("--prx",px(prx));set("--pry",px(pry));set("--pth",px(pth));
+    set("--by",px(ht+ch*.55));set("--hy",px(ht+ch*.36));set("--hs",px(Math.min(W*1.5,ch*1.5)));set("--fs",px(W*1.75));
+    set("--hbt",px(hbt));set("--hbh",px(hbh));set("--hbw",px(hbw));
+    ells.forEach(e=>{e.setAttribute("cx",W/2);e.setAttribute("cy",cy);e.setAttribute("rx",rx);e.setAttribute("ry",ry)});
+    const nx=tw/2+30;[[prev,-1],[next,1]].forEach(([b,s])=>{b.style.transform=`translate(${(W/2+s*nx).toFixed(1)}px,${yF.toFixed(1)}px)`});
+    place(performance.now()/1000);
+  }
+  function place(t){
+    if(!G)return;
+    for(let i=0;i<N;i++){
+      const th=ORB.a+i*Q,z=Math.cos(th),s=Math.sin(th),d=(z+1)/2,el=tabs[i],m=memo[i];
+      const sc=.6+.4*Math.pow(d,1.2),bob=REDUCED?0:Math.sin(t*1.15+i*1.7)*3*(.4+.6*d);
+      el.style.transform=`translate3d(${(G.cx+G.rx*s).toFixed(2)}px,${(G.cy+G.ry*z+bob).toFixed(2)}px,0) perspective(640px) rotateY(${(s*30).toFixed(2)}deg) scale(${sc.toFixed(4)})`;
+      const zi=z<0?4:8+Math.round(z*10),dim=((1-d)*.5).toFixed(2),f=cl((z-.8)/.2,0,1).toFixed(2),sh=(-s*46).toFixed(0);
+      if(m.zi!==zi){m.zi=zi;el.style.zIndex=zi}
+      if(m.dim!==dim){m.dim=dim;el.style.setProperty("--dim",dim)}
+      if(m.f!==f){m.f=f;el.style.setProperty("--f",f)}
+      if(m.sh!==sh){m.sh=sh;el.style.setProperty("--sh",sh)}
+    }
+    const k=((Math.round(-ORB.a/Q)%N)+N)%N;
+    if(k!==sel){sel=k;stage.style.setProperty("--glow",tabs[k].dataset.glow);
+      tabs.forEach((b,i)=>{i===k?b.setAttribute("aria-current","true"):b.removeAttribute("aria-current")});
+      const v=KINDS[tabs[k].dataset.kind];if(!first)live.textContent=v.n+", "+v.sub;first=false}
+  }
+  // the launch screen or the login page is still up: the tabs wait, and swing in once Today is on show
+  const held=()=>{const sp=document.getElementById("splash");return!!(sp&&!sp.classList.contains("out"))||!!document.getElementById("gate")};
+  function tick(now){
+    if(!stage.isConnected){ro.disconnect();return}
+    const dt=last?Math.min(.034,(now-last)/1000):.016;last=now;
+    if(ORB.intro===1){if(held()){requestAnimationFrame(tick);return}ORB.intro=2;stage.classList.remove("intro")}
+    if(!drag){
+      // a spring pulls the ring to the tab it is heading for (a softer one for the swing-in)
+      const k=ORB.intro?30:150,c=ORB.intro?8.5:20;
+      ORB.v+=(-k*(ORB.a-ORB.t)-c*ORB.v)*dt;ORB.a+=ORB.v*dt;
+      if(Math.abs(ORB.a-ORB.t)<.0005&&Math.abs(ORB.v)<.005){const lap=Math.round(ORB.t/(Math.PI*2))*Math.PI*2;ORB.t-=lap;ORB.a=ORB.t;ORB.v=0;ORB.intro=0}
+    }
+    // the character turns a little with the ring, and sways slowly when it is still
+    const want=cl(-ORB.v*9,-34,34)+Math.sin(now/1000*.55)*7;yaw+=(want-yaw)*Math.min(1,dt*7);
+    if(!cv||!cv.isConnected)cv=stage.querySelector(".o-hero canvas");
+    if(cv)cv.dataset.yaw=(1*yaw*Math.PI/180).toFixed(4);
+    place(now/1000);requestAnimationFrame(tick);
+  }
+  const settle=()=>{if(REDUCED){ORB.a=ORB.t;ORB.v=0;place(0)}};
+  const turn=n=>{ORB.t=Math.round(ORB.t/Q)*Q-n*Q;settle()};
+  const toFront=i=>{let d=-(ORB.a+i*Q);d=((d+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;ORB.t=Math.round((ORB.a+d)/Q)*Q;settle()};
+  tabs.forEach((b,i)=>b.addEventListener("click",()=>{
+    if(ORB.busy||performance.now()-lastDrag<280)return;
+    if(i===sel&&Math.abs(ORB.a-ORB.t)<.2)orbOpen(b,b.dataset.kind);else toFront(i)}));
+  prev.addEventListener("click",()=>turn(-1));next.addEventListener("click",()=>turn(1));
+  stage.addEventListener("keydown",e=>{if(e.key==="ArrowLeft"){turn(-1);e.preventDefault()}else if(e.key==="ArrowRight"){turn(1);e.preventDefault()}});
+  // a finger (or the mouse) turns the ring 1:1; let go and it carries on at your speed to the nearest tab
+  stage.addEventListener("pointerdown",e=>{if(e.button||ORB.busy||ORB.intro===1||e.target.closest(".o-nav"))return;drag={id:e.pointerId,x:e.clientX,a0:ORB.a,moved:false,pt:performance.now()}});
+  stage.addEventListener("pointermove",e=>{
+    if(!drag||e.pointerId!==drag.id||!G)return;
+    if(!drag.moved){if(Math.abs(e.clientX-drag.x)<7)return;drag.moved=true;drag.x=e.clientX;drag.a0=ORB.a;ORB.intro=0;try{stage.setPointerCapture(e.pointerId)}catch(_){}return}
+    const now=performance.now(),na=drag.a0+(e.clientX-drag.x)/G.rx,dt=Math.max(.004,(now-drag.pt)/1000);
+    ORB.v=ORB.v*.5+((na-ORB.a)/dt)*.5;ORB.a=na;drag.pt=now;if(REDUCED)place(0);
+  });
+  const end=e=>{
+    if(!drag||e.pointerId!==drag.id)return;const d=drag;drag=null;if(!d.moved)return;lastDrag=performance.now();
+    if(performance.now()-d.pt>120)ORB.v=0;ORB.v=cl(ORB.v,-9,9);
+    ORB.t=Math.round((ORB.a+ORB.v*.16)/Q)*Q;settle();
+  };
+  stage.addEventListener("pointerup",end);stage.addEventListener("pointercancel",end);
+  const ro=new ResizeObserver(layout);ro.observe(stage);layout();
+  if(!REDUCED)requestAnimationFrame(tick);
 };
+// opening a session from the ring: its colour opens out from the tab until it fills the screen, the page changes behind
+// it, then the colour lifts while the new page rises into place. Only transforms and opacity move, so it stays smooth
+function orbOpen(tab,kind){
+  if(ORB.busy)return;
+  const run=()=>ACT.startKind({kind});
+  if(REDUCED||TOUR||!tab.animate){run();return}
+  ORB.busy=true;
+  const pl=$("#orb .o-pulse");if(pl){pl.classList.remove("on");void pl.offsetWidth;pl.classList.add("on")}
+  const r=tab.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,far=Math.hypot(Math.max(x,innerWidth-x),Math.max(y,innerHeight-y));
+  const w=document.createElement("div");w.className="o-warp";w.setAttribute("aria-hidden","true");w.style.cssText=`--x:${x.toFixed(1)}px;--y:${y.toFixed(1)}px;--tint:${ORB_TINT[kind]||"#F6B43A"}`;
+  w.innerHTML='<i class="o-wd"></i><i class="o-wr"></i><i class="o-wr"></i>';document.body.appendChild(w);
+  // the disc is solid out to a little over half its radius: it grows until that part reaches the farthest corner
+  const [disc,r1,r2]=w.children,s0=.16,s1=far/160/.54,D=440;let done=false,gone=false;
+  const clear=()=>{if(gone)return;gone=true;w.remove();ORB.busy=false};
+  const finish=()=>{
+    if(done)return;done=true;
+    const depth=stack.length,was=stack[stack.length-1].name;
+    NOPUSH=true;try{run()}catch(e){noteError(e,"open "+kind)}finally{NOPUSH=false}
+    const moved=stack.length!==depth||stack[stack.length-1].name!==was;
+    try{
+      if(moved)$("#screen").animate([{opacity:0,transform:"translateY(24px) scale(.975)"},{opacity:1,transform:"none"}],{duration:460,easing:"cubic-bezier(.23,1,.32,1)"});
+      w.animate([{opacity:1},{opacity:0}],{duration:moved?340:240,easing:"ease-out",fill:"forwards"}).finished.then(clear,clear);
+    }catch(e){clear()}
+    setTimeout(clear,700);
+  };
+  try{
+    disc.animate([{transform:`scale(${s0})`,opacity:0},{opacity:1,offset:.14},{transform:`scale(${s1.toFixed(3)})`,opacity:1}],{duration:D,easing:"cubic-bezier(.6,.04,.3,1)",fill:"forwards"}).finished.then(finish,finish);
+    r1.animate([{transform:`scale(${s0})`,opacity:.9},{transform:`scale(${(s1*.62).toFixed(3)})`,opacity:0}],{duration:D+160,easing:"cubic-bezier(.23,1,.32,1)",fill:"forwards"});
+    r2.animate([{transform:`scale(${s0})`,opacity:.7},{transform:`scale(${(s1*.4).toFixed(3)})`,opacity:0}],{duration:D+160,delay:90,easing:"cubic-bezier(.23,1,.32,1)",fill:"forwards"});
+  }catch(e){finish()}
+  setTimeout(finish,D+220);
+}
 ACT.startKind=d=>{
   const k=d.kind;
   if(k==="rebuild"){ACT.tab({t:"rebuild"});return}
@@ -4502,12 +4700,12 @@ async function autoSync(force){
 }
 const agoText=t=>{if(!t)return"never";const m=Math.round((Date.now()-new Date(t))/6e4);return m<2?"just now":m<60?`${m} min ago`:m<1440?`${Math.round(m/60)} h ago`:`${Math.round(m/1440)} d ago`};
 ACT.syncKey=()=>{const sy=S.sync||{},tr=sy.tracks||[];if(!tr.length)return;
-  sheet(`<h3>Your Program</h3><p class="muted" style="margin:0 0 10px">Activate and Recover follow the workouts your gym posts for it.</p><div class="scroll"><div class="stack" style="gap:10px">${tr.map(t=>`<button class="opt ${t===sy.track?"on":""}" data-act="syncTrack" data-t="${esc(t)}"><span>${esc(t)}</span><span class="radio"></span></button>`).join("")}</div></div>`)};
+  sheet(`<h3>Your Program</h3><p class="muted" style="margin:0 0 10px">Warm-up and Recover follow the workouts your gym posts for it.</p><div class="scroll"><div class="stack" style="gap:10px">${tr.map(t=>`<button class="opt ${t===sy.track?"on":""}" data-act="syncTrack" data-t="${esc(t)}"><span>${esc(t)}</span><span class="radio"></span></button>`).join("")}</div></div>`)};
 ACT.syncTrack=async d=>{if(d.t===(S.sync||{}).track){closeSheet();return}
   S.sync={...(S.sync||{}),track:d.t,checked:0};S.training=S.training.filter(w=>w.source!=="sugarwod-public");save();closeSheet();SYNCING=true;render();
   try{await autoSync(true)}finally{SYNCING=false;render()}
   const t=todayIso(),n=S.training.filter(w=>w.source==="sugarwod-public"&&w.date>=t&&w.moves.length).length;
-  toast(n?`${d.t}: ${n} workout${n===1?"":"s"} ready for Activate and Recover`:`${d.t}: no workouts posted yet`)};
+  toast(n?`${d.t}: ${n} workout${n===1?"":"s"} ready for Warm-up and Recover`:`${d.t}: no workouts posted yet`)};
 // a short note at the bottom, over the tab bar
 function toast(msg){const old=document.getElementById("toast");if(old)old.remove();const d=document.createElement("div");d.id="toast";d.setAttribute("role","status");d.textContent=msg;document.body.appendChild(d);
   try{d.animate([{opacity:0,transform:"translate(-50%,12px)"},{opacity:1,transform:"translate(-50%,0)"}],{duration:300,easing:"cubic-bezier(.23,1,.32,1)"})}catch(e){}setTimeout(()=>{try{d.animate([{opacity:1},{opacity:0}],{duration:250}).onfinish=()=>d.remove()}catch(e){d.remove()}},2800)}
@@ -5114,7 +5312,7 @@ function radar(sc){
   AREAS.forEach((a,i)=>{const[x,y]=pt(i,R*sc[a.k]/100);g+=`<circle cx="${x}" cy="${y}" r="3.5" style="fill:var(--accent)"/>`});
   return `<svg class="radar" viewBox="-70 -8 340 216" role="img" aria-label="Mobility scores by area">${g}</svg>`;
 }
-const KN={activate:"Activate",recover:"Recover",daily:"Daily",target:"Target",single:"Single stretch"};
+const KN={activate:"Warm-up",recover:"Recover",daily:"Daily",target:"Target",single:"Single stretch"};
 // SugarWOD connection, one row on Profile (workouts arrive by themselves and feed Activate, Recover and the load bars)
 function sugarRow(){const sy=S.sync||{};
   if(API)return connPanel();
@@ -5774,8 +5972,8 @@ function afterIn(){
   if(GATE&&GATE.reveal&&!REDUCED&&document.getElementById("lplate")){stack=[{name:"home",p:{}}];render();window.scrollTo(0,0);
     if(typeof start3d==="function")start3d();const gt=document.getElementById("gate");if(gt)gt.dataset.reveal="1";
     const t0=performance.now(),go=()=>gateReveal().then(()=>{gateClose();tourOwed()});
-    // wait until the centre card's 3D figure has been drawn (or 3D is off, unsupported or failed; never more than 1.5 s)
-    const wait=()=>{const on=S.settings.fig3d!==false,cv=document.querySelector("#car .pcard:not(.clone) canvas.fig.f3"),drawn=cv&&cv.dataset.r3&&document.documentElement.classList.contains("fig3d");
+    // wait until the character's 3D figure has been drawn (or 3D is off, unsupported or failed; never more than 1.5 s)
+    const wait=()=>{const on=S.settings.fig3d!==false,cv=document.querySelector("#orb .o-hero canvas.fig.f3"),drawn=cv&&cv.dataset.r3&&document.documentElement.classList.contains("fig3d");
       if(!on||drawn||(FIG3D.settled&&!FIG3D.ready)||performance.now()-t0>1500)requestAnimationFrame(()=>requestAnimationFrame(go));else setTimeout(wait,40)};wait();return}
   gateClose();stack=[{name:"home",p:{}}];render();window.scrollTo(0,0);tourOwed()}
 ACT.signOutAsk=()=>sheet(`<h3>Sign Out of Range?</h3><div class="scroll"><p style="margin:0">Your tests, sessions and routines are saved to your account${SBU&&SBU.email?` (<b>${esc(SBU.email)}</b>)`:""}. They're removed from this phone and come back when you sign in.</p></div>
@@ -5851,11 +6049,11 @@ let TDEMO=null;
 const tdPick=()=>({[tKey(TSTEPS[0])]:2});
 const tq=s=>document.querySelector(s),tclose=(s,up)=>{const e=tq(s);return e&&e.closest(up)};
 const TOUR_STEPS=[
- {tab:"home",el:()=>tq("#car .pcard:not(.clone)"),t:"Pick a Session",d:"Swipe the cards. <b>Activate</b> warms you up before training, <b>Recover</b> cools you down after, <b>Daily</b> is for rest days, and <b>Library</b> has every exercise. Tap a card to start."},
+ {tab:"home",el:()=>tq("#orb"),t:"Pick a Session",d:"Turn the ring with your finger. <b>Warm-up</b> gets you ready before training, <b>Recover</b> cools you down after, <b>Daily</b> is for rest days, and <b>Library</b> has every exercise. Tap the one in front to open it."},
  {tab:"home",el:()=>tq("[data-tour=test]")||tq("[data-tour=streak]"),t:()=>S.scores?"Your Streak":"Start Here",d:()=>S.scores?"Days in a row with a session. Tap it to see your mobility score.":"Take the 10-minute mobility test. Every check shows you how to do it, and afterwards each session focuses on your weak spots."},
  {tab:"home",el:()=>tq("#tabbar [data-t=rebuild]"),t:"Sore Somewhere?",d:"Rebuild turns pain into a step-by-step rehab plan: a quick safety check, a few tests, then phases that move on when your pain allows."},
  {tab:"home",el:()=>tq("#tabbar [data-t=profile]"),t:"Your Profile",d:()=>"Your mobility score, sports and equipment. Sessions only use the gear you switch on there."+((S.sync||{}).track?"":" You can replay this tour from Settings.")},
- {tab:"profile",pane:"dash",el:()=>tq("[data-tour=program]"),t:"Change Your Program",d:()=>`You're following <b>${esc((S.sync||{}).track||"")}</b>. Tap it to switch to another program, like ${esc(((S.sync||{}).tracks||OB_TRACKS).filter(t=>t!==(S.sync||{}).track).slice(0,2).join(" or "))}. Activate and Recover follow the one you pick. You can replay this tour from Settings.`},
+ {tab:"profile",pane:"dash",el:()=>tq("[data-tour=program]"),t:"Change Your Program",d:()=>`You're following <b>${esc((S.sync||{}).track||"")}</b>. Tap it to switch to another program, like ${esc(((S.sync||{}).tracks||OB_TRACKS).filter(t=>t!==(S.sync||{}).track).slice(0,2).join(" or "))}. Warm-up and Recover follow the one you pick. You can replay this tour from Settings.`},
 ];
 const tval=v=>typeof v==="function"?v():v;
 const tvis=e=>!!e&&e.getClientRects().length>0;
@@ -5946,7 +6144,7 @@ if(API)acctBoot();else{rbRestore();render();gateBoot()}
 // launch screen: the logo reveal plays with nothing else running; then the 3D figures load behind it, and it lifts
 // once they're drawn (at least 3.1s, at most 7s), so the home screen appears complete with no jump
 (()=>{const sp=document.getElementById("splash");if(!sp)return;
-  const end=()=>{if(sp.classList.contains("out"))return;clearInterval(iv);start3d();const c=document.getElementById("car");if(c&&c._home)c._home();sp.classList.add("out");setTimeout(()=>sp.remove(),720)};
+  const end=()=>{if(sp.classList.contains("out"))return;clearInterval(iv);start3d();sp.classList.add("out");setTimeout(()=>sp.remove(),720)};
   setTimeout(start3d,2700);
   const iv=setInterval(()=>{const t=performance.now();if(t>7000||(t>3100&&(API||gateReady)&&started3d&&(S.settings.fig3d===false||FIG3D.settled||document.getElementById("gate"))))end()},100);
   sp.addEventListener("click",end)})();
@@ -5958,7 +6156,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="31109389";
+<script>window.RANGE_BUILD="6138399";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
