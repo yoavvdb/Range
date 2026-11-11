@@ -67,3 +67,4 @@ GitHub Pages serves it again within a minute or two. The app source lives outsid
 | 2026-11-08 | `2026-11-08_login-reveal-smooth.html` | Login reveal runs smoothly (clip and transform animations, 3D held still) | 714d25b |
 | 2026-11-08 | `2026-11-08_tab-swipes.html` | Swipe from Profile and Rebuild to the neighbouring tab | 57294b3 |
 | 2026-11-08 | `2026-11-08_smooth-swipes.html` | Smoother swipes between tabs and panes; panes follow the finger | f9565f2 |
+| 2026-11-11 | `2026-11-11_orbit-home.html` | Today: hovering character with the sessions circling them on a ring; swipe to turn, tap to open with a colour burst; Activate renamed Warm-up | dd5a93b |
