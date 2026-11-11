@@ -866,6 +866,24 @@ body.touring .orb{height:clamp(300px,42vh,380px)}
 .o-warp i{position:absolute;left:var(--x);top:var(--y);width:320px;height:320px;margin:-160px 0 0 -160px;border-radius:50%;will-change:transform,opacity;opacity:0}
 .o-wd{background:radial-gradient(circle,var(--bg) 0 56%,color-mix(in srgb,var(--tint) 30%,var(--bg)) 78%,color-mix(in srgb,var(--tint) 88%,#fff) 96%,transparent 100%)}
 .o-wr{border:2px solid color-mix(in srgb,var(--tint) 70%,#fff)}
+
+/* the same stage without the ring: Rebuild and Profile */
+.orb.solo{--ob:28px;margin-top:2px}
+.orb.solo .o-bg{inset:-28px 0 -28px}
+.orb.rbpick{height:clamp(300px,calc(100svh - 430px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)),440px)}
+.orb.rbprog,.orb.prof{height:clamp(210px,calc(100svh - 560px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)),300px)}
+body.touring .orb.solo{height:clamp(200px,30vh,280px)}
+.o-hero.pick{pointer-events:auto}.o-hero.pick .fig{pointer-events:auto;cursor:crosshair}
+/* under the Rebuild stage: what you tapped, and Continue */
+.o-pickbar{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:60px;padding:8px 8px 8px 18px;border-radius:20px;
+  background:var(--g-fill);-webkit-backdrop-filter:var(--g-blur);backdrop-filter:var(--g-blur);box-shadow:inset 0 1px 0 var(--g-hi),inset 0 0 0 1px var(--g-line);position:relative;z-index:2}
+.o-pickbar .o-pbt{min-width:0;font-size:calc(15px * var(--ts));line-height:1.3;color:var(--muted)}
+.o-pickbar .o-pbt b{color:var(--ink);font-weight:800}
+.o-pickbar .btn{width:auto;flex:none;min-height:44px;padding:0 18px}
+.o-pickbar.got{box-shadow:inset 0 1px 0 var(--g-hi),inset 0 0 0 1.5px color-mix(in srgb,var(--glow,#F6B43A) 70%,transparent),0 0 28px -8px color-mix(in srgb,var(--glow,#F6B43A) 70%,transparent)}
+html:not(.fig3d) .orb.solo,html:not(.fig3d) .o-pickbar,html:not(.fig3d) .rbpickonly,html.fig3d .rbpickno{display:none}
+/* the pane switches on Rebuild and Profile: glass, like the tab bar */
+.pseg{background:var(--g-fill);-webkit-backdrop-filter:var(--g-blur);backdrop-filter:var(--g-blur);box-shadow:inset 0 1px 0 var(--g-hi),inset 0 0 0 1px var(--g-line)}
 @media (prefers-reduced-motion:reduce){.o-bob,.o-shadow,.o-beam,.o-pulse.on{animation:none}.orb{transition:none}}
 @media (prefers-reduced-transparency:reduce){.o-glass,.o-nav{-webkit-backdrop-filter:none;backdrop-filter:none}.o-glass{background:linear-gradient(158deg,color-mix(in srgb,var(--tint) 30%,#2a2520),#1b1815 52%,#12100e)}}
 </style>
@@ -1947,7 +1965,7 @@ const FIG3D=(()=>{
     cam.aspect=aspect;cam.position.set(c[0]+dv[0]*d2,ty+(c[1]-ty)+dv[1]*d2,c[2]+dv[2]*d2);cam.lookAt(c[0],ty,c[2]);cam.updateProjectionMatrix();
   }
   let curKey=null,curExtras=[];
-  function setFigure(key,t,zones,sides,guide){
+  function setFigure(key,t,zones,sides,guide,mark){
     const D=figData(key),F=poseAt(D.P,t),J=solveFig(F),B=lift(J,F,D.cx);
     pose(rig,B);
     if(D.P.hero)guide=false;ground.visible=!D.P.hero; // Today's character hovers: no floor shadow, no guide
@@ -1956,17 +1974,43 @@ const FIG3D=(()=>{
     const add2=o=>{if(o){extras.add(o);curExtras.push(o)}};
     add2(muscles(B,zones||[],sides,D.P.work==="2"&&!B.front,B.front));
     add2(props(B,D.P.props||[],{cx:D.cx}));
+    if(mark&&D.P.hero)add2(marks(B,mark));
     if(guide){const ak="arrow|"+M.style;if(!(ak in D))D[ak]=arrow(D.BA,D.BB,camDir(D,0));add2(D[ak])}
+  }
+  // a glowing dot on Today's character: where you said it hurts. Either a spot on one body part ("knee1|x,y,z", in that
+  // part's own coordinates, so it moves with the part) or a region's usual spot ("@knee:1"). Several are split by ";"
+  function marks(B,mark){
+    const g=new T.Group(),F=B.F,U=B.U,at=(q,v,k)=>[q[0]+v[0]*k,q[1]+v[1]*k,q[2]+v[2]*k],lp=(a,b,u)=>[a[0]+(b[0]-a[0])*u,a[1]+(b[1]-a[1])*u,a[2]+(b[2]-a[2])*u];
+    String(mark).split(";").forEach(m=>{let p=null;
+      if(m[0]==="@"){const[r,s0]=m.slice(1).split(":"),s=s0==="2"?"2":"1",L=B.legs[s],A=B.arms[s];
+        p=r==="back"?at(lp(B.p,B.n,.22),F,-7):r==="knee"?at(L.k,F,3.6):r==="hip"?at(L.hip,F,5):r==="shoulder"?at(A.sh,U,3):r==="elbow"?A.e:r==="achilles"?at(lp(L.k,L.f,.85),F,-3.4):null}
+      else{const[n,xyz]=m.split("|"),o=rig.parts[n];if(o&&xyz){const v=new T.Vector3(...xyz.split(",").map(Number)).applyMatrix4(o.matrix);p=[v.x,v.y,v.z]}}
+      if(!p)return;const o=part(geo.sph,M.hl,false);blob(o,p,3.1,3.1,3.1);g.add(o)});
+    return g;
+  }
+  // which body part is under a point on a character canvas, and where on it: u runs along the part's bone (0 at the
+  // joint nearer the body), front says whether it is on the front of the body
+  function pick(cv,x,y){
+    if(!ready||!cv||!cv.width||!cv.dataset.pose)return null;
+    const r=cv.getBoundingClientRect(),key=cv.dataset.pose,t=cv._t??.5,D=figData(key),F=poseAt(D.P,t),B=lift(solveFig(F),F,D.cx);
+    pose(rig,B);frame(key,cv.width/cv.height,+cv.dataset.yaw||0,0);rig.G.updateMatrixWorld(true);cam.updateMatrixWorld();
+    const rc=new T.Raycaster();rc.setFromCamera(new T.Vector2((x-r.left)/r.width*2-1,-((y-r.top)/r.height*2-1)),cam);
+    const hit=rc.intersectObjects(rig.G.children.filter(o=>o.visible),false)[0];if(!hit)return null;
+    let part="";for(const k in rig.parts)if(rig.parts[k]===hit.object){part=k;break}
+    const p=[hit.point.x,hit.point.y,hit.point.z],loc=hit.object.worldToLocal(hit.point.clone()),s=part.slice(-1),L=B.legs[s]||B.legs["1"],A=B.arms[s]||B.arms["1"];
+    const bn=part.replace(/[12]$/,""),seg={thigh:[L.hip,L.k],short:[L.hip,L.k],shin:[L.k,L.f],upper:[A.sh,A.e],sleeve:[A.sh,A.e],fore:[A.e,A.w]}[bn]||[B.p,B.n];
+    const d=sub(seg[1],seg[0]),u=Math.max(0,Math.min(1,dot(sub(p,seg[0]),d)/(dot(d,d)||1))),c=[seg[0][0]+d[0]*u,seg[0][1]+d[1]*u,seg[0][2]+d[2]*u];
+    return{part,u,front:dot(sub(p,c),B.F)>0,right:p[2]>B.p[2],mark:part+"|"+[loc.x,loc.y,loc.z].map(v=>v.toFixed(2)).join(",")};
   }
   function draw(r,key,t,o,w,h,yaw=0,reserve=0){
     if(M.style!==(document.documentElement.dataset.fig||"gymkit")){makeMaterials();[rig,ghost].forEach(x=>scene.remove(x.G));rig=buildRig(false);ghost=buildRig(true);for(const k in cache)for(const j in cache[k])if(j.startsWith("arrow|"))delete cache[k][j]}
     const sz=w+"x"+h;if(r===R){if(liveSize!==sz){R.setSize(w,h,false);liveSize=sz}}else if(thumbSize!==sz){r.setSize(w,h,false);thumbSize=sz}
-    setFigure(key,t,o.zones,o.sides,o.guide!==false);frame(key,w/h,yaw,reserve);r.render(scene,cam);return r.domElement;
+    setFigure(key,t,o.zones,o.sides,o.guide!==false,o.mark);frame(key,w/h,yaw,reserve);r.render(scene,cam);return r.domElement;
   }
   function renderTo(key,t,o,w,h,yaw=0){if(!TR)TR=makeRenderer(true);return draw(TR,key,t,o,w,h,yaw)}
 
   /* ---------- DOM: upgrade 2D figures ---------- */
-  function opts(el){return{zones:el.dataset.zones?el.dataset.zones.split(","):[],sides:!!el.dataset.sides,guide:el.dataset.mode!=="static"}}
+  function opts(el){return{zones:el.dataset.zones?el.dataset.zones.split(","):[],sides:!!el.dataset.sides,guide:el.dataset.mode!=="static",mark:el.dataset.mark||""}}
   const near=el=>{const r=el.getBoundingClientRect();return r.bottom>-innerHeight&&r.top<innerHeight*2};
   function upgrade(scope){
     if(!ready)return;
@@ -2030,7 +2074,7 @@ const FIG3D=(()=>{
         if(cv.width!==w||cv.height!==h){cv.width=w;cv.height=h}
         const per=+cv.dataset.period||3400,t=cv.dataset.mode==="static"?1:REDUCED?.75:cv.dataset.mode==="iso"?.86+.14*(.5-.5*Math.cos(ts/4200*2*Math.PI)):.5-.5*Math.cos(ts/per*2*Math.PI);
         const ov=stg&&stg.querySelector(".dov"),res=ov&&ov.offsetHeight?Math.min(.3,(ov.offsetHeight+8)/Math.max(1,dh)):0;
-        const src=draw(R,cv.dataset.pose,t,opts(cv),w,h,+cv.dataset.yaw||0,res);
+        cv._t=t;const src=draw(R,cv.dataset.pose,t,opts(cv),w,h,+cv.dataset.yaw||0,res);
         const g=cv.getContext("2d");g.clearRect(0,0,w,h);g.drawImage(src,0,0,w,h);cv.dataset.drawn=paused?"1":"";cv.dataset.r3="1";cv.dataset.seen=1;
       });
       upgrade(scope);
@@ -2047,7 +2091,7 @@ const FIG3D=(()=>{
   function supported(){try{const c=document.createElement("canvas"),g=c.getContext("webgl2")||c.getContext("webgl");if(g&&g.getExtension("WEBGL_lose_context"))g.getExtension("WEBGL_lose_context").loseContext();return!!g}catch(e){return false}}
   function start(){if(loading||!supported())return;loading=import(SRC).then(m=>{T=m;try{setup();ready=true;readyAt=performance.now();document.documentElement.classList.add("fig3d");requestAnimationFrame(tick)}catch(e){disable(e)}}).catch(e=>{failed=true;console.warn("3D figures unavailable, using 2D",e)})}
   // settled: nothing more to draw for the current screen (or 3D is off), so the launch screen can lift without a jump
-  return{start,get ready(){return ready},get settled(){return failed||!loading||(ready&&performance.now()-readyAt>350&&!queue.length&&!pumping)},renderTo,lift,clear(){thumbs.clear()}};
+  return{start,get ready(){return ready},get settled(){return failed||!loading||(ready&&performance.now()-readyAt>350&&!queue.length&&!pumping)},renderTo,lift,pick,clear(){thumbs.clear()}};
 })();
 
 
@@ -2307,9 +2351,8 @@ function rbRestore(){const d=S.rbDraft;rbRestored=true;if(!d||!REGIONS[d.r]||Dat
   stack=[{name:"rebuild",p:{}},{name:"rbflags",p:{}}];if(d.screen!=="rbflags")stack.push({name:d.screen,p:{}});return true}
 const SCREENS={},AFTER={};
 // arriving on Profile, the score counts up and its bars grow (once per visit, not on every refresh)
-AFTER.profile=()=>{const on=document.querySelector(".cchips .chip.on");if(on&&on.offsetLeft>on.parentElement.clientWidth-90)on.parentElement.scrollLeft=on.offsetLeft-20;
+AFTER.profile=()=>{orbSolo($("#profStage"));const on=document.querySelector(".cchips .chip.on");if(on&&on.offsetLeft>on.parentElement.clientWidth-90)on.parentElement.scrollLeft=on.offsetLeft-20;
   if(!PROF_ANIM||REDUCED||TOUR){PROF_ANIM=false;return}PROF_ANIM=false;dashAnim()};
-AFTER.rebuild=()=>{if(!RB_ANIM||REDUCED||TOUR){RB_ANIM=false;return}RB_ANIM=false;dashAnim()};
 function dashAnim(){
   const b=document.querySelector(".ringnum");if(b&&!b.closest(".none")){const to=+b.textContent||0,t0=performance.now(),D=900;
     const step=t=>{const k=Math.min(1,(t-t0)/D),e=1-Math.pow(1-k,3);b.textContent=Math.round(to*e);if(k<1)requestAnimationFrame(step)};b.textContent="0";requestAnimationFrame(step)}
@@ -2325,13 +2368,43 @@ function greeting(){const h=new Date().getHours();return h<5?"Good evening":h<12
 function streak(){const days=new Set(S.sessions.map(s=>dayKey(s.at)));let n=0,d=new Date();if(!days.has(dayKey(d)))d.setDate(d.getDate()-1);while(days.has(dayKey(d))){n++;d.setDate(d.getDate()-1)}return n}
 // Today: the character hovers over a stand and the four sessions circle them on a ring. Drag sideways (or use the arrows)
 // to turn the ring; tap a tab to bring it to the front, tap the one in front to open it
-const ORB_TINT={activate:"#FF6A2B",recover:"#D9AC7C",daily:"#F6A021",library:"#B4B9C6"};
+const ORB_TINT={activate:"#FF6A2B",recover:"#D9AC7C",daily:"#F6A021",library:"#B4B9C6",rebuild:"#FF5A4A",profile:"#F6B43A"};
 // where the ring is (a), where it is heading (t) and how fast it turns (v). Kept between visits, so Today comes back the
 // way you left it. intro: 1 = the tabs haven't swung in yet, 2 = swinging in, 0 = done
 const ORB={a:Math.PI*1.75,t:0,v:0,intro:1,busy:false};
 // where the character sits inside its own drawing: top of the head and the toes as a share of the drawing's height, and
 // the drawing's shape (width / height). The box is sized from these so head and toes land where the layout wants them
 const ORB_FIG={top:.078,bot:.876,asp:.6};
+// the stage on its own (Rebuild, Profile): the character over the stand with the light behind it, no ring.
+// hero: the drawing to show; cls: extra classes; glow: the colour of the light
+function orbStage({cls="",glow="#F6B43A",hero="",attrs=""}){
+  return `<section class="orb solo ${cls}" style="--glow:${glow}" ${attrs}>
+    <div class="o-bg" aria-hidden="true"><div class="o-wash"></div><div class="o-bgi"><div class="o-halo"></div><div class="o-floor"></div></div></div>
+    <div class="o-pglow"></div><div class="o-pside"></div><div class="o-ptop"></div><div class="o-pulse"></div><div class="o-beam"></div><div class="o-shadow"></div>
+    <div class="o-aura"></div>
+    ${hero}
+  </section>`}
+// the character on a stage: hero pose, moving gently; zones light muscles, mark puts a dot where it hurts
+function orbHero({zones=null,sides=false,mark="",pick=false}={}){
+  let f=drawPart("hero",()=>fig("hero",null,{anim:true,period:7200,zones,sides}));
+  if(mark)f=f.replace('<svg class="fig',`<svg data-mark="${esc(mark)}" class="fig`);
+  return `<div class="o-hero${pick?" pick":""}"${pick?' role="img" aria-label="Your body. Tap where it hurts; drag to turn."':' aria-hidden="true"'}><div class="o-bob">${f}</div></div>`}
+// the stage's measurements, from its size: the stand at the bottom, the character hovering just above it
+function orbVars(stage,{W,ch,ht,py,prx,pry,pth,cy,tw=0,th=0}){
+  const hbh=ch/(ORB_FIG.bot-ORB_FIG.top),hbt=ht-ORB_FIG.top*hbh,hbw=hbh*ORB_FIG.asp;
+  const st=stage.style,px=n=>n.toFixed(1)+"px",set=(k,v)=>st.setProperty(k,v);
+  set("--cx",px(W/2));set("--cy",px(cy));set("--tw",px(tw));set("--th",px(th));set("--u",(tw/136||1).toFixed(3));
+  set("--ch",px(ch));set("--ht",px(ht));set("--py",px(py));set("--prx",px(prx));set("--pry",px(pry));set("--pth",px(pth));
+  set("--by",px(ht+ch*.55));set("--hy",px(ht+ch*.36));set("--hs",px(Math.min(W*1.5,ch*1.5)));set("--fs",px(W*1.75));
+  set("--hbt",px(hbt));set("--hbh",px(hbh));set("--hbw",px(hbw));
+}
+function orbSolo(stage){
+  if(!stage)return;
+  const lay=()=>{const W=stage.clientWidth,H=stage.clientHeight;if(!W||!H)return;
+    const prx=Math.min(W*.24,H*.2),pry=prx*.34,pth=Math.max(8,prx*.13),py=H-pth-pry-6,ht=Math.max(4,H*.03),feet=py-pry*.2-14;
+    orbVars(stage,{W,ch:Math.max(80,feet-ht),ht,py,prx,pry,pth,cy:py})};
+  const ro=new ResizeObserver(()=>{if(!stage.isConnected){ro.disconnect();return}lay()});ro.observe(stage);lay();
+}
 SCREENS.home=()=>{
   const intro=ORB.intro===1&&!REDUCED&&!TOUR;
   const tab=k=>{const v=KINDS[k];return drawPart("tab "+k,()=>`<button class="o-tab" type="button" data-kind="${k}" data-glow="${ORB_TINT[k]}" style="--tint:${ORB_TINT[k]}" aria-label="${v.n}, ${v.sub}"><span class="o-glass"><span class="o-rings"></span><span class="o-pic">${fig(v.pose,null,{mode:"static"})}</span><span class="o-sheen"></span><span class="o-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><span class="o-txt"><b>${v.n}</b><i>${v.sub}</i></span></span><span class="o-edge"></span></button>`)};
@@ -2343,7 +2416,7 @@ SCREENS.home=()=>{
     <div class="o-pglow"></div><div class="o-pside"></div><div class="o-ptop"></div><div class="o-pulse"></div><div class="o-beam"></div><div class="o-shadow"></div>
     <svg class="o-line back" aria-hidden="true"><ellipse/></svg>
     <div class="o-aura"></div>
-    <div class="o-hero" aria-hidden="true"><div class="o-bob">${drawPart("hero",()=>fig("hero",null,{anim:true,period:7200}))}</div></div>
+    ${orbHero()}
     <svg class="o-line front" aria-hidden="true"><ellipse/></svg>
     ${HOME_KINDS.map(tab).join("")}
     ${nav("o-prev","Previous session","M15 5l-7 7 7 7")}${nav("o-next","Next session","M9 5l7 7-7 7")}
@@ -2367,13 +2440,7 @@ AFTER.home=()=>{
     // The character takes the height that is left, and stands a little down from the top of the stage
     const below=.84*th+10+2*pry+pth+8,ch=cl((H-below)/1.1,120,W*1.1),top=Math.max(0,(H-below-ch*1.1)/2);
     const ht=top+ch*.1,feet=ht+ch,yF=feet+th*.34,ry=Math.min(ch*.27,rx*.74),cy=yF-ry,py=yF+th/2+10+pry;
-    const hbh=ch/(ORB_FIG.bot-ORB_FIG.top),hbt=ht-ORB_FIG.top*hbh,hbw=hbh*ORB_FIG.asp;
-    G={cx:W/2,cy,rx,ry};
-    const st=stage.style,px=n=>n.toFixed(1)+"px",set=(k,v)=>st.setProperty(k,v);
-    set("--cx",px(W/2));set("--cy",px(cy));set("--tw",px(tw));set("--th",px(th));set("--u",(tw/136).toFixed(3));
-    set("--ch",px(ch));set("--ht",px(ht));set("--py",px(py));set("--prx",px(prx));set("--pry",px(pry));set("--pth",px(pth));
-    set("--by",px(ht+ch*.55));set("--hy",px(ht+ch*.36));set("--hs",px(Math.min(W*1.5,ch*1.5)));set("--fs",px(W*1.75));
-    set("--hbt",px(hbt));set("--hbh",px(hbh));set("--hbw",px(hbw));
+    G={cx:W/2,cy,rx,ry};orbVars(stage,{W,ch,ht,py,prx,pry,pth,cy,tw,th});
     ells.forEach(e=>{e.setAttribute("cx",W/2);e.setAttribute("cy",cy);e.setAttribute("rx",rx);e.setAttribute("ry",ry)});
     const nx=tw/2+30;[[prev,-1],[next,1]].forEach(([b,s])=>{b.style.transform=`translate(${(W/2+s*nx).toFixed(1)}px,${yF.toFixed(1)}px)`});
     place(performance.now()/1000);
@@ -5046,10 +5113,52 @@ function rbProgPane(st,phs){const days=Math.floor((Date.now()-st.started)/dayMs)
     <div class="tile"><span class="eyebrow">Phase</span><b>${st.phase+1}/${phs.length}</b></div>
   </div>`}
 const RB_SUB={back:"Pain when you bend, sit, lift or twist",knee:"Around the kneecap and the tendon below it",hip:"Front of the hip, groin or the hamstring tendon",shoulder:"Overhead, pressing or hanging hurts",elbow:"Tennis or golfer's elbow, gripping hurts",achilles:"Tendon pain when you run, jump or rise onto your toes"};
+// Rebuild: tap the body where it hurts. The spot you tap picks the program (knee, hip, back...) and the side
+let RB_SEL=null;
+const RB_NONE={chest:"the chest",neck:"the neck",head:"the head",hair:"the head",nose:"the head",ear:"the head",hand:"the hand or wrist",belly:"the stomach",trapx:"the upper back"};
+function rbFromHit(h){
+  if(!h)return null;const b=h.part.replace(/[12]$/,""),n=h.part.slice(-1),u=h.u,
+    // on the trunk (glutes, traps) which side is from where you tapped; on a limb it is the limb's own side
+    side=/^(glute|trap|pelvis|hip)$/.test(b)?(h.right?"right":"left"):n==="1"?"right":n==="2"?"left":h.right?"right":"left";
+  let r=null,sd=side;
+  if(b==="knee")r="knee";
+  else if(b==="thigh"||b==="short")r=u>.62?"knee":"hip";
+  else if(b==="shin")r=u<.25?"knee":"achilles";
+  else if(b==="ankle"||b==="foot")r="achilles";
+  else if(b==="hip"||b==="glute")r="hip";
+  else if(b==="pelvis"){r=h.front?"hip":"back";if(r==="back")sd=null}
+  else if(b==="belly"){if(!h.front&&u<.6){r="back";sd=null}else return{none:h.front?"the stomach":"the upper back",mark:h.mark}}
+  else if(b==="shoulder"||b==="sleeve"||b==="trap")r="shoulder";
+  else if(b==="upper")r=u<.5?"shoulder":"elbow";
+  else if(b==="elbow"||b==="fore")r="elbow";
+  if(!r)return{none:RB_NONE[b]||"there",mark:h.mark};
+  return{r,side:sd,mark:h.mark};
+}
+function rbPickBar(){const s=RB_SEL;
+  if(!s)return`<span class="o-pbt">Tap where it hurts</span>`;
+  if(!s.r)return`<span class="o-pbt">Rebuild has no program for <b>${esc(s.none)}</b> yet. Tap another spot or pick from the list.</span>`;
+  return`<span class="o-pbt"><b>${esc(REGIONS[s.r].n)}</b>${s.side?` · ${s.side==="left"?"Left":"Right"}`:""}</span><button class="btn" data-act="rbPickGo">Continue</button>`}
+ACT.rbPickGo=()=>{const s=RB_SEL;if(!s||!s.r)return;ACT.rbPick({r:s.r});RB.pickSide=s.side;RB.mark=s.mark};
+AFTER.rebuild=()=>{
+  const st=$("#rbStage");if(st){orbSolo(st);
+    const hero=st.querySelector(".o-hero.pick");let d=null;
+    hero.addEventListener("pointerdown",e=>{d={x:e.clientX,y:e.clientY,t:performance.now()}});
+    hero.addEventListener("pointerup",e=>{const s=d;d=null;if(!s||Math.hypot(e.clientX-s.x,e.clientY-s.y)>8||performance.now()-s.t>450)return;
+      const cv=hero.querySelector("canvas.fig.f3");if(!cv||!FIG3D.ready)return;
+      let res=null;try{res=rbFromHit(FIG3D.pick(cv,e.clientX,e.clientY))}catch(err){noteError(err,"pick")}
+      if(!res)return;
+      RB_SEL=res;cv.dataset.mark=res.mark||"";
+      const bar=$("#rbPickBar");if(bar){bar.innerHTML=rbPickBar();bar.classList.toggle("got",!!res.r)}
+      const pl=st.querySelector(".o-pulse");if(pl&&!REDUCED){pl.classList.remove("on");void pl.offsetWidth;pl.classList.add("on")}
+      try{navigator.vibrate&&navigator.vibrate(8)}catch(_){}});
+  }
+  const ps=$("#rbProgStage");if(ps)orbSolo(ps);
+  if(!RB_ANIM||REDUCED||TOUR){RB_ANIM=false;return}RB_ANIM=false;dashAnim()};
 SCREENS.rebuild=()=>{
   if(!S.rehab){const kd=KINDS.rebuild;return`<div class="tabtop" aria-hidden="true"></div><div class="stack" style="padding-top:8px">
-   <div class="whead"><div class="hero ${kd.g}"><div class="art">${fig(kd.pose)}</div><b>Rebuild</b><span style="font-size:calc(14px * var(--ts));font-weight:600;line-height:1.3">Pain-guided rehab, one phase at a time</span></div></div>
-   <div class="stephead"><span class="bub">${ic("heart")}</span><div><h3>Where Does It Hurt?</h3><p>Pick the area. A safety check and a few short tests set your program, and your pain rating decides when it moves on.</p></div></div>
+   <div class="stephead"><span class="bub">${ic("heart")}</span><div><h3>Where Does It Hurt?</h3><p><span class="rbpickonly">Tap the spot on the body (drag to turn it around), or pick</span><span class="rbpickno">Pick</span> the area. A safety check and a few short tests set your program, and your pain rating decides when it moves on.</p></div></div>
+   ${orbStage({cls:"rbpick",glow:ORB_TINT.rebuild,attrs:'id="rbStage"',hero:orbHero({pick:true,mark:RB_SEL?RB_SEL.mark:""})})}
+   <div class="o-pickbar${RB_SEL&&RB_SEL.r?" got":""}" id="rbPickBar" style="--glow:${ORB_TINT.rebuild}" aria-live="polite">${rbPickBar()}</div>
    <div class="stack rbareas" style="gap:10px" data-tour="rebuild">${Object.entries(REGIONS).map(([k,R])=>`<button class="opt rbarea" data-act="rbPick" data-r="${k}"><span class="rbfig" aria-hidden="true">${fig(R.fig,null,{t:.8})}</span><span class="rbtx"><b>${R.n}</b><small>${esc(RB_SUB[k]||"")}</small></span>${ic("chev")}</button>`).join("")}</div>
    ${myProtosPanel()}</div>`}
   const st=S.rehab,R=REGIONS[st.region],C=R.classes[st.cls],phs=rbPhases(R,st.cls),ph=phs[st.phase],stt=rbStatus(),items=rbItems();
@@ -5057,6 +5166,7 @@ SCREENS.rebuild=()=>{
   <div class="stack" style="padding-top:4px">
   <div class="phead"><button class="avatar" data-act="rbMenu" aria-label="Program options">${ic("heart")}</button>
     <div class="pwho"><button class="pname" data-act="rbMenu">${esc(C.n)}</button><span class="pprog" style="cursor:default"><i class="pdot"></i>${esc(R.n)}${st.side&&st.side!=="both"?` · ${esc(st.side)}`:""}</span></div></div>
+  ${orbStage({cls:"rbprog",glow:ORB_TINT.rebuild,attrs:'id="rbProgStage"',hero:orbHero({mark:st.mark||(st.side==="both"?`@${st.region}:1;@${st.region}:2`:`@${st.region}:${st.side==="left"?2:1}`)})})}
   <div class="pseg two" role="tablist"><i class="plens" style="--pi:${Math.max(0,RB_TABS.findIndex(t=>t[0]===RB_TAB))}"></i>${RB_TABS.map(([k,n])=>`<button role="tab" aria-selected="${k===RB_TAB}" class="${k===RB_TAB?"on":""}" data-act="rbTab" data-p="${k}">${n}</button>`).join("")}</div>
   <div id="pane" class="stack">${rbDash(st,R,C,phs,ph,stt,items,RB_TAB==="prog"?"prog":"today")}</div>
   </div>`};
@@ -5079,7 +5189,7 @@ SCREENS.rbflags=()=>{
 ACT.rbFlag=d=>{RB.flags.has(d.k)?RB.flags.delete(d.k):RB.flags.add(d.k);render()};
 ACT.rbGoScreen=()=>{RB.desc=RB.desc||"";go("rbdesc",{})};
 ACT.rbDescGo=()=>{const ta=$("#rbDesc");RB.desc=ta?ta.value.trim():RB.desc||"";const rd=rbReadDesc(RB.r,RB.desc);
-  RB.step=0;RB.first=(rd.side==="L"||rd.side==="R"?rd.side:null)||(S.rehab&&S.rehab.region===RB.r&&S.rehab.side==="left"?"L":"R");RB.sub=RB.first;RB.ans=[];go("rbscreen",{})};
+  RB.step=0;RB.first=(rd.side==="L"||rd.side==="R"?rd.side:null)||(RB.pickSide==="left"?"L":RB.pickSide==="right"?"R":null)||(S.rehab&&S.rehab.region===RB.r&&S.rehab.side==="left"?"L":"R");RB.sub=RB.first;RB.ans=[];go("rbscreen",{})};
 ACT.rbDescAdd=d=>{const ta=$("#rbDesc");if(!ta)return;const v=ta.value.trim();ta.value=(v?v+(/[.!?]$/.test(v)?" ":". "):"")+d.t;RB.desc=ta.value;ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length)};
 SCREENS.rbdesc=()=>{const R=REGIONS[RB.r];
   return hdr()+`<div class="stack" style="padding-top:4px">
@@ -5183,7 +5293,7 @@ SCREENS.rbresult=()=>{
   </div><div class="bottomcta"><button class="btn" data-act="rbBegin">Start This Program</button></div>`;
 };
 ACT.rbMin=d=>{if(!S.rehab)return;S.rehab.minutes=+d.m;save();render()};
-ACT.rbBegin=()=>{const now=Date.now();delete S.rbDraft;S.rehab={region:RB.r,cls:RB.result.cls,side:RB.result.side||null,votes:RB.result.votes||{},minutes:(S.rehab&&S.rehab.minutes)||20,phase:0,started:now,phaseStart:now,logs:[],notes:RB.result.notes,desc:RB.desc||""};save();stack=[{name:"rebuild",p:{}}];render();scrollTo(0,0)};
+ACT.rbBegin=()=>{const now=Date.now();delete S.rbDraft;S.rehab={region:RB.r,cls:RB.result.cls,side:RB.result.side||null,votes:RB.result.votes||{},minutes:(S.rehab&&S.rehab.minutes)||20,phase:0,started:now,phaseStart:now,logs:[],notes:RB.result.notes,desc:RB.desc||"",mark:RB.mark||null};RB_SEL=null;save();stack=[{name:"rebuild",p:{}}];render();scrollTo(0,0)};
 ACT.rbNext=()=>{S.rehab.phase++;S.rehab.phaseStart=Date.now();save();render()};
 ACT.rbEnd=()=>sheet(`<h3>End this program?</h3><div class="scroll"><p class="muted" style="margin:0">Your pain log for this program will be deleted.</p></div><div style="display:grid;gap:8px"><button class="btn" style="background:var(--bad)" data-act="rbEndYes">End Program</button><button class="btn sec" data-act="closeSheet">Keep Going</button></div>`);
 ACT.rbEndYes=()=>{S.rehab=null;save();closeSheet();render()};
@@ -5394,6 +5504,7 @@ SCREENS.profile=()=>{
   <div class="stack" style="padding-top:4px">
   <div class="phead"><button class="avatar" data-act="nameSheet" aria-label="Your Name">${esc(userName()[0]||"A").toUpperCase()}</button>
     <div class="pwho"><button class="pname" data-act="nameSheet">${esc(userName())}</button>${sy.track?`<button class="pprog" data-act="syncKey" data-tour="program"><i class="pdot"></i>${esc(sy.track)}</button>`:""}</div></div>
+  ${orbStage({cls:"prof",glow:ORB_TINT.profile,attrs:'id="profStage"',hero:orbHero({zones:sc?[...new Set(mobilityFocus(sc).flatMap(k=>AREA_ZONES[k]||[]))]:null})})}
   <div class="pseg" role="tablist"><i class="plens" style="--pi:${PROF_TABS.findIndex(t=>t[0]===PROF_TAB)}"></i>${PROF_TABS.map(([k,n])=>`<button role="tab" aria-selected="${k===PROF_TAB}" class="${k===PROF_TAB?"on":""}" data-act="profTab" data-p="${k}">${n}</button>`).join("")}</div>
   <div id="pane" class="stack">${PROF_TAB==="dash"?dashPane(sc):PROF_TAB==="equip"?equipPane():progPane(sc)}</div>
   </div>`};
@@ -6156,7 +6267,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="6138399";
+<script>window.RANGE_BUILD="40374152";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
