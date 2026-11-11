@@ -71,3 +71,4 @@ GitHub Pages serves it again within a minute or two. The app source lives outsid
 | 2026-11-11 | `2026-11-11_stage-rebuild-profile.html` | Rebuild and Profile get the character stage; in Rebuild tap the body where it hurts to pick the program | 8b80296 |
 | 2026-11-11 | `2026-11-11_stats-around.html` | Profile stats float around the character; load panel removed; Rebuild is tap-the-body only | 45d7a6e |
 | 2026-11-11 | `2026-11-11_precise-spots.html` | Same header on every tab; tapping the body names the exact spot (front/back/inside/outside); glass Equipment and Progress | 15e1a22 |
+| 2026-11-11 | `2026-11-11_one-stage.html` | One stage behind Today, Rebuild and Profile: the character stays in place, only the cards around it change | e26a1ef |
