@@ -858,6 +858,23 @@ body.touring .orb.solo{height:clamp(200px,30vh,280px)}
 html:not(.fig3d) .orb.solo,html:not(.fig3d) .o-pickbar,html:not(.fig3d) .rbpickonly,html.fig3d .rbpickno{display:none}
 /* the pane switches on Rebuild and Profile: glass, like the tab bar */
 .pseg{background:var(--g-fill);-webkit-backdrop-filter:var(--g-blur);backdrop-filter:var(--g-blur);box-shadow:inset 0 1px 0 var(--g-hi),inset 0 0 0 1px var(--g-line)}
+
+/* Profile, Dashboard: the numbers float around the character */
+.orb.prof.dash{height:clamp(360px,calc(100svh - 330px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)),470px)}
+.o-stat{z-index:20;width:min(122px,31%);padding:10px 12px;border-radius:18px;display:grid;gap:5px;align-content:start;text-align:left;min-width:0;
+  background:var(--g-fill);-webkit-backdrop-filter:var(--g-blur);backdrop-filter:var(--g-blur);box-shadow:inset 0 1px 0 var(--g-hi),inset 0 0 0 1px var(--g-line),0 12px 24px -12px rgba(0,0,0,.6);transition:transform 160ms var(--ease-out)}
+button.o-stat:active{transform:scale(.97)}
+.o-stat.time{left:12px;top:3%}.o-stat.score{right:12px;top:3%}.o-stat.focus{left:12px;top:50%}.o-stat.areas{right:12px;top:50%}
+.o-stat .dt{font-size:calc(12px * var(--ts));color:var(--muted)}
+.o-stat .dbig{font-size:calc(24px * var(--ts))}
+.o-stat .mbar{height:10px;margin-top:2px}
+.o-stat.score{justify-items:center}.o-stat.score .ringwrap{width:76px;margin:0}.o-stat .rnum b{font-size:calc(24px * var(--ts))}.o-stat .rnum small{font-size:calc(12px * var(--ts))}
+.o-stat.score small{font-size:calc(12px * var(--ts))}
+.o-stat.focus small{font-size:calc(12px * var(--ts))}.o-stat .fnames b{font-size:calc(14px * var(--ts));line-height:1.2}
+.o-stat .vbars{height:64px;padding:0 2px;gap:4px}
+html:not(.fig3d) .orb.prof.dash{display:block}html:not(.fig3d) .orb.prof .o-hero{visibility:hidden}
+/* Rebuild: only the body to tap. The list of areas is the way in when 3D is off */
+html.fig3d .rbareas{display:none}
 @media (prefers-reduced-motion:reduce){.o-bob,.o-shadow,.o-beam,.o-pulse.on{animation:none}.orb{transition:none}}
 @media (prefers-reduced-transparency:reduce){.o-glass,.o-nav{-webkit-backdrop-filter:none;backdrop-filter:none}.o-glass{background:linear-gradient(158deg,color-mix(in srgb,var(--tint) 30%,#2a2520),#1b1815 52%,#12100e)}}
 </style>
@@ -5130,10 +5147,10 @@ AFTER.rebuild=()=>{
   if(!RB_ANIM||REDUCED||TOUR){RB_ANIM=false;return}RB_ANIM=false;dashAnim()};
 SCREENS.rebuild=()=>{
   if(!S.rehab){const kd=KINDS.rebuild;return`<div class="tabtop" aria-hidden="true"></div><div class="stack" style="padding-top:8px">
-   <div class="stephead"><span class="bub">${ic("heart")}</span><div><h3>Where Does It Hurt?</h3><p><span class="rbpickonly">Tap the spot on the body (drag to turn it around), or pick</span><span class="rbpickno">Pick</span> the area. A safety check and a few short tests set your program, and your pain rating decides when it moves on.</p></div></div>
-   ${orbStage({cls:"rbpick",glow:ORB_TINT.rebuild,attrs:'id="rbStage"',hero:orbHero({pick:true,mark:RB_SEL?RB_SEL.mark:""})})}
+   <div class="stephead rbhead"><span class="bub">${ic("heart")}</span><div><h3>Where Does It Hurt?</h3></div></div>
+   ${orbStage({cls:"rbpick",glow:ORB_TINT.rebuild,attrs:'id="rbStage" data-tour="rebuild"',hero:orbHero({pick:true,mark:RB_SEL?RB_SEL.mark:""})})}
    <div class="o-pickbar${RB_SEL&&RB_SEL.r?" got":""}" id="rbPickBar" style="--glow:${ORB_TINT.rebuild}" aria-live="polite">${rbPickBar()}</div>
-   <div class="stack rbareas" style="gap:10px" data-tour="rebuild">${Object.entries(REGIONS).map(([k,R])=>`<button class="opt rbarea" data-act="rbPick" data-r="${k}"><span class="rbfig" aria-hidden="true">${fig(R.fig,null,{t:.8})}</span><span class="rbtx"><b>${R.n}</b><small>${esc(RB_SUB[k]||"")}</small></span>${ic("chev")}</button>`).join("")}</div>
+   <div class="stack rbareas" style="gap:10px">${Object.entries(REGIONS).map(([k,R])=>`<button class="opt rbarea" data-act="rbPick" data-r="${k}"><span class="rbfig" aria-hidden="true">${fig(R.fig,null,{t:.8})}</span><span class="rbtx"><b>${R.n}</b><small>${esc(RB_SUB[k]||"")}</small></span>${ic("chev")}</button>`).join("")}</div>
    ${myProtosPanel()}</div>`}
   const st=S.rehab,R=REGIONS[st.region],C=R.classes[st.cls],phs=rbPhases(R,st.cls),ph=phs[st.phase],stt=rbStatus(),items=rbItems();
   return`<div class="hdr"><span></span><span></span><button data-act="rbMenu" aria-label="Program options">${ic("dots")}</button></div>
@@ -5415,23 +5432,22 @@ function dashPane(sc){
   const ov=overall(sc),lv=level(ov),mins=S.sessions.reduce((t,x)=>t+(x.mins||0),0),hrs=mins/60,next=MILESTONES.find(m=>m>hrs)||Math.ceil(hrs/100)*100+100,prev=[0,...MILESTONES].filter(m=>m<=hrs).pop()||0,pct=Math.max(2,Math.min(100,(hrs-prev)/(next-prev)*100));
   const foc=mobilityFocus(sc),sp=SPI[(S.sports||[])[0]]||{n:"Your sport"};
   const last=S.tests[S.tests.length-1],left=last?30-Math.floor((Date.now()-last.at)/864e5):0;
-  return`<div class="dgrid">
-    <div class="dcell time"><span class="dt">Mobility Time</span><div class="dsub">Total</div><b class="dbig">${fmtTime(mins)}</b><div class="mbar" role="img" aria-label="${Math.round(pct)}% of the way to ${next} hours"><i style="width:${pct}%"></i></div><div class="dnext"><span>Next</span><b>${next}h</b></div></div>
-    ${S.scores?`<button class="dcell score" data-act="scoreSheet" data-tour="score" aria-label="Mobility score ${ov}%, details"><span class="dt">Mobility Score</span>
-      <div class="ringwrap">${ringSvg(ov,lv.v)}<span class="rnum"><b class="ringnum">${ov}</b><small>%</small></span></div>
-      <div class="vbars" aria-hidden="true">${AREAS.map(a=>{const v=sc[a.k];return`<span class="vb"><i style="height:${Math.max(4,v)}%;background:${level(v).v}"></i></span>`}).join("")}</div></button>`
-    :`<button class="dcell score none" data-act="openTest" data-tour="score" aria-label="No mobility score yet. Take the test"><span class="dt">Mobility Score</span>
-      <div class="ringwrap">${ringSvg(0,"transparent")}<span class="rnum"><b class="ringnum">–</b></span></div>
-      <p class="muted">Take the 10-minute test to see your score.</p></button>`}
-    <div class="dcell focus"><span class="dt">Mobility Focus</span><div class="fic">${ic("target")}</div><small class="muted">${esc(sp.n)}</small><div class="fnames">${foc.map(k=>`<b>${AN[k]}</b>`).join("")}</div></div>
-  </div>
-  ${S.scores&&left>0?`<p class="muted dtest">Tested ${new Date(last.at).toLocaleDateString(undefined,{month:"short",day:"numeric"})}. Next in ${left} day${left===1?"":"s"}.<button class="link" data-act="openTest">Retest</button></p>`:`<button class="btn" data-act="openTest">${testDraft()?"Resume My Test":"Test My Mobility"}</button>`}
+  return`  ${S.scores&&left>0?`<p class="muted dtest">Tested ${new Date(last.at).toLocaleDateString(undefined,{month:"short",day:"numeric"})}. Next in ${left} day${left===1?"":"s"}.<button class="link" data-act="openTest">Retest</button></p>`:`<button class="btn" data-act="openTest">${testDraft()?"Resume My Test":"Test My Mobility"}</button>`}
   ${(()=>{const ks=(S.sports||[]).filter(k=>SPORT_NEEDS[k]);if(!ks.length||!S.scores)return"";
     const pri=sportPriority(sc),weakest=AREAS.slice().sort((x,y)=>sc[x.k]-sc[y.k])[0].k;
     return`<div class="panel"><h3>Mobility Levels</h3>
     ${ks.map(k=>{const r=sportLevel(k,sc),l=level(r.level);return`<div class="slv"><div><b>${SPI[k].n}</b><small class="muted">${r.lim?`Held back most by ${AN[r.lim]}`:"No area holding you back"}</small></div><span class="pill ${l.c}">${r.level}</span></div>`}).join("")}
 </div>`})()}
-  ${loadPanel()}`}
+`}
+// Profile, Dashboard: time, score, focus and the six areas around the character
+function profStats(sc){
+  const ov=overall(sc),lv=level(ov),mins=S.sessions.reduce((t,x)=>t+(x.mins||0),0),hrs=mins/60,next=MILESTONES.find(m=>m>hrs)||Math.ceil(hrs/100)*100+100,prev=[0,...MILESTONES].filter(m=>m<=hrs).pop()||0,pct=Math.max(2,Math.min(100,(hrs-prev)/(next-prev)*100));
+  const foc=mobilityFocus(sc),sp=SPI[(S.sports||[])[0]]||{n:"Your sport"};
+  return`<div class="o-stat time"><span class="dt">Mobility Time</span><b class="dbig">${fmtTime(mins)}</b><div class="mbar" role="img" aria-label="${Math.round(pct)}% of the way to ${next} hours"><i style="width:${pct}%"></i></div><div class="dnext"><span>Next</span><b>${next}h</b></div></div>
+  ${S.scores?`<button class="o-stat score" data-act="scoreSheet" data-tour="score" aria-label="Mobility score ${ov}%, details"><span class="dt">Score</span><div class="ringwrap">${ringSvg(ov,lv.v)}<span class="rnum"><b class="ringnum">${ov}</b><small>%</small></span></div></button>`
+    :`<button class="o-stat score none" data-act="openTest" data-tour="score" aria-label="No mobility score yet. Take the test"><span class="dt">Score</span><div class="ringwrap">${ringSvg(0,"transparent")}<span class="rnum"><b class="ringnum">–</b></span></div><small class="muted">Take the test</small></button>`}
+  <div class="o-stat focus"><span class="dt">Focus</span><small class="muted">${esc(sp.n)}</small><div class="fnames">${foc.map(k=>`<b>${AN[k]}</b>`).join("")}</div></div>
+  ${S.scores?`<button class="o-stat areas" data-act="scoreSheet" aria-label="Your six areas, details"><span class="dt">Areas</span><div class="vbars" aria-hidden="true">${AREAS.map(a=>{const v=sc[a.k];return`<span class="vb"><i style="height:${Math.max(4,v)}%;background:${level(v).v}"></i></span>`}).join("")}</div></button>`:""}`}
 function equipPane(){return`<div class="panel" data-tour="sports"><div style="display:flex;justify-content:space-between;align-items:center"><h3>My Sports</h3><button class="link" data-act="sportsSheet">Edit</button></div>
     <div class="chipset">${S.sports.map(k=>`<span class="chip">${SPI[k].n}</span>`).join("")}</div></div>
   <div class="panel" data-tour="equip"><h3>My Equipment</h3><div class="chipset">${EQUIP.map(e=>`<button class="chip ${S.equip.includes(e.k)?"on":""}" data-act="profEq" data-e="${e.k}">${ic(e.k)}${e.n}</button>`).join("")}</div></div>`}
@@ -5478,8 +5494,8 @@ SCREENS.profile=()=>{
   <div class="stack" style="padding-top:4px">
   <div class="phead"><button class="avatar" data-act="nameSheet" aria-label="Your Name">${esc(userName()[0]||"A").toUpperCase()}</button>
     <div class="pwho"><button class="pname" data-act="nameSheet">${esc(userName())}</button>${sy.track?`<button class="pprog" data-act="syncKey" data-tour="program"><i class="pdot"></i>${esc(sy.track)}</button>`:""}</div></div>
-  ${orbStage({cls:"prof",glow:ORB_TINT.profile,attrs:'id="profStage"',hero:orbHero({zones:sc?[...new Set(mobilityFocus(sc).flatMap(k=>AREA_ZONES[k]||[]))]:null})})}
   <div class="pseg" role="tablist"><i class="plens" style="--pi:${PROF_TABS.findIndex(t=>t[0]===PROF_TAB)}"></i>${PROF_TABS.map(([k,n])=>`<button role="tab" aria-selected="${k===PROF_TAB}" class="${k===PROF_TAB?"on":""}" data-act="profTab" data-p="${k}">${n}</button>`).join("")}</div>
+  ${orbStage({cls:"prof"+(PROF_TAB==="dash"?" dash":""),glow:ORB_TINT.profile,attrs:'id="profStage"',hero:orbHero({zones:sc?[...new Set(mobilityFocus(sc).flatMap(k=>AREA_ZONES[k]||[]))]:null})+(PROF_TAB==="dash"?profStats(sc):"")})}
   <div id="pane" class="stack">${PROF_TAB==="dash"?dashPane(sc):PROF_TAB==="equip"?equipPane():progPane(sc)}</div>
   </div>`};
 ACT.profTab=d=>{const a=PROF_TABS.findIndex(t=>t[0]===PROF_TAB),b=PROF_TABS.findIndex(t=>t[0]===d.p);if(a===b||b<0)return;PROF_TAB=d.p;PROF_ANIM=true;render();window.scrollTo(0,0);
