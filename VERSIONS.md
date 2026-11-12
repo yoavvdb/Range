@@ -74,3 +74,4 @@ GitHub Pages serves it again within a minute or two. The app source lives outsid
 | 2026-11-11 | `2026-11-11_one-stage.html` | One stage behind Today, Rebuild and Profile: the character stays in place, only the cards around it change | e26a1ef |
 | 2026-11-11 | `2026-11-11_bigger-zoom.html` | Larger character just above the stand; Rebuild zooms in on the marker (button or pinch) | f2c6612 |
 | 2026-11-11 | `2026-11-11_more-programs.html` | 12 new Rebuild programs so every tapped spot has one; centred Progress cards; lower stand | 5e019bb |
+| 2026-11-12 | `2026-11-12_toon-hero.html` | The hovering hero on Today, Rebuild and Profile is now the cartoon coach; sessions keep the jointed figure | a1bc1f3 |
