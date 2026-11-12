@@ -944,6 +944,16 @@ html:not(.fig3d) body[data-tab=rebuild] .o-hero{visibility:hidden}
 .o-zoom svg{width:20px;height:20px}.o-zoom:active{transform:scale(.92)}
 .o-zoom.on{background:color-mix(in srgb,var(--glow,#FF5A4A) 28%,transparent);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--glow,#FF5A4A) 70%,transparent)}
 .o-stat.cen{justify-items:center;text-align:center}.o-stat.cen .dt{justify-self:center}
+
+/* choosing a character (sign-up and Settings) */
+.chgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chcard{display:grid;justify-items:center;gap:2px;padding:8px 8px 12px;border-radius:18px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);transition:box-shadow .2s,background .2s,transform 160ms var(--ease-out)}
+.chcard:active{transform:scale(.97)}
+.chcard.on{background:color-mix(in srgb,var(--accent) 12%,var(--surface));box-shadow:inset 0 0 0 2px var(--accent)}
+.chcard b{font-weight:800;font-stretch:112%;font-size:calc(17px * var(--ts))}
+.chcard small{color:var(--muted);font-size:calc(12px * var(--ts))}
+.chfig{position:relative;width:100%;height:clamp(150px,24vh,220px);display:grid;place-items:center;border-radius:14px;background:radial-gradient(60% 55% at 50% 45%,color-mix(in srgb,var(--accent) 16%,transparent),transparent 75%)}
+.chfig .fig{height:100%;width:auto;max-width:100%}
 /* Rebuild: only the body to tap. The list of areas is the way in when 3D is off */
 html.fig3d .rbareas{display:none}
 @media (prefers-reduced-motion:reduce){.o-bob,.o-shadow,.o-beam,.o-pulse.on{animation:none}.orb{transition:none}}
@@ -2015,8 +2025,8 @@ const FIG3D=(()=>{
     const yaw=(C.yaw??(D.view==="front"?68:D.view==="above"?40:wallAhead?-24:26))*Math.PI/180+yawExtra,pitch=(C.pitch??(D.view==="above"?28:10))*Math.PI/180;
     return norm([Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),Math.cos(yaw)*Math.cos(pitch)]);
   }
-  function frame(key,aspect,yawExtra=0,reserve=0,zoom=1,zp=null){
-    const D=figData(key),c=[(D.mn[0]+D.mx[0])/2,(D.mn[1]+D.mx[1])/2,(D.mn[2]+D.mx[2])/2],size=[D.mx[0]-D.mn[0]+22,D.mx[1]-D.mn[1]+20,D.mx[2]-D.mn[2]+22];
+  function frame(key,aspect,yawExtra=0,reserve=0,zoom=1,zp=null,ch){
+    const tk=toonExKey(key),D=tk?toonExBox(getToon(TOON_CAST[ch]?ch:curChar()),tk):figData(key),c=[(D.mn[0]+D.mx[0])/2,(D.mn[1]+D.mx[1])/2,(D.mn[2]+D.mx[2])/2],size=[D.mx[0]-D.mn[0]+22,D.mx[1]-D.mn[1]+20,D.mx[2]-D.mn[2]+22];
     // yaw measured from the person's right side (+Z) toward their front (+X)
     // (the character on Today turns on the spot: it is always fitted as seen from its resting angle, so it never changes size)
     const dv=camDir(D,yawExtra),df=D.P.hero?camDir(D,0):dv,dir=norm([df[0],0,df[2]]);
@@ -2030,99 +2040,164 @@ const FIG3D=(()=>{
     cam.aspect=aspect;cam.position.set(pos[0],pos[1],pos[2]);cam.lookAt(look[0],look[1],look[2]);cam.updateProjectionMatrix();
   }
   let curKey=null,curExtras=[];
-  /* ---------- the cartoon character: the hovering hero on Today, Rebuild and Profile ----------
-     Smooth skinned limbs, a face and hair, three flat tones and an ink outline. Sessions keep the jointed figure.
-     It is built in metres and then scaled and placed to stand exactly where the jointed hero would, so the camera,
-     the stage layout, the muscle highlights and the pain markers all line up with it. */
-  let TOON=null;
-  function buildToon(D){
+  /* ---------- the cartoon cast: the hovering hero on Today, Rebuild and Profile, and some exercise demos ----------
+     Four characters (you pick one at sign-up, or in Settings). Smooth skinned limbs, a face and hair, three flat
+     tones and an ink outline. Built in metres, then scaled to the jointed figure's size: as the hero it stands exactly
+     where the jointed hero would; in an exercise it stands on the floor. */
+  const TOON_CAST={
+   theo:{body:"m",hair:"curly",top:"tee",bottom:"shorts",col:{skin:0xA8673F,skin2:0x8C5232,top:0xE23B2E,bottom:0x1E1E22,sock:0xF2F2F2,shoe:0x2A2A30,sole:0xF4F4F4,hair:0x1A1210,mouth:0x5A1A14}},
+   maya:{body:"f",hair:"ponytail",top:"tank",bottom:"leggings",col:{skin:0xE8B48F,skin2:0xD39A74,top:0x1FB5A8,bottom:0x6B4BA8,sock:0xF2F2F2,shoe:0xE85B8A,sole:0xF4F4F4,hair:0x8A3B1E,mouth:0x9C2F3F}},
+   nia:{body:"f",hair:"bun",top:"tee",bottom:"leggings",col:{skin:0x6B3E26,skin2:0x56301C,top:0xF2C230,bottom:0x2C5F6B,sock:0xF2F2F2,shoe:0xF0F0F0,sole:0x2C5F6B,hair:0x15100D,mouth:0x6E1E22}},
+   leo:{body:"m",hair:"short",top:"tank",bottom:"shorts",col:{skin:0xF0C2A0,skin2:0xDCA584,top:0x2F6FD6,bottom:0x4A4F59,sock:0xF2F2F2,shoe:0x3A3F48,sole:0xF4F4F4,hair:0x4A2E1A,mouth:0x7A2A22}},
+  };
+  const curChar=()=>{try{const c=S&&S.char;return TOON_CAST[c]?c:"theo"}catch(e){return"theo"}};
+  const TOONS={};
+  function getToon(ch){if(!TOONS[ch])TOONS[ch]=buildToon(figData("hero"),ch);return TOONS[ch]}
+  function showToon(X){for(const k in TOONS)TOONS[k].G.visible=TOONS[k]===X}
+  function buildToon(D,ch){
+    const cfg=TOON_CAST[ch]||TOON_CAST.theo,f=cfg.body==="f";
     const grad=new T.DataTexture(new Uint8Array([90,90,90,255,175,175,175,255,255,255,255,255]),3,1);grad.minFilter=grad.magFilter=T.NearestFilter;grad.needsUpdate=true;
-    const COL={skin:0xA8673F,skin2:0x8C5232,shirt:0xE23B2E,shorts:0x1E1E22,sock:0xF2F2F2,shoe:0x2A2A30,sole:0xF4F4F4,hair:0x1A1210,eye:0xFFFFFF,pupil:0x1A1210,mouth:0x5A1A14,brow:0x1A1210,teeth:0xFFFFFF};
+    const COL={...cfg.col,eye:0xFFFFFF,pupil:0x1A1210,brow:0x1A1210,teeth:0xFFFFFF};
     const mat={};for(const k in COL)mat[k]=new T.MeshToonMaterial({color:COL[k],gradientMap:grad,toneMapped:false});
     const olM=new T.ShaderMaterial({side:T.BackSide,vertexShader:"void main(){vec3 p=position+normal*0.016;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);}",fragmentShader:"void main(){gl_FragColor=vec4(.07,.05,.04,1.0);}"});
     const olS=new T.MeshBasicMaterial({color:0x120d0a,side:T.BackSide,toneMapped:false});
     olS.onBeforeCompile=sh=>{sh.vertexShader=sh.vertexShader.replace("#include <begin_vertex>","#include <begin_vertex>\n transformed += normalize(objectNormal) * 0.016;")};
-    const G=new T.Group(),hit=[],objs={};let nid=0;
+    const G=new T.Group(),hit=[],objs={},cnt={};
+    const nm=p=>{cnt[p]=(cnt[p]||0)+1;return p+"#"+(cnt[p]-1)};
     const M=(geo,m,parent,o={})=>{const x=new T.Mesh(geo,mat[m]);parent.add(x);x.castShadow=false;
-      if(o.outline!==false)x.add(new T.Mesh(geo,olM));if(o.part){x.userData.part=o.part;x.name="t"+(nid++);objs[x.name]=x;hit.push(x)}return x};
+      if(o.outline!==false)x.add(new T.Mesh(geo,olM));if(o.part){x.userData.part=o.part;x.name=nm(o.part);objs[x.name]=x;hit.push(x)}return x};
     const cap=(r,len,seg=18)=>new T.CapsuleGeometry(r,len,8,seg),sph=(r,s=24)=>new T.SphereGeometry(r,s,Math.round(s*.7)),J=()=>new T.Group();
     const pelvis=J();pelvis.position.y=.95;G.add(pelvis);
-    const hips=M(sph(.17),"shorts",pelvis,{part:"pelvis"});hips.scale.set(1.12,.72,.8);hips.position.y=-.02;
+    const hips=M(sph(.17),"bottom",pelvis,{part:"pelvis"});hips.scale.set(f?1.18:1.12,.72,f?.86:.8);hips.position.y=-.02;
     const spine=J();spine.position.y=.04;pelvis.add(spine);
-    const prof=new T.SplineCurve([[0,0],[.145,0],[.15,.08],[.16,.2],[.19,.33],[.205,.43],[.19,.51],[.12,.565],[0,.575]].map(([r,y])=>new T.Vector2(r,y))).getPoints(32);
-    const torso=M(new T.LatheGeometry(prof,48),"shirt",spine,{part:"torso"});torso.scale.set(1.26,1,.8);
-    const collar=M(new T.TorusGeometry(.065,.016,8,24),"shirt",spine,{part:"neck"});collar.rotation.x=Math.PI/2;collar.position.y=.565;
-    const neckJ=J();neckJ.position.y=.56;spine.add(neckJ);
-    M(cap(.055,.06),"skin",neckJ,{part:"neck"}).position.y=.05;
+    const P0=f?[[0,0],[.15,0],[.14,.08],[.125,.2],[.15,.31],[.17,.4],[.16,.5],[.11,.555],[0,.565]]:[[0,0],[.145,0],[.15,.08],[.16,.2],[.19,.33],[.205,.43],[.19,.51],[.12,.565],[0,.575]];
+    const tg=new T.LatheGeometry(new T.SplineCurve(P0.map(([r,y])=>new T.Vector2(r,y))).getPoints(32),48);
+    if(f){const A=tg.attributes.position;for(let v=0;v<A.count;v++){const x=A.getX(v),y=A.getY(v),z=A.getZ(v);if(z<=0)continue;
+        const fy=Math.exp(-Math.pow((y-.375)/.075,2)),fx=Math.exp(-Math.pow(x/.16,2)),fz=Math.min(1,z/.12);A.setZ(v,z+.042*fy*fx*fz)}tg.computeVertexNormals()}
+    const torso=M(tg,"top",spine,{part:"torso"});torso.scale.set(f?1.18:1.26,1,f?.82:.8);const tsx=torso.scale.x,tsz=torso.scale.z;
+    const collar=M(new T.TorusGeometry(f?.06:.065,.014,8,24),"top",spine,{part:"neck"});collar.rotation.x=Math.PI/2;collar.position.y=f?.555:.565;
+    const neckJ=J();neckJ.position.y=f?.55:.56;spine.add(neckJ);
+    M(cap(f?.047:.055,.06),"skin",neckJ,{part:"neck"}).position.y=.05;
     const headJ=J();headJ.position.y=.11;neckJ.add(headJ);
-    const head=M(sph(.125,32),"skin",headJ,{part:"head"});head.scale.set(1,1.14,1.06);head.position.y=.12;
-    const jaw=M(sph(.1,24),"skin",headJ,{outline:false,part:"head"});jaw.scale.set(1,.8,1);jaw.position.set(0,.06,.02);
-    for(const s of[-1,1]){const ear=M(sph(.032,14),"skin2",headJ,{part:"head"});ear.scale.set(.6,1,.8);ear.position.set(s*.125,.12,0)}
+    const head=M(sph(.125,32),"skin",headJ,{part:"head"});head.scale.set(f?.96:1,1.14,1.06);head.position.y=.12;
+    const jaw=M(sph(f?.092:.1,24),"skin",headJ,{outline:false,part:"head"});jaw.scale.set(1,.8,1);jaw.position.set(0,.06,.02);
+    for(const s of[-1,1]){const ear=M(sph(.032,14),"skin2",headJ,{part:"head"});ear.scale.set(.6,1,.8);ear.position.set(s*.122,.12,0)}
     const face=J();face.position.y=.12;headJ.add(face);
     for(const s of[-1,1]){
       const eye=M(sph(.017,16),"eye",face,{part:"head"});eye.scale.set(1,1.2,.5);eye.position.set(s*.043,.018,.124);
       M(sph(.0105,12),"pupil",face,{outline:false}).position.set(s*.043+.002*s,.017,.132);
       const gl=new T.Mesh(sph(.0035,8),new T.MeshBasicMaterial({color:0xffffff,toneMapped:false}));gl.position.set(s*.043+.005,.022,.137);face.add(gl);
-      const brow=M(cap(.008,.04,6),"brow",face,{outline:false});brow.rotation.z=Math.PI/2-s*.18;brow.position.set(s*.048,.074,.12);
+      const brow=M(cap(f?.005:.008,.04,6),"brow",face,{outline:false});brow.rotation.z=Math.PI/2-s*.18;brow.position.set(s*.048,f?.07:.074,.12);
+      if(f){const lash=M(cap(.004,.012,6),"brow",face,{outline:false});lash.rotation.z=-s*.9;lash.position.set(s*.062,.03,.122)}
     }
-    const nose=M(sph(.018,12),"skin2",face,{outline:false});nose.scale.set(1,.8,.9);nose.position.set(0,-.012,.138);
-    const smile=M(new T.TorusGeometry(.04,.009,6,20,Math.PI),"mouth",face,{outline:false});smile.rotation.z=Math.PI;smile.position.set(0,-.035,.124);smile.scale.set(1,.75,1);
-    const teeth=M(new T.CircleGeometry(.036,20,0,Math.PI),"teeth",face,{outline:false});teeth.rotation.z=Math.PI;teeth.position.set(0,-.04,.126);teeth.scale.set(1,.42,1);
-    // curly hair: small spheres merged into one mesh, so it costs one draw (and one outline)
-    {const rnd=i=>{const x=Math.sin(i*91.7)*43758.5453;return x-Math.floor(x)},pos=[],nor=[],m4=new T.Matrix4();
+    const nose=M(sph(f?.015:.018,12),"skin2",face,{outline:false});nose.scale.set(1,.8,.9);nose.position.set(0,-.012,.138);
+    const smile=M(new T.TorusGeometry(f?.035:.04,f?.011:.009,6,20,Math.PI),"mouth",face,{outline:false});smile.rotation.z=Math.PI;smile.position.set(0,-.035,.124);smile.scale.set(1,.75,1);
+    const teeth=M(new T.CircleGeometry(f?.031:.036,20,0,Math.PI),"teeth",face,{outline:false});teeth.rotation.z=Math.PI;teeth.position.set(0,-.04,.126);teeth.scale.set(1,.42,1);
+    const hair=J();hair.position.y=.12;headJ.add(hair);
+    const capHair=(cover,tilt,r=.138)=>{const m=M(new T.SphereGeometry(r,32,18,0,Math.PI*2,0,Math.PI*cover),"hair",hair,{part:"head"});m.scale.set(f?.97:1.01,1.12,1.08);m.rotation.x=tilt;m.position.set(0,.01,-.008);return m};
+    if(cfg.hair==="curly"){const rnd=i=>{const x=Math.sin(i*91.7)*43758.5453;return x-Math.floor(x)},pos=[],nor=[],m4=new T.Matrix4();
       for(let i=0;i<46;i++){const th=rnd(i)*Math.PI*2,ph=.15+rnd(i+50)*.95;if(Math.sin(th)>.55&&ph>.7)continue;
         const r=.13*1.08,x=Math.cos(th)*Math.sin(ph)*r,z=Math.sin(th)*Math.sin(ph)*r*1.02-.012,y=Math.cos(ph)*r*1.12+.03;if(z>.06&&y<.07)continue;
         const g=sph(.034+rnd(i+9)*.014,12).toNonIndexed();g.applyMatrix4(m4.makeTranslation(x,y,z));pos.push(...g.attributes.position.array);nor.push(...g.attributes.normal.array);g.dispose()}
-      const hg=new T.BufferGeometry();hg.setAttribute("position",new T.Float32BufferAttribute(pos,3));hg.setAttribute("normal",new T.Float32BufferAttribute(nor,3));
-      M(hg,"hair",face,{part:"head"})}
-    // limbs: one skinned tube each, bending at the middle joint without a seam
-    function limb(parent,p,prof,L1,part){
+      const hg=new T.BufferGeometry();hg.setAttribute("position",new T.Float32BufferAttribute(pos,3));hg.setAttribute("normal",new T.Float32BufferAttribute(nor,3));M(hg,"hair",hair,{part:"head"})}
+    if(cfg.hair==="ponytail"){capHair(.43,-.5);
+      const tie=M(new T.TorusGeometry(.024,.009,6,16),"top",hair);tie.position.set(0,.06,-.13);
+      const tail=M(cap(.04,.17,14),"hair",hair,{part:"head"});tail.position.set(0,-.04,-.165);tail.rotation.x=.32;tail.scale.set(1,1,.8);
+      M(sph(.034,14),"hair",hair,{outline:false}).position.set(0,-.14,-.2);
+      const fr=M(sph(.07,20),"hair",hair,{part:"head"});fr.scale.set(1.5,.42,.7);fr.position.set(.03,.125,.075);fr.rotation.z=-.25}
+    if(cfg.hair==="bun"){capHair(.42,-.42);M(sph(.065,20),"hair",hair,{part:"head"}).position.set(0,.165,-.04);
+      const tie=M(new T.TorusGeometry(.04,.008,6,20),"top",hair);tie.rotation.x=Math.PI/2+.2;tie.position.set(0,.13,-.035)}
+    if(cfg.hair==="short"){capHair(.4,-.48,.136);const q=M(sph(.075,20),"hair",hair,{part:"head"});q.scale.set(1.45,.5,.85);q.position.set(-.02,.13,.055);q.rotation.z=.2}
+    function limb(parent,p,prof,L1,part,m){
       const top=new T.Bone(),mid=new T.Bone();top.position.copy(p);mid.position.y=-L1;top.add(mid);parent.add(top);
       const pts=new T.SplineCurve(prof.map(([r,d])=>new T.Vector2(r,-d))).getPoints(40).reverse();
       const geo=new T.LatheGeometry(pts,28),P_=geo.attributes.position,n=P_.count,si=new Uint16Array(n*4),sw=new Float32Array(n*4),b=.06;
       for(let v=0;v<n;v++){const y=-P_.getY(v),w=Math.min(1,Math.max(0,(y-L1+b)/(2*b))),k=w*w*(3-2*w);si[v*4]=0;si[v*4+1]=1;sw[v*4]=1-k;sw[v*4+1]=k}
       geo.setAttribute("skinIndex",new T.Uint16BufferAttribute(si,4));geo.setAttribute("skinWeight",new T.Float32BufferAttribute(sw,4));
-      const mesh=new T.SkinnedMesh(geo,mat.skin);mesh.position.copy(p);parent.add(mesh);mesh.userData.part=part;mesh.name="t"+(nid++);objs[mesh.name]=mesh;hit.push(mesh);
+      const mesh=new T.SkinnedMesh(geo,mat[m]);mesh.position.copy(p);parent.add(mesh);mesh.userData.part=part;mesh.name=nm(part);objs[mesh.name]=mesh;hit.push(mesh);
       const ol=new T.SkinnedMesh(geo,olS);ol.position.copy(p);parent.add(ol);
       G.updateMatrixWorld(true);const sk=new T.Skeleton([top,mid]);mesh.bind(sk);ol.bind(sk);
-      top.name="t"+(nid++);mid.name="t"+(nid++);objs[top.name]=top;objs[mid.name]=mid;mesh.userData.bones=[top,mid];
+      top.name=part+"top";mid.name=part+"mid";objs[top.name]=top;objs[mid.name]=mid;mesh.userData.bones=[top,mid];
       return{top,mid}}
+    const ar=f?.86:1,lr=f?.95:1,shX=f?.215:.25,arms={},legs={};
     // the character faces +Z here; its right side is -X. "1" is the right side, as in the jointed figure
-    const arms={},legs={};
     for(const s of[-1,1]){const n=s<0?"1":"2";
-      const A=limb(spine,new T.Vector3(s*.25,.47,0),[[0,-.02],[.058,.02],[.062,.1],[.055,.22],[.047,.29],[.048,.36],[.044,.48],[.034,.55],[0,.57]],.29,"arm"+n);
-      M(sph(.075,20),"shirt",A.top,{part:"shoulder"+n}).scale.set(1,1,.95);
-      M(cap(.07,.07),"shirt",A.top,{part:"sleeve"+n}).position.y=-.08;
-      const hand=M(sph(.052,16),"skin",A.mid,{part:"hand"+n});hand.scale.set(.85,1.15,.7);hand.position.y=-.3;
-      const th=M(cap(.016,.03,6),"skin",A.mid,{outline:false});th.position.set(-s*.03,-.28,.03);th.rotation.z=s*.5;
+      const A=limb(spine,new T.Vector3(s*shX,f?.46:.47,0),[[0,-.02],[.058*ar,.02],[.062*ar,.1],[.055*ar,.22],[.047*ar,.29],[.048*ar,.36],[.044*ar,.48],[.034*ar,.55],[0,.57]],.29,"arm"+n,"skin");
+      const tank=cfg.top==="tank";M(sph((tank?.064:.075)*ar,20),tank?"skin":"top",A.top,{part:"shoulder"+n}).scale.set(1,1,.95);
+      if(!tank)M(cap(.07*ar,.07),"top",A.top,{part:"sleeve"+n}).position.y=-.08;
+      else{const st=M(cap(.018,.06,6),"top",spine,{outline:false});st.position.set(s*(shX-.07),.53,0);st.rotation.z=-s*.25}
+      const hand=M(sph(.052*ar,16),"skin",A.mid,{part:"hand"+n});hand.scale.set(.85,1.15,.7);hand.position.y=-.3;
+      const th=M(cap(.016*ar,.03,6),"skin",A.mid,{outline:false});th.position.set(-s*.03,-.28,.03);th.rotation.z=s*.5;
       arms[n]={sh:A.top,el:A.mid,hand};
-      const Lg=limb(pelvis,new T.Vector3(s*.095,-.04,0),[[0,-.04],[.082,0],[.08,.12],[.07,.3],[.058,.44],[.06,.52],[.064,.6],[.05,.76],[.042,.84],[0,.88]],.44,"leg"+n);
-      M(cap(.092,.13),"shorts",Lg.top,{part:"short"+n}).position.y=-.1;
-      M(cap(.052,.05),"sock",Lg.mid,{part:"sock"+n}).position.y=-.37;
+      const Lg=limb(pelvis,new T.Vector3(s*(f?.1:.095),-.04,0),[[0,-.04],[.082*lr,0],[.08*lr,.12],[.07*lr,.3],[.058*lr,.44],[.06*lr,.52],[.064*lr,.6],[.05*lr,.76],[.042*lr,.84],[0,.88]],.44,"leg"+n,cfg.bottom==="leggings"?"bottom":"skin");
+      if(cfg.bottom==="shorts")M(cap(.092,.13),"bottom",Lg.top,{part:"short"+n}).position.y=-.1;
+      M(cap(.052*lr,.05),"sock",Lg.mid,{part:"sock"+n}).position.y=-.38;
       const an=J();an.position.y=-.43;Lg.mid.add(an);
-      const shoe=M(cap(.062,.16),"shoe",an,{part:"foot"+n});shoe.rotation.x=Math.PI/2;shoe.position.set(0,-.025,.06);shoe.scale.set(1.05,1,.8);
-      const sole=M(cap(.064,.17),"sole",an,{outline:false,part:"foot"+n});sole.rotation.x=Math.PI/2;sole.position.set(0,-.06,.06);sole.scale.set(1.08,1,.3);
-      legs[n]={hp:Lg.top,kn:Lg.mid,an};
+      const shoe=M(cap(.062*lr,.16),"shoe",an,{part:"foot"+n});shoe.rotation.x=Math.PI/2;shoe.position.set(0,-.025,.06);shoe.scale.set(1.05,1,.8);
+      const sole=M(cap(.064*lr,.17),"sole",an,{outline:false,part:"foot"+n});sole.rotation.x=Math.PI/2;sole.position.set(0,-.06,.06);sole.scale.set(1.08,1,.3);
+      legs[n]={hp:Lg.top,kn:Lg.mid,an,shoe};
     }
-    const X={G,hit,objs,torso,pelvis,spine,neckJ,headJ,head,arms,legs,sc:1};
-    // place it where the jointed hero stands: same ankle height, same head height, same spot
+    const X={ch,G,hit,objs,torso,tsx,tsz,hips,pelvis,spine,neckJ,headJ,head,arms,legs,sc:1,boxes:{}};
+    // as the hero: stand where the jointed hero stands (same ankle height, same head height, same spot)
     toonPose(X,.5);G.updateMatrixWorld(true);
     const wp=o=>{const v=new T.Vector3();o.getWorldPosition(v);return v};
     const ya=(wp(legs["1"].an).y+wp(legs["2"].an).y)/2,yh=wp(head).y;
     const Fh=poseAt(D.P,.5),Bh=lift(solveFig(Fh),Fh,D.cx),ra=(Bh.legs["1"].f[1]+Bh.legs["2"].f[1])/2,rh=Bh.h[1];
-    const sc=(rh-ra)/(yh-ya);X.sc=sc;G.scale.setScalar(sc);G.rotation.y=Math.PI/2;G.position.set(Bh.p[0],ra-ya*sc,Bh.p[2]);
+    const sc=(rh-ra)/(yh-ya)*(f?.97:1);X.sc=sc;G.scale.setScalar(sc);G.rotation.y=Math.PI/2;X.heroPos=new T.Vector3(Bh.p[0],ra-ya*sc,Bh.p[2]);G.position.copy(X.heroPos);
     scene.add(G);G.visible=false;return X;
   }
+  // joint angles: x bends forward (-) or back (+), z swings out to the side; "L" is the figure's side "1"
+  const TJ0={spine:[0,0,0],neck:[0,0,0],head:[0,0,0],shL:[0,0,-.12],shR:[0,0,.12],elL:[-.18,0,0],elR:[-.18,0,0],hpL:[0,0,-.04],hpR:[0,0,.04],knL:[0,0,0],knR:[0,0,0],anL:[0,0,0],anR:[0,0,0]};
+  const tpose=o=>{const p={};for(const k in TJ0)p[k]=(o&&o[k])||TJ0[k];return p};
+  function toonApply(X,a){const A=X.arms,L=X.legs,set=(o,v)=>o.rotation.set(v[0],v[1],v[2]);
+    set(X.spine,a.spine);set(X.neckJ,a.neck);set(X.headJ,a.head);set(A["1"].sh,a.shL);set(A["2"].sh,a.shR);set(A["1"].el,a.elL);set(A["2"].el,a.elR);
+    set(L["1"].hp,a.hpL);set(L["2"].hp,a.hpR);set(L["1"].kn,a.knL);set(L["2"].kn,a.knR);set(L["1"].an,a.anL);set(L["2"].an,a.anR)}
   // the hover: toes pointing down, arms a little out, breathing slowly (t runs 0..1..0)
-  function toonPose(X,t){
-    const b=t-.5,A=X.arms,L=X.legs;
-    X.spine.rotation.set(-.02+b*.03,0,0);X.headJ.rotation.set(-.04-b*.04,0,0);X.neckJ.rotation.set(0,0,0);
-    A["1"].sh.rotation.set(.05+b*.06,0,-.22-b*.05);A["2"].sh.rotation.set(.05+b*.06,0,.22+b*.05);
-    A["1"].el.rotation.set(-.3-b*.1,0,0);A["2"].el.rotation.set(-.3-b*.1,0,0);
-    L["1"].hp.rotation.set(-.08+b*.04,0,-.06);L["2"].hp.rotation.set(.06-b*.04,0,.06);
-    L["1"].kn.rotation.set(.22,0,0);L["2"].kn.rotation.set(.12,0,0);L["1"].an.rotation.set(.55,0,0);L["2"].an.rotation.set(.5,0,0);
-    X.torso.scale.set(1.26+b*.016,1,.8+b*.02);
-    X.G.updateMatrixWorld(true);
+  function toonPose(X,t){const b=t-.5;
+    toonApply(X,tpose({spine:[-.02+b*.03,0,0],head:[-.04-b*.04,0,0],shL:[.05+b*.06,0,-.22-b*.05],shR:[.05+b*.06,0,.22+b*.05],elL:[-.3-b*.1,0,0],elR:[-.3-b*.1,0,0],
+      hpL:[-.08+b*.04,0,-.06],hpR:[.06-b*.04,0,.06],knL:[.22,0,0],knR:[.12,0,0],anL:[.55,0,0],anR:[.5,0,0]}));
+    X.torso.scale.set(X.tsx+b*.016,1,X.tsz+b*.02);X.G.updateMatrixWorld(true)}
+  /* exercise demos drawn with the cartoon character (start pose A, end pose B; holds breathe between them).
+     cam: the jointed figure's camera options. The rest of the library keeps the jointed figure for now */
+  const SQ={spine:[.55,0,0],head:[-.45,0,0],shL:[-1.35,0,-.08],shR:[-1.35,0,.08],elL:[-.1,0,0],elR:[-.1,0,0],hpL:[-1.75,0,-.32],hpR:[-1.75,0,.32],knL:[2.15,0,0],knR:[2.15,0,0],anL:[-.4,0,0],anR:[-.4,0,0]};
+  const COUCH={spine:[-.12,0,0],head:[.05,0,0],shL:[-.75,0,-.12],shR:[-.75,0,.12],elL:[-.25,0,0],elR:[-.25,0,0],hpL:[-1.55,0,-.05],knL:[1.55,0,0],anL:[0,0,0],hpR:[.25,0,.05],knR:[2.75,0,0],anR:[.6,0,0]};
+  const PIG={spine:[.05,0,0],head:[-.05,0,0],shL:[-.2,0,-.3],shR:[-.2,0,.3],elL:[-.15,0,0],elR:[-.15,0,0],hpL:[-1.45,-1.35,0],knL:[2.0,0,0],anL:[.3,0,0],hpR:[1.35,0,.05],knR:[0,0,0],anR:[1.45,0,0]};
+  const TOON_EX={
+   r_bwsquat:{A:{shL:[-1.3,0,-.08],shR:[-1.3,0,.08]},B:SQ},
+   h7:{A:{...SQ,hpL:[-1.9,0,-.38],hpR:[-1.9,0,.38],knL:[2.35,0,0],knR:[2.35,0,0],anL:[-.45,0,0],anR:[-.45,0,0],spine:[.5,0,0],shL:[-1.05,0,-.25],shR:[-1.05,0,.25],elL:[-1.5,0,0],elR:[-1.5,0,0]},
+       B:{...SQ,hpL:[-2.08,0,-.42],hpR:[-2.08,0,.42],knL:[2.55,0,0],knR:[2.55,0,0],anL:[-.47,0,0],anR:[-.47,0,0],spine:[.42,0,0],shL:[-1.0,0,-.3],shR:[-1.0,0,.3],elL:[-1.6,0,0],elR:[-1.6,0,0]}},
+   r_hinge:{A:{shL:[0,0,-.06],shR:[0,0,.06]},B:{spine:[1.15,0,0],head:[-.6,0,0],shL:[-1.15,0,-.06],shR:[-1.15,0,.06],elL:[0,0,0],elR:[0,0,0],hpL:[-.15,0,-.04],hpR:[-.15,0,.04],knL:[.3,0,0],knR:[.3,0,0],anL:[-.15,0,0],anR:[-.15,0,0]}},
+   h1:{hold:1,A:{...COUCH,knR:[2.5,0,0],spine:[-.02,0,0]},B:COUCH},
+   h2:{hold:1,A:PIG,B:{...PIG,spine:[.45,0,0],head:[-.35,0,0],shL:[-1.1,0,-.2],shR:[-1.1,0,.2],elL:[-.2,0,0],elR:[-.2,0,0]}},
+   h6:{hold:1,A:{hpL:[-1.75,0,-.05],knL:[2.05,0,0],anL:[-.3,0,0],hpR:[.05,0,.05],knR:[1.52,0,0],anR:[1.4,0,0],shL:[-.1,0,-.2],shR:[-2.5,0,.1],elL:[-.4,0,0],elR:[-.15,0,0]},
+       B:{hpL:[-1.7,0,-.05],knL:[2.15,0,0],anL:[-.45,0,0],hpR:[.25,0,.05],knR:[1.32,0,0],anR:[1.4,0,0],spine:[-.1,0,0],shL:[-.1,0,-.2],elL:[-.4,0,0],shR:[-2.8,0,.1],elR:[-.1,0,0]}},
+   e2_standquad:{hold:1,A:{hpR:[.05,0,.04],knR:[1.8,0,0],anR:[.4,0,0],shR:[.35,0,.15],elR:[-.5,0,0],shL:[0,0,-.5]},B:{hpR:[.15,0,.04],knR:[2.45,0,0],anR:[.6,0,0],shR:[.55,0,.12],elR:[-.25,0,0],shL:[0,0,-.55]},cam:{yaw:8,pitch:8}},
+   e2_sidebend:{hold:1,A:{spine:[0,0,-.08],shR:[0,0,2.6],elR:[-.2,0,0],shL:[0,0,-.1]},B:{spine:[0,0,-.4],head:[0,0,-.1],shR:[0,0,2.95],elR:[-.3,0,0],shL:[0,0,-.05]},cam:{yaw:78,pitch:8}},
+   r_calfraise:{A:{shL:[-1.3,0,-.1],shR:[-1.3,0,.1],elL:[-.1,0,0],elR:[-.1,0,0]},B:{shL:[-1.3,0,-.1],shR:[-1.3,0,.1],elL:[-.1,0,0],elR:[-.1,0,0],anL:[.75,0,0],anR:[.75,0,0]}},
+   r_splitsq:{A:{hpL:[-.45,0,-.04],knL:[.05,0,0],anL:[.4,0,0],hpR:[.35,0,.04],knR:[.15,0,0],anR:[.5,0,0]},B:{shL:[.25,0,-.15],shR:[-.25,0,.15],elL:[-.6,0,0],elR:[-.6,0,0],hpL:[-1.5,0,-.04],hpR:[.45,0,.04],knL:[1.55,0,0],knR:[1.6,0,0],anL:[-.05,0,0],anR:[-.4,0,0]}},
+  };
+  for(const k in TOON_EX){TOON_EX[k].A=tpose(TOON_EX[k].A);TOON_EX[k].B=tpose(TOON_EX[k].B)}
+  const toonExKey=k=>TOON_EX[k]?k:TOON_EX[FIG_ALIAS[k]]?FIG_ALIAS[k]:null;
+  // pose an exercise and stand it on the floor (the lowest of the feet, knees, shins, thighs and seat)
+  let _tv=null,_tb=null; // made on first use (the 3D library loads later)
+  function toonExPose(X,E,t){if(!_tv){_tv=new T.Vector3();_tb=new T.Box3()}
+    const a={};for(const k in TJ0)a[k]=[0,1,2].map(i=>E.A[k][i]+(E.B[k][i]-E.A[k][i])*t);toonApply(X,a);X.torso.scale.set(X.tsx,1,X.tsz);
+    X.G.position.set(0,0,0);X.G.updateMatrixWorld(true);
+    _tb.makeEmpty();[X.legs["1"].shoe,X.legs["2"].shoe,X.hips].forEach(o=>_tb.expandByObject(o));let lo=_tb.min.y;
+    const pt=(o,y,r)=>{_tv.set(0,y,0);o.localToWorld(_tv);lo=Math.min(lo,_tv.y-r*X.sc)};
+    for(const n of["1","2"]){const L=X.legs[n];pt(L.hp,-.22,.078);pt(L.kn,0,.062);pt(L.kn,-.2,.058);pt(L.kn,-.38,.05)}
+    X.G.position.y=-lo;X.G.updateMatrixWorld(true)}
+  // the space the exercise moves through, for the camera (cached per character and exercise)
+  function toonExBox(X,key){
+    if(X.boxes[key])return X.boxes[key];const E=TOON_EX[key],mn=[1e9,1e9,1e9],mx=[-1e9,-1e9,-1e9],v=new T.Vector3(),bb=new T.Box3();
+    for(const t of[0,.5,1]){toonExPose(X,E,t);
+      // the joints, the top of the head, the shoes and the seat (a whole-body box would use the limbs' resting shape)
+      const pts=[];bb.makeEmpty();[X.legs["1"].shoe,X.legs["2"].shoe,X.hips].forEach(o=>bb.expandByObject(o));pts.push(bb.min.clone(),bb.max.clone());
+      for(const n of["1","2"]){const L=X.legs[n],A=X.arms[n];[L.hp,L.kn,L.an,A.sh,A.el,A.hand].forEach(o=>{o.getWorldPosition(v);pts.push(v.clone())})}
+      X.head.getWorldPosition(v);pts.push(v.clone().add(new T.Vector3(0,.2*X.sc,0)),v.clone().add(new T.Vector3(0,-.15*X.sc,0)));
+      for(const q of pts)for(let i=0;i<3;i++){const c=q.getComponent(i);mn[i]=Math.min(mn[i],c);mx[i]=Math.max(mx[i],c)}}
+    mn[1]=0;const pad=9;for(let i=0;i<3;i++){mn[i]-=i===1?0:pad;mx[i]+=pad}
+    return X.boxes[key]={mn,mx,P:{cam:E.cam||null,props:[]},view:"side",cx:0};
   }
   // the toon's joints in the jointed figure's terms, so muscle highlights, markers and tapping work unchanged
   function toonB(X){
@@ -2150,12 +2225,15 @@ const FIG3D=(()=>{
     const loc=anchor.worldToLocal(hit.point.clone());
     return{part,mark:"~"+anchor.name+"|"+[loc.x,loc.y,loc.z].map(v=>v.toFixed(4)).join(",")};
   }
-  function setFigure(key,t,zones,sides,guide,mark){
+  function setFigure(key,t,zones,sides,guide,mark,ch){
     const D=figData(key),F=poseAt(D.P,t),J=solveFig(F);let B=lift(J,F,D.cx);
     pose(rig,B);
-    // the hovering hero is the cartoon character; everything else (sessions, demos) is the jointed figure
-    if(D.P.hero){if(!TOON)TOON=buildToon(D);rig.G.visible=false;TOON.G.visible=true;toonPose(TOON,t);B=toonB(TOON)}
-    else{rig.G.visible=true;if(TOON)TOON.G.visible=false}
+    // the hovering hero and the exercises in TOON_EX are the cartoon character you picked; the rest is the jointed figure
+    const tk=toonExKey(key);
+    if(D.P.hero||tk){const X=getToon(TOON_CAST[ch]?ch:curChar());rig.G.visible=false;showToon(X);
+      if(D.P.hero){X.G.position.copy(X.heroPos);toonPose(X,t)}else{toonExBox(X,tk);toonExPose(X,TOON_EX[tk],TOON_EX[tk].hold?.55+.45*t:t);guide=false}
+      B=toonB(X)}
+    else{rig.G.visible=true;showToon(null)}
     if(D.P.hero)guide=false;ground.visible=!D.P.hero; // Today's character hovers: no floor shadow, no guide
     const showG=guide&&t<.9;ghost.G.visible=showG;if(showG)pose(ghost,D.BB);
     curExtras.forEach(o=>extras.remove(o));curExtras=[];
@@ -2177,7 +2255,7 @@ const FIG3D=(()=>{
           r==="neck"?at(B.n,U,4):r==="upperback"?at(lp(B.p,B.n,.72),F,-7.5):r==="chest"?at(at(lp(B.p,B.n,.8),F,7),B.Lat,s==="2"?4:-4):r==="abs"?at(lp(B.p,B.n,.38),F,7.5):
           r==="kneeback"?at(L.k,F,-3.6):r==="kneeside"?at(L.k,B.Lat,s==="2"?3.6:-3.6):r==="shin"?at(lp(L.k,L.f,.55),F,2.6):r==="ankle"?at(L.f,B.Lat,s==="2"?2.6:-2.6):
           r==="foot"?lp(L.f,L.ft,.35):r==="wrist"?A.w:r==="arm"?lp(A.sh,A.e,.5):r==="thigh"?at(lp(L.hip,L.k,.5),F,4.5):null}
-      else if(m[0]==="~"){const[nm,xyz]=m.slice(1).split("|"),o=TOON&&TOON.objs[nm];if(o&&xyz){const v=new T.Vector3(...xyz.split(",").map(Number)).applyMatrix4(o.matrixWorld);p=[v.x,v.y,v.z]}}
+      else if(m[0]==="~"){const[nm,xyz]=m.slice(1).split("|"),o=(TOONS[curChar()]||{objs:{}}).objs[nm];if(o&&xyz){const v=new T.Vector3(...xyz.split(",").map(Number)).applyMatrix4(o.matrixWorld);p=[v.x,v.y,v.z]}}
       else{const[n,xyz]=m.split("|"),o=rig.parts[n];if(o&&xyz){const v=new T.Vector3(...xyz.split(",").map(Number)).applyMatrix4(o.matrix);p=[v.x,v.y,v.z]}}
       if(p)out.push(p)});
     return out;
@@ -2190,7 +2268,7 @@ const FIG3D=(()=>{
     pose(rig,B);frame(key,cv.width/cv.height,+cv.dataset.yaw||0,0,cv._zoom||1,cv._zp||null);rig.G.updateMatrixWorld(true);cam.updateMatrixWorld();
     const rc=new T.Raycaster();rc.setFromCamera(new T.Vector2((x-r.left)/r.width*2-1,-((y-r.top)/r.height*2-1)),cam);
     let part="",mk="",hit;
-    if(D.P.hero){if(!TOON)TOON=buildToon(D);toonPose(TOON,t);B=toonB(TOON);hit=rc.intersectObjects(TOON.hit,false)[0];if(!hit)return null;const th=toonHit(TOON,hit,B);part=th.part;mk=th.mark}
+    if(D.P.hero){const X=getToon(TOON_CAST[cv.dataset.char]?cv.dataset.char:curChar());X.G.position.copy(X.heroPos);toonPose(X,t);B=toonB(X);hit=rc.intersectObjects(X.hit,false)[0];if(!hit)return null;const th=toonHit(X,hit,B);part=th.part;mk=th.mark}
     else{hit=rc.intersectObjects(rig.G.children.filter(o=>o.visible),false)[0];if(!hit)return null;for(const k in rig.parts)if(rig.parts[k]===hit.object){part=k;break}}
     const p=[hit.point.x,hit.point.y,hit.point.z],loc=hit.object.worldToLocal(hit.point.clone()),s=part.slice(-1),L=B.legs[s]||B.legs["1"],A=B.arms[s]||B.arms["1"];
     const bn=part.replace(/[12]$/,""),limb=(s==="1"||s==="2")&&!/^(glute|trap|ear)$/.test(bn);
@@ -2203,16 +2281,16 @@ const FIG3D=(()=>{
   function draw(r,key,t,o,w,h,yaw=0,reserve=0){
     if(M.style!==(document.documentElement.dataset.fig||"gymkit")){makeMaterials();[rig,ghost].forEach(x=>scene.remove(x.G));rig=buildRig(false);ghost=buildRig(true);for(const k in cache)for(const j in cache[k])if(j.startsWith("arrow|"))delete cache[k][j]}
     const sz=w+"x"+h;if(r===R){if(liveSize!==sz){R.setSize(w,h,false);liveSize=sz}}else if(thumbSize!==sz){r.setSize(w,h,false);thumbSize=sz}
-    const B=setFigure(key,t,o.zones,o.sides,o.guide!==false,o.mark);let z=1,zp=null;const cv=o.cv;
+    const B=setFigure(key,t,o.zones,o.sides,o.guide!==false,o.mark,o.char);let z=1,zp=null;const cv=o.cv;
     // a canvas can be zoomed (data-zoom): ease toward it, aiming at its marked spot (or the middle of the body)
     if(cv){const zt=+cv.dataset.zoom||1,z0=cv._zoom||1;cv._zoom=Math.abs(zt-z0)<.004?zt:z0+(zt-z0)*.16;
       if(cv._zoom>1.003){const tp=markPts(B,o.mark)[0]||B.c;cv._zp=cv._zp?cv._zp.map((v,i)=>v+(tp[i]-v)*.2):tp;z=cv._zoom;zp=cv._zp}else cv._zp=null}
-    frame(key,w/h,yaw,reserve,z,zp);r.render(scene,cam);return r.domElement;
+    frame(key,w/h,yaw,reserve,z,zp,o.char);r.render(scene,cam);return r.domElement;
   }
   function renderTo(key,t,o,w,h,yaw=0){if(!TR)TR=makeRenderer(true);return draw(TR,key,t,o,w,h,yaw)}
 
   /* ---------- DOM: upgrade 2D figures ---------- */
-  function opts(el){return{zones:el.dataset.zones?el.dataset.zones.split(","):[],sides:!!el.dataset.sides,guide:el.dataset.mode!=="static",mark:el.dataset.mark||""}}
+  function opts(el){return{zones:el.dataset.zones?el.dataset.zones.split(","):[],sides:!!el.dataset.sides,guide:el.dataset.mode!=="static",mark:el.dataset.mark||"",char:el.dataset.char||""}}
   const near=el=>{const r=el.getBoundingClientRect();return r.bottom>-innerHeight&&r.top<innerHeight*2};
   function upgrade(scope){
     if(!ready)return;
@@ -2220,7 +2298,7 @@ const FIG3D=(()=>{
       const key=el.dataset.pose;if(!key){el.dataset.x3=1;return}
       const o=opts(el),anim=el.classList.contains("anim");
       if(anim){el.dataset.x3=1;const cv=document.createElement("canvas");cv.className=el.getAttribute("class")+" f3";Object.assign(cv.dataset,el.dataset);cv.dataset.yaw="0";el.replaceWith(cv);hookDrag(cv);return}
-      const t=+(el.dataset.t||.75),ck=[key,t,o.zones.join(","),o.sides,o.guide,M.style].join("|");
+      const t=+(el.dataset.t||.75),ck=[key,t,o.zones.join(","),o.sides,o.guide,M.style,toonExKey(key)?(o.char||curChar()):""].join("|");
       if(thumbs.has(ck)){el.dataset.x3=1;const img=new Image();img.className=el.getAttribute("class")+" f3";img.alt="";img.src=thumbs.get(ck);el.replaceWith(img);return}
       if(!near(el))return; // off screen: stays 2D until you scroll near it
       el.dataset.x3=1;const img=new Image();img.className=el.getAttribute("class")+" f3";img.alt="";
@@ -2264,8 +2342,8 @@ const FIG3D=(()=>{
         if(gt&&gt.dataset.reveal&&cv.dataset.r3&&gt.dataset.reveal==="2")return;
         // size from the container, never from the canvas itself: on iPhone a canvas can take its pixel size as its
         // display size, which made it grow every frame and look zoomed in
-        const box=cv.parentElement.getBoundingClientRect(),stg=cv.closest(".stage,.detailstage,.tsfig,.o-hero");
-        const sr=stg?stg.getBoundingClientRect():null,tall=stg&&(stg.classList.contains("tall")||stg.classList.contains("o-hero"));
+        const box=cv.parentElement.getBoundingClientRect(),stg=cv.closest(".stage,.detailstage,.tsfig,.o-hero,.chfig");
+        const sr=stg?stg.getBoundingClientRect():null,tall=stg&&(stg.classList.contains("tall")||stg.classList.contains("o-hero")||stg.classList.contains("chfig"));
         // a tall (portrait) stage gets a portrait render: the camera re-frames rather than letterboxing
         let dw,dh;if(tall){dw=Math.max(1,sr.width);dh=Math.max(1,sr.height)}else{const maxH=sr?sr.height:Infinity;dw=Math.max(1,Math.min(box.width,maxH*1.6));dh=dw/1.6}
         if(!box.width||box.bottom<0||box.top>innerHeight)return;
@@ -2293,7 +2371,7 @@ const FIG3D=(()=>{
   function supported(){try{const c=document.createElement("canvas"),g=c.getContext("webgl2")||c.getContext("webgl");if(g&&g.getExtension("WEBGL_lose_context"))g.getExtension("WEBGL_lose_context").loseContext();return!!g}catch(e){return false}}
   function start(){if(loading||!supported())return;loading=import(SRC).then(m=>{T=m;try{setup();ready=true;readyAt=performance.now();document.documentElement.classList.add("fig3d");requestAnimationFrame(tick)}catch(e){disable(e)}}).catch(e=>{failed=true;console.warn("3D figures unavailable, using 2D",e)})}
   // settled: nothing more to draw for the current screen (or 3D is off), so the launch screen can lift without a jump
-  return{start,get ready(){return ready},get settled(){return failed||!loading||(ready&&performance.now()-readyAt>350&&!queue.length&&!pumping)},renderTo,lift,pick,clear(){thumbs.clear()}};
+  return{start,get ready(){return ready},get settled(){return failed||!loading||(ready&&performance.now()-readyAt>350&&!queue.length&&!pumping)},renderTo,lift,pick,clear(){thumbs.clear()},get toonEx(){return Object.keys(TOON_EX)}};
 })();
 
 
@@ -6087,6 +6165,7 @@ SCREENS.settings=()=>`${hdr()}
     <button class="toggle" data-act="set3d"><span>3D demos <small class="muted">(drag to turn)</small></span><span class="sw ${S.settings.fig3d!==false?"on":""}"></span></button>
     <div class="toggle" style="border:0"><span>Time between sets</span><span class="chipset">${[5,10,15].map(v=>`<button class="chip ${S.settings.ready===v?"on":""}" data-act="setReady" data-v="${v}">${v}s</button>`).join("")}</span></div>
   </div>
+  <div class="panel"><h3>Your Character</h3><div class="chgrid">${charCards(S.char||"theo","setChar")}</div></div>
   ${API?acctPanel():sbPanel()}
   ${notifPanel()}
   ${API?"":`<div class="panel"><h3>Your Data</h3><p class="muted" style="margin:0;font-size:calc(14px * var(--ts))">Move it to another phone by hand: copy it here and paste it in Range there.</p>
@@ -6655,15 +6734,19 @@ ACT.sbOut=async()=>{clearTimeout(sbTimer);let saved=true;try{await sbPush()}catc
 const OB_TRACKS=["RX-Club","WOD","FBB + GYMNASTICS","Light & Fit"];
 const obTracks=()=>{const t=(S.sync&&S.sync.tracks)||[];return t.length?t:OB_TRACKS};
 // the steps of first run: a CrossFit athlete also picks the program they follow
-const obSteps=o=>["sports",...(o.sports.includes("crossfit")?["program"]:[]),"equip","test"];
-function obStart(){GATE=GATE||{};GATE.step="ob";const d=S.obDraft;GATE.ob=d&&typeof d.i==="number"?{i:d.i,sports:(d.sports||[]).filter(k=>SPI[k]),equip:(d.equip||[]).filter(k=>EQUIP.some(e=>e.k===k)),track:d.track||null,setS:!!d.setS,setE:!!d.setE}:{i:0,sports:[],equip:[],track:null,setS:false,setE:false};
+const obSteps=o=>["char","sports",...(o.sports.includes("crossfit")?["program"]:[]),"equip","test"];
+function obStart(){GATE=GATE||{};GATE.step="ob";const d=S.obDraft;GATE.ob=d&&typeof d.i==="number"?{i:d.i,char:d.char||null,sports:(d.sports||[]).filter(k=>SPI[k]),equip:(d.equip||[]).filter(k=>EQUIP.some(e=>e.k===k)),track:d.track||null,setS:!!d.setS,setE:!!d.setE}:{i:0,char:null,sports:[],equip:[],track:null,setS:false,setE:false};
   GATE.ob.i=Math.min(obSteps(GATE.ob).length-1,GATE.ob.i);if(!S.sync||!S.sync.tracks)autoSync(true).then(()=>{if(GATE&&GATE.ob&&obSteps(GATE.ob)[GATE.ob.i]==="program")obDraw()}).catch(()=>{});obDraw()}
 const obKeep=()=>{S.obDraft={...GATE.ob};save()};
 function obDraw(){const g=gateHost();g.classList.remove("lgn");const o=GATE.ob,i=o.i,steps=obSteps(o),step=steps[i],n=steps.length;
   const head=`<div><div class="hdr" style="grid-template-columns:64px 1fr 64px"><button data-act="obBack" aria-label="Back" ${i?"":`style="visibility:hidden"`}>${ic("back")}</button><div class="brand">Range<b>.</b></div><button class="link muted" style="justify-self:end;padding:8px 0" data-act="obSkip">Skip</button></div>
     <div class="tprog">${steps.map((_,k)=>`<i class="${k<=i?"on":""}"></i>`).join("")}</div></div>`;
   let body,cta;
-  if(step==="sports"){body=`<div class="stack" style="align-content:start;gap:12px"><span class="eyebrow">Step 1 of ${n} · Your sports</span><h1>What do you train?</h1>
+  if(step==="char"){const sel=o.char||"theo";body=`<div class="stack" style="align-content:start;gap:12px"><span class="eyebrow">Step 1 of ${n} · Your character</span><h1>Choose Your Character</h1>
+     <p class="muted" style="margin:0">They float on your Today screen and show you the moves. You can change them later in Settings.</p>
+     <div class="chgrid">${charCards(sel,"obChar")}</div></div>`;
+    cta=`<button class="btn" data-act="obNext">Continue with ${CHARS.find(c=>c[0]===sel)[1]}</button>`}
+  else if(step==="sports"){body=`<div class="stack" style="align-content:start;gap:12px"><span class="eyebrow">Step ${i+1} of ${n} · Your sports</span><h1>What do you train?</h1>
      <p class="muted" style="margin:0">Pick all that apply. Warm-ups and daily sessions lean toward what your sports need.</p>
      <div class="obgrid">${SPORTS.map(s=>`<button class="opt ${o.sports.includes(s.k)?"on":""}" data-act="obSport" data-s="${s.k}" aria-pressed="${o.sports.includes(s.k)}"><span>${s.n}</span><span class="tick">${ic("check")}</span></button>`).join("")}</div></div>`;
     cta=`<button class="btn" data-act="obNext" ${o.sports.length?"":"disabled"}>Continue</button>`}
@@ -6686,9 +6769,15 @@ function obDraw(){const g=gateHost();g.classList.remove("lgn");const o=GATE.ob,i
   g.innerHTML=`<div class="inner">${head}${body}<div class="bottomcta">${cta}</div></div>`;g.scrollTop=0}
 ACT.obSport=(d,el)=>{const o=GATE.ob,k=o.sports.indexOf(d.s);if(k>=0)o.sports.splice(k,1);else o.sports.push(d.s);const on=o.sports.includes(d.s);el.classList.toggle("on",on);el.setAttribute("aria-pressed",on);$("[data-act=obNext]").disabled=!o.sports.length;obKeep();
   // the step count changes with CrossFit (it adds the program step)
-  const n=obSteps(o).length,eb=document.querySelector("#gate .eyebrow");if(eb)eb.textContent=`Step 1 of ${n} · Your sports`;const tp=document.querySelector("#gate .tprog");if(tp)tp.innerHTML=obSteps(o).map((_,k)=>`<i class="${k<=o.i?"on":""}"></i>`).join("")};
+  const n=obSteps(o).length,eb=document.querySelector("#gate .eyebrow");if(eb)eb.textContent=`Step ${o.i+1} of ${n} · Your sports`;const tp=document.querySelector("#gate .tprog");if(tp)tp.innerHTML=obSteps(o).map((_,k)=>`<i class="${k<=o.i?"on":""}"></i>`).join("")};
 ACT.obEq=(d,el)=>{const o=GATE.ob,k=o.equip.indexOf(d.e);if(k>=0)o.equip.splice(k,1);else o.equip.push(d.e);const on=o.equip.includes(d.e);el.classList.toggle("on",on);el.setAttribute("aria-pressed",on);$("[data-act=obNext]").textContent=o.equip.length?"Continue":"Continue with No Equipment";obKeep()};
 ACT.obTrack=d=>{GATE.ob.track=d.t;obKeep();obDraw()};
+// the four characters (their look lives with the 3D figures); a card shows each one hovering
+const CHARS=[["theo","Theo","Curly hair, red tee"],["maya","Maya","Ponytail, teal tank"],["nia","Nia","High bun, yellow tee"],["leo","Leo","Short hair, blue tank"]];
+function charCards(sel,act){return CHARS.map(([k,n,d])=>`<button class="chcard${k===sel?" on":""}" data-act="${act}" data-c="${k}" aria-pressed="${k===sel}"><span class="chfig">${drawPart("char "+k,()=>fig("hero",null,{anim:true,period:7200}).replace('<svg class="fig',`<svg data-char="${k}" class="fig`))}</span><b>${n}</b><small>${d}</small></button>`).join("")}
+const charPick=(c,root)=>{root.querySelectorAll(".chcard").forEach(b=>{const on=b.dataset.c===c;b.classList.toggle("on",on);b.setAttribute("aria-pressed",on)})};
+ACT.obChar=d=>{const o=GATE.ob;o.char=d.c;obKeep();charPick(d.c,document.getElementById("gate"));const b=document.querySelector("#gate [data-act=obNext]");if(b)b.textContent="Continue with "+CHARS.find(c=>c[0]===d.c)[1]};
+ACT.setChar=d=>{S.char=d.c;save();if(SBU)sbSave&&sbSave();if(typeof FIG3D!=="undefined")FIG3D.clear();charPick(d.c,document)};
 ACT.obNext=()=>{const o=GATE.ob,st=obSteps(o)[o.i];if(st==="sports")o.setS=true;if(st==="equip")o.setE=true;o.i++;obKeep();obDraw()};
 ACT.obBack=()=>{const o=GATE.ob;if(o.i>0){o.i--;obKeep();obDraw()}};
 // skipping a step keeps what's there now (CrossFit and every piece of equipment); you can change both in Profile
@@ -6699,7 +6788,7 @@ ACT.obDone=d=>{const o=GATE.ob;
   // the program they follow: workouts of any other track go, and the feed is read again for this one
   if(o.track&&o.track!=="none"&&S.sports.includes("crossfit")){const ch=(S.sync||{}).track!==o.track;S.sync={...(S.sync||{}),track:o.track,checked:0};if(ch)S.training=S.training.filter(w=>w.source!=="sugarwod-public");setTimeout(()=>autoSync(true).then(()=>render()).catch(()=>{}),50)}
   // the tour is owed until it has been seen (kept in your data, so it still starts after a reload or on another phone)
-  S._eqBall=1;S._eqBar=1;S.onboarded=true;delete S.obDraft;if(!S.tourDone)S.tourPending=true;
+  S.char=o.char||S.char||"theo";S._eqBall=1;S._eqBar=1;S.onboarded=true;delete S.obDraft;if(!S.tourDone)S.tourPending=true;
   if(d.t==="1")S.testDraft={i:0,ans:{},at:Date.now()};save();if(SBU)sbPush().catch(()=>{});
   gateClose();stack=[{name:"home",p:{}}];render();window.scrollTo(0,0);
   if(d.t==="1")ACT.openTest();else setTimeout(tourStart,350)};
@@ -6821,7 +6910,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="99249136";
+<script>window.RANGE_BUILD="62649278";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
