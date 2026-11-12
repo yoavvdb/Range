@@ -2030,9 +2030,132 @@ const FIG3D=(()=>{
     cam.aspect=aspect;cam.position.set(pos[0],pos[1],pos[2]);cam.lookAt(look[0],look[1],look[2]);cam.updateProjectionMatrix();
   }
   let curKey=null,curExtras=[];
+  /* ---------- the cartoon character: the hovering hero on Today, Rebuild and Profile ----------
+     Smooth skinned limbs, a face and hair, three flat tones and an ink outline. Sessions keep the jointed figure.
+     It is built in metres and then scaled and placed to stand exactly where the jointed hero would, so the camera,
+     the stage layout, the muscle highlights and the pain markers all line up with it. */
+  let TOON=null;
+  function buildToon(D){
+    const grad=new T.DataTexture(new Uint8Array([90,90,90,255,175,175,175,255,255,255,255,255]),3,1);grad.minFilter=grad.magFilter=T.NearestFilter;grad.needsUpdate=true;
+    const COL={skin:0xA8673F,skin2:0x8C5232,shirt:0xE23B2E,shorts:0x1E1E22,sock:0xF2F2F2,shoe:0x2A2A30,sole:0xF4F4F4,hair:0x1A1210,eye:0xFFFFFF,pupil:0x1A1210,mouth:0x5A1A14,brow:0x1A1210,teeth:0xFFFFFF};
+    const mat={};for(const k in COL)mat[k]=new T.MeshToonMaterial({color:COL[k],gradientMap:grad,toneMapped:false});
+    const olM=new T.ShaderMaterial({side:T.BackSide,vertexShader:"void main(){vec3 p=position+normal*0.016;gl_Position=projectionMatrix*modelViewMatrix*vec4(p,1.0);}",fragmentShader:"void main(){gl_FragColor=vec4(.07,.05,.04,1.0);}"});
+    const olS=new T.MeshBasicMaterial({color:0x120d0a,side:T.BackSide,toneMapped:false});
+    olS.onBeforeCompile=sh=>{sh.vertexShader=sh.vertexShader.replace("#include <begin_vertex>","#include <begin_vertex>\n transformed += normalize(objectNormal) * 0.016;")};
+    const G=new T.Group(),hit=[],objs={};let nid=0;
+    const M=(geo,m,parent,o={})=>{const x=new T.Mesh(geo,mat[m]);parent.add(x);x.castShadow=false;
+      if(o.outline!==false)x.add(new T.Mesh(geo,olM));if(o.part){x.userData.part=o.part;x.name="t"+(nid++);objs[x.name]=x;hit.push(x)}return x};
+    const cap=(r,len,seg=18)=>new T.CapsuleGeometry(r,len,8,seg),sph=(r,s=24)=>new T.SphereGeometry(r,s,Math.round(s*.7)),J=()=>new T.Group();
+    const pelvis=J();pelvis.position.y=.95;G.add(pelvis);
+    const hips=M(sph(.17),"shorts",pelvis,{part:"pelvis"});hips.scale.set(1.12,.72,.8);hips.position.y=-.02;
+    const spine=J();spine.position.y=.04;pelvis.add(spine);
+    const prof=new T.SplineCurve([[0,0],[.145,0],[.15,.08],[.16,.2],[.19,.33],[.205,.43],[.19,.51],[.12,.565],[0,.575]].map(([r,y])=>new T.Vector2(r,y))).getPoints(32);
+    const torso=M(new T.LatheGeometry(prof,48),"shirt",spine,{part:"torso"});torso.scale.set(1.26,1,.8);
+    const collar=M(new T.TorusGeometry(.065,.016,8,24),"shirt",spine,{part:"neck"});collar.rotation.x=Math.PI/2;collar.position.y=.565;
+    const neckJ=J();neckJ.position.y=.56;spine.add(neckJ);
+    M(cap(.055,.06),"skin",neckJ,{part:"neck"}).position.y=.05;
+    const headJ=J();headJ.position.y=.11;neckJ.add(headJ);
+    const head=M(sph(.125,32),"skin",headJ,{part:"head"});head.scale.set(1,1.14,1.06);head.position.y=.12;
+    const jaw=M(sph(.1,24),"skin",headJ,{outline:false,part:"head"});jaw.scale.set(1,.8,1);jaw.position.set(0,.06,.02);
+    for(const s of[-1,1]){const ear=M(sph(.032,14),"skin2",headJ,{part:"head"});ear.scale.set(.6,1,.8);ear.position.set(s*.125,.12,0)}
+    const face=J();face.position.y=.12;headJ.add(face);
+    for(const s of[-1,1]){
+      const eye=M(sph(.017,16),"eye",face,{part:"head"});eye.scale.set(1,1.2,.5);eye.position.set(s*.043,.018,.124);
+      M(sph(.0105,12),"pupil",face,{outline:false}).position.set(s*.043+.002*s,.017,.132);
+      const gl=new T.Mesh(sph(.0035,8),new T.MeshBasicMaterial({color:0xffffff,toneMapped:false}));gl.position.set(s*.043+.005,.022,.137);face.add(gl);
+      const brow=M(cap(.008,.04,6),"brow",face,{outline:false});brow.rotation.z=Math.PI/2-s*.18;brow.position.set(s*.048,.074,.12);
+    }
+    const nose=M(sph(.018,12),"skin2",face,{outline:false});nose.scale.set(1,.8,.9);nose.position.set(0,-.012,.138);
+    const smile=M(new T.TorusGeometry(.04,.009,6,20,Math.PI),"mouth",face,{outline:false});smile.rotation.z=Math.PI;smile.position.set(0,-.035,.124);smile.scale.set(1,.75,1);
+    const teeth=M(new T.CircleGeometry(.036,20,0,Math.PI),"teeth",face,{outline:false});teeth.rotation.z=Math.PI;teeth.position.set(0,-.04,.126);teeth.scale.set(1,.42,1);
+    // curly hair: small spheres merged into one mesh, so it costs one draw (and one outline)
+    {const rnd=i=>{const x=Math.sin(i*91.7)*43758.5453;return x-Math.floor(x)},pos=[],nor=[],m4=new T.Matrix4();
+      for(let i=0;i<46;i++){const th=rnd(i)*Math.PI*2,ph=.15+rnd(i+50)*.95;if(Math.sin(th)>.55&&ph>.7)continue;
+        const r=.13*1.08,x=Math.cos(th)*Math.sin(ph)*r,z=Math.sin(th)*Math.sin(ph)*r*1.02-.012,y=Math.cos(ph)*r*1.12+.03;if(z>.06&&y<.07)continue;
+        const g=sph(.034+rnd(i+9)*.014,12).toNonIndexed();g.applyMatrix4(m4.makeTranslation(x,y,z));pos.push(...g.attributes.position.array);nor.push(...g.attributes.normal.array);g.dispose()}
+      const hg=new T.BufferGeometry();hg.setAttribute("position",new T.Float32BufferAttribute(pos,3));hg.setAttribute("normal",new T.Float32BufferAttribute(nor,3));
+      M(hg,"hair",face,{part:"head"})}
+    // limbs: one skinned tube each, bending at the middle joint without a seam
+    function limb(parent,p,prof,L1,part){
+      const top=new T.Bone(),mid=new T.Bone();top.position.copy(p);mid.position.y=-L1;top.add(mid);parent.add(top);
+      const pts=new T.SplineCurve(prof.map(([r,d])=>new T.Vector2(r,-d))).getPoints(40).reverse();
+      const geo=new T.LatheGeometry(pts,28),P_=geo.attributes.position,n=P_.count,si=new Uint16Array(n*4),sw=new Float32Array(n*4),b=.06;
+      for(let v=0;v<n;v++){const y=-P_.getY(v),w=Math.min(1,Math.max(0,(y-L1+b)/(2*b))),k=w*w*(3-2*w);si[v*4]=0;si[v*4+1]=1;sw[v*4]=1-k;sw[v*4+1]=k}
+      geo.setAttribute("skinIndex",new T.Uint16BufferAttribute(si,4));geo.setAttribute("skinWeight",new T.Float32BufferAttribute(sw,4));
+      const mesh=new T.SkinnedMesh(geo,mat.skin);mesh.position.copy(p);parent.add(mesh);mesh.userData.part=part;mesh.name="t"+(nid++);objs[mesh.name]=mesh;hit.push(mesh);
+      const ol=new T.SkinnedMesh(geo,olS);ol.position.copy(p);parent.add(ol);
+      G.updateMatrixWorld(true);const sk=new T.Skeleton([top,mid]);mesh.bind(sk);ol.bind(sk);
+      top.name="t"+(nid++);mid.name="t"+(nid++);objs[top.name]=top;objs[mid.name]=mid;mesh.userData.bones=[top,mid];
+      return{top,mid}}
+    // the character faces +Z here; its right side is -X. "1" is the right side, as in the jointed figure
+    const arms={},legs={};
+    for(const s of[-1,1]){const n=s<0?"1":"2";
+      const A=limb(spine,new T.Vector3(s*.25,.47,0),[[0,-.02],[.058,.02],[.062,.1],[.055,.22],[.047,.29],[.048,.36],[.044,.48],[.034,.55],[0,.57]],.29,"arm"+n);
+      M(sph(.075,20),"shirt",A.top,{part:"shoulder"+n}).scale.set(1,1,.95);
+      M(cap(.07,.07),"shirt",A.top,{part:"sleeve"+n}).position.y=-.08;
+      const hand=M(sph(.052,16),"skin",A.mid,{part:"hand"+n});hand.scale.set(.85,1.15,.7);hand.position.y=-.3;
+      const th=M(cap(.016,.03,6),"skin",A.mid,{outline:false});th.position.set(-s*.03,-.28,.03);th.rotation.z=s*.5;
+      arms[n]={sh:A.top,el:A.mid,hand};
+      const Lg=limb(pelvis,new T.Vector3(s*.095,-.04,0),[[0,-.04],[.082,0],[.08,.12],[.07,.3],[.058,.44],[.06,.52],[.064,.6],[.05,.76],[.042,.84],[0,.88]],.44,"leg"+n);
+      M(cap(.092,.13),"shorts",Lg.top,{part:"short"+n}).position.y=-.1;
+      M(cap(.052,.05),"sock",Lg.mid,{part:"sock"+n}).position.y=-.37;
+      const an=J();an.position.y=-.43;Lg.mid.add(an);
+      const shoe=M(cap(.062,.16),"shoe",an,{part:"foot"+n});shoe.rotation.x=Math.PI/2;shoe.position.set(0,-.025,.06);shoe.scale.set(1.05,1,.8);
+      const sole=M(cap(.064,.17),"sole",an,{outline:false,part:"foot"+n});sole.rotation.x=Math.PI/2;sole.position.set(0,-.06,.06);sole.scale.set(1.08,1,.3);
+      legs[n]={hp:Lg.top,kn:Lg.mid,an};
+    }
+    const X={G,hit,objs,torso,pelvis,spine,neckJ,headJ,head,arms,legs,sc:1};
+    // place it where the jointed hero stands: same ankle height, same head height, same spot
+    toonPose(X,.5);G.updateMatrixWorld(true);
+    const wp=o=>{const v=new T.Vector3();o.getWorldPosition(v);return v};
+    const ya=(wp(legs["1"].an).y+wp(legs["2"].an).y)/2,yh=wp(head).y;
+    const Fh=poseAt(D.P,.5),Bh=lift(solveFig(Fh),Fh,D.cx),ra=(Bh.legs["1"].f[1]+Bh.legs["2"].f[1])/2,rh=Bh.h[1];
+    const sc=(rh-ra)/(yh-ya);X.sc=sc;G.scale.setScalar(sc);G.rotation.y=Math.PI/2;G.position.set(Bh.p[0],ra-ya*sc,Bh.p[2]);
+    scene.add(G);G.visible=false;return X;
+  }
+  // the hover: toes pointing down, arms a little out, breathing slowly (t runs 0..1..0)
+  function toonPose(X,t){
+    const b=t-.5,A=X.arms,L=X.legs;
+    X.spine.rotation.set(-.02+b*.03,0,0);X.headJ.rotation.set(-.04-b*.04,0,0);X.neckJ.rotation.set(0,0,0);
+    A["1"].sh.rotation.set(.05+b*.06,0,-.22-b*.05);A["2"].sh.rotation.set(.05+b*.06,0,.22+b*.05);
+    A["1"].el.rotation.set(-.3-b*.1,0,0);A["2"].el.rotation.set(-.3-b*.1,0,0);
+    L["1"].hp.rotation.set(-.08+b*.04,0,-.06);L["2"].hp.rotation.set(.06-b*.04,0,.06);
+    L["1"].kn.rotation.set(.22,0,0);L["2"].kn.rotation.set(.12,0,0);L["1"].an.rotation.set(.55,0,0);L["2"].an.rotation.set(.5,0,0);
+    X.torso.scale.set(1.26+b*.016,1,.8+b*.02);
+    X.G.updateMatrixWorld(true);
+  }
+  // the toon's joints in the jointed figure's terms, so muscle highlights, markers and tapping work unchanged
+  function toonB(X){
+    const w=(o,l)=>{const v=new T.Vector3(...(l||[0,0,0]));v.applyMatrix4(o.matrixWorld);return[v.x,v.y,v.z]};
+    const dir=new T.Vector3(0,0,1).applyQuaternion(X.G.quaternion),F=[dir.x,dir.y,dir.z],U=[0,1,0],Lat=norm(cross(U,F)),legs={},arms={};
+    for(const n of["1","2"]){const l=X.legs[n],a=X.arms[n];
+      legs[n]={hip:w(l.hp),k:w(l.kn),f:w(l.an),ft:w(l.an,[0,-.04,.16])};
+      arms[n]={sh:w(a.sh),e:w(a.el),w:w(a.el,[0,-.27,0]),hd:null}}
+    const p=w(X.pelvis),n=w(X.neckJ),h=w(X.head);
+    return{p,n,c:[(p[0]+n[0])/2,(p[1]+n[1])/2,(p[2]+n[2])/2],h,legs,arms,F,U,Lat,front:false,above:false,side:true,hy:0,hp:0};
+  }
+  // a hit on the toon, named like the jointed figure's parts (so rbFromHit reads it the same way), plus a marker spot
+  // stored against the bone or part it sits on, so the dot moves with the body
+  function toonHit(X,hit,B){
+    const o=hit.object,base=o.userData.part,n=base.slice(-1),p=[hit.point.x,hit.point.y,hit.point.z],sc=X.sc,L=B.legs[n],A=B.arms[n];
+    const near=(a,q)=>Math.hypot(a[0]-q[0],a[1]-q[1],a[2]-q[2]);
+    const proj=(a,b)=>{const d=sub(b,a);return Math.max(0,Math.min(1,dot(sub(p,a),d)/(dot(d,d)||1)))};
+    const dist=(a,b)=>{const u=proj(a,b),d=sub(b,a);return near(p,[a[0]+d[0]*u,a[1]+d[1]*u,a[2]+d[2]*u])};
+    let part=base,anchor=o;
+    if(/^arm/.test(base)){const[top,mid]=o.userData.bones;if(near(p,A.e)<.075*sc)part="elbow"+n;else if(dist(A.sh,A.e)<dist(A.e,A.w))part="upper"+n;else part="fore"+n;anchor=/upper/.test(part)?top:mid}
+    else if(/^leg/.test(base)){const[top,mid]=o.userData.bones;if(near(p,L.f)<.07*sc)part="ankle"+n;else if(near(p,L.k)<.085*sc)part="knee"+n;else if(dist(L.hip,L.k)<dist(L.k,L.f))part="thigh"+n;else part="shin"+n;anchor=/thigh/.test(part)?top:mid}
+    else if(/^sock/.test(base))part="ankle"+n;
+    else if(base==="pelvis"){const fw=dot(sub(p,B.p),B.F);part=fw<0&&p[1]<B.p[1]?"glute1":"pelvis"}
+    else if(base==="torso"){const u=proj(B.p,B.n),fw=dot(sub(p,B.p),B.F),md=Math.abs(dot(sub(p,B.p),B.Lat));part=u>.88&&md>.1*sc?"trap1":fw>0&&u>.7?"chest":"belly"}
+    const loc=anchor.worldToLocal(hit.point.clone());
+    return{part,mark:"~"+anchor.name+"|"+[loc.x,loc.y,loc.z].map(v=>v.toFixed(4)).join(",")};
+  }
   function setFigure(key,t,zones,sides,guide,mark){
-    const D=figData(key),F=poseAt(D.P,t),J=solveFig(F),B=lift(J,F,D.cx);
+    const D=figData(key),F=poseAt(D.P,t),J=solveFig(F);let B=lift(J,F,D.cx);
     pose(rig,B);
+    // the hovering hero is the cartoon character; everything else (sessions, demos) is the jointed figure
+    if(D.P.hero){if(!TOON)TOON=buildToon(D);rig.G.visible=false;TOON.G.visible=true;toonPose(TOON,t);B=toonB(TOON)}
+    else{rig.G.visible=true;if(TOON)TOON.G.visible=false}
     if(D.P.hero)guide=false;ground.visible=!D.P.hero; // Today's character hovers: no floor shadow, no guide
     const showG=guide&&t<.9;ghost.G.visible=showG;if(showG)pose(ghost,D.BB);
     curExtras.forEach(o=>extras.remove(o));curExtras=[];
@@ -2054,6 +2177,7 @@ const FIG3D=(()=>{
           r==="neck"?at(B.n,U,4):r==="upperback"?at(lp(B.p,B.n,.72),F,-7.5):r==="chest"?at(at(lp(B.p,B.n,.8),F,7),B.Lat,s==="2"?4:-4):r==="abs"?at(lp(B.p,B.n,.38),F,7.5):
           r==="kneeback"?at(L.k,F,-3.6):r==="kneeside"?at(L.k,B.Lat,s==="2"?3.6:-3.6):r==="shin"?at(lp(L.k,L.f,.55),F,2.6):r==="ankle"?at(L.f,B.Lat,s==="2"?2.6:-2.6):
           r==="foot"?lp(L.f,L.ft,.35):r==="wrist"?A.w:r==="arm"?lp(A.sh,A.e,.5):r==="thigh"?at(lp(L.hip,L.k,.5),F,4.5):null}
+      else if(m[0]==="~"){const[nm,xyz]=m.slice(1).split("|"),o=TOON&&TOON.objs[nm];if(o&&xyz){const v=new T.Vector3(...xyz.split(",").map(Number)).applyMatrix4(o.matrixWorld);p=[v.x,v.y,v.z]}}
       else{const[n,xyz]=m.split("|"),o=rig.parts[n];if(o&&xyz){const v=new T.Vector3(...xyz.split(",").map(Number)).applyMatrix4(o.matrix);p=[v.x,v.y,v.z]}}
       if(p)out.push(p)});
     return out;
@@ -2062,18 +2186,19 @@ const FIG3D=(()=>{
   // joint nearer the body), front says whether it is on the front of the body
   function pick(cv,x,y){
     if(!ready||!cv||!cv.width||!cv.dataset.pose)return null;
-    const r=cv.getBoundingClientRect(),key=cv.dataset.pose,t=cv._t??.5,D=figData(key),F=poseAt(D.P,t),B=lift(solveFig(F),F,D.cx);
+    const r=cv.getBoundingClientRect(),key=cv.dataset.pose,t=cv._t??.5,D=figData(key),F=poseAt(D.P,t);let B=lift(solveFig(F),F,D.cx);
     pose(rig,B);frame(key,cv.width/cv.height,+cv.dataset.yaw||0,0,cv._zoom||1,cv._zp||null);rig.G.updateMatrixWorld(true);cam.updateMatrixWorld();
     const rc=new T.Raycaster();rc.setFromCamera(new T.Vector2((x-r.left)/r.width*2-1,-((y-r.top)/r.height*2-1)),cam);
-    const hit=rc.intersectObjects(rig.G.children.filter(o=>o.visible),false)[0];if(!hit)return null;
-    let part="";for(const k in rig.parts)if(rig.parts[k]===hit.object){part=k;break}
+    let part="",mk="",hit;
+    if(D.P.hero){if(!TOON)TOON=buildToon(D);toonPose(TOON,t);B=toonB(TOON);hit=rc.intersectObjects(TOON.hit,false)[0];if(!hit)return null;const th=toonHit(TOON,hit,B);part=th.part;mk=th.mark}
+    else{hit=rc.intersectObjects(rig.G.children.filter(o=>o.visible),false)[0];if(!hit)return null;for(const k in rig.parts)if(rig.parts[k]===hit.object){part=k;break}}
     const p=[hit.point.x,hit.point.y,hit.point.z],loc=hit.object.worldToLocal(hit.point.clone()),s=part.slice(-1),L=B.legs[s]||B.legs["1"],A=B.arms[s]||B.arms["1"];
     const bn=part.replace(/[12]$/,""),limb=(s==="1"||s==="2")&&!/^(glute|trap|ear)$/.test(bn);
     const seg={thigh:[L.hip,L.k],short:[L.hip,L.k],shin:[L.k,L.f],upper:[A.sh,A.e],sleeve:[A.sh,A.e],fore:[A.e,A.w],knee:[L.k,L.k],hip:[L.hip,L.hip],shoulder:[A.sh,A.sh],elbow:[A.e,A.e],hand:[A.w,A.w],ankle:[L.f,L.f],foot:[L.f,L.ft],chest:[B.c,B.c]}[bn]||[B.p,B.n];
     const d=sub(seg[1],seg[0]),u=Math.max(0,Math.min(1,dot(sub(p,seg[0]),d)/(dot(d,d)||1))),c=[seg[0][0]+d[0]*u,seg[0][1]+d[1]*u,seg[0][2]+d[2]*u],off=sub(p,c);
     // fwd: toward the front of the body; out: away from the body's midline (limbs); mid: right (+) or left (-) of the midline
     const R_=[-B.Lat[0],-B.Lat[1],-B.Lat[2]],out=limb?dot(off,s==="1"?R_:B.Lat):0,mid=dot(sub(p,B.p),R_);
-    return{part,u,fwd:dot(off,B.F),out,mid,front:dot(off,B.F)>0,right:mid>0,mark:part+"|"+[loc.x,loc.y,loc.z].map(v=>v.toFixed(2)).join(",")};
+    return{part,u,fwd:dot(off,B.F),out,mid,front:dot(off,B.F)>0,right:mid>0,mark:mk||part+"|"+[loc.x,loc.y,loc.z].map(v=>v.toFixed(2)).join(",")};
   }
   function draw(r,key,t,o,w,h,yaw=0,reserve=0){
     if(M.style!==(document.documentElement.dataset.fig||"gymkit")){makeMaterials();[rig,ghost].forEach(x=>scene.remove(x.G));rig=buildRig(false);ghost=buildRig(true);for(const k in cache)for(const j in cache[k])if(j.startsWith("arrow|"))delete cache[k][j]}
@@ -2454,7 +2579,7 @@ const ORB_TINT={activate:"#FF6A2B",recover:"#D9AC7C",daily:"#F6A021",library:"#B
 const ORB={a:Math.PI*1.75,t:0,v:0,intro:1,busy:false};
 // where the character sits inside its own drawing: top of the head and the toes as a share of the drawing's height, and
 // the drawing's shape (width / height). The box is sized from these so head and toes land where the layout wants them
-const ORB_FIG={top:.078,bot:.876,asp:.6};
+const ORB_FIG={top:.065,bot:.897,asp:.6};
 // One stage for the three tabs. The character, the stand and the light live in #stage, outside the page, so moving
 // between Today, Rebuild and Profile never rebuilds them: the character stays where it is and only the cards around it
 // change. Each tab leaves an empty .slot where the stage shows through; all three tabs put it at the same height
@@ -6696,7 +6821,7 @@ document.addEventListener("visibilitychange",()=>{let c=document.getElementById(
   else if(c){c.classList.add("out");setTimeout(()=>c.remove(),300)}});
 </script>
 
-<script>window.RANGE_BUILD="39875041";
+<script>window.RANGE_BUILD="99249136";
 if("serviceWorker" in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).catch(()=>{}));
 (()=>{let busy=false;const check=async()=>{if(busy||document.visibilityState!=="visible")return;busy=true;
  try{const t=await(await fetch("sw.js?b="+Date.now(),{cache:"no-store"})).text(),m=t.match(/range-(\d+)/);
